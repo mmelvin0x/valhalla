@@ -1,0 +1,45 @@
+{
+  "name": "solana-dapp-next",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.0.18",
+    "@metaplex-foundation/digital-asset-standard-api": "^1.0.0",
+    "@metaplex-foundation/umi": "^0.8.10",
+    "@metaplex-foundation/umi-bundle-defaults": "^0.8.10",
+    "@solana/wallet-adapter-base": "^0.9.23",
+    "@solana/wallet-adapter-react": "^0.15.35",
+    "@solana/wallet-adapter-react-ui": "^0.9.34",
+    "@solana/wallet-adapter-wallets": "^0.19.24",
+    "@solana/web3.js": "^1.87.6",
+    "axios": "^1.6.2",
+    "bs58": "^5.0.0",
+    "daisyui": "^4.4.19",
+    "immer": "^9.0.12",
+    "next": "^14.0.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tweetnacl": "^1.0.3",
+    "zustand": "^3.6.9"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/node": "20.10.4",
+    "@types/react": "18.2.43",
+    "@types/react-icons": "^3.0.0",
+    "autoprefixer": "^10.4.2",
+    "eslint": "8.7.0",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8.4.5",
+    "react-icons": "^4.12.0",
+    "tailwindcss": "^3.0.15",
+    "typescript": "4.5.4"
+  }
+}
