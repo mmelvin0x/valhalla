@@ -32,7 +32,7 @@ export default function SelectTokenCard({
   );
 
   return (
-    <div className="card shadow-xl w-full">
+    <div className="card w-full">
       <div className="card-body">
         <div className="card-title">
           <FaLock /> Choose a token and an amount to lock

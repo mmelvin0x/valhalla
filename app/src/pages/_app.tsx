@@ -19,7 +19,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>Melt Finance</title>
+        <title>Valhalla | Liquidity Lockers</title>
       </Head>
 
       <style jsx global>
@@ -33,7 +33,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
       </style>
 
       <ContextProvider>
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col min-h-screen">
           <Notifications />
           <AppBar />
           <div className="flex-1">

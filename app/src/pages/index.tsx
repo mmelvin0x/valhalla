@@ -2,15 +2,12 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import { FaDiscord, FaMedium, FaTelegram, FaTwitter } from "react-icons/fa";
-import CTABar from "components/home/CTABar";
-import HeroSection from "components/home/HeroSection";
-import WhyUsSection from "components/home/WhyUsSection";
-import HowItWorksSection from "components/home/HowItWorksSection";
-import SecurityAndTrustSection from "components/home/SecurityAndTrustSection";
 import SocialBar from "components/SocialBar";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 const Home: NextPage = () => {
+  const { connected } = useWallet();
   return (
     <div>
       <Head>
@@ -21,10 +18,53 @@ const Home: NextPage = () => {
         />
       </Head>
 
-      <CTABar />
-      <HeroSection />
+      <div className="hidden md:block header -mt-2 p-4">
+        <div className="container mx-auto flex flex-wrap justify-between items-center">
+          <h4 className="text-2xl font-bold">
+            Gain the chain's trust and lock 'til Valhalla
+          </h4>
+          <Link href="/locks/create" className="btn btn-accent">
+            Lock your LP Tokens
+          </Link>
+        </div>
+      </div>
 
-      <div className="p-10 bg-base-100">
+      <div className="hero py-10 hero-gradient">
+        <div className="mx-auto">
+          <div className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2">
+            <div className="flex flex-col items-center justify-center gap-2">
+              <h1 className="degen-locker text-center">Lock your tokens</h1>
+              <p className="prose">
+                Gain the chain's trust by locking your LP tokens
+              </p>
+
+              <p className="text-xl mb-2">Lock your tokens 'til Valhalla</p>
+              <div className="card-actions">
+                <Link className="btn btn-primary" href="/locks/create">
+                  Lock LP Tokens
+                </Link>
+                {connected ? (
+                  <Link className="btn btn-secondary" href="/locks">
+                    View locked tokens
+                  </Link>
+                ) : (
+                  <WalletMultiButton />
+                )}
+              </div>
+            </div>
+
+            <Image
+              className="mx-auto"
+              width={350}
+              height={350}
+              src="/logo512.png"
+              alt="Valhalla Hero"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="p-10">
         <div className="text-center">
           <h2 className="degen-locker mb-6">Liquidity Locking with Valhalla</h2>
           <p className="mb-6 prose mx-auto text-center">
@@ -35,7 +75,7 @@ const Home: NextPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-          <div className="card shadow-xl">
+          <div className="card">
             <div className="card-body">
               <h3 className="card-title degen-locker">
                 Advanced Liquidity Locking
@@ -49,7 +89,7 @@ const Home: NextPage = () => {
             </div>
           </div>
 
-          <div className="card shadow-xl">
+          <div className="card">
             <div className="card-body">
               <h3 className="card-title degen-locker">
                 Real-Time Locking Dashboard
@@ -62,7 +102,7 @@ const Home: NextPage = () => {
             </div>
           </div>
 
-          <div className="card shadow-xl">
+          <div className="card">
             <div className="card-body">
               <h3 className="card-title degen-locker">
                 Exclusive Locking Rewards

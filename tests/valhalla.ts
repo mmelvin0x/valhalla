@@ -27,7 +27,6 @@ describe("Valhalla", () => {
   let mint: anchor.web3.PublicKey;
   let user: anchor.web3.Keypair;
   let userTokenAccount: Account;
-  let locker: anchor.web3.PublicKey;
   let lock: anchor.web3.PublicKey;
   let lockTokenAccount: anchor.web3.PublicKey;
 

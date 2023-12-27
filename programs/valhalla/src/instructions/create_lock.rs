@@ -55,6 +55,8 @@ pub fn create_lock(ctx: Context<CreateLock>, unlock_date: u64, deposit_amount: u
     // Set lock state
     lock.user = ctx.accounts.user.key();
     lock.mint = ctx.accounts.mint.key();
+    lock.lock_token_account = ctx.accounts.lock_token_account.to_account_info().key();
+    lock.user_token_account = ctx.accounts.user_token_account.to_account_info().key();
     lock.locked_date = now;
     lock.unlock_date = unlock_date;
 

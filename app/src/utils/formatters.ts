@@ -22,6 +22,11 @@ export const shortenNumber = (num: number, digits: number) => {
     : "0";
 };
 
+export const shortenSignature = (signature?: string) => {
+  if (!signature) return "";
+  return `${signature.slice(0, 4)}...${signature.slice(-4)}`;
+};
+
 export const shortenAddress = (address?: PublicKey) => {
   if (!address) return "";
   return `${address.toBase58().slice(0, 4)}...${address.toBase58().slice(-4)}`;

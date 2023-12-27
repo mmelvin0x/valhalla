@@ -19,7 +19,7 @@ export default function ReviewLockCard({
     [depositAmount]
   );
   return (
-    <div className="card shadow-xl w-full">
+    <div className="card w-full">
       <div className="card-body">
         <div className="card-title">
           <FaClipboardCheck /> Review your lock information

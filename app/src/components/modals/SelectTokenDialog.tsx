@@ -1,10 +1,7 @@
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import DisplayAddress from "components/DisplayAddress";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { FaExpand, FaExpandAlt, FaExpandArrowsAlt } from "react-icons/fa";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
-import { use } from "chai";
-import { on } from "events";
 
 interface SelectTokenDialogProps {
   assets: DasApiAsset[];

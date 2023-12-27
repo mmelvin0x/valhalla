@@ -4,8 +4,11 @@
 seeds = false
 skip-lint = false
 
+[programs.devnet]
+valhalla = "VHDaKPFJHN3c4Vcb1441HotazGQFa4kGoMik9HMRVQh"
+
 [programs.localnet]
-valhalla = "GQKWvZqbZrwCsLpsRu1Jov8iKNwvHE4af7aEw7khwhun"
+valhalla = "VHDaKPFJHN3c4Vcb1441HotazGQFa4kGoMik9HMRVQh"
 
 [registry]
 url = "https://api.apr.dev"

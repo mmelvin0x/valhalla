@@ -1,4 +1,4 @@
-import { FC, FormEvent, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import useProgram from "hooks/useProgram";
 import axios from "axios";
 import {
@@ -10,21 +10,12 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import SelectTokenCard from "components/create-lock/SelectTokenCard";
 import SelectDateCard from "components/create-lock/SelectDateCard";
 import ReviewLockCard from "components/create-lock/ReviewLockCard";
-import { BN } from "bn.js";
 import { notify } from "utils/notifications";
-import {
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import {
-  LOCKER_KEY,
-  TREASURY_KEY,
-  getLockKey,
-  getLockTokenAccountKey,
-  getUserTokenAccountKey,
-} from "utils/accounts";
+import { PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
 import { useConnection } from "@solana/wallet-adapter-react";
+import { useRouter } from "next/router";
+import { getExplorerUrl } from "utils/explorer";
+import { createLock } from "program/_instructions";
 
 const Locks: FC = () => {
   const today = new Date();
@@ -33,17 +24,21 @@ const Locks: FC = () => {
   const ninetyDays = new Date().setDate(today.getDate() + 90);
   const oneThousandYears = new Date().setFullYear(today.getFullYear() + 1000);
 
+  const router = useRouter();
   const walletModel = useWalletModal();
   const { connection } = useConnection();
-  const { wallet, program } = useProgram();
-  const [step, setStep] = useState<number>(0);
-  const [paginationCursor, setPaginationCursor] = useState<string | null>(null);
+  const { program, wallet } = useProgram();
+
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
-  const [paginationLimit, setPaginationLimit] = useState<number>(1000);
-  const [paginationTotal, setPaginationTotal] = useState<number>(0);
   const [selectedToken, setSelectedToken] = useState<DasApiAsset | null>(null);
+
+  const [step, setStep] = useState<number>(0);
   const [depositAmount, setDepositAmount] = useState<number>(0);
   const [unlockDate, setUnlockDate] = useState<number>(thirtyDays);
+
+  const [paginationTotal, setPaginationTotal] = useState<number>(0);
+  const [paginationLimit, setPaginationLimit] = useState<number>(1000);
+  const [paginationCursor, setPaginationCursor] = useState<string | null>(null);
 
   const onReset = () => {
     setSelectedToken(null);
@@ -59,6 +54,8 @@ const Locks: FC = () => {
         message: "Please select a token",
         type: "error",
       });
+
+      return;
     }
 
     if (!depositAmount) {
@@ -66,6 +63,8 @@ const Locks: FC = () => {
         message: "Please enter an amount",
         type: "error",
       });
+
+      return;
     }
 
     if (!unlockDate) {
@@ -73,79 +72,43 @@ const Locks: FC = () => {
         message: "Please select an unlock date",
         type: "error",
       });
+
+      return;
     }
 
-    console.log({
-      user: wallet.publicKey.toBase58(),
-      treasury: TREASURY_KEY.toBase58(),
-      locker: LOCKER_KEY.toBase58(),
-      lock: getLockKey(
-        LOCKER_KEY,
-        wallet.publicKey,
-        new PublicKey(selectedToken.id)
-      ).toBase58(),
-      lockTokenAccount: getLockTokenAccountKey(
-        getLockKey(
-          LOCKER_KEY,
-          wallet.publicKey,
-          new PublicKey(selectedToken.id)
-        ),
-        wallet.publicKey,
-        new PublicKey(selectedToken.id)
-      ).toBase58(),
-      userTokenAccount: await getUserTokenAccountKey(
-        new PublicKey(selectedToken.id),
-        wallet.publicKey
-      ).toBase58(),
-      mint: new PublicKey(selectedToken.id).toBase58(),
-    });
-
+    let signature: TransactionSignature = "";
     try {
       // Create the lock
-      const createLockIx = await program.methods
-        .createLock(
-          new BN(Math.floor(unlockDate / 1000)),
-          new BN(depositAmount)
-        )
-        .accounts({
-          user: wallet.publicKey,
-          treasury: TREASURY_KEY,
-          locker: LOCKER_KEY,
-          lock: getLockKey(
-            LOCKER_KEY,
-            wallet.publicKey,
-            new PublicKey(selectedToken.id)
-          ),
-          lockTokenAccount: getLockTokenAccountKey(
-            getLockKey(
-              LOCKER_KEY,
-              wallet.publicKey,
-              new PublicKey(selectedToken.id)
-            ),
-            wallet.publicKey,
-            new PublicKey(selectedToken.id)
-          ),
-          userTokenAccount: await getUserTokenAccountKey(
-            new PublicKey(selectedToken.id),
-            wallet.publicKey
-          ),
-          mint: new PublicKey(selectedToken.id),
-        })
-        .instruction();
-
-      const latestBlockHash = await connection.getLatestBlockhash();
-      const messageV0 = new TransactionMessage({
-        payerKey: wallet.publicKey,
-        recentBlockhash: latestBlockHash.blockhash,
-        instructions: [createLockIx],
-      }).compileToV0Message();
-      const createLockTx = new VersionedTransaction(messageV0);
-      const createLockTxSig = await wallet.sendTransaction(
-        createLockTx,
-        connection
+      const createLockTx = await createLock(
+        wallet.publicKey,
+        unlockDate,
+        depositAmount,
+        new PublicKey(selectedToken.id),
+        program
       );
-      console.log("-> ~ onSubmit ~ createLockTxSig:", createLockTxSig);
-    } catch (e) {}
+
+      signature = await wallet.sendTransaction(createLockTx, connection);
+      await connection.confirmTransaction(signature, "confirmed");
+
+      notify({
+        message: "Transaction sent",
+        type: "success",
+        description: `Transaction has been sent to the network. Check it at ${getExplorerUrl(
+          connection.rpcEndpoint,
+          signature
+        )}`,
+      });
+
+      router.push(`../${wallet.publicKey.toBase58()}/locks`);
+    } catch (e) {
+      console.error(e);
+      notify({
+        type: "error",
+        message: "Transaction failed!",
+        description: e?.message,
+        txid: signature,
+      });
+    }
   };
 
   const onPageLoad = async () => {
@@ -163,12 +126,12 @@ const Locks: FC = () => {
 
   useEffect(() => {
     // Get all of the owners SPL Tokens and put them in a select/dropdown
-    if (wallet.publicKey && wallet.connected && wallet.signMessage) {
+    if (wallet?.publicKey && wallet?.signTransaction) {
       onPageLoad();
     } else {
       walletModel.setVisible(true);
     }
-  }, [wallet.connected]);
+  }, [wallet?.publicKey]);
 
   return (
     <div className="flex flex-col items-center gap-8 p-10 max-w-screen-md mx-auto">

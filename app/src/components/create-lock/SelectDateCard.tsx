@@ -18,7 +18,7 @@ export default function SelectDateCard({
   dates: { thirtyDays, sixtyDays, ninetyDays, oneThousandYears },
 }: SelectDateCardProps) {
   return (
-    <div className="card shadow-xl w-full">
+    <div className="card w-full">
       <div className="card-body">
         <div className="card-title">
           <FaCalendarAlt /> Pick an unlock date

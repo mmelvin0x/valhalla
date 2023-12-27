@@ -9,7 +9,7 @@ export default function SocialBar() {
           <Link
             target="_blank"
             rel="noreferrer"
-            href="https://twitter.com/meltfinance"
+            href="https://twitter.com/valhalla"
             className="btn btn-ghost btn-circle"
           >
             <FaTwitter className="w-8 h-8" />
@@ -17,7 +17,7 @@ export default function SocialBar() {
           <Link
             target="_blank"
             rel="noreferrer"
-            href="https://telegram.com/replace-me"
+            href="https://telegram.com/valhalla"
             className="btn btn-ghost btn-circle"
           >
             <FaTelegram className="w-8 h-8" />
@@ -25,7 +25,7 @@ export default function SocialBar() {
           <Link
             target="_blank"
             rel="noreferrer"
-            href="https://medium.com/replace-me"
+            href="https://medium.com/valhalla"
             className="btn btn-ghost btn-circle"
           >
             <FaMedium className="w-8 h-8" />
@@ -33,7 +33,7 @@ export default function SocialBar() {
           <Link
             target="_blank"
             rel="noreferrer"
-            href="https://discord.com/replace-me"
+            href="https://discord.com/valhalla"
             className="btn btn-ghost btn-circle"
           >
             <FaDiscord className="w-8 h-8" />

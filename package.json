@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "copy:idl": "cp ./target/idl/liquidity_locker.json ./app/src/program",
-    "copy:types": "cp ./target/types/liquidity_locker.ts ./app/src/program",
+    "copy:idl": "cp ./target/idl/valhalla.json ./app/src/program/idl.json",
+    "copy:types": "cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts",
     "solita": "solita",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"

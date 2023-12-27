@@ -7,7 +7,7 @@ mod state;
 
 pub use instructions::*;
 
-declare_id!("GQKWvZqbZrwCsLpsRu1Jov8iKNwvHE4af7aEw7khwhun");
+declare_id!("VHDaKPFJHN3c4Vcb1441HotazGQFa4kGoMik9HMRVQh");
 
 #[program]
 pub mod valhalla {
