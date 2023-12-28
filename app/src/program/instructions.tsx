@@ -5,7 +5,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { Valhalla } from "./_valhalla";
+import { Valhalla } from "./valhalla";
 import * as anchor from "@coral-xyz/anchor";
 import {
   LockAccount,
@@ -72,6 +72,61 @@ export const depositToLock = async (
         lock: lock.publicKey,
         lockTokenAccount: lock.lockTokenAccount.address,
         userTokenAccount: lock.userTokenAccount.address,
+        mint: lock.mint.address,
+      })
+      .transaction()
+  );
+
+export const extendLock = async (
+  user: PublicKey,
+  unlockDate: number,
+  lock: LockAccount,
+  program: Program<Valhalla>
+): Promise<Transaction> =>
+  new Transaction().add(
+    await program.methods
+      .extendLock(new anchor.BN(Math.floor(unlockDate / 1000)))
+      .accounts({
+        user,
+        lock: lock.publicKey,
+        mint: lock.mint.address,
+      })
+      .transaction()
+  );
+
+export const withdrawFromLock = async (
+  user: PublicKey,
+  withdrawAmount: number,
+  lock: LockAccount,
+  program: Program<Valhalla>
+): Promise<Transaction> =>
+  new Transaction().add(
+    await program.methods
+      .withdrawFromLock(
+        new anchor.BN((withdrawAmount * 10 ** lock.mint.decimals).toString())
+      )
+      .accounts({
+        user,
+        lock: lock.publicKey,
+        lockTokenAccount: lock.lockTokenAccount.address,
+        userTokenAccount: lock.userTokenAccount.address,
+        mint: lock.mint.address,
+      })
+      .transaction()
+  );
+
+export const closeLock = async (
+  user: PublicKey,
+  lock: LockAccount,
+  program: Program<Valhalla>
+): Promise<Transaction> =>
+  new Transaction().add(
+    await program.methods
+      .closeLock()
+      .accounts({
+        user,
+        lock: lock.publicKey,
+        lockTokenAccount: lock.lockTokenAccount.address,
         mint: lock.mint.address,
       })
       .transaction()

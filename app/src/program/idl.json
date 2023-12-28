@@ -180,7 +180,11 @@
         "",
         "## Arguments",
         "",
-        "* `duration` - The duration to extend the lock by."
+        "* `new_unlock_date` - The new unlock date.",
+        "",
+        "## Errors",
+        "",
+        "* `InvalidUnlockDate` - The new unlock date is invalid. Must be greater than the current unlock date."
       ],
       "accounts": [
         {
@@ -206,7 +210,7 @@
       ],
       "args": [
         {
-          "name": "duration",
+          "name": "newUnlockDate",
           "type": "u64"
         }
       ]
@@ -326,6 +330,11 @@
           "isSigner": false
         },
         {
+          "name": "userTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "mint",
           "isMut": false,
           "isSigner": false
@@ -368,6 +377,10 @@
             "type": "publicKey"
           },
           {
+            "name": "userTokenAccount",
+            "type": "publicKey"
+          },
+          {
             "name": "lockedDate",
             "type": "u64"
           },
@@ -383,7 +396,7 @@
     {
       "code": 6000,
       "name": "InvalidUnlockDate",
-      "msg": "Lock duration must be at least 30 days"
+      "msg": "Lock duration is invalid"
     },
     {
       "code": 6001,
@@ -392,6 +405,6 @@
     }
   ],
   "metadata": {
-    "address": "VHDaKPFJHN3c4Vcb1441HotazGQFa4kGoMik9HMRVQh"
+    "address": "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
   }
 }

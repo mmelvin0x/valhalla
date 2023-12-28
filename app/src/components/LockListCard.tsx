@@ -13,6 +13,7 @@ import { getExplorerUrl } from "utils/explorer";
 import Score from "./Score";
 import PercentLocked from "./PercentLocked";
 import Renounced from "./Renounced";
+import Image from "next/image";
 
 interface LockListCardProps {
   lock: LockAccount;
@@ -35,11 +36,19 @@ export default function LockListCard({
           >
             <h2 className="text-2xl font-bold flex gap-1 items-center">
               {/* @ts-ignore */}
-              {lock.dasAsset.links?.image && (
+              {lock.dasAsset.links?.image ? (
                 <img
                   // @ts-ignore
                   src={lock.dasAsset.links?.image || ""}
                   className="w-8 h-8 rounded-full"
+                />
+              ) : (
+                <Image
+                  className="w-8 h-8 rounded-full"
+                  src="/LP.png"
+                  width={32}
+                  height={32}
+                  alt="LP Token"
                 />
               )}
 

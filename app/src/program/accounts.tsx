@@ -12,14 +12,14 @@ import { getExplorerUrl } from "../utils/explorer";
 import { shortenAddress } from "../utils/formatters";
 import { scoreTokenLock } from "../utils/score";
 import * as anchor from "@coral-xyz/anchor";
-import { Valhalla } from "./_valhalla";
+import { Valhalla } from "./valhalla";
 import { getLocksByMintFilter, getLocksByUserFilter } from "utils/filters";
 import axios from "axios";
 import { DasApiAssetContent } from "@metaplex-foundation/digital-asset-standard-api";
 import { notify } from "utils/notifications";
 
 export const PROGRAM_ID = new PublicKey(
-  "VHDaKPFJHN3c4Vcb1441HotazGQFa4kGoMik9HMRVQh"
+  "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
 );
 
 export const LOCK_SEED = "lock";

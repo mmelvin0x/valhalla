@@ -180,7 +180,11 @@ export type Valhalla = {
         "",
         "## Arguments",
         "",
-        "* `duration` - The duration to extend the lock by."
+        "* `new_unlock_date` - The new unlock date.",
+        "",
+        "## Errors",
+        "",
+        "* `InvalidUnlockDate` - The new unlock date is invalid. Must be greater than the current unlock date."
       ],
       "accounts": [
         {
@@ -206,7 +210,7 @@ export type Valhalla = {
       ],
       "args": [
         {
-          "name": "duration",
+          "name": "newUnlockDate",
           "type": "u64"
         }
       ]
@@ -326,6 +330,11 @@ export type Valhalla = {
           "isSigner": false
         },
         {
+          "name": "userTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "mint",
           "isMut": false,
           "isSigner": false
@@ -368,6 +377,10 @@ export type Valhalla = {
             "type": "publicKey"
           },
           {
+            "name": "userTokenAccount",
+            "type": "publicKey"
+          },
+          {
             "name": "lockedDate",
             "type": "u64"
           },
@@ -383,7 +396,7 @@ export type Valhalla = {
     {
       "code": 6000,
       "name": "InvalidUnlockDate",
-      "msg": "Lock duration must be at least 30 days"
+      "msg": "Lock duration is invalid"
     },
     {
       "code": 6001,
@@ -575,7 +588,11 @@ export const IDL: Valhalla = {
         "",
         "## Arguments",
         "",
-        "* `duration` - The duration to extend the lock by."
+        "* `new_unlock_date` - The new unlock date.",
+        "",
+        "## Errors",
+        "",
+        "* `InvalidUnlockDate` - The new unlock date is invalid. Must be greater than the current unlock date."
       ],
       "accounts": [
         {
@@ -601,7 +618,7 @@ export const IDL: Valhalla = {
       ],
       "args": [
         {
-          "name": "duration",
+          "name": "newUnlockDate",
           "type": "u64"
         }
       ]
@@ -721,6 +738,11 @@ export const IDL: Valhalla = {
           "isSigner": false
         },
         {
+          "name": "userTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "mint",
           "isMut": false,
           "isSigner": false
@@ -763,6 +785,10 @@ export const IDL: Valhalla = {
             "type": "publicKey"
           },
           {
+            "name": "userTokenAccount",
+            "type": "publicKey"
+          },
+          {
             "name": "lockedDate",
             "type": "u64"
           },
@@ -778,7 +804,7 @@ export const IDL: Valhalla = {
     {
       "code": 6000,
       "name": "InvalidUnlockDate",
-      "msg": "Lock duration must be at least 30 days"
+      "msg": "Lock duration is invalid"
     },
     {
       "code": 6001,

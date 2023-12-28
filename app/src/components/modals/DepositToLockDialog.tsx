@@ -94,10 +94,6 @@ export default function DepositToLockDialog({
             className="btn btn-primary"
             onClick={async () => {
               await onSubmit(lock);
-              document
-                .getElementById("deposit_to_lock_modal")
-                // @ts-ignore
-                .close();
             }}
           >
             Submit

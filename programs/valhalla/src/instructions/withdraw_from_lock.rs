@@ -45,9 +45,11 @@ pub struct WithdrawFromLock<'info> {
 
 pub fn withdraw_from_lock(ctx: Context<WithdrawFromLock>, withdraw_amount: u64) -> Result<()> {
     let lock = &ctx.accounts.lock;
+
     let lock_key = ctx.accounts.lock.to_account_info().key();
     let user_key = ctx.accounts.user.to_account_info().key();
     let mint_key = ctx.accounts.mint.to_account_info().key();
+
     let lock_token_account = &ctx.accounts.lock_token_account;
     let user_token_account = &ctx.accounts.user_token_account;
 

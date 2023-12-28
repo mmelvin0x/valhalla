@@ -169,7 +169,7 @@ describe("Valhalla", () => {
   it("should extend an existing lock", async () => {
     let lockAccount = await program.account.lock.fetch(lock);
     const previousUnlockDate = lockAccount.unlockDate;
-    const unlockDate = new anchor.BN(60 * 60 * 24 * 60);
+    const unlockDate = lockAccount.unlockDate.add(new anchor.BN(1000));
 
     const tx = await program.methods
       .extendLock(unlockDate)
@@ -184,8 +184,6 @@ describe("Valhalla", () => {
     await provider.connection.confirmTransaction(tx, "confirmed");
 
     lockAccount = await program.account.lock.fetch(lock);
-    expect(lockAccount.unlockDate.toNumber()).equals(
-      previousUnlockDate.toNumber() + unlockDate.toNumber()
-    );
+    expect(lockAccount.unlockDate.toNumber()).equals(unlockDate.toNumber());
   });
 });

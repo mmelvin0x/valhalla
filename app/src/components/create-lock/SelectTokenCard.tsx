@@ -56,7 +56,7 @@ export default function SelectTokenCard({
                   <div className="rounded-full w-6 h-6">
                     <img
                       className="rounded-full avatar"
-                      src={selectedToken?.content.links?.["image"]}
+                      src={selectedToken?.content.links?.["image"] || "/LP.png"}
                       alt={""}
                     />
                   </div>

@@ -11,11 +11,13 @@ import SelectTokenCard from "components/create-lock/SelectTokenCard";
 import SelectDateCard from "components/create-lock/SelectDateCard";
 import ReviewLockCard from "components/create-lock/ReviewLockCard";
 import { notify } from "utils/notifications";
-import { PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
+import { PublicKey, TransactionSignature } from "@solana/web3.js";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { useRouter } from "next/router";
 import { getExplorerUrl } from "utils/explorer";
-import { createLock } from "program/_instructions";
+import { createLock } from "program/instructions";
+import Link from "next/link";
+import { shortenSignature } from "utils/formatters";
 
 const Locks: FC = () => {
   const today = new Date();
@@ -93,10 +95,18 @@ const Locks: FC = () => {
       notify({
         message: "Transaction sent",
         type: "success",
-        description: `Transaction has been sent to the network. Check it at ${getExplorerUrl(
-          connection.rpcEndpoint,
-          signature
-        )}`,
+        // @ts-ignore
+        description: (
+          <Link
+            className="link link-accent"
+            href={getExplorerUrl(
+              program.provider.connection.rpcEndpoint,
+              signature
+            )}
+          >
+            {shortenSignature(signature)}
+          </Link>
+        ),
       });
 
       router.push(`../${wallet.publicKey.toBase58()}/locks`);
@@ -159,7 +169,13 @@ const Locks: FC = () => {
         <SelectDateCard
           unlockDate={unlockDate}
           setUnlockDate={setUnlockDate}
-          dates={{ thirtyDays, sixtyDays, ninetyDays, oneThousandYears }}
+          dates={{
+            today: today.getTime(),
+            thirtyDays,
+            sixtyDays,
+            ninetyDays,
+            oneThousandYears,
+          }}
         />
       )}
 

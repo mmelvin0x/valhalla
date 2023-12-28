@@ -7,7 +7,7 @@ mod state;
 
 pub use instructions::*;
 
-declare_id!("VHDaKPFJHN3c4Vcb1441HotazGQFa4kGoMik9HMRVQh");
+declare_id!("VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq");
 
 #[program]
 pub mod valhalla {
@@ -75,9 +75,13 @@ pub mod valhalla {
     ///
     /// ## Arguments
     ///
-    /// * `duration` - The duration to extend the lock by.
-    pub fn extend_lock(ctx: Context<ExtendLock>, duration: u64) -> Result<()> {
-        instructions::extend_lock(ctx, duration)
+    /// * `new_unlock_date` - The new unlock date.
+    ///
+    /// ## Errors
+    ///
+    /// * `InvalidUnlockDate` - The new unlock date is invalid. Must be greater than the current unlock date.
+    pub fn extend_lock(ctx: Context<ExtendLock>, new_unlock_date: u64) -> Result<()> {
+        instructions::extend_lock(ctx, new_unlock_date)
     }
 
     /// # Withdraws tokens from a lock.

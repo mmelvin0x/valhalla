@@ -27,11 +27,11 @@ export default function SelectTokenDialog({
     setSearch(value);
     const predicate = (it: DasApiAsset) =>
       it.id &&
-      it.content.metadata.symbol &&
-      it.content.metadata.name &&
-      (it.content.metadata.symbol.toLowerCase().includes(value.toLowerCase()) ||
+      (it.content.metadata.symbol
+        ?.toLowerCase()
+        .includes(value.toLowerCase()) ||
         it.id.toLowerCase().includes(value.toLowerCase()) ||
-        it.content.metadata.name.toLowerCase().includes(value.toLowerCase()));
+        it.content.metadata.name?.toLowerCase().includes(value.toLowerCase()));
     setFilteredAssets(assets.filter(predicate));
   };
 
@@ -90,7 +90,7 @@ export default function SelectTokenDialog({
 
           <ul className="p-2 flex flex-col overflow-y-scroll">
             {assetList
-              .filter((it) => it.id && it.content.metadata.symbol)
+              .filter((it) => it.id)
               .map((asset: DasApiAsset) => (
                 <li key={asset.id} className="cursor-pointer">
                   <form method="dialog">
@@ -106,7 +106,7 @@ export default function SelectTokenDialog({
                         <div className="rounded-full w-8 h-8">
                           <img
                             className="rounded-full avatar"
-                            src={asset.content.links?.["image"]}
+                            src={asset.content.links?.["image"] || "/LP.png"}
                             alt={""}
                           />
                         </div>
@@ -114,12 +114,12 @@ export default function SelectTokenDialog({
                       <div className="flex flex-col w-full p-2 col-span-3">
                         <div className="flex items-center gap-1">
                           <span className="font-bold">
-                            {asset.content.metadata.symbol}
+                            {asset.content.metadata.symbol || "Unknown"}
                           </span>
                           <DisplayAddress address={asset.id} />
                         </div>
                         <span className="text-xs self-start">
-                          {asset.content.metadata.name}
+                          {asset.content.metadata.name || "Unknown"}
                         </span>
                       </div>
 

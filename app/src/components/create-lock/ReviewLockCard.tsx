@@ -33,7 +33,7 @@ export default function ReviewLockCard({
                 <div className="rounded-full w-12 h-12">
                   <img
                     className="rounded-full avatar"
-                    src={selectedToken?.content.links?.["image"]}
+                    src={selectedToken?.content.links?.["image"] || "/LP.png"}
                     alt={""}
                   />
                 </div>

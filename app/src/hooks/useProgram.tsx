@@ -1,18 +1,15 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Valhalla, IDL } from "program/_valhalla";
+import { Valhalla, IDL } from "program/valhalla";
 import { useMemo } from "react";
 import * as anchor from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
+import { PROGRAM_ID } from "program/accounts";
 
 const useProgram = () => {
   const wallet = useWallet();
   const { connection } = useConnection();
-  const programId = new PublicKey(
-    "VHDaKPFJHN3c4Vcb1441HotazGQFa4kGoMik9HMRVQh"
-  );
   const provider = new anchor.AnchorProvider(connection, wallet, {});
   const program = useMemo(
-    () => new anchor.Program<Valhalla>(IDL, programId, provider),
+    () => new anchor.Program<Valhalla>(IDL, PROGRAM_ID, provider),
     [wallet, connection, provider]
   );
 
