@@ -92,12 +92,12 @@ const Home: NextPage = () => {
           <div className="card">
             <div className="card-body">
               <h3 className="card-title degen-locker">
-                Real-Time Locking Dashboard
+                Robust and Simple APIs
               </h3>
               <p className="prose">
-                Stay informed with our state-of-the-art dashboard. Track your
-                locked liquidity in real-time, understand market trends, and
-                make informed decisions for maximum returns.
+                Valhalla's APIs are designed to be simple and easy to use. We
+                provide a variety of endpoints to help you and our partners
+                verify if a project has locked their liquidity.
               </p>
             </div>
           </div>
@@ -108,10 +108,10 @@ const Home: NextPage = () => {
                 Exclusive Locking Rewards
               </h3>
               <p className="prose">
-                Benefit from locking your liquidity with us. Valhalla offers
-                unique incentives and rewards for locking your liquidity. Our
-                points system provides us the flexibility to reward our users in
-                a variety of ways.
+                Benefit from locking your liquidity. Valhalla offers unique
+                incentives and rewards for locking your liquidity. Our points
+                system provides us the flexibility to reward our users in a
+                variety of ways.
               </p>
             </div>
           </div>

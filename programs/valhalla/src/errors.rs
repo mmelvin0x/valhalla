@@ -7,4 +7,7 @@ pub enum LockError {
 
     #[msg("The lock has not expired yet")]
     Locked,
+
+    #[msg("Not authorized to perform this action")]
+    Unauthorized,
 }

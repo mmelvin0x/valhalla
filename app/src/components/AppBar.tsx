@@ -53,16 +53,6 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
             {connected && (
               <>
                 <Link
-                  href={`/${publicKey?.toBase58()}/locks`}
-                  className={`flex items-center gap-1 link link-hover font-bold ${
-                    router.pathname === "/[user]/locks" ? "link-accent" : ""
-                  }`}
-                >
-                  <FaUserLock className="inline" />
-                  Your Locks
-                </Link>
-
-                <Link
                   href={`/locks/create`}
                   className={`flex items-center gap-1 link link-hover font-bold ${
                     router.pathname === "/locks/create" ? "link-accent" : ""
@@ -70,6 +60,16 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
                 >
                   <FaPlusCircle className="inline" />
                   Create a Lock
+                </Link>
+
+                <Link
+                  href={`/${publicKey?.toBase58()}/locks`}
+                  className={`flex items-center gap-1 link link-hover font-bold ${
+                    router.pathname === "/[user]/locks" ? "link-accent" : ""
+                  }`}
+                >
+                  <FaUserLock className="inline" />
+                  Your Locks
                 </Link>
               </>
             )}

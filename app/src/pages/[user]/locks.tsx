@@ -13,8 +13,8 @@ import { shortenSignature } from "utils/formatters";
 import DepositToLockDialog from "components/modals/DepositToLockDialog";
 import { depositToLock, extendLock } from "program/instructions";
 import { BN } from "bn.js";
-import SelectDateCard from "components/create-lock/SelectDateCard";
 import ExtendLockDialog from "components/modals/ExtendLockDialog";
+import useLocksStore from "stores/useLocksStore";
 
 const UserLocks: FC = () => {
   const today = new Date();
@@ -26,22 +26,20 @@ const UserLocks: FC = () => {
   const { connection } = useConnection();
   const { connected } = useWallet();
   const { wallet, program } = useProgram();
+  const { selectedLock, setSelectedLock } = useLocksStore();
 
   const [locks, setLocks] = useState<LockAccount[]>([]);
-  const [selectedLock, setSelectedLock] = useState<LockAccount | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [depositAmount, setDepositAmount] = useState<number>(0);
   const [unlockDate, setUnlockDate] = useState<number>(thirtyDays);
 
   const getLocks = async () => {
     setIsLoading(true);
-    // TODO: User locks should be set on global state
     const theLocks = await getLocksByUser(
       connection,
       wallet.publicKey,
       program
     );
-    console.log("-> ~ theLocks:", theLocks);
     setLocks(theLocks);
     setIsLoading(false);
   };
@@ -216,6 +214,7 @@ const UserLocks: FC = () => {
                 oneThousandYears,
               }}
             />
+            {/* TODO: add withdraw */}
           </div>
         ))}
     </div>

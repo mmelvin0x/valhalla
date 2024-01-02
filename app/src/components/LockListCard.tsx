@@ -91,7 +91,7 @@ export default function LockListCard({
                 data-tip="Deposit more tokens to the lock"
               >
                 <button
-                  className="btn btn-xs btn-circle"
+                  className="btn btn-sm btn-circle"
                   onClick={() => {
                     setSelectedLock(lock);
                     document
@@ -105,7 +105,7 @@ export default function LockListCard({
               </div>
               <div className="tooltip" data-tip="Extend the lock duration">
                 <button
-                  className="btn btn-xs btn-circle"
+                  className="btn btn-sm btn-circle"
                   onClick={() => {
                     setSelectedLock(lock);
                     document
@@ -127,7 +127,7 @@ export default function LockListCard({
                       // @ts-ignore
                       .showModal();
                   }}
-                  className="btn btn-xs btn-circle"
+                  className="btn btn-sm btn-circle"
                 >
                   <FaUnlock />
                 </button>

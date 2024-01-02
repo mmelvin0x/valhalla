@@ -14,6 +14,7 @@ import { expect } from "chai";
 import { before } from "mocha";
 
 const LOCK_SEED = Buffer.from("lock");
+const LOCKER_SEED = Buffer.from("locker");
 const LOCK_TOKEN_ACCOUNT_SEED = Buffer.from("token");
 
 describe("Valhalla", () => {
@@ -24,13 +25,18 @@ describe("Valhalla", () => {
 
   const program = anchor.workspace.Valhalla as Program<Valhalla>;
 
+  let admin: anchor.web3.Keypair;
+  let treasury: anchor.web3.PublicKey;
   let mint: anchor.web3.PublicKey;
   let user: anchor.web3.Keypair;
   let userTokenAccount: Account;
   let lock: anchor.web3.PublicKey;
+  let locker: anchor.web3.PublicKey;
   let lockTokenAccount: anchor.web3.PublicKey;
 
   before(async () => {
+    admin = payer;
+    treasury = payer.publicKey;
     user = anchor.web3.Keypair.generate();
 
     await provider.connection.confirmTransaction(
@@ -65,6 +71,11 @@ describe("Valhalla", () => {
       1000 * LAMPORTS_PER_SOL
     );
 
+    [locker] = anchor.web3.PublicKey.findProgramAddressSync(
+      [LOCKER_SEED],
+      program.programId
+    );
+
     [lock] = anchor.web3.PublicKey.findProgramAddressSync(
       [user.publicKey.toBuffer(), mint.toBuffer(), LOCK_SEED],
       program.programId
@@ -93,6 +104,136 @@ describe("Valhalla", () => {
     console.log();
   });
 
+  it("should initialize the locker", async () => {
+    const tx = await program.methods
+      .init(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+      .accounts({
+        admin: admin.publicKey,
+        locker,
+        treasury,
+      })
+      .signers([admin])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    const lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.admin.toBase58()).equals(admin.publicKey.toBase58());
+    expect(lockerAccount.treasury.toBase58()).equals(treasury.toBase58());
+  });
+
+  it("should update the locker fee", async () => {
+    let lockerAccount = await program.account.locker.fetch(locker);
+
+    let tx = await program.methods
+      .updateLockerFee(new anchor.BN(0.2 * LAMPORTS_PER_SOL))
+      .accounts({
+        treasury,
+        admin: admin.publicKey,
+        locker,
+      })
+      .signers([admin])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.fee.toNumber()).equals(0.2 * LAMPORTS_PER_SOL);
+
+    tx = await program.methods
+      .updateLockerFee(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+      .accounts({
+        treasury,
+        admin: admin.publicKey,
+        locker,
+      })
+      .signers([admin])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.fee.toNumber()).equals(0.1 * LAMPORTS_PER_SOL);
+  });
+
+  it("should update the locker admin", async () => {
+    let lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.admin.toBase58()).equals(admin.publicKey.toBase58());
+
+    const newAdmin = anchor.web3.Keypair.generate();
+
+    let tx = await program.methods
+      .updateLockerAdmin(newAdmin.publicKey)
+      .accounts({
+        treasury,
+        admin: admin.publicKey,
+        locker,
+      })
+      .signers([admin])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.admin.toBase58()).equals(
+      newAdmin.publicKey.toBase58()
+    );
+
+    tx = await program.methods
+      .updateLockerAdmin(admin.publicKey)
+      .accounts({
+        treasury,
+        admin: newAdmin.publicKey,
+        locker,
+      })
+      .signers([newAdmin])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.admin.toBase58()).equals(admin.publicKey.toBase58());
+  });
+
+  it("should update the locker treasury", async () => {
+    let lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.treasury.toBase58()).equals(treasury.toBase58());
+
+    const newTreasury = anchor.web3.Keypair.generate();
+
+    let tx = await program.methods
+      .updateLockerTreasury(newTreasury.publicKey)
+      .accounts({
+        treasury,
+        admin: admin.publicKey,
+        locker,
+      })
+      .signers([admin])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.treasury.toBase58()).equals(
+      newTreasury.publicKey.toBase58()
+    );
+
+    tx = await program.methods
+      .updateLockerTreasury(treasury)
+      .accounts({
+        treasury: newTreasury.publicKey,
+        admin: admin.publicKey,
+        locker,
+      })
+      .signers([admin])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.treasury.toBase58()).equals(treasury.toBase58());
+  });
+
   it("should create a lock", async () => {
     const depositAmount = new anchor.BN(100 * LAMPORTS_PER_SOL);
     const lockedDate = new anchor.BN(Math.ceil(new Date().getTime() / 1000));
@@ -103,6 +244,8 @@ describe("Valhalla", () => {
     const tx = await program.methods
       .createLock(unlockDate, depositAmount)
       .accounts({
+        treasury,
+        locker,
         user: user.publicKey,
         lock,
         lockTokenAccount,
@@ -168,7 +311,6 @@ describe("Valhalla", () => {
 
   it("should extend an existing lock", async () => {
     let lockAccount = await program.account.lock.fetch(lock);
-    const previousUnlockDate = lockAccount.unlockDate;
     const unlockDate = lockAccount.unlockDate.add(new anchor.BN(1000));
 
     const tx = await program.methods

@@ -1,14 +1,20 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{ prelude::*, system_program };
 use anchor_spl::{ associated_token::AssociatedToken, token::{ self, Mint, Token, TokenAccount } };
 
-use crate::{ constants, state::Lock };
+use crate::{ constants, state::{ Lock, Locker } };
 
 #[derive(Accounts)]
 #[instruction(unlock_date: u64, amount: u64)]
 pub struct CreateLock<'info> {
     #[account(mut)]
-    /// The user paying for the tx
     pub user: Signer<'info>,
+
+    #[account(seeds = [constants::LOCKER_SEED], bump, has_one = treasury)]
+    pub locker: Account<'info, Locker>,
+
+    #[account(mut, constraint = locker.treasury == treasury.key())]
+    /// CHECK: Only receives the fee
+    pub treasury: AccountInfo<'info>,
 
     #[account(
         init,
@@ -49,7 +55,6 @@ pub struct CreateLock<'info> {
 }
 
 pub fn create_lock(ctx: Context<CreateLock>, unlock_date: u64, deposit_amount: u64) -> Result<()> {
-    let now = Clock::get()?.unix_timestamp as u64;
     let lock = &mut ctx.accounts.lock;
 
     // Set lock state
@@ -57,7 +62,7 @@ pub fn create_lock(ctx: Context<CreateLock>, unlock_date: u64, deposit_amount: u
     lock.mint = ctx.accounts.mint.key();
     lock.lock_token_account = ctx.accounts.lock_token_account.to_account_info().key();
     lock.user_token_account = ctx.accounts.user_token_account.to_account_info().key();
-    lock.locked_date = now;
+    lock.locked_date = Clock::get()?.unix_timestamp as u64;
     lock.unlock_date = unlock_date;
 
     // Prevent user from depositing more than they have
@@ -78,6 +83,16 @@ pub fn create_lock(ctx: Context<CreateLock>, unlock_date: u64, deposit_amount: u
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
     token::transfer_checked(cpi_ctx, amount, ctx.accounts.mint.decimals)?;
+
+    // Transfer the SOL fee from the user to the admin
+    let cpi_program = ctx.accounts.system_program.to_account_info();
+    let cpi_accounts = system_program::Transfer {
+        from: ctx.accounts.user.to_account_info(),
+        to: ctx.accounts.treasury.to_account_info(),
+    };
+    let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+    system_program::transfer(cpi_ctx, ctx.accounts.locker.fee)?;
 
     Ok(())
 }

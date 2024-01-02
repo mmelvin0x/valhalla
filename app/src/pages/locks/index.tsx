@@ -1,25 +1,28 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import useProgram from "hooks/useProgram";
-import { PublicKey } from "@solana/web3.js";
-import BN from "bn.js";
-import { shortenAddress, shortenNumber } from "utils/formatters";
-import { FaLink } from "react-icons/fa";
-import Link from "next/link";
-import { getExplorerUrl } from "utils/explorer";
 import { LockAccount, getAllLocks } from "program/accounts";
 import Score from "components/Score";
 import Renounced from "components/Renounced";
 import LoadingSpinner from "components/LoadingSpinner";
+import { useRouter } from "next/router";
+import useLocksStore from "stores/useLocksStore";
 
 const Locks: FC = () => {
+  const router = useRouter();
   const { program, connection } = useProgram();
+  const { locks, setLocks, setSelectedLock } = useLocksStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [locks, setLocks] = useState<LockAccount[]>([]);
   const [search, setSearch] = useState<string>("");
+
+  const onLockSelect = (lock: LockAccount) => {
+    setSelectedLock(lock);
+    router.push(`/locks/${lock.publicKey.toBase58()}`);
+  };
 
   const getLocks = async () => {
     setIsLoading(true);
     const theLocks = await getAllLocks(connection, program, search);
+    console.log("-> ~ getLocks ~ theLocks:", theLocks);
     setLocks(theLocks);
     setIsLoading(false);
   };
@@ -55,46 +58,49 @@ const Locks: FC = () => {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        <div className="overflow-x-auto">
-          <table className="table">
-            {/* head */}
-            <thead>
-              <tr>
-                <th>Score</th>
-                <th>Symbol</th>
-                <th>Name</th>
-                <th>Renounced</th>
-                <th>Lock Date</th>
-                <th>Unlock Date</th>
-                <th>% Locked</th>
-              </tr>
-            </thead>
-            <tbody>
-              {!locks.length && (
-                <p className="prose text-center my-8">No locks found.</p>
-              )}
-
-              {locks.map((lock) => (
-                <tr
-                  key={lock.publicKey.toBase58()}
-                  className="hover cursor-pointer"
-                >
-                  <td>
-                    <Score lock={lock} tooltipDirection={"tooltip-right"} />
-                  </td>
-                  <td>{lock.dasAsset.metadata.symbol}</td>
-                  <td>{lock.dasAsset.metadata.name}</td>
-                  <td>
-                    <Renounced lock={lock} showTitle={false} />
-                  </td>
-                  <td>{lock.displayLockDate}</td>
-                  <td>{lock.displayUnlockDate}</td>
-                  <td>{lock.displayPercentLocked}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          {!locks.length ? (
+            <p className="prose text-center my-8">No locks found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="table">
+                {/* head */}
+                <thead>
+                  <tr>
+                    <th>Score</th>
+                    <th>Symbol</th>
+                    <th>Name</th>
+                    <th>Renounced</th>
+                    <th>Lock Date</th>
+                    <th>Unlock Date</th>
+                    <th>% Locked</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {locks.map((lock) => (
+                    <tr
+                      key={lock.publicKey.toBase58()}
+                      className="hover cursor-pointer"
+                      onClick={() => onLockSelect(lock)}
+                    >
+                      <td>
+                        <Score lock={lock} tooltipDirection={"tooltip-right"} />
+                      </td>
+                      <td>{lock.dasAsset.metadata.symbol}</td>
+                      <td>{lock.dasAsset.metadata.name}</td>
+                      <td>
+                        <Renounced lock={lock} showTitle={false} />
+                      </td>
+                      <td>{lock.displayLockDate}</td>
+                      <td>{lock.displayUnlockDate}</td>
+                      <td>{lock.displayPercentLocked}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

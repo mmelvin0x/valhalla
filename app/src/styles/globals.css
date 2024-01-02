@@ -54,6 +54,13 @@ h6 {
   @apply text-lg;
 }
 
+.stat-actions
+  > .wallet-adapter-dropdown
+  > button.wallet-adapter-button-trigger {
+  @apply btn btn-secondary;
+  @apply btn-sm;
+}
+
 button.wallet-adapter-button-trigger {
   @apply btn btn-secondary;
 }

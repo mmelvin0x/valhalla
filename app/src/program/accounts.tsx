@@ -241,6 +241,28 @@ export const getLocksByMint = async (
   return formattedLocks;
 };
 
+export const getLockByPublicKey = async (
+  connection: Connection,
+  program: anchor.Program<Valhalla>,
+  lockPublicKey: PublicKey
+): Promise<LockAccount> => {
+  const lock = await program.account.lock.fetch(lockPublicKey);
+  const mint = await getMint(connection, lock.mint);
+  const lockTokenAccount = await getAccount(connection, lock.lockTokenAccount);
+  const userTokenAccountKey = getUserTokenAccountKey(mint.address, lock.user);
+  const userTokenAccount = await getAccount(connection, userTokenAccountKey);
+
+  return new LockAccount(
+    lockPublicKey,
+    lock.lockedDate,
+    mint,
+    lock.unlockDate,
+    lock.user,
+    lockTokenAccount,
+    userTokenAccount
+  );
+};
+
 export class LockAccount {
   dasAsset: DasApiAssetContent;
 
@@ -261,6 +283,12 @@ export class LockAccount {
 
   get canUnlock(): boolean {
     return this.lockedDate.sub(this.unlockDate).toNumber() > 0;
+  }
+
+  get daysUntilUnlock(): string {
+    return `${(this.unlockDate.sub(this.lockedDate).toNumber() / 86400).toFixed(
+      2
+    )} days`;
   }
 
   get displayPublicKey(): string {

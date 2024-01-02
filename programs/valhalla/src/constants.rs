@@ -1,6 +1,9 @@
 use anchor_lang::prelude::*;
 
 #[constant]
+pub const LOCKER_SEED: &[u8] = b"locker";
+
+#[constant]
 pub const LOCK_SEED: &[u8] = b"lock";
 
 #[constant]

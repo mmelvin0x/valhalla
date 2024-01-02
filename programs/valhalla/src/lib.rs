@@ -13,6 +13,82 @@ declare_id!("VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq");
 pub mod valhalla {
     use super::*;
 
+    /// # Initializes a new locker.
+    ///
+    /// ## Accounts expected
+    ///
+    /// 0. `[signer]` The payer account for the locker account.
+    /// 1. `[writable]` The locker account to be initialized.
+    /// 2. `[]` The treasury account.
+    /// 3. `[executable]` The system program.
+    ///
+    /// ## Arguments
+    ///
+    /// * `fee` - The fee to be charged for each lock.
+    pub fn init(ctx: Context<Init>, fee: u64) -> Result<()> {
+        instructions::init(ctx, fee)
+    }
+
+    /// # Updates the admin of a locker.
+    ///
+    /// ## Accounts expected
+    ///
+    /// 0. `[signer]` The payer account for the locker account.
+    /// 1. `[writable]` The locker account.
+    /// 2. `[]` The treasury account.
+    ///
+    /// ## Arguments
+    ///
+    /// * `new_admin` - The new admin of the locker.
+    ///
+    /// ## Errors
+    ///
+    /// * `Unauthorized` - The signer is not the current admin.
+    pub fn update_locker_admin(ctx: Context<UpdateLockerAdmin>, new_admin: Pubkey) -> Result<()> {
+        instructions::update_locker_admin(ctx, new_admin)
+    }
+
+    /// # Updates the fee of a locker.
+    ///
+    /// ## Accounts expected
+    ///
+    /// 0. `[signer]` The payer account for the locker account.
+    /// 1. `[writable]` The locker account.
+    /// 2. `[]` The treasury account.
+    ///
+    /// ## Arguments
+    ///
+    /// * `new_fee` - The new fee of the locker.
+    ///
+    /// ## Errors
+    ///
+    /// * `Unauthorized` - The signer is not the current admin.
+    pub fn update_locker_fee(ctx: Context<UpdateLockerFee>, fee: u64) -> Result<()> {
+        instructions::update_locker_fee(ctx, fee)
+    }
+
+    /// # Updates the treasury of a locker.
+    ///
+    /// ## Accounts expected
+    ///
+    /// 0. `[signer]` The payer account for the locker account.
+    /// 1. `[writable]` The locker account.
+    /// 2. `[]` The treasury account.
+    ///
+    /// ## Arguments
+    ///
+    /// * `new_treasury` - The new treasury of the locker.
+    ///
+    /// ## Errors
+    ///
+    /// * `Unauthorized` - The signer is not the current admin.
+    pub fn update_locker_treasury(
+        ctx: Context<UpdateLockerTreasury>,
+        new_treasury: Pubkey
+    ) -> Result<()> {
+        instructions::update_locker_treasury(ctx, new_treasury)
+    }
+
     /// # Creates a new lock.
     ///
     /// ## Accounts expected
