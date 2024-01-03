@@ -1,4 +1,8 @@
 {
+  "name": "valhalla",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": false,
   "scripts": {
     "copy:idl": "cp ./target/idl/valhalla.json ./app/src/program/idl.json",
     "copy:types": "cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts",

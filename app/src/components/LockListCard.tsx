@@ -1,14 +1,6 @@
 import Link from "next/link";
-import {
-  FaUnlock,
-  FaLock,
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaPlus,
-  FaClock,
-} from "react-icons/fa";
+import { FaUnlock, FaPlus, FaClock } from "react-icons/fa";
 import { LockAccount } from "program/accounts";
-import { Dispatch, SetStateAction } from "react";
 import { getExplorerUrl } from "utils/explorer";
 import Score from "./Score";
 import PercentLocked from "./PercentLocked";
@@ -17,13 +9,9 @@ import Image from "next/image";
 
 interface LockListCardProps {
   lock: LockAccount;
-  setSelectedLock: Dispatch<SetStateAction<LockAccount>>;
 }
 
-export default function LockListCard({
-  lock,
-  setSelectedLock,
-}: LockListCardProps) {
+export default function LockListCard({ lock }: LockListCardProps) {
   return (
     <div key={lock.publicKey.toBase58()} className="card">
       <div className="card-body">
@@ -56,7 +44,12 @@ export default function LockListCard({
             </h2>
           </Link>
 
-          <Score lock={lock} />
+          <Score
+            lock={lock}
+            lockSize="32"
+            lockTextSize="xs"
+            lockTextPosition="top-1/2 left-1/4"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -93,7 +86,6 @@ export default function LockListCard({
                 <button
                   className="btn btn-sm btn-circle"
                   onClick={() => {
-                    setSelectedLock(lock);
                     document
                       .getElementById("deposit_to_lock_modal")
                       // @ts-ignore
@@ -107,7 +99,6 @@ export default function LockListCard({
                 <button
                   className="btn btn-sm btn-circle"
                   onClick={() => {
-                    setSelectedLock(lock);
                     document
                       .getElementById("extend_lock_modal")
                       // @ts-ignore
@@ -121,7 +112,6 @@ export default function LockListCard({
                 <button
                   disabled={!lock.canUnlock}
                   onClick={() => {
-                    setSelectedLock(lock);
                     document
                       .getElementById("unlock_modal")
                       // @ts-ignore

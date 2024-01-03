@@ -19,17 +19,16 @@ const Locks: FC = () => {
     router.push(`/locks/${lock.publicKey.toBase58()}`);
   };
 
-  const getLocks = async () => {
-    setIsLoading(true);
+  const getLocks = async (showLoadingSpinner: boolean) => {
+    setIsLoading(showLoadingSpinner);
     const theLocks = await getAllLocks(connection, program, search);
-    console.log("-> ~ getLocks ~ theLocks:", theLocks);
     setLocks(theLocks);
     setIsLoading(false);
   };
 
   useEffect(() => {
     if (program?.programId) {
-      getLocks();
+      getLocks(locks && locks.length === 0);
     }
   }, []);
 
@@ -49,7 +48,7 @@ const Locks: FC = () => {
 
         <button
           className="btn btn-primary"
-          onClick={() => search && getLocks()}
+          onClick={() => search && getLocks(true)}
         >
           Search
         </button>
@@ -84,7 +83,13 @@ const Locks: FC = () => {
                       onClick={() => onLockSelect(lock)}
                     >
                       <td>
-                        <Score lock={lock} tooltipDirection={"tooltip-right"} />
+                        <Score
+                          lock={lock}
+                          tooltipDirection={"tooltip-right"}
+                          lockSize="32"
+                          lockTextSize="xs"
+                          lockTextPosition="top-1/2 left-1/4"
+                        />
                       </td>
                       <td>{lock.dasAsset.metadata.symbol}</td>
                       <td>{lock.dasAsset.metadata.name}</td>

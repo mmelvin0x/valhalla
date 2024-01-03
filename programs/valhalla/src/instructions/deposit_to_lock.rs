@@ -41,7 +41,18 @@ pub struct DepositToLock<'info> {
     )]
     pub user_token_account: Account<'info, TokenAccount>,
 
+    #[account(
+        init_if_needed,
+        payer = user,
+        associated_token::mint = reward_token_mint,
+        associated_token::authority = user
+    )]
+    pub user_reward_token_account: Account<'info, TokenAccount>,
+
     pub mint: Account<'info, Mint>,
+
+    #[account(seeds = [constants::LOCK_REWARD_MINT_SEED], bump)]
+    pub reward_token_mint: Account<'info, Mint>,
 
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -49,6 +60,7 @@ pub struct DepositToLock<'info> {
 }
 
 pub fn deposit_to_lock(ctx: Context<DepositToLock>, deposit_amount: u64) -> Result<()> {
+    let lock = &ctx.accounts.lock;
     let lock_token_account = &ctx.accounts.lock_token_account;
     let user_token_account = &ctx.accounts.user_token_account;
 
@@ -69,6 +81,31 @@ pub fn deposit_to_lock(ctx: Context<DepositToLock>, deposit_amount: u64) -> Resu
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
     token::transfer(cpi_ctx, amount)?;
+
+    // Mint the reward tokens to the lock token account based on the percentage of supply being
+    // locked and how long the lock is for
+    let total_supply = ctx.accounts.mint.supply;
+    let mut reward_amount = ((((amount as f64) * 100.0) / (total_supply as f64)) *
+        ((lock.unlock_date - lock.locked_date) as f64)) as u64;
+
+    msg!("reward_amount: {}", reward_amount);
+
+    // Ensure the reward amount is greater than the minimum
+    if reward_amount < constants::MIN_REWARD_AMOUNT {
+        reward_amount = constants::MIN_REWARD_AMOUNT;
+    }
+
+    let bump = ctx.bumps.reward_token_mint;
+    let signer: &[&[&[u8]]] = &[&[constants::LOCK_REWARD_MINT_SEED, &[bump]]];
+    let cpi_program = ctx.accounts.token_program.to_account_info();
+    let cpi_accounts = token::MintTo {
+        mint: ctx.accounts.reward_token_mint.to_account_info(),
+        to: ctx.accounts.user_reward_token_account.to_account_info(),
+        authority: ctx.accounts.reward_token_mint.to_account_info(),
+    };
+    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+
+    token::mint_to(cpi_ctx, reward_amount)?;
 
     Ok(())
 }

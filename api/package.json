@@ -1,0 +1,30 @@
+{
+  "name": "valhalla-api",
+  "version": "1.0.0",
+  "description": "API for searching locked tokens with Valhalla",
+  "main": "index.js",
+  "repository": "https://github.com/mmelvin0x/valhalla",
+  "author": "mmelvin0x",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@metaplex-foundation/digital-asset-standard-api": "^1.0.0",
+    "@metaplex-foundation/umi": "^0.8.10",
+    "@metaplex-foundation/umi-bundle-defaults": "^0.8.10",
+    "@solana/web3.js": "^1.87.6",
+    "axios": "^1.6.3",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

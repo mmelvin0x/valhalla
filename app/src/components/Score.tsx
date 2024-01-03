@@ -5,17 +5,17 @@ import { FaLock, FaUnlock } from "react-icons/fa";
 interface ScoreProps {
   lock: LockAccount;
   tooltipDirection?: string;
-  lockSize?: string;
-  lockTextSize?: string;
-  lockTextPosition?: string;
+  lockSize: string;
+  lockTextSize: string;
+  lockTextPosition: string;
 }
 
 const Score: FC<ScoreProps> = ({
   lock,
   tooltipDirection,
-  lockSize = "4xl",
-  lockTextSize = "xs",
-  lockTextPosition = "top-1/2 right-2",
+  lockSize,
+  lockTextSize,
+  lockTextPosition,
 }) => {
   return (
     <div
@@ -26,7 +26,8 @@ const Score: FC<ScoreProps> = ({
     >
       {lock.canUnlock ? (
         <FaUnlock
-          className={`text-${lockSize} ${
+          size={lockSize}
+          className={`${
             Number(lock.score) <= 5
               ? "text-error"
               : Number(lock.score) <= 7.5
@@ -36,7 +37,8 @@ const Score: FC<ScoreProps> = ({
         />
       ) : (
         <FaLock
-          className={`text-${lockSize} ${
+          size={lockSize}
+          className={`${
             Number(lock.score) <= 5
               ? "text-error"
               : Number(lock.score) <= 7.5

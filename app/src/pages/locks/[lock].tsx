@@ -193,12 +193,12 @@ const Lock = () => {
         <>
           <Link
             href={getExplorerUrl(selectedLock.endpoint, selectedLock.publicKey)}
-            className="text-6xl font-bold link"
+            className="text-6xl font-bold link flex items-center gap-1"
           >
             {shortenAddress(selectedLock.publicKey)}{" "}
             <Score
               lock={selectedLock}
-              lockSize="6xl"
+              lockSize="64"
               lockTextSize="2xl"
               lockTextPosition="top-1/2 right-3"
             />

@@ -26,27 +26,26 @@ const UserLocks: FC = () => {
   const { connection } = useConnection();
   const { connected } = useWallet();
   const { wallet, program } = useProgram();
-  const { selectedLock, setSelectedLock } = useLocksStore();
+  const { userLocks, setUserLocks } = useLocksStore();
 
-  const [locks, setLocks] = useState<LockAccount[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [depositAmount, setDepositAmount] = useState<number>(0);
   const [unlockDate, setUnlockDate] = useState<number>(thirtyDays);
 
-  const getLocks = async () => {
-    setIsLoading(true);
+  const getLocks = async (showLoadingSpinner: boolean) => {
+    setIsLoading(showLoadingSpinner);
     const theLocks = await getLocksByUser(
       connection,
       wallet.publicKey,
       program
     );
-    setLocks(theLocks);
+    setUserLocks(theLocks);
     setIsLoading(false);
   };
 
   useEffect(() => {
     if (program?.programId && wallet?.publicKey) {
-      getLocks();
+      getLocks(userLocks && userLocks.length === 0);
     }
   }, [connected]);
 
@@ -88,7 +87,7 @@ const UserLocks: FC = () => {
       signature = await wallet.sendTransaction(depositToLockTx, connection);
       await connection.confirmTransaction(signature, "confirmed");
 
-      await getLocks();
+      await getLocks(true);
       setDepositAmount(0);
       setIsLoading(false);
 
@@ -96,7 +95,7 @@ const UserLocks: FC = () => {
         message: "Transaction sent",
         type: "success",
         description: `Transaction has been sent to the network. Check it at ${(
-          <Link href={getExplorerUrl(selectedLock.endpoint, signature)}>
+          <Link href={getExplorerUrl(lock.endpoint, signature)}>
             {shortenSignature(signature)}
           </Link>
         )}`,
@@ -140,7 +139,7 @@ const UserLocks: FC = () => {
       signature = await wallet.sendTransaction(extendLockTx, connection);
       await connection.confirmTransaction(signature, "confirmed");
 
-      await getLocks();
+      await getLocks(true);
       setUnlockDate(today.getTime());
       setIsLoading(false);
 
@@ -151,7 +150,7 @@ const UserLocks: FC = () => {
         description: (
           <Link
             className="link link-accent"
-            href={getExplorerUrl(selectedLock.endpoint, signature)}
+            href={getExplorerUrl(lock.endpoint, signature)}
           >
             {shortenSignature(signature)}
           </Link>
@@ -180,7 +179,7 @@ const UserLocks: FC = () => {
         </div>
       )}
 
-      {!isLoading && !locks.length && wallet?.publicKey && (
+      {!isLoading && !userLocks.length && wallet?.publicKey && (
         <div className="flex flex-col items-center gap-4">
           <p className="prose">No locks created yet!</p>
           <Link href="/locks/create" className="btn btn-primary">
@@ -192,9 +191,9 @@ const UserLocks: FC = () => {
       {isLoading && <LoadingSpinner />}
 
       {!isLoading &&
-        locks.map((lock) => (
+        userLocks.map((lock) => (
           <div key={lock.publicKey.toBase58()}>
-            <LockListCard lock={lock} setSelectedLock={setSelectedLock} />
+            <LockListCard lock={lock} />
             <DepositToLockDialog
               lock={lock}
               depositAmount={depositAmount}

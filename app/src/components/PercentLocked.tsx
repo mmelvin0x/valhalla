@@ -7,7 +7,6 @@ interface PercentLockedProps {
 }
 
 const PercentLocked: FC<PercentLockedProps> = ({ lock }) => {
-  console.log("-> ~ lock:", lock);
   return (
     <div className="flex flex-col gap-2">
       <span className="font-bold">Percent Locked</span>

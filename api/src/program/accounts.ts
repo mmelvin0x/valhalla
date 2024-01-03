@@ -5,18 +5,13 @@ import {
   getAssociatedTokenAddressSync,
   getMint,
 } from "@solana/spl-token";
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import Link from "next/link";
-import { ReactNode } from "react";
-import { getExplorerUrl } from "../utils/explorer";
-import { shortenAddress } from "../utils/formatters";
-import { scoreTokenLock } from "../utils/score";
+import { Connection, PublicKey } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
 import { Valhalla } from "./valhalla";
-import { getLocksByMintFilter, getLocksByUserFilter } from "program/filters";
-import axios from "axios";
 import { DasApiAssetContent } from "@metaplex-foundation/digital-asset-standard-api";
-import { notify } from "utils/notifications";
+import axios from "axios";
+import { getLocksByMintFilter, getLocksByUserFilter } from "./filters";
+import { scoreTokenLock } from "./score";
 
 export const PROGRAM_ID = new PublicKey(
   "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
@@ -80,10 +75,6 @@ export const getAllLocks = async (
       mint = new PublicKey(search);
     } catch (err) {
       console.error(err);
-      notify({
-        message: "Invalid mint address",
-        type: "error",
-      });
     }
   }
 
@@ -140,7 +131,9 @@ export const getAllLocks = async (
       (tokenMetadata) => tokenMetadata.id === lock.mint.address.toBase58()
     );
 
-    lock.setDASAssetContent(dasAsset);
+    if (dasAsset) {
+      lock.setDASAssetContent(dasAsset);
+    }
   });
 
   return formattedLocks;
@@ -192,7 +185,9 @@ export const getLocksByUser = async (
       (tokenMetadata) => tokenMetadata.id === lock.mint.address.toBase58()
     );
 
-    lock.setDASAssetContent(dasAsset);
+    if (dasAsset) {
+      lock.setDASAssetContent(dasAsset);
+    }
   });
 
   return formattedLocks;
@@ -243,7 +238,9 @@ export const getLocksByMint = async (
       (tokenMetadata) => tokenMetadata.id === lock.mint.address.toBase58()
     );
 
-    lock.setDASAssetContent(dasAsset);
+    if (dasAsset) {
+      lock.setDASAssetContent(dasAsset);
+    }
   });
 
   return formattedLocks;
@@ -272,36 +269,8 @@ export const getLockByPublicKey = async (
   );
 };
 
-export class LockerAccount {
-  constructor(
-    public publicKey: PublicKey,
-    public admin: PublicKey,
-    public treasury: PublicKey,
-    public fee: anchor.BN
-  ) {}
-
-  get displayPublicKey(): string {
-    return shortenAddress(this.publicKey);
-  }
-
-  get displayAdmin(): string {
-    return shortenAddress(this.admin);
-  }
-
-  get displayTreasury(): string {
-    return shortenAddress(this.treasury);
-  }
-
-  get displayFee(): string {
-    return this.fee
-      .div(new anchor.BN(LAMPORTS_PER_SOL))
-      .toNumber()
-      .toLocaleString();
-  }
-}
-
 export class LockAccount {
-  dasAsset: DasApiAssetContent;
+  dasAsset: DasApiAssetContent | undefined;
 
   constructor(
     public publicKey: PublicKey,
@@ -328,42 +297,16 @@ export class LockAccount {
     )} days`;
   }
 
-  get displayPublicKey(): string {
-    return shortenAddress(this.publicKey);
-  }
-
-  get displayLockDate(): string {
-    return new Date(this.lockedDate.toNumber() * 1000).toLocaleDateString();
-  }
-
-  get displayMint(): ReactNode {
-    return (
-      <Link
-        className="link link-secondary"
-        href={getExplorerUrl(this.endpoint, this.mint.address, "token")}
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        {shortenAddress(this.mint.address)}
-      </Link>
-    );
-  }
-
   get displayUnlockDate(): string {
     return new Date(this.unlockDate.toNumber() * 1000).toLocaleDateString();
   }
 
-  get displayUser(): ReactNode {
-    return (
-      <Link
-        className="link link-secondary"
-        href={getExplorerUrl(this.endpoint, this.user)}
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        {shortenAddress(this.user)}
-      </Link>
-    );
+  get displayLockedDate(): string {
+    return new Date(this.lockedDate.toNumber() * 1000).toLocaleDateString();
+  }
+
+  get displayUser(): string {
+    return this.user.toBase58();
   }
 
   get percentLocked(): number {
@@ -371,11 +314,12 @@ export class LockAccount {
       this.lockTokenAccount.amount / BigInt(10 ** this.mint.decimals)
     );
     const supply = Number(this.mint.supply / BigInt(10 ** this.mint.decimals));
-    return amountLocked / supply;
+
+    return (amountLocked * 100) / supply;
   }
 
   get displayPercentLocked(): string {
-    return `${(this.percentLocked * 100).toFixed(2)}%`;
+    return `${this.percentLocked.toFixed(2)}%`;
   }
 
   get canMint(): boolean {

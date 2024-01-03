@@ -1,5 +1,4 @@
 const nord = require("daisyui/src/theming/themes").nord;
-console.log("-> ~ nord:", nord);
 
 module.exports = {
   mode: "jit",

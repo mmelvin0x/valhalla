@@ -16,6 +16,7 @@ import { before } from "mocha";
 const LOCK_SEED = Buffer.from("lock");
 const LOCKER_SEED = Buffer.from("locker");
 const LOCK_TOKEN_ACCOUNT_SEED = Buffer.from("token");
+const LOCK_REWARD_TOKEN_ACCOUNT_SEED = Buffer.from("reward");
 
 describe("Valhalla", () => {
   const provider = anchor.AnchorProvider.env();
@@ -28,11 +29,14 @@ describe("Valhalla", () => {
   let admin: anchor.web3.Keypair;
   let treasury: anchor.web3.PublicKey;
   let mint: anchor.web3.PublicKey;
+  let rewardTokenMint: anchor.web3.PublicKey;
   let user: anchor.web3.Keypair;
   let userTokenAccount: Account;
+  let userRewardTokenAccount: Account;
   let lock: anchor.web3.PublicKey;
   let locker: anchor.web3.PublicKey;
   let lockTokenAccount: anchor.web3.PublicKey;
+  let lockRewardTokenAccount: anchor.web3.PublicKey;
 
   before(async () => {
     admin = payer;
@@ -55,10 +59,25 @@ describe("Valhalla", () => {
       9
     );
 
+    rewardTokenMint = await createMint(
+      provider.connection,
+      payer,
+      payer.publicKey,
+      payer.publicKey,
+      9
+    );
+
     userTokenAccount = await getOrCreateAssociatedTokenAccount(
       provider.connection,
       user,
       mint,
+      user.publicKey
+    );
+
+    userRewardTokenAccount = await getOrCreateAssociatedTokenAccount(
+      provider.connection,
+      user,
+      rewardTokenMint,
       user.publicKey
     );
 
@@ -91,8 +110,19 @@ describe("Valhalla", () => {
       program.programId
     );
 
+    [lockRewardTokenAccount] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        lock.toBuffer(),
+        user.publicKey.toBuffer(),
+        rewardTokenMint.toBuffer(),
+        LOCK_REWARD_TOKEN_ACCOUNT_SEED,
+      ],
+      program.programId
+    );
+
     console.log();
     console.log("\tAccounts -");
+    console.log(`\t\tLocker - ${locker.toBase58()}`);
     console.log(`\t\tLock - ${lock.toBase58()}`);
     console.log(`\t\tLock Token Account - ${lockTokenAccount.toBase58()}`);
     console.log(`\t\tUser - ${user.publicKey.toBase58()}`);
