@@ -1,4 +1,8 @@
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import {
+  useAnchorWallet,
+  useConnection,
+  useWallet,
+} from "@solana/wallet-adapter-react";
 import { Valhalla, IDL } from "program/valhalla";
 import { useMemo } from "react";
 import * as anchor from "@coral-xyz/anchor";

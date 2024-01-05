@@ -1,10 +1,5 @@
 import { Program } from "@coral-xyz/anchor";
-import {
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey, Transaction } from "@solana/web3.js";
 import { Valhalla } from "./valhalla";
 import * as anchor from "@coral-xyz/anchor";
 import {
@@ -14,19 +9,6 @@ import {
   getUserTokenAccountKey,
 } from "./accounts";
 
-const PROGRAM_UPDATE_AUTHORITY = new PublicKey(
-  "MiKELRVWoegdqFHw4R1MH3XvJ8BYFajp89fHZ1fzB5w"
-);
-
-export const sendFee = (from: PublicKey): Transaction =>
-  new Transaction().add(
-    SystemProgram.transfer({
-      fromPubkey: from,
-      toPubkey: PROGRAM_UPDATE_AUTHORITY,
-      lamports: 0.025 * LAMPORTS_PER_SOL,
-    })
-  );
-
 export const createLock = async (
   user: PublicKey,
   unlockDate: number,
@@ -34,27 +16,25 @@ export const createLock = async (
   mint: PublicKey,
   program: Program<Valhalla>
 ): Promise<Transaction> =>
-  new Transaction()
-    .add(
-      await program.methods
-        .createLock(
-          new anchor.BN(Math.floor(unlockDate / 1000)),
-          new anchor.BN(depositAmount * LAMPORTS_PER_SOL)
-        )
-        .accounts({
-          user: user,
-          lock: getLockKey(user, mint),
-          lockTokenAccount: getLockTokenAccountKey(
-            getLockKey(user, mint),
-            user,
-            mint
-          ),
-          userTokenAccount: getUserTokenAccountKey(mint, user),
-          mint,
-        })
-        .transaction()
-    )
-    .add(sendFee(user));
+  new Transaction().add(
+    await program.methods
+      .createLock(
+        new anchor.BN(Math.floor(unlockDate / 1000)),
+        new anchor.BN(depositAmount * LAMPORTS_PER_SOL)
+      )
+      .accounts({
+        user: user,
+        lock: getLockKey(user, mint),
+        lockTokenAccount: getLockTokenAccountKey(
+          getLockKey(user, mint),
+          user,
+          mint
+        ),
+        userTokenAccount: getUserTokenAccountKey(mint, user),
+        mint,
+      })
+      .transaction()
+  );
 
 export const depositToLock = async (
   user: PublicKey,

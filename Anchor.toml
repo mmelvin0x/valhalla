@@ -5,11 +5,11 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-valhalla = "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
+valhalla = "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
 [programs.devnet]
-valhalla = "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
+valhalla = "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
 [programs.mainnet]
-valhalla = "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
+valhalla = "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
 
 
 [registry]
@@ -17,8 +17,9 @@ url = "https://api.apr.dev"
 
 [provider]
 cluster = "Localnet"
-wallet = "/Users/mjm_0x/Workspace/valhalla/.keys/MiKELRVWoegdqFHw4R1MH3XvJ8BYFajp89fHZ1fzB5w.json"
+wallet = "./.keys/valhalla.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/valhalla.ts"
 mint-dev-tokens = "yarn run ts-node ./scripts/mint-dev-tokens.ts"
+init = "yarn ts-node ./scripts/init.ts"

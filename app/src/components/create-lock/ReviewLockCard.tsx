@@ -1,6 +1,9 @@
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
+import { useConnection } from "@solana/wallet-adapter-react";
+import Link from "next/link";
 import { useMemo } from "react";
 import { FaClipboardCheck } from "react-icons/fa";
+import { getExplorerUrl } from "utils/explorer";
 import { shortenNumber } from "utils/formatters";
 
 interface ReviewLockCardProps {
@@ -14,6 +17,7 @@ export default function ReviewLockCard({
   unlockDate,
   depositAmount,
 }: ReviewLockCardProps) {
+  const { connection } = useConnection();
   const displayAmount = useMemo(
     () => shortenNumber(depositAmount, 4),
     [depositAmount]
@@ -30,13 +34,19 @@ export default function ReviewLockCard({
             <div className="font-bold">Token</div>
             <div className="flex items-center gap-2">
               <div className="avatar">
-                <div className="rounded-full w-12 h-12">
+                <Link
+                  href={getExplorerUrl(
+                    connection.rpcEndpoint,
+                    selectedToken.id
+                  )}
+                  className="rounded-full w-12 h-12 link"
+                >
                   <img
                     className="rounded-full avatar"
                     src={selectedToken?.content.links?.["image"] || "/LP.png"}
                     alt={""}
                   />
-                </div>
+                </Link>
               </div>
               <div className="text-2xl font-bold">
                 {/* @ts-ignore */}

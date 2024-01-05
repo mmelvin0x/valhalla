@@ -7,7 +7,7 @@ import {
 } from "@solana/spl-token";
 
 const receiverOne = new anchor.web3.PublicKey(
-  "MiKELRVWoegdqFHw4R1MH3XvJ8BYFajp89fHZ1fzB5w"
+  "AJ7NKueXnNM2sZtBKcf81sMpvyJXENpajLGpdzBKrogJ"
 );
 
 const receiverTwo = new anchor.web3.PublicKey(

@@ -3,6 +3,11 @@ export type Valhalla = {
   "name": "valhalla",
   "constants": [
     {
+      "name": "LOCKER_SEED",
+      "type": "bytes",
+      "value": "[108, 111, 99, 107, 101, 114]"
+    },
+    {
       "name": "LOCK_SEED",
       "type": "bytes",
       "value": "[108, 111, 99, 107]"
@@ -14,6 +19,94 @@ export type Valhalla = {
     }
   ],
   "instructions": [
+    {
+      "name": "init",
+      "docs": [
+        "# Initializes a new locker.",
+        "",
+        "## Accounts expected",
+        "",
+        "0. `[signer]` The payer account for the locker account.",
+        "1. `[writable]` The locker account to be initialized.",
+        "2. `[]` The treasury account.",
+        "3. `[executable]` The system program.",
+        "",
+        "## Arguments",
+        "",
+        "* `fee` - The fee to be charged for each lock."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "locker",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "updateLockerFee",
+      "docs": [
+        "# Updates the fee of a locker.",
+        "",
+        "## Accounts expected",
+        "",
+        "0. `[signer]` The payer account for the locker account.",
+        "1. `[writable]` The locker account.",
+        "2. `[]` The treasury account.",
+        "",
+        "## Arguments",
+        "",
+        "* `new_fee` - The new fee of the locker.",
+        "",
+        "## Errors",
+        "",
+        "* `Unauthorized` - The signer is not the current admin."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "locker",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
+    },
     {
       "name": "createLock",
       "docs": [
@@ -45,10 +138,17 @@ export type Valhalla = {
         {
           "name": "user",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "The user paying for the tx"
-          ]
+          "isSigner": true
+        },
+        {
+          "name": "locker",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "lock",
@@ -193,12 +293,27 @@ export type Valhalla = {
           "isSigner": true
         },
         {
+          "name": "lockTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "lock",
           "isMut": true,
           "isSigner": false
         },
         {
           "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -360,6 +475,26 @@ export type Valhalla = {
   ],
   "accounts": [
     {
+      "name": "locker",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "treasury",
+            "type": "publicKey"
+          },
+          {
+            "name": "admin",
+            "type": "publicKey"
+          },
+          {
+            "name": "fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "lock",
       "type": {
         "kind": "struct",
@@ -402,6 +537,11 @@ export type Valhalla = {
       "code": 6001,
       "name": "Locked",
       "msg": "The lock has not expired yet"
+    },
+    {
+      "code": 6002,
+      "name": "Unauthorized",
+      "msg": "Not authorized to perform this action"
     }
   ]
 };
@@ -411,6 +551,11 @@ export const IDL: Valhalla = {
   "name": "valhalla",
   "constants": [
     {
+      "name": "LOCKER_SEED",
+      "type": "bytes",
+      "value": "[108, 111, 99, 107, 101, 114]"
+    },
+    {
       "name": "LOCK_SEED",
       "type": "bytes",
       "value": "[108, 111, 99, 107]"
@@ -422,6 +567,94 @@ export const IDL: Valhalla = {
     }
   ],
   "instructions": [
+    {
+      "name": "init",
+      "docs": [
+        "# Initializes a new locker.",
+        "",
+        "## Accounts expected",
+        "",
+        "0. `[signer]` The payer account for the locker account.",
+        "1. `[writable]` The locker account to be initialized.",
+        "2. `[]` The treasury account.",
+        "3. `[executable]` The system program.",
+        "",
+        "## Arguments",
+        "",
+        "* `fee` - The fee to be charged for each lock."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "locker",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "updateLockerFee",
+      "docs": [
+        "# Updates the fee of a locker.",
+        "",
+        "## Accounts expected",
+        "",
+        "0. `[signer]` The payer account for the locker account.",
+        "1. `[writable]` The locker account.",
+        "2. `[]` The treasury account.",
+        "",
+        "## Arguments",
+        "",
+        "* `new_fee` - The new fee of the locker.",
+        "",
+        "## Errors",
+        "",
+        "* `Unauthorized` - The signer is not the current admin."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "locker",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
+    },
     {
       "name": "createLock",
       "docs": [
@@ -453,10 +686,17 @@ export const IDL: Valhalla = {
         {
           "name": "user",
           "isMut": true,
-          "isSigner": true,
-          "docs": [
-            "The user paying for the tx"
-          ]
+          "isSigner": true
+        },
+        {
+          "name": "locker",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "lock",
@@ -601,12 +841,27 @@ export const IDL: Valhalla = {
           "isSigner": true
         },
         {
+          "name": "lockTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "lock",
           "isMut": true,
           "isSigner": false
         },
         {
           "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -768,6 +1023,26 @@ export const IDL: Valhalla = {
   ],
   "accounts": [
     {
+      "name": "locker",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "treasury",
+            "type": "publicKey"
+          },
+          {
+            "name": "admin",
+            "type": "publicKey"
+          },
+          {
+            "name": "fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "lock",
       "type": {
         "kind": "struct",
@@ -810,6 +1085,11 @@ export const IDL: Valhalla = {
       "code": 6001,
       "name": "Locked",
       "msg": "The lock has not expired yet"
+    },
+    {
+      "code": 6002,
+      "name": "Unauthorized",
+      "msg": "Not authorized to perform this action"
     }
   ]
 };

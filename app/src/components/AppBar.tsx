@@ -23,7 +23,7 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
   return (
     <div>
       {/* NavBar / Header */}
-      <div className="navbar flex flex-row md:mb-2 bg-gradient-to-r from-white to-base-content">
+      <div className="navbar flex flex-row md:mb-2 bg-gradient-to-r from-white to-primary">
         <Link href="/" className="navbar-start gap-2">
           <Image src="/logo64.png" alt="logo" width={48} height={48} />{" "}
           <h3 className="degen-locker">Valhalla</h3>
@@ -35,7 +35,7 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
             <Link
               href="/"
               className={`flex items-center gap-1 link link-hover font-bold ${
-                router.pathname === "/" ? "link-accent" : ""
+                router.pathname === "/" ? "link-primary" : ""
               }`}
             >
               <FaHome className="inline" />
@@ -44,7 +44,7 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
             <Link
               href="/locks"
               className={`flex items-center gap-1 link link-hover font-bold ${
-                router.pathname === "/locks" ? "link-accent" : ""
+                router.pathname === "/locks" ? "link-primary" : ""
               }`}
             >
               <FaLockOpen className="inline" />
@@ -55,7 +55,7 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
                 <Link
                   href={`/locks/create`}
                   className={`flex items-center gap-1 link link-hover font-bold ${
-                    router.pathname === "/locks/create" ? "link-accent" : ""
+                    router.pathname === "/locks/create" ? "link-primary" : ""
                   }`}
                 >
                   <FaPlusCircle className="inline" />
@@ -65,7 +65,7 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
                 <Link
                   href={`/${publicKey?.toBase58()}/locks`}
                   className={`flex items-center gap-1 link link-hover font-bold ${
-                    router.pathname === "/[user]/locks" ? "link-accent" : ""
+                    router.pathname === "/[user]/locks" ? "link-primary" : ""
                   }`}
                 >
                   <FaUserLock className="inline" />

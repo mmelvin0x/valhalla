@@ -1,31 +1,18 @@
 import { Program } from "@coral-xyz/anchor";
-import {
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import { Valhalla } from "./valhalla";
 import * as anchor from "@coral-xyz/anchor";
 import {
+  LOCKER_SEED,
+  LOCK_SEED,
+  LOCK_TOKEN_ACCOUNT_SEED,
   LockAccount,
+  TREASURY,
   getLockKey,
   getLockTokenAccountKey,
-  getUserTokenAccountKey,
+  getLockerKey,
 } from "./accounts";
-
-const PROGRAM_UPDATE_AUTHORITY = new PublicKey(
-  "MiKELRVWoegdqFHw4R1MH3XvJ8BYFajp89fHZ1fzB5w"
-);
-
-export const sendFee = (from: PublicKey): Transaction =>
-  new Transaction().add(
-    SystemProgram.transfer({
-      fromPubkey: from,
-      toPubkey: PROGRAM_UPDATE_AUTHORITY,
-      lamports: 0.025 * LAMPORTS_PER_SOL,
-    })
-  );
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 
 export const createLock = async (
   user: PublicKey,
@@ -33,28 +20,30 @@ export const createLock = async (
   depositAmount: number,
   mint: PublicKey,
   program: Program<Valhalla>
-): Promise<Transaction> =>
-  new Transaction()
-    .add(
-      await program.methods
-        .createLock(
-          new anchor.BN(Math.floor(unlockDate / 1000)),
-          new anchor.BN(depositAmount * LAMPORTS_PER_SOL)
-        )
-        .accounts({
-          user: user,
-          lock: getLockKey(user, mint),
-          lockTokenAccount: getLockTokenAccountKey(
-            getLockKey(user, mint),
-            user,
-            mint
-          ),
-          userTokenAccount: getUserTokenAccountKey(mint, user),
-          mint,
-        })
-        .transaction()
-    )
-    .add(sendFee(user));
+): Promise<Transaction> => {
+  const amount = new anchor.BN(depositAmount);
+  const date = new anchor.BN(Math.floor(unlockDate / 1000));
+  const locker = getLockerKey();
+  const treasury = TREASURY;
+  const lock = getLockKey(user, mint);
+  const lockTokenAccount = getLockTokenAccountKey(lock, user, mint);
+  const userTokenAccount = getAssociatedTokenAddressSync(mint, user);
+
+  return new Transaction().add(
+    await program.methods
+      .createLock(date, amount)
+      .accounts({
+        user,
+        locker,
+        treasury,
+        lock,
+        lockTokenAccount,
+        userTokenAccount,
+        mint,
+      })
+      .transaction()
+  );
+};
 
 export const depositToLock = async (
   user: PublicKey,
@@ -64,9 +53,7 @@ export const depositToLock = async (
 ): Promise<Transaction> =>
   new Transaction().add(
     await program.methods
-      .depositToLock(
-        new anchor.BN((depositAmount * 10 ** lock.mint.decimals).toString())
-      )
+      .depositToLock(new anchor.BN(depositAmount.toString()))
       .accounts({
         user,
         lock: lock.publicKey,
@@ -102,9 +89,7 @@ export const withdrawFromLock = async (
 ): Promise<Transaction> =>
   new Transaction().add(
     await program.methods
-      .withdrawFromLock(
-        new anchor.BN((withdrawAmount * 10 ** lock.mint.decimals).toString())
-      )
+      .withdrawFromLock(new anchor.BN(withdrawAmount.toString()))
       .accounts({
         user,
         lock: lock.publicKey,
@@ -127,6 +112,7 @@ export const closeLock = async (
         user,
         lock: lock.publicKey,
         lockTokenAccount: lock.lockTokenAccount.address,
+        userTokenAccount: lock.userTokenAccount.address,
         mint: lock.mint.address,
       })
       .transaction()

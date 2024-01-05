@@ -54,16 +54,17 @@ pub fn withdraw_from_lock(ctx: Context<WithdrawFromLock>, withdraw_amount: u64) 
     let user_token_account = &ctx.accounts.user_token_account;
 
     // Ensure that the lock is unlocked
-    if lock.unlock_date > (Clock::get()?.unix_timestamp as u64) {
+    if !lock.is_unlocked() {
         return Err(LockError::Locked.into());
     }
 
     // Prevent user from withdrawing more than they have
-    let amount = if lock_token_account.amount < withdraw_amount {
-        lock_token_account.amount
-    } else {
-        withdraw_amount
-    };
+    let calc_amount = withdraw_amount
+        .checked_mul((10u64).pow(ctx.accounts.mint.decimals as u32))
+        .unwrap();
+
+    let amount = calc_amount.min(lock_token_account.amount);
+    let amount_remaining = lock_token_account.amount.checked_sub(amount).unwrap();
 
     let bump = ctx.bumps.lock_token_account;
     let signer: &[&[&[u8]]] = &[

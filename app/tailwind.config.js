@@ -8,17 +8,7 @@ module.exports = {
   plugins: [require("@tailwindcss/typography"), require("daisyui")],
   daisyui: {
     styled: true,
-    themes: [
-      {
-        nord: {
-          ...nord,
-          primary: "#1a647c",
-          secondary: "#87dbd3",
-          accent: "#4eeceb",
-          "base-content": "#093347",
-        },
-      },
-    ],
+    themes: ["nord"],
     base: true,
     utils: true,
     logs: true,

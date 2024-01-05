@@ -1,9 +1,10 @@
+import { ReactNode } from "react";
 import useNotificationStore from "../stores/useNotificationStore";
 
 export function notify(newNotification: {
   type?: string;
   message: string;
-  description?: string;
+  description?: string | ReactNode;
   txid?: string;
 }) {
   const { notifications, set: setNotificationStore } =

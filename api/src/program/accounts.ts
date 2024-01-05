@@ -14,7 +14,7 @@ import { getLocksByMintFilter, getLocksByUserFilter } from "./filters";
 import { scoreTokenLock } from "./score";
 
 export const PROGRAM_ID = new PublicKey(
-  "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
+  "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
 );
 
 export const LOCK_SEED = "lock";

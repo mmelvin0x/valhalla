@@ -8,13 +8,19 @@ import LockListCard from "components/LockListCard";
 import { notify } from "utils/notifications";
 import { TransactionSignature } from "@solana/web3.js";
 import Link from "next/link";
-import { getExplorerUrl } from "utils/explorer";
-import { shortenSignature } from "utils/formatters";
 import DepositToLockDialog from "components/modals/DepositToLockDialog";
-import { depositToLock, extendLock } from "program/instructions";
+import {
+  closeLock,
+  depositToLock,
+  extendLock,
+  withdrawFromLock,
+} from "program/instructions";
 import { BN } from "bn.js";
 import ExtendLockDialog from "components/modals/ExtendLockDialog";
 import useLocksStore from "stores/useLocksStore";
+import TransactionSentDescription from "components/notification-messages/TransactionSentDescription";
+import WithdrawFromLockDialog from "components/modals/WidthdrawFromLockDialog";
+import CloseLockDialog from "components/modals/CloseLockDialog";
 
 const UserLocks: FC = () => {
   const today = new Date();
@@ -31,6 +37,7 @@ const UserLocks: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [depositAmount, setDepositAmount] = useState<number>(0);
   const [unlockDate, setUnlockDate] = useState<number>(thirtyDays);
+  const [withdrawAmount, setWithdrawAmount] = useState<number>(0);
 
   const getLocks = async (showLoadingSpinner: boolean) => {
     setIsLoading(showLoadingSpinner);
@@ -94,11 +101,9 @@ const UserLocks: FC = () => {
       notify({
         message: "Transaction sent",
         type: "success",
-        description: `Transaction has been sent to the network. Check it at ${(
-          <Link href={getExplorerUrl(lock.endpoint, signature)}>
-            {shortenSignature(signature)}
-          </Link>
-        )}`,
+        description: (
+          <TransactionSentDescription lock={lock} signature={signature} />
+        ),
       });
     } catch (error) {
       console.error(error);
@@ -139,21 +144,109 @@ const UserLocks: FC = () => {
       signature = await wallet.sendTransaction(extendLockTx, connection);
       await connection.confirmTransaction(signature, "confirmed");
 
-      await getLocks(true);
+      await getLocks(false);
       setUnlockDate(today.getTime());
       setIsLoading(false);
 
       notify({
         message: "Transaction sent",
         type: "success",
-        // @ts-ignore
         description: (
-          <Link
-            className="link link-accent"
-            href={getExplorerUrl(lock.endpoint, signature)}
-          >
-            {shortenSignature(signature)}
-          </Link>
+          <TransactionSentDescription lock={lock} signature={signature} />
+        ),
+      });
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+
+      notify({
+        message: "Transaction failed",
+        type: "error",
+        description: error.message,
+      });
+    }
+  };
+
+  const onWithdrawFromLock = async (lock: LockAccount) => {
+    if (!wallet?.publicKey) {
+      return;
+    }
+
+    if (!lock.canUnlock) {
+      notify({
+        message: "You can't withdraw from this lock yet",
+        type: "error",
+      });
+
+      return;
+    }
+
+    setIsLoading(true);
+    let signature: TransactionSignature = "";
+    try {
+      const withdrawFromLockTx = await withdrawFromLock(
+        wallet.publicKey,
+        withdrawAmount,
+        lock,
+        program
+      );
+
+      signature = await wallet.sendTransaction(withdrawFromLockTx, connection);
+      await connection.confirmTransaction(signature, "confirmed");
+
+      await getLocks(false);
+      setWithdrawAmount(0);
+      setIsLoading(false);
+
+      notify({
+        message: "Transaction sent",
+        type: "success",
+        description: (
+          <TransactionSentDescription lock={lock} signature={signature} />
+        ),
+      });
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+
+      notify({
+        message: "Transaction failed",
+        type: "error",
+        description: error.message,
+      });
+    }
+  };
+
+  const onCloseLock = async (lock: LockAccount) => {
+    if (!wallet?.publicKey) {
+      return;
+    }
+
+    if (!lock.canUnlock) {
+      notify({
+        message: "You can't close this lock yet",
+        type: "error",
+      });
+
+      return;
+    }
+
+    setIsLoading(true);
+    let signature: TransactionSignature = "";
+    try {
+      const closeLockTx = await closeLock(wallet.publicKey, lock, program);
+
+      signature = await wallet.sendTransaction(closeLockTx, connection);
+      await connection.confirmTransaction(signature, "confirmed");
+
+      await getLocks(false);
+      setIsLoading(false);
+
+      notify({
+        message: "Transaction sent",
+        type: "success",
+        description: (
+          <TransactionSentDescription lock={lock} signature={signature} />
         ),
       });
     } catch (error) {
@@ -213,7 +306,13 @@ const UserLocks: FC = () => {
                 oneThousandYears,
               }}
             />
-            {/* TODO: add withdraw */}
+            <WithdrawFromLockDialog
+              lock={lock}
+              withdrawAmount={withdrawAmount}
+              setWithdrawAmount={setWithdrawAmount}
+              onSubmit={onWithdrawFromLock}
+            />
+            <CloseLockDialog lock={lock} onSubmit={onCloseLock} />
           </div>
         ))}
     </div>

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{ Mint, Token, TokenAccount, Transfer, self },
+    token::{ Mint, Token, TokenAccount, Transfer, self, CloseAccount },
 };
 
 use crate::{ constants, errors::LockError, state::Lock };
@@ -25,7 +25,6 @@ pub struct CloseLock<'info> {
 
     #[account(
         mut,
-        close = user,
         seeds = [
             lock.key().as_ref(),
             user.key().as_ref(),
@@ -57,7 +56,7 @@ pub fn close_lock(ctx: Context<CloseLock>) -> Result<()> {
     let lock = &ctx.accounts.lock;
 
     // Ensure that the lock is unlocked
-    if lock.unlock_date > (Clock::get()?.unix_timestamp as u64) {
+    if !lock.is_unlocked() {
         return Err(LockError::Locked.into());
     }
 
@@ -91,6 +90,17 @@ pub fn close_lock(ctx: Context<CloseLock>) -> Result<()> {
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
         token::transfer(cpi_ctx, ctx.accounts.lock_token_account.amount)?;
+
+        // Close the lock token account
+        let cpi_accounts = CloseAccount {
+            account: ctx.accounts.lock_token_account.to_account_info(),
+            destination: ctx.accounts.user.to_account_info(),
+            authority: ctx.accounts.lock_token_account.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+
+        token::close_account(cpi_ctx)?;
     }
 
     Ok(())

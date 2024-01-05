@@ -46,9 +46,7 @@
           "name": "user",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "The user paying for the tx"
-          ]
+          "docs": ["The user paying for the tx"]
         },
         {
           "name": "lock",
@@ -405,6 +403,6 @@
     }
   ],
   "metadata": {
-    "address": "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
+    "address": "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
   }
 }

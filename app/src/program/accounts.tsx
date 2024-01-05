@@ -19,53 +19,55 @@ import { DasApiAssetContent } from "@metaplex-foundation/digital-asset-standard-
 import { notify } from "utils/notifications";
 
 export const PROGRAM_ID = new PublicKey(
-  "VHK5bbtGpSNyJoRca8kt3fne9cWLsqAAZgVEg6Ww3Lq"
+  "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
 );
 
-export const LOCK_SEED = "lock";
-export const LOCK_TOKEN_ACCOUNT_SEED = "token";
-export const REWARD_MINT_SEED = "reward";
-
-export const [REWARD_TOKEN_MINT_KEY] = PublicKey.findProgramAddressSync(
-  [Buffer.from("reward")],
-  PROGRAM_ID
+export const TREASURY = new PublicKey(
+  "AJ7NKueXnNM2sZtBKcf81sMpvyJXENpajLGpdzBKrogJ"
 );
 
-export const [LOCKER_KEY] = PublicKey.findProgramAddressSync(
-  [Buffer.from("locker")],
-  PROGRAM_ID
-);
+export const LOCK_SEED = Buffer.from("lock");
+export const LOCKER_SEED = Buffer.from("locker");
+export const LOCK_TOKEN_ACCOUNT_SEED = Buffer.from("token");
 
-export const getLockKey = (userKey: PublicKey, tokenMint: PublicKey) =>
-  PublicKey.findProgramAddressSync(
-    [userKey.toBuffer(), tokenMint.toBuffer(), Buffer.from(LOCK_SEED)],
-    PROGRAM_ID
-  )[0];
+export const getLockerKey = (): PublicKey => {
+  const [locker] = PublicKey.findProgramAddressSync([LOCKER_SEED], PROGRAM_ID);
 
-export const getLockTokenAccountKey = (
-  lockKey: PublicKey,
-  userKey: PublicKey,
-  tokenMint: PublicKey
-) =>
-  PublicKey.findProgramAddressSync(
-    [
-      lockKey.toBuffer(),
-      userKey.toBuffer(),
-      tokenMint.toBuffer(),
-      Buffer.from(LOCK_TOKEN_ACCOUNT_SEED),
-    ],
-    PROGRAM_ID
-  )[0];
-
-export const getUserTokenAccountKey = (
-  tokenMint: PublicKey,
-  userKey: PublicKey
-) => {
-  return getAssociatedTokenAddressSync(tokenMint, userKey);
+  return locker;
 };
 
-export const getUserRewardTokenAccountKey = (userKey: PublicKey) => {
-  return getAssociatedTokenAddressSync(REWARD_TOKEN_MINT_KEY, userKey);
+export const getLockKey = (user: PublicKey, mint: PublicKey): PublicKey => {
+  const [lock] = PublicKey.findProgramAddressSync(
+    [user.toBuffer(), mint.toBuffer(), LOCK_SEED],
+    PROGRAM_ID
+  );
+
+  return lock;
+};
+
+export const getLockTokenAccountKey = (
+  lock: PublicKey,
+  user: PublicKey,
+  mint: PublicKey
+) => {
+  const [lockTokenAccount] = PublicKey.findProgramAddressSync(
+    [
+      lock.toBuffer(),
+      user.toBuffer(),
+      mint.toBuffer(),
+      LOCK_TOKEN_ACCOUNT_SEED,
+    ],
+    PROGRAM_ID
+  );
+
+  return lockTokenAccount;
+};
+
+export const getUserTokenAccountKey = (
+  userKey: PublicKey,
+  tokenMint: PublicKey
+) => {
+  return getAssociatedTokenAddressSync(tokenMint, userKey);
 };
 
 export const getAllLocks = async (
@@ -103,6 +105,7 @@ export const getAllLocks = async (
   const theLocks = await program.account.lock.all();
   for (let i = 0; i < theLocks.length; i++) {
     const lock = theLocks[i];
+    console.log("-> ~ lock:", lock.account.userTokenAccount.toBase58());
     const mint = await getMint(connection, lock.account.mint);
     mints.push(mint);
     const lockTokenAccount = await getAccount(
@@ -110,9 +113,10 @@ export const getAllLocks = async (
       lock.account.lockTokenAccount
     );
     const userTokenAccountKey = getUserTokenAccountKey(
-      mint.address,
-      lock.account.user
+      lock.account.user,
+      mint.address
     );
+    console.log("-> ~ userTokenAccountKey:", userTokenAccountKey);
     const userTokenAccount = await getAccount(connection, userTokenAccountKey);
 
     formattedLocks.push(
@@ -165,8 +169,10 @@ export const getLocksByUser = async (
       connection,
       lock.account.lockTokenAccount
     );
-    const userTokenAccountKey = getUserTokenAccountKey(mint.address, userKey);
-    const userTokenAccount = await getAccount(connection, userTokenAccountKey);
+    const userTokenAccount = await getAccount(
+      connection,
+      lock.account.userTokenAccount
+    );
     formattedLocks.push(
       new LockAccount(
         lock.publicKey,
@@ -319,7 +325,8 @@ export class LockAccount {
   }
 
   get canUnlock(): boolean {
-    return this.lockedDate.sub(this.unlockDate).toNumber() > 0;
+    const now = new Date().getTime() / 1000;
+    return this.unlockDate.toNumber() <= now;
   }
 
   get daysUntilUnlock(): string {

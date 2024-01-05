@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaUnlock, FaPlus, FaClock } from "react-icons/fa";
+import { FaUnlock, FaPlus, FaClock, FaMinus } from "react-icons/fa";
 import { LockAccount } from "program/accounts";
 import { getExplorerUrl } from "utils/explorer";
 import Score from "./Score";
@@ -23,10 +23,10 @@ export default function LockListCard({ lock }: LockListCardProps) {
             rel="noopener noreferrer"
           >
             <h2 className="text-2xl font-bold flex gap-1 items-center">
-              {/* @ts-ignore */}
-              {lock.dasAsset.links?.image ? (
+              {/* @ts-expect-error dasAsset.links.image not defined on the type */}
+              {lock.dasAsset?.links?.image ? (
                 <img
-                  // @ts-ignore
+                  // @ts-expect-error dasAsset.links.image not defined on the type
                   src={lock.dasAsset.links?.image || ""}
                   className="w-8 h-8 rounded-full"
                 />
@@ -78,50 +78,73 @@ export default function LockListCard({ lock }: LockListCardProps) {
           {/* Actions */}
           <div className="flex flex-col gap-2">
             <span className="font-bold">Actions</span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <div
                 className="tooltip"
                 data-tip="Deposit more tokens to the lock"
               >
                 <button
-                  className="btn btn-sm btn-circle"
+                  className="btn btn-xs btn-circle"
                   onClick={() => {
-                    document
-                      .getElementById("deposit_to_lock_modal")
-                      // @ts-ignore
-                      .showModal();
+                    (
+                      document.getElementById(
+                        "deposit_to_lock_modal"
+                      ) as HTMLDialogElement
+                    ).showModal();
                   }}
                 >
                   <FaPlus />
                 </button>
               </div>
+              {lock.canUnlock && (
+                <div className="tooltip" data-tip="Withdraw tokens">
+                  <button
+                    onClick={() => {
+                      (
+                        document.getElementById(
+                          "withdraw_from_lock_modal"
+                        ) as HTMLDialogElement
+                      ).showModal();
+                    }}
+                    className="btn btn-xs btn-circle"
+                  >
+                    <FaMinus />
+                  </button>
+                </div>
+              )}
               <div className="tooltip" data-tip="Extend the lock duration">
                 <button
-                  className="btn btn-sm btn-circle"
+                  className="btn btn-xs btn-circle"
                   onClick={() => {
-                    document
-                      .getElementById("extend_lock_modal")
-                      // @ts-ignore
-                      .showModal();
+                    (
+                      document.getElementById(
+                        "extend_lock_modal"
+                      ) as HTMLDialogElement
+                    ).showModal();
                   }}
                 >
                   <FaClock />
                 </button>
               </div>
-              <div className="tooltip" data-tip="Unlock the tokens">
-                <button
-                  disabled={!lock.canUnlock}
-                  onClick={() => {
-                    document
-                      .getElementById("unlock_modal")
-                      // @ts-ignore
-                      .showModal();
-                  }}
-                  className="btn btn-sm btn-circle"
+              {lock.canUnlock && (
+                <div
+                  className="tooltip"
+                  data-tip="Withdraw all tokens and close the lock"
                 >
-                  <FaUnlock />
-                </button>
-              </div>
+                  <button
+                    onClick={() => {
+                      (
+                        document.getElementById(
+                          "close_lock_modal"
+                        ) as HTMLDialogElement
+                      ).showModal();
+                    }}
+                    className="btn btn-xs btn-circle"
+                  >
+                    <FaUnlock />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

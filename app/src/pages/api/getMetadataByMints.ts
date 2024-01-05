@@ -20,9 +20,15 @@ export default async function handler(
   });
 
   return res.status(200).json(
-    data.result.map((asset: DasApiAsset) => ({
-      id: asset.id,
-      ...asset.content,
-    }))
+    data.result
+      .map((asset: DasApiAsset) =>
+        asset?.id
+          ? {
+              id: asset.id,
+              ...asset.content,
+            }
+          : null
+      )
+      .filter((asset: DasApiAsset | null) => !!asset)
   );
 }
