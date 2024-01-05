@@ -6,12 +6,15 @@
   "scripts": {
     "copy:idl": "cp ./target/idl/valhalla.json ./app/src/program/idl.json",
     "copy:types": "cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts",
-    "solita": "solita",
+    "kinobi": "node kinobi.js",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",
+    "@metaplex-foundation/kinobi": "^0.16.15",
+    "@nestjs/cli": "^10.2.1",
+    "@nestjs/schematics": "^10.0.3",
     "@solana/spl-token": "^0.3.9"
   },
   "devDependencies": {

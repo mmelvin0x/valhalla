@@ -64,7 +64,6 @@ pub fn withdraw_from_lock(ctx: Context<WithdrawFromLock>, withdraw_amount: u64) 
         .unwrap();
 
     let amount = calc_amount.min(lock_token_account.amount);
-    let amount_remaining = lock_token_account.amount.checked_sub(amount).unwrap();
 
     let bump = ctx.bumps.lock_token_account;
     let signer: &[&[&[u8]]] = &[
