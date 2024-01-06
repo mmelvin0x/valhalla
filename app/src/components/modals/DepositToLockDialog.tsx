@@ -46,7 +46,7 @@ export default function DepositToLockDialog({
           <div className="label flex justify-end">
             <div className="label-text-alt flex gap-2">
               <button
-                className="btn btn-sm"
+                className="btn btn-xs"
                 onClick={() =>
                   setDepositAmount(
                     Number(
@@ -62,7 +62,7 @@ export default function DepositToLockDialog({
                 Half
               </button>
               <button
-                className="btn btn-sm"
+                className="btn btn-xs"
                 onClick={() =>
                   setDepositAmount(
                     Number(

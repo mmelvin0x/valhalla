@@ -1,5 +1,5 @@
 {
-  "name": "nodejs-express-typescript-howto",
+  "name": "valhalla-server",
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
@@ -10,19 +10,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ornio-no/post-nodejs-express-typescript-howto.git"
+    "url": "git+https://github.com/mmelvin0x/valhalla.git"
   },
   "keywords": [
     "nodejs",
     "typescript",
     "express"
   ],
-  "author": "Flamur Mavraj (Ornio AS)",
+  "author": "mmelvin0x",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ornio-no/post-nodejs-express-typescript-howto/issues"
+    "url": "https://github.com/mmelvin0x/valhalla/issues"
   },
-  "homepage": "https://github.com/ornio-no/post-nodejs-express-typescript-howto#readme",
+  "homepage": "https://github.com/mmelvin0x/valhalla#readme",
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged"

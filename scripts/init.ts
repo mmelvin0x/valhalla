@@ -1,7 +1,8 @@
 import * as anchor from "@coral-xyz/anchor";
 import { clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { IDL, Valhalla } from "../target/types/valhalla";
-import { PROGRAM_ID } from "../api/src/program/accounts";
+import {} from "../server/src/program/accounts";
+import { VALHALLA_PROGRAM_ID } from "../server/src/program";
 
 const main = async () => {
   const wallet = anchor.Wallet.local();
@@ -12,7 +13,11 @@ const main = async () => {
   );
 
   const provider = new anchor.AnchorProvider(connection, wallet, {});
-  const program = new anchor.Program<Valhalla>(IDL, PROGRAM_ID, provider);
+  const program = new anchor.Program<Valhalla>(
+    IDL,
+    VALHALLA_PROGRAM_ID, // Pass the required argument to the function
+    provider
+  );
 
   const [locker] = await anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("locker")],
@@ -21,7 +26,7 @@ const main = async () => {
   console.log("-> ~ main ~ locker:", locker.toBase58());
 
   const initTx = await program.methods
-    .init(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+    .init(new anchor.BN(0.025 * LAMPORTS_PER_SOL))
     .accounts({
       admin: wallet.publicKey,
       locker: locker,

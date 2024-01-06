@@ -53,6 +53,8 @@ const UserLocks: FC = () => {
   useEffect(() => {
     if (program?.programId && wallet?.publicKey) {
       getLocks(userLocks && userLocks.length === 0);
+    } else {
+      setUserLocks([]);
     }
   }, [connected]);
 
@@ -96,7 +98,6 @@ const UserLocks: FC = () => {
 
       await getLocks(true);
       setDepositAmount(0);
-      setIsLoading(false);
 
       notify({
         message: "Transaction sent",
@@ -105,15 +106,18 @@ const UserLocks: FC = () => {
           <TransactionSentDescription lock={lock} signature={signature} />
         ),
       });
+
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
 
       notify({
         message: "Transaction failed",
         type: "error",
         description: error.message,
       });
+
+      setIsLoading(false);
     }
   };
 
@@ -146,7 +150,6 @@ const UserLocks: FC = () => {
 
       await getLocks(false);
       setUnlockDate(today.getTime());
-      setIsLoading(false);
 
       notify({
         message: "Transaction sent",
@@ -155,15 +158,18 @@ const UserLocks: FC = () => {
           <TransactionSentDescription lock={lock} signature={signature} />
         ),
       });
+
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
 
       notify({
         message: "Transaction failed",
         type: "error",
         description: error.message,
       });
+
+      setIsLoading(false);
     }
   };
 
@@ -196,7 +202,6 @@ const UserLocks: FC = () => {
 
       await getLocks(false);
       setWithdrawAmount(0);
-      setIsLoading(false);
 
       notify({
         message: "Transaction sent",
@@ -205,15 +210,18 @@ const UserLocks: FC = () => {
           <TransactionSentDescription lock={lock} signature={signature} />
         ),
       });
+
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
 
       notify({
         message: "Transaction failed",
         type: "error",
         description: error.message,
       });
+
+      setIsLoading(false);
     }
   };
 
@@ -240,7 +248,6 @@ const UserLocks: FC = () => {
       await connection.confirmTransaction(signature, "confirmed");
 
       await getLocks(false);
-      setIsLoading(false);
 
       notify({
         message: "Transaction sent",
@@ -249,21 +256,24 @@ const UserLocks: FC = () => {
           <TransactionSentDescription lock={lock} signature={signature} />
         ),
       });
+
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
-      setIsLoading(false);
 
       notify({
         message: "Transaction failed",
         type: "error",
         description: error.message,
       });
+
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col gap-8 items-center justify-center py-10">
-      <h1 className="text-6xl font-bold">Your Locks</h1>
+      <h1 className="text-5xl font-bold">Your Locks</h1>
 
       {!wallet?.publicKey && (
         <div className="flex flex-col items-center gap-6">

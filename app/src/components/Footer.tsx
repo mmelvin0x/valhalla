@@ -6,13 +6,12 @@ export const Footer: FC = () => {
     <footer className="footer footer-center p-4 shadow-xl flex justify-between bg-gradient-to-r from-white to-primary">
       <p>&copy; {new Date().getFullYear()} Valhalla. All Rights Reserved.</p>
       <div className="flex items-center gap-1 text-white">
-        Powered by{" "}
         <Image
           alt="Solana"
           className="inline"
           src="/solanaLogo.png"
-          width={2584 / 20}
-          height={384 / 20}
+          width={2584 / 25}
+          height={384 / 25}
         />
       </div>
     </footer>

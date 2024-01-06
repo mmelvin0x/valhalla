@@ -1,14 +1,11 @@
-import {
-  Adapter,
-  WalletAdapterNetwork,
-  WalletError,
-} from "@solana/wallet-adapter-base";
+import { Adapter, WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   ConnectionProvider,
   WalletProvider,
+  useConnection,
 } from "@solana/wallet-adapter-react";
 import { clusterApiUrl } from "@solana/web3.js";
-import { FC, ReactNode, useMemo } from "react";
+import { FC, ReactNode, useEffect, useMemo } from "react";
 import { AutoConnectProvider, useAutoConnect } from "./AutoConnectProvider";
 import dynamic from "next/dynamic";
 
@@ -19,6 +16,7 @@ const ReactUIWalletModalProviderDynamic = dynamic(
 );
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const { connection } = useConnection();
   const { autoConnect } = useAutoConnect();
   const network = process.env.NEXT_PUBLIC_NETWORK!.includes("mainnet")
     ? WalletAdapterNetwork.Mainnet

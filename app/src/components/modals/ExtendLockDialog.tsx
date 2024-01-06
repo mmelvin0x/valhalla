@@ -42,25 +42,25 @@ export default function ExtendLockDialog({
           <div className="label flex justify-end">
             <div className="label-text-alt flex gap-2">
               <button
-                className={`btn btn-sm`}
+                className={`btn btn-xs`}
                 onClick={() => setUnlockDate(thirtyDays)}
               >
                 30 Days
               </button>
               <button
-                className={`btn btn-sm`}
+                className={`btn btn-xs`}
                 onClick={() => setUnlockDate(sixtyDays)}
               >
                 60 Days
               </button>
               <button
-                className={`btn btn-sm`}
+                className={`btn btn-xs`}
                 onClick={() => setUnlockDate(ninetyDays)}
               >
                 90 Days
               </button>
               <button
-                className={`btn btn-sm`}
+                className={`btn btn-xs`}
                 onClick={() => setUnlockDate(oneThousandYears)}
               >
                 Valhalla

@@ -34,7 +34,7 @@ const Locks: FC = () => {
 
   return (
     <div className="flex flex-col gap-8 items-center justify-center py-10">
-      <h1 className="text-6xl font-bold relative">Locks</h1>
+      <h1 className="text-5xl font-bold relative">Locks</h1>
 
       <div className="flex items-center gap-2">
         <div className="form-control">
@@ -61,49 +61,91 @@ const Locks: FC = () => {
           {!locks.length ? (
             <p className="prose text-center my-8">No locks found.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="table">
-                {/* head */}
-                <thead>
-                  <tr>
-                    <th>Score</th>
-                    <th>Symbol</th>
-                    <th>Name</th>
-                    <th>Renounced</th>
-                    <th>Lock Date</th>
-                    <th>Unlock Date</th>
-                    <th>% Locked</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {locks.map((lock) => (
-                    <tr
-                      key={lock.publicKey.toBase58()}
-                      className="hover cursor-pointer"
-                      onClick={() => onLockSelect(lock)}
-                    >
-                      <td>
-                        <Score
-                          lock={lock}
-                          tooltipDirection={"tooltip-right"}
-                          lockSize="32"
-                          lockTextSize="xs"
-                          lockTextPosition="top-1/2 left-1/4"
-                        />
-                      </td>
-                      <td>{lock.dasAsset.metadata.symbol}</td>
-                      <td>{lock.dasAsset.metadata.name}</td>
-                      <td>
-                        <Renounced lock={lock} showTitle={false} />
-                      </td>
-                      <td>{lock.displayLockDate}</td>
-                      <td>{lock.displayUnlockDate}</td>
-                      <td>{lock.displayPercentLocked}</td>
+            <>
+              <div className="hidden md:block h-full overflow-x-scroll">
+                <table className="table bg-base-100">
+                  {/* head */}
+                  <thead>
+                    <tr>
+                      <th>Score</th>
+                      <th>Symbol</th>
+                      <th className="">Name</th>
+                      <th>Renounced</th>
+                      <th className="">Lock Date</th>
+                      <th>Unlock Date</th>
+                      <th className="">% Locked</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {locks.map((lock) => (
+                      <tr
+                        key={lock.publicKey.toBase58()}
+                        className="hover cursor-pointer"
+                        onClick={() => onLockSelect(lock)}
+                      >
+                        <td>
+                          <Score
+                            lock={lock}
+                            tooltipDirection={"tooltip-right"}
+                            lockSize="32"
+                            lockTextSize="xs"
+                            lockTextPosition="top-1/2 left-1/4"
+                          />
+                        </td>
+                        <td>{lock.dasAsset?.metadata.symbol || "UNK"}</td>
+                        <td className="">
+                          {lock.dasAsset?.metadata.name || "Unknown"}
+                        </td>
+                        <td>
+                          <Renounced lock={lock} showTitle={false} />
+                        </td>
+                        <td className="">{lock.displayLockDate}</td>
+                        <td>{lock.displayUnlockDate}</td>
+                        <td className="">{lock.displayPercentLocked}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="md:hidden overflow-x-scroll">
+                <table className="table bg-base-100">
+                  {/* head */}
+                  <thead>
+                    <tr>
+                      <th>Score</th>
+                      <th>Symbol</th>
+                      <th>Renounced</th>
+                      <th>Unlock Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {locks.map((lock) => (
+                      <tr
+                        key={lock.publicKey.toBase58()}
+                        className="hover cursor-pointer"
+                        onClick={() => onLockSelect(lock)}
+                      >
+                        <td>
+                          <Score
+                            lock={lock}
+                            tooltipDirection={"tooltip-right"}
+                            lockSize="32"
+                            lockTextSize="xs"
+                            lockTextPosition="top-1/2 left-1/4"
+                          />
+                        </td>
+                        <td>{lock.dasAsset?.metadata.symbol || "UNK"}</td>
+                        <td>
+                          <Renounced lock={lock} showTitle={false} />
+                        </td>
+                        <td>{lock.displayUnlockDate}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </>
       )}

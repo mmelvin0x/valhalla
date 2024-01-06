@@ -24,18 +24,76 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
     <div>
       {/* NavBar / Header */}
       <div className="navbar flex flex-row md:mb-2 bg-gradient-to-r from-white to-primary">
-        <Link href="/" className="navbar-start gap-2">
-          <Image src="/logo64.png" alt="logo" width={48} height={48} />{" "}
+        <div className="navbar-start">
+          <details className="dropdown">
+            <summary className="m-1 btn btn-circle btn-outline flex gap-2 items-center shadow-xl">
+              <Image src="/logo64.png" alt="logo" width={48} height={48} />{" "}
+            </summary>
+            <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+              <li>
+                <Link
+                  href="/"
+                  className={`flex items-center gap-1 link link-hover font-bold ${
+                    router.pathname === "/" ? "link underline" : ""
+                  }`}
+                >
+                  <FaHome className="inline" />
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/locks"
+                  className={`flex items-center gap-1 link link-hover font-bold ${
+                    router.pathname === "/locks" ? "link underline" : ""
+                  }`}
+                >
+                  <FaLockOpen className="inline" />
+                  Token Locks
+                </Link>
+              </li>
+              {connected && (
+                <>
+                  <li>
+                    <Link
+                      href={`/locks/create`}
+                      className={`flex items-center gap-1 link link-hover font-bold ${
+                        router.pathname === "/locks/create"
+                          ? "link underline"
+                          : ""
+                      }`}
+                    >
+                      <FaPlusCircle className="inline" />
+                      Create a Lock
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={`/${publicKey?.toBase58()}/locks`}
+                      className={`flex items-center gap-1 link link-hover font-bold ${
+                        router.pathname === "/[user]/locks"
+                          ? "link underline"
+                          : ""
+                      }`}
+                    >
+                      <FaUserLock className="inline" />
+                      Your Locks
+                    </Link>
+                  </li>
+                </>
+              )}
+            </ul>
+          </details>
           <h3 className="degen-locker">Valhalla</h3>
-        </Link>
+        </div>
 
         {/* Nav Links */}
-        <div className="hidden md:inline md:navbar-center">
+        <div className="hidden lg:inline lg:navbar-center">
           <div className="flex gap-8 items-stretch">
             <Link
               href="/"
               className={`flex items-center gap-1 link link-hover font-bold ${
-                router.pathname === "/" ? "link-accent" : ""
+                router.pathname === "/" ? "link underline" : ""
               }`}
             >
               <FaHome className="inline" />
@@ -44,7 +102,7 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
             <Link
               href="/locks"
               className={`flex items-center gap-1 link link-hover font-bold ${
-                router.pathname === "/locks" ? "link-accent" : ""
+                router.pathname === "/locks" ? "link underline" : ""
               }`}
             >
               <FaLockOpen className="inline" />
@@ -55,7 +113,7 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
                 <Link
                   href={`/locks/create`}
                   className={`flex items-center gap-1 link link-hover font-bold ${
-                    router.pathname === "/locks/create" ? "link-accent" : ""
+                    router.pathname === "/locks/create" ? "link underline" : ""
                   }`}
                 >
                   <FaPlusCircle className="inline" />
@@ -65,7 +123,7 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
                 <Link
                   href={`/${publicKey?.toBase58()}/locks`}
                   className={`flex items-center gap-1 link link-hover font-bold ${
-                    router.pathname === "/[user]/locks" ? "link-accent" : ""
+                    router.pathname === "/[user]/locks" ? "link underline" : ""
                   }`}
                 >
                   <FaUserLock className="inline" />

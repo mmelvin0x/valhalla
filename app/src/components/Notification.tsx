@@ -61,18 +61,20 @@ const Notification = ({ type, message, description, txid, onHide }: any) => {
 
   return (
     <div
-      className={`max-w-sm w-full bg-bkg-1 shadow-xl rounded-md mt-2 pointer-events-auto ring-1 ring-black ring-opacity-5 p-2 mx-4 mb-12 overflow-hidden`}
+      className={`max-w-sm w-full bg-white shadow-xl rounded-md mt-2 pointer-events-auto ring-1 ring-black ring-opacity-5 p-2 mx-4 mb-12 overflow-hidden`}
     >
       <div className={`p-4`}>
         <div className={`flex items-center`}>
           <div className={`flex-shrink-0`}>
             {type === "success" ? (
-              <CheckCircleIcon className={`h-8 w-8 mr-1 text-green`} />
+              <CheckCircleIcon className={`h-8 w-8 mr-1 text-success`} />
             ) : null}
             {type === "info" && (
-              <InformationCircleIcon className={`h-8 w-8 mr-1 text-red`} />
+              <InformationCircleIcon className={`h-8 w-8 mr-1 text-info`} />
             )}
-            {type === "error" && <XCircleIcon className={`h-8 w-8 mr-1`} />}
+            {type === "error" && (
+              <XCircleIcon className={`h-8 w-8 mr-1 text-error`} />
+            )}
           </div>
           <div className={`ml-2 w-0 flex-1`}>
             <div className={`font-bold text-fgd-1`}>{message}</div>

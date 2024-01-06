@@ -193,7 +193,7 @@ const Lock = () => {
         <>
           <Link
             href={getExplorerUrl(selectedLock.endpoint, selectedLock.publicKey)}
-            className="text-6xl font-bold link flex items-center gap-1"
+            className="text-5xl font-bold link flex items-center gap-1"
           >
             {shortenAddress(selectedLock.publicKey)}{" "}
             <Score
@@ -219,7 +219,7 @@ const Lock = () => {
                 </Link>
                 <div className="stat-actions">
                   <Link
-                    className="btn btn-sm btn-circle mr-1"
+                    className="btn btn-xs btn-circle mr-1"
                     href={getExplorerUrl(
                       selectedLock.endpoint,
                       selectedLock.mint.address
@@ -234,7 +234,7 @@ const Lock = () => {
                     />
                   </Link>
                   <Link
-                    className="btn btn-sm btn-circle"
+                    className="btn btn-xs btn-circle"
                     href={`https://birdeye.so/token/${selectedLock.userTokenAccount.mint.toBase58()}`}
                     rel="nofollow noreferrer"
                   >
@@ -261,7 +261,7 @@ const Lock = () => {
                     >
                       <button
                         disabled={!isOwner}
-                        className="btn btn-sm btn-circle mr-2"
+                        className="btn btn-xs btn-circle mr-2"
                         onClick={() => {
                           setSelectedLock(selectedLock);
                           document
@@ -279,7 +279,7 @@ const Lock = () => {
                     >
                       <button
                         disabled={!isOwner}
-                        className="btn btn-sm btn-circle mr-2"
+                        className="btn btn-xs btn-circle mr-2"
                         onClick={() => {
                           setSelectedLock(selectedLock);
                           document
@@ -301,7 +301,7 @@ const Lock = () => {
                             // @ts-ignore
                             .showModal();
                         }}
-                        className="btn btn-sm btn-circle mr-2"
+                        className="btn btn-xs btn-circle mr-2"
                       >
                         <FaUnlock />
                       </button>
