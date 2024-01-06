@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 
+mod id;
 mod constants;
 mod errors;
 mod instructions;
@@ -8,7 +9,7 @@ mod state;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k");
+pub use id::ID;
 
 #[program]
 pub mod valhalla {
