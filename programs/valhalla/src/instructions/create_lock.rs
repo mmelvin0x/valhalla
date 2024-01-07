@@ -41,13 +41,30 @@ pub struct CreateLock<'info> {
     pub lock_token_account: Account<'info, TokenAccount>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = user,
         associated_token::mint = mint,
-        associated_token::authority = user,
+        associated_token::authority = user
     )]
     pub user_token_account: Account<'info, TokenAccount>,
 
+    #[account(
+        init_if_needed,
+        payer = user,
+        associated_token::mint = reward_token_mint,
+        associated_token::authority = user
+    )]
+    pub user_reward_token_account: Account<'info, TokenAccount>,
+
     pub mint: Account<'info, Mint>,
+
+    #[account(
+        seeds = [constants::REWARD_TOKEN_MINT_SEED],
+        bump,
+        mint::decimals = 9,
+        mint::authority = reward_token_mint
+    )]
+    pub reward_token_mint: Account<'info, Mint>,
 
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -62,15 +79,15 @@ pub fn create_lock(ctx: Context<CreateLock>, unlock_date: u64, deposit_amount: u
     lock.mint = ctx.accounts.mint.key();
     lock.lock_token_account = ctx.accounts.lock_token_account.to_account_info().key();
     lock.user_token_account = ctx.accounts.user_token_account.to_account_info().key();
+    lock.user_reward_token_account = ctx.accounts.user_reward_token_account.to_account_info().key();
     lock.locked_date = Clock::get().unwrap().unix_timestamp as u64;
     lock.unlock_date = unlock_date;
 
     // Prevent user from depositing more than they have
-    let calc_amount = deposit_amount
+    let amount = deposit_amount
         .checked_mul((10u64).pow(ctx.accounts.mint.decimals as u32))
-        .unwrap();
-
-    let amount = calc_amount.min(ctx.accounts.user_token_account.amount);
+        .unwrap()
+        .min(ctx.accounts.user_token_account.amount);
 
     // Transfer the user's tokens to the lock token account
     let cpi_program = ctx.accounts.token_program.to_account_info();

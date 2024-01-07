@@ -11,13 +11,18 @@ valhalla = "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
 [programs.mainnet]
 valhalla = "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
 
+[test.validator]
+url = "https://api.devnet.solana.com"
+
+[[test.validator.clone]]
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "Localnet"
-wallet = "./.keys/valhalla.json"
+wallet = "./.keys/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/valhalla.ts"

@@ -4,6 +4,9 @@ import { IDL, Valhalla } from "../target/types/valhalla";
 import {} from "../server/src/program/accounts";
 import { VALHALLA_PROGRAM_ID } from "../server/src/program";
 
+const FEE = 0.025;
+const TREASURY_ALLOCATION = 100_000_000;
+
 const main = async () => {
   const wallet = anchor.Wallet.local();
   console.log("-> ~ main ~ wallet:", wallet.publicKey.toBase58());
@@ -26,7 +29,10 @@ const main = async () => {
   console.log("-> ~ main ~ locker:", locker.toBase58());
 
   const initTx = await program.methods
-    .init(new anchor.BN(0.025 * LAMPORTS_PER_SOL))
+    .init(
+      new anchor.BN(FEE * LAMPORTS_PER_SOL),
+      new anchor.BN(TREASURY_ALLOCATION)
+    )
     .accounts({
       admin: wallet.publicKey,
       locker: locker,

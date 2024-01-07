@@ -27,8 +27,15 @@ pub mod valhalla {
     /// ## Arguments
     ///
     /// * `fee` - The fee to be charged for each lock.
-    pub fn init(ctx: Context<Init>, fee: u64) -> Result<()> {
-        instructions::init(ctx, fee)
+    pub fn init(
+        ctx: Context<Init>,
+        fee: u64,
+        treasury_allocation: u64,
+        uri: String,
+        name: String,
+        symbol: String
+    ) -> Result<()> {
+        instructions::init(ctx, fee, treasury_allocation, uri, name, symbol)
     }
 
     /// # Updates the fee of a locker.
