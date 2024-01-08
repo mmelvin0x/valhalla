@@ -1,13 +1,14 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{ self, Mint, Token, TokenAccount, TransferChecked },
+    token::{ Mint, Token, TokenAccount },
+    token_2022::{ self, TransferChecked },
 };
 
 use crate::{ constants, errors::LockError, state::Lock };
 
 #[derive(Accounts)]
-pub struct WithdrawToBeneficiary<'info> {
+pub struct DisburseToBeneficiary<'info> {
     #[account(mut)]
     pub any_user: Signer<'info>,
 
@@ -55,21 +56,16 @@ pub struct WithdrawToBeneficiary<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn disperse_to_beneficiary_ix(ctx: Context<WithdrawToBeneficiary>) -> Result<()> {
+pub fn disburse_to_beneficiary_ix(ctx: Context<DisburseToBeneficiary>) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
-    let current_index = lock.schedule_index;
 
     let lock_token_account = &ctx.accounts.lock_token_account;
     let beneficiary_token_account = &ctx.accounts.beneficiary_token_account;
 
     // Ensure that the lock is unlocked
-    if !lock.can_disperse() {
+    if !lock.can_disburse()? {
         return Err(LockError::Locked.into());
     }
-
-    // Prevent creator from withdrawing more than the lock has
-    // This should not ever happen, but just in case
-    let amount = lock.schedules[current_index as usize].amount.min(lock_token_account.amount);
 
     let lock_key = lock.key();
     let creator_key = ctx.accounts.creator.key();
@@ -96,12 +92,9 @@ pub fn disperse_to_beneficiary_ix(ctx: Context<WithdrawToBeneficiary>) -> Result
     let cpi_program = ctx.accounts.token_program.to_account_info();
     let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
-    token::transfer_checked(cpi_ctx, amount, ctx.accounts.mint.decimals)?;
+    token_2022::transfer_checked(cpi_ctx, lock.amount_per_payout, ctx.accounts.mint.decimals)?;
 
-    // TODO: This is not incrementing for some reason..
-    // SEE: /tests/valhalla.ts line 286
-    // Increment the schedule index
-    lock.schedule_index += 1;
+    lock.num_payments_made = lock.num_payments_made + 1;
 
     Ok(())
 }

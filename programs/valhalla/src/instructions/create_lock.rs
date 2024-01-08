@@ -1,10 +1,11 @@
 use anchor_lang::{ prelude::*, system_program };
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{ self, Mint, Token, TokenAccount, TransferChecked },
+    token_2022::{ self as token, TransferChecked },
+    token::{ Mint, TokenAccount, Token },
 };
 
-use crate::{ state::{ Lock, Locker }, constants, Schedule };
+use crate::{ state::{ Lock, Locker }, constants, errors::LockError };
 
 #[derive(Accounts)]
 pub struct CreateLock<'info> {
@@ -71,10 +72,11 @@ pub struct CreateLock<'info> {
 pub fn create_lock_ix(
     ctx: Context<CreateLock>,
     deposit_amount: u64,
-    schedules: Vec<Schedule>
+    total_payments: u64,
+    amount_per_payout: u64,
+    payout_interval: u64
 ) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
-    let schedules_formatted = Lock::format_schedules(schedules, ctx.accounts.mint.decimals);
 
     // Set lock state
     lock.creator = ctx.accounts.creator.key();
@@ -84,8 +86,12 @@ pub fn create_lock_ix(
     lock.creator_token_account = ctx.accounts.creator_token_account.to_account_info().key();
     lock.beneficiary_token_account = ctx.accounts.beneficiary_token_account.to_account_info().key();
     lock.locked_date = Clock::get().unwrap().unix_timestamp as u64;
-    lock.schedule_index = 0;
-    lock.schedules = schedules_formatted.clone();
+    lock.total_payments = total_payments;
+    lock.payout_interval = payout_interval;
+    lock.num_payments_made = 0;
+    lock.amount_per_payout = amount_per_payout
+        .checked_mul((10u64).pow(ctx.accounts.mint.decimals as u32))
+        .unwrap();
 
     // Prevent user from depositing more than they have
     let amount = deposit_amount
@@ -93,8 +99,13 @@ pub fn create_lock_ix(
         .unwrap()
         .min(ctx.accounts.creator_token_account.amount);
 
-    lock.validate_schedule_deposit_amount(amount)?;
-    lock.validate_schedule_unlock_dates(schedules_formatted.clone())?;
+    // Ensure that there are enough tokens being deposited to cover all of the payouts
+    let total_amount_required_for_payouts = lock.amount_per_payout
+        .checked_mul(lock.total_payments)
+        .unwrap();
+    if total_amount_required_for_payouts > amount {
+        return Err(LockError::DepositAmountTooLow.into());
+    }
 
     // Transfer the user's tokens to the lock token account
     let cpi_program = ctx.accounts.token_program.to_account_info();

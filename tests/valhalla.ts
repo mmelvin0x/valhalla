@@ -2,42 +2,34 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Valhalla } from "../target/types/valhalla";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
-  Account,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
+import {
+  ExtensionType,
+  TOKEN_2022_PROGRAM_ID,
   TokenAccountNotFoundError,
-  createMint,
+  createAccount,
+  createInitializeMintInstruction,
+  createInitializeTransferFeeConfigInstruction,
   getAccount,
-  getOrCreateAssociatedTokenAccount,
+  getMintLen,
   mintTo,
 } from "@solana/spl-token";
-import { assert, expect } from "chai";
-import { BN } from "bn.js";
+import { expect } from "chai";
 
 const LOCK_SEED = Buffer.from("lock");
 const LOCKER_SEED = Buffer.from("locker");
 const LOCK_TOKEN_ACCOUNT_SEED = Buffer.from("token");
 
-const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-);
-
-// const token = {
-//   name: "Valhalla",
-//   symbol: "VALHALLA",
-//   image:
-//     "https://shdw-drive.genesysgo.net/GoQrLZGWCCLJTudhSNUT3k5Je8rMBohWmsnxu73EoPtD/logo128.png",
-//   description: "The governance token for Valhalla.",
-// };
-
-// const uri =
-//   "https://shdw-drive.genesysgo.net/GoQrLZGWCCLJTudhSNUT3k5Je8rMBohWmsnxu73EoPtD/valhalla-metadata.json";
-
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("Valhalla", () => {
   const provider = anchor.AnchorProvider.env();
-  const wallet = provider.wallet;
+  const wallet = provider.wallet as NodeWallet;
   const payer = (wallet as NodeWallet).payer;
   anchor.setProvider(provider);
 
@@ -46,13 +38,24 @@ describe("Valhalla", () => {
   const creator = anchor.web3.Keypair.generate();
   const beneficiary = anchor.web3.Keypair.generate();
 
-  let mint: anchor.web3.PublicKey;
-  let creatorTokenAccount: Account;
-  let beneficiaryTokenAccount: Account;
+  const mintAuthority = payer;
+  const mintKeypair = Keypair.generate();
+  const mint = mintKeypair.publicKey;
+  const transferFeeConfigAuthority = payer;
+  const withdrawWithheldAuthority = payer;
+
+  const extensions = [ExtensionType.TransferFeeConfig];
+
+  const mintLen = getMintLen(extensions);
+  const decimals = 9;
+  const feeBasisPoints = 50;
+  const maxFee = BigInt(5_000);
+
+  let creatorTokenAccount: anchor.web3.PublicKey;
+  let beneficiaryTokenAccount: anchor.web3.PublicKey;
   let lock: anchor.web3.PublicKey;
   let locker: anchor.web3.PublicKey;
   let lockTokenAccount: anchor.web3.PublicKey;
-  let currentLockBalance: BigInt;
 
   before(async () => {
     await provider.connection.confirmTransaction(
@@ -71,35 +74,65 @@ describe("Valhalla", () => {
       "confirmed"
     );
 
-    mint = await createMint(
-      provider.connection,
-      payer,
-      payer.publicKey,
-      payer.publicKey,
-      9
+    const mintLamports =
+      await provider.connection.getMinimumBalanceForRentExemption(mintLen);
+    const mintTransaction = new Transaction().add(
+      SystemProgram.createAccount({
+        fromPubkey: payer.publicKey,
+        newAccountPubkey: mint,
+        space: mintLen,
+        lamports: mintLamports,
+        programId: TOKEN_2022_PROGRAM_ID,
+      }),
+      createInitializeTransferFeeConfigInstruction(
+        mint,
+        transferFeeConfigAuthority.publicKey,
+        withdrawWithheldAuthority.publicKey,
+        feeBasisPoints,
+        maxFee,
+        TOKEN_2022_PROGRAM_ID
+      ),
+      createInitializeMintInstruction(
+        mint,
+        decimals,
+        mintAuthority.publicKey,
+        null,
+        TOKEN_2022_PROGRAM_ID
+      )
     );
 
-    creatorTokenAccount = await getOrCreateAssociatedTokenAccount(
+    await provider.sendAndConfirm(mintTransaction, [payer, mintKeypair]);
+
+    creatorTokenAccount = await createAccount(
       provider.connection,
       creator,
       mint,
-      creator.publicKey
+      creator.publicKey,
+      undefined,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
 
-    beneficiaryTokenAccount = await getOrCreateAssociatedTokenAccount(
+    beneficiaryTokenAccount = await createAccount(
       provider.connection,
       beneficiary,
       mint,
-      beneficiary.publicKey
+      beneficiary.publicKey,
+      undefined,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
 
     await mintTo(
       provider.connection,
-      creator,
-      mint,
-      creatorTokenAccount.address,
       payer,
-      10_000_000_000 * LAMPORTS_PER_SOL
+      mint,
+      creatorTokenAccount,
+      mintAuthority,
+      10_000_000_000 * LAMPORTS_PER_SOL,
+      [],
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
 
     [locker] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -187,11 +220,12 @@ describe("Valhalla", () => {
 
   it("should create a lock", async () => {
     const depositAmount = new anchor.BN(1_000_000_000);
-    const unlockDate = new anchor.BN(Math.floor(new Date().getTime() / 1000));
-    const schedules = [{ unlockDate, amount: depositAmount }];
+    const totalPayments = new anchor.BN(5);
+    const amountPerPayout = depositAmount.div(totalPayments);
+    const payoutInterval = new anchor.BN(1); // 1 second
 
     const tx = await program.methods
-      .createLock(depositAmount, schedules)
+      .createLock(depositAmount, totalPayments, amountPerPayout, payoutInterval)
       .accounts({
         creator: creator.publicKey,
         beneficiary: beneficiary.publicKey,
@@ -199,8 +233,8 @@ describe("Valhalla", () => {
         treasury: wallet.publicKey,
         lock,
         lockTokenAccount,
-        creatorTokenAccount: creatorTokenAccount.address,
-        beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+        creatorTokenAccount,
+        beneficiaryTokenAccount,
         mint,
       })
       .signers([creator])
@@ -211,21 +245,40 @@ describe("Valhalla", () => {
     const lockAccount = await program.account.lock.fetch(lock);
     expect(lockAccount.creator.toBase58()).equals(
       creator.publicKey.toBase58(),
-      "creator"
+      "lockAccount.creator"
     );
-    expect(lockAccount.mint.toBase58()).equals(mint.toBase58(), "mint");
     expect(lockAccount.beneficiary.toBase58()).equals(
       beneficiary.publicKey.toBase58(),
-      "beneficiary"
+      "lockAccount.beneficiary"
     );
-    expect(lockAccount.scheduleIndex.toNumber()).equals(0, "scheduleIndex");
-    expect(lockAccount.schedules[0].amount.toString()).equals(
-      depositAmount.mul(new BN(LAMPORTS_PER_SOL)).toString(),
-      "schedules[0].amount"
+    expect(lockAccount.mint.toBase58()).equals(mint.toBase58(), "mint");
+    expect(lockAccount.lockTokenAccount.toBase58()).equals(
+      lockTokenAccount.toBase58(),
+      "lockAccount.lockTokenAccount"
     );
-    expect(lockAccount.schedules[0].unlockDate.toNumber()).equals(
-      unlockDate.toNumber(),
-      "schedules[0].unlockDate"
+    expect(lockAccount.creatorTokenAccount.toBase58()).equals(
+      creatorTokenAccount.toBase58(),
+      "lockAccount.creatorTokenAccount"
+    );
+    expect(lockAccount.beneficiaryTokenAccount.toBase58()).equals(
+      beneficiaryTokenAccount.toBase58(),
+      "lockAccount.beneficiaryTokenAccount"
+    );
+    expect(lockAccount.totalPayments.toString()).equals(
+      totalPayments.toString(),
+      "lockAccount.totalPayments"
+    );
+    expect(lockAccount.amountPerPayout.toString()).equals(
+      (amountPerPayout.toNumber() * LAMPORTS_PER_SOL).toString(),
+      "lockAccount.amountPerPayout"
+    );
+    expect(lockAccount.numPaymentsMade.toNumber()).equals(
+      0,
+      "lockAccount.numPaymentsMade"
+    );
+    expect(lockAccount.payoutInterval.toString()).equals(
+      payoutInterval.toString(),
+      "lockAccount.amountPerPayout"
     );
 
     const lockTokenAccountInfo = await getAccount(
@@ -238,7 +291,7 @@ describe("Valhalla", () => {
     );
     expect(lockTokenAccountInfo.mint.toBase58()).equals(
       mint.toBase58(),
-      "mint 2"
+      "lockTokenAccountInfo.mint"
     );
     expect(lockTokenAccountInfo.owner.toBase58()).equals(
       lockTokenAccount.toBase58(),
@@ -246,61 +299,65 @@ describe("Valhalla", () => {
     );
   });
 
-  it("should disperse to beneficiary", async () => {
-    await sleep(2000);
-    console.log("Sleeping 2 seconds to allow unlock date to pass");
-
-    const tx = await program.methods
-      .disperseToBeneficiary()
-      .accounts({
-        anyUser: beneficiary.publicKey,
-        creator: creator.publicKey,
-        beneficiary: beneficiary.publicKey,
-        lock,
-        lockTokenAccount,
-        beneficiaryTokenAccount: beneficiaryTokenAccount.address,
-        mint,
-      })
-      .signers([beneficiary])
-      .rpc();
-
-    await provider.connection.confirmTransaction(tx, "confirmed");
-
-    const lockTokenAccountInfo = await getAccount(
+  it("should disburse to beneficiary", async () => {
+    await sleep(1000);
+    const startingLockAccount = await program.account.lock.fetch(lock);
+    const totalPayments = startingLockAccount.totalPayments;
+    const startingLockTokenAccountInfo = await getAccount(
       provider.connection,
       lockTokenAccount
     );
-    expect(lockTokenAccountInfo.amount.toString()).equals(
-      (1_000_000_000 * LAMPORTS_PER_SOL).toString(),
-      "lockTokenAccountInfo.amount"
-    );
-    expect(lockTokenAccountInfo.mint.toBase58()).equals(
-      mint.toBase58(),
-      "mint"
-    );
-    expect(lockTokenAccountInfo.owner.toBase58()).equals(
-      lockTokenAccount.toBase58(),
-      "lockTokenAccount.owner"
-    );
 
-    // TODO: this is failing...
-    const lockAccount = await program.account.lock.fetch(lock);
-    expect(lockAccount.scheduleIndex.toNumber()).equals(1, "scheduleIndex");
+    for (let i = 0; i < totalPayments.toNumber(); i++) {
+      await sleep(1000);
+      const tx = await program.methods
+        .disburseToBeneficiary()
+        .accounts({
+          anyUser: beneficiary.publicKey,
+          creator: creator.publicKey,
+          beneficiary: beneficiary.publicKey,
+          lock,
+          lockTokenAccount,
+          beneficiaryTokenAccount,
+          mint,
+        })
+        .signers([beneficiary])
+        .rpc();
+
+      await provider.connection.confirmTransaction(tx, "confirmed");
+
+      const lockAccount = await program.account.lock.fetch(lock);
+      // expect(lockAccount.numPaymentsMade.toNumber()).equals(
+      //   i + 1,
+      //   "numPaymentsMade"
+      // );
+
+      const lockTokenAccountInfo = await getAccount(
+        provider.connection,
+        lockTokenAccount
+      );
+      expect(lockTokenAccountInfo.amount.toString()).equals(
+        (
+          startingLockTokenAccountInfo.amount -
+          BigInt(lockAccount.amountPerPayout.toString()) * BigInt(i + 1)
+        ).toString(),
+        "lockTokenAccountInfo.amount"
+      );
+    }
   });
 
-  xit("should extend an existing lock", async () => {
-    const depositAmount = new anchor.BN(1_000_000_000);
-    const unlockDate = new anchor.BN(Math.floor(new Date().getTime() / 1000));
-    const schedules = [{ unlockDate, amount: depositAmount }];
+  it("should increase the number of payouts in an existing lock", async () => {
+    const numPaymentsIncreaeseAmount = new anchor.BN(5);
+    const startingLockAccount = await program.account.lock.fetch(lock);
 
     const tx = await program.methods
-      .extendSchedule(schedules, depositAmount)
+      .increaseNumPayouts(numPaymentsIncreaeseAmount)
       .accounts({
         creator: creator.publicKey,
         lock,
         mint,
         lockTokenAccount,
-        creatorTokenAccount: creatorTokenAccount.address,
+        creatorTokenAccount,
       })
       .signers([creator])
       .rpc();
@@ -308,15 +365,10 @@ describe("Valhalla", () => {
     await provider.connection.confirmTransaction(tx, "confirmed");
 
     const lockAccount = await program.account.lock.fetch(lock);
-    expect(lockAccount.schedules.length).equals(2, "schedules.length");
-    expect(lockAccount.scheduleIndex.toNumber()).equals(1, "scheduleIndex");
-    expect(lockAccount.schedules[1].amount.toString()).equals(
-      depositAmount.mul(new BN(LAMPORTS_PER_SOL)).toString(),
-      "schedules[1].amount"
-    );
-    expect(lockAccount.schedules[1].unlockDate.toNumber()).equals(
-      unlockDate.toNumber(),
-      "schedules[1].unlockDate"
+    expect(lockAccount.totalPayments.toNumber()).equals(
+      startingLockAccount.totalPayments.toNumber() +
+        numPaymentsIncreaeseAmount.toNumber(),
+      "totalPayments"
     );
 
     const lockTokenAccountInfo = await getAccount(
@@ -325,21 +377,21 @@ describe("Valhalla", () => {
     );
 
     expect(lockTokenAccountInfo.amount.toString()).equals(
-      (2_000_000_000 * LAMPORTS_PER_SOL).toString(),
+      (1_000_000_000 * LAMPORTS_PER_SOL).toString(),
       "lockTokenAccountInfo.amount"
     );
 
     await sleep(2000);
   });
 
-  xit("should close an existing lock", async () => {
+  it("should close an existing lock", async () => {
     const tx = await program.methods
       .closeLock()
       .accounts({
         creator: creator.publicKey,
         lock,
         lockTokenAccount,
-        creatorTokenAccount: creatorTokenAccount.address,
+        creatorTokenAccount,
         mint,
       })
       .signers([creator])

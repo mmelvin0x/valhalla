@@ -26,25 +26,28 @@ pub mod valhalla {
     pub fn create_lock(
         ctx: Context<CreateLock>,
         deposit_amount: u64,
-        schedule: Vec<Schedule>
+        total_payments: u64,
+        amount_per_payout: u64,
+        payout_interval: u64
     ) -> Result<()> {
-        instructions::create_lock_ix(ctx, deposit_amount, schedule)
+        instructions::create_lock_ix(
+            ctx,
+            deposit_amount,
+            total_payments,
+            amount_per_payout,
+            payout_interval
+        )
     }
 
-    pub fn deposit_to_lock(ctx: Context<DepositToLock>, deposit_amount: u64) -> Result<()> {
-        instructions::deposit_to_lock_ix(ctx, deposit_amount)
-    }
-
-    pub fn extend_schedule(
+    pub fn increase_num_payouts(
         ctx: Context<ExtendSchedule>,
-        schedule: Vec<Schedule>,
-        amount: u64
+        total_payments_increase_amount: u64
     ) -> Result<()> {
-        instructions::extend_schedule_ix(ctx, schedule, amount)
+        instructions::increase_num_payouts_ix(ctx, total_payments_increase_amount)
     }
 
-    pub fn disperse_to_beneficiary(ctx: Context<WithdrawToBeneficiary>) -> Result<()> {
-        instructions::disperse_to_beneficiary_ix(ctx)
+    pub fn disburse_to_beneficiary(ctx: Context<DisburseToBeneficiary>) -> Result<()> {
+        instructions::disburse_to_beneficiary_ix(ctx)
     }
 
     pub fn close_lock_(ctx: Context<CloseLock>) -> Result<()> {

@@ -1,7 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{ self, Mint, Token, TokenAccount, TransferChecked, CloseAccount },
+    token_2022::{ self, TransferChecked, CloseAccount },
+    token::{ TokenAccount, Mint, Token },
 };
 
 use crate::{ constants, errors::LockError, state::Lock };
@@ -56,7 +57,7 @@ pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
 
     // Ensure that the lock is unlocked
-    if !lock.can_disperse() {
+    if !lock.can_disburse()? {
         return Err(LockError::Locked.into());
     }
 
@@ -90,7 +91,7 @@ pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
-        token::transfer_checked(
+        token_2022::transfer_checked(
             cpi_ctx,
             ctx.accounts.lock_token_account.amount,
             ctx.accounts.mint.decimals
@@ -105,7 +106,7 @@ pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
-        token::close_account(cpi_ctx)?;
+        token_2022::close_account(cpi_ctx)?;
     }
 
     Ok(())
