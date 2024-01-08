@@ -81,7 +81,7 @@ export const extendLock = async (
       .transaction()
   );
 
-export const withdrawFromLock = async (
+export const WithdrawToBeneficiary = async (
   user: PublicKey,
   withdrawAmount: number,
   lock: LockAccount,
@@ -89,7 +89,7 @@ export const withdrawFromLock = async (
 ): Promise<Transaction> =>
   new Transaction().add(
     await program.methods
-      .withdrawFromLock(new anchor.BN(withdrawAmount.toString()))
+      .WithdrawToBeneficiary(new anchor.BN(withdrawAmount.toString()))
       .accounts({
         user,
         lock: lock.publicKey,

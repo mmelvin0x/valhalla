@@ -10,4 +10,13 @@ pub enum LockError {
 
     #[msg("Not authorized to perform this action")]
     Unauthorized,
+
+    #[msg("The deposit amount is too low")]
+    DepositAmountTooLow,
+
+    #[msg("The schedule is invalid")]
+    InvalidSchedule,
+
+    #[msg("No schedules were provided")]
+    NoSchedules,
 }

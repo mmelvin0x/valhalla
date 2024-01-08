@@ -1,27 +1,27 @@
 export type Valhalla = {
-  "version": "0.1.0",
-  "name": "valhalla",
-  "constants": [
+  version: "0.1.0";
+  name: "valhalla";
+  constants: [
     {
-      "name": "LOCKER_SEED",
-      "type": "bytes",
-      "value": "[108, 111, 99, 107, 101, 114]"
+      name: "LOCKER_SEED";
+      type: "bytes";
+      value: "[108, 111, 99, 107, 101, 114]";
     },
     {
-      "name": "LOCK_SEED",
-      "type": "bytes",
-      "value": "[108, 111, 99, 107]"
+      name: "LOCK_SEED";
+      type: "bytes";
+      value: "[108, 111, 99, 107]";
     },
     {
-      "name": "LOCK_TOKEN_ACCOUNT_SEED",
-      "type": "bytes",
-      "value": "[116, 111, 107, 101, 110]"
+      name: "LOCK_TOKEN_ACCOUNT_SEED";
+      type: "bytes";
+      value: "[116, 111, 107, 101, 110]";
     }
-  ],
-  "instructions": [
+  ];
+  instructions: [
     {
-      "name": "init",
-      "docs": [
+      name: "init";
+      docs: [
         "# Initializes a new locker.",
         "",
         "## Accounts expected",
@@ -34,39 +34,39 @@ export type Valhalla = {
         "## Arguments",
         "",
         "* `fee` - The fee to be charged for each lock."
-      ],
-      "accounts": [
+      ];
+      accounts: [
         {
-          "name": "admin",
-          "isMut": true,
-          "isSigner": true
+          name: "admin";
+          isMut: true;
+          isSigner: true;
         },
         {
-          "name": "locker",
-          "isMut": true,
-          "isSigner": false
+          name: "locker";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "treasury",
-          "isMut": false,
-          "isSigner": false
+          name: "treasury";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "fee",
-          "type": "u64"
+          name: "fee";
+          type: "u64";
         }
-      ]
+      ];
     },
     {
-      "name": "updateLockerFee",
-      "docs": [
+      name: "updateLockerFee";
+      docs: [
         "# Updates the fee of a locker.",
         "",
         "## Accounts expected",
@@ -82,34 +82,34 @@ export type Valhalla = {
         "## Errors",
         "",
         "* `Unauthorized` - The signer is not the current admin."
-      ],
-      "accounts": [
+      ];
+      accounts: [
         {
-          "name": "admin",
-          "isMut": true,
-          "isSigner": true
+          name: "admin";
+          isMut: true;
+          isSigner: true;
         },
         {
-          "name": "locker",
-          "isMut": true,
-          "isSigner": false
+          name: "locker";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "treasury",
-          "isMut": true,
-          "isSigner": false
+          name: "treasury";
+          isMut: true;
+          isSigner: false;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "fee",
-          "type": "u64"
+          name: "fee";
+          type: "u64";
         }
-      ]
+      ];
     },
     {
-      "name": "createLock",
-      "docs": [
+      name: "createLock";
+      docs: [
         "# Creates a new lock.",
         "",
         "## Accounts expected",
@@ -133,73 +133,73 @@ export type Valhalla = {
         "## Errors",
         "",
         "`InvalidUnlockDate` - The unlock date is invalid. Must be in the future."
-      ],
-      "accounts": [
+      ];
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user";
+          isMut: true;
+          isSigner: true;
         },
         {
-          "name": "locker",
-          "isMut": false,
-          "isSigner": false
+          name: "locker";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "treasury",
-          "isMut": true,
-          "isSigner": false
+          name: "treasury";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "lock",
-          "isMut": true,
-          "isSigner": false
+          name: "lock";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "userTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "unlockDate",
-          "type": "u64"
+          name: "unlockDate";
+          type: "u64";
         },
         {
-          "name": "depositAmount",
-          "type": "u64"
+          name: "depositAmount";
+          type: "u64";
         }
-      ]
+      ];
     },
     {
-      "name": "depositToLock",
-      "docs": [
+      name: "depositToLock";
+      docs: [
         "# Deposits tokens into a lock.",
         "",
         "## Accounts expected",
@@ -216,59 +216,59 @@ export type Valhalla = {
         "## Arguments",
         "",
         "* `deposit_amount` - The amount of tokens to be deposited into the lock."
-      ],
-      "accounts": [
+      ];
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user";
+          isMut: true;
+          isSigner: true;
         },
         {
-          "name": "lock",
-          "isMut": false,
-          "isSigner": false
+          name: "lock";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "userTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "depositAmount",
-          "type": "u64"
+          name: "depositAmount";
+          type: "u64";
         }
-      ]
+      ];
     },
     {
-      "name": "extendLock",
-      "docs": [
+      name: "extendLock";
+      docs: [
         "# Extends the unlock date of a lock.",
         "",
         "## Accounts expected",
@@ -285,54 +285,54 @@ export type Valhalla = {
         "## Errors",
         "",
         "* `InvalidUnlockDate` - The new unlock date is invalid. Must be greater than the current unlock date."
-      ],
-      "accounts": [
+      ];
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user";
+          isMut: true;
+          isSigner: true;
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "lock",
-          "isMut": true,
-          "isSigner": false
+          name: "lock";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "newUnlockDate",
-          "type": "u64"
+          name: "newUnlockDate";
+          type: "u64";
         }
-      ]
+      ];
     },
     {
-      "name": "withdrawFromLock",
-      "docs": [
+      name: "WithdrawToBeneficiary";
+      docs: [
         "# Withdraws tokens from a lock.",
         "",
         "## Accounts expected",
@@ -354,59 +354,59 @@ export type Valhalla = {
         "## Errors",
         "",
         "* `Locked` - The lock is still locked."
-      ],
-      "accounts": [
+      ];
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user";
+          isMut: true;
+          isSigner: true;
         },
         {
-          "name": "lock",
-          "isMut": false,
-          "isSigner": false
+          name: "lock";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "userTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "withdrawAmount",
-          "type": "u64"
+          name: "withdrawAmount";
+          type: "u64";
         }
-      ]
+      ];
     },
     {
-      "name": "closeLock",
-      "docs": [
+      name: "closeLock";
+      docs: [
         "# Closes a lock.",
         "",
         "## Accounts expected",
@@ -427,149 +427,149 @@ export type Valhalla = {
         "## Errors",
         "",
         "* `Locked` - The lock is still locked."
-      ],
-      "accounts": [
+      ];
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user";
+          isMut: true;
+          isSigner: true;
         },
         {
-          "name": "lock",
-          "isMut": true,
-          "isSigner": false
+          name: "lock";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "userTokenAccount";
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram";
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "systemProgram";
+          isMut: false;
+          isSigner: false;
         }
-      ],
-      "args": []
+      ];
+      args: [];
     }
-  ],
-  "accounts": [
+  ];
+  accounts: [
     {
-      "name": "locker",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: "locker";
+      type: {
+        kind: "struct";
+        fields: [
           {
-            "name": "treasury",
-            "type": "publicKey"
+            name: "treasury";
+            type: "publicKey";
           },
           {
-            "name": "admin",
-            "type": "publicKey"
+            name: "admin";
+            type: "publicKey";
           },
           {
-            "name": "fee",
-            "type": "u64"
+            name: "fee";
+            type: "u64";
           }
-        ]
-      }
+        ];
+      };
     },
     {
-      "name": "lock",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: "lock";
+      type: {
+        kind: "struct";
+        fields: [
           {
-            "name": "user",
-            "type": "publicKey"
+            name: "user";
+            type: "publicKey";
           },
           {
-            "name": "mint",
-            "type": "publicKey"
+            name: "mint";
+            type: "publicKey";
           },
           {
-            "name": "lockTokenAccount",
-            "type": "publicKey"
+            name: "lockTokenAccount";
+            type: "publicKey";
           },
           {
-            "name": "userTokenAccount",
-            "type": "publicKey"
+            name: "userTokenAccount";
+            type: "publicKey";
           },
           {
-            "name": "lockedDate",
-            "type": "u64"
+            name: "lockedDate";
+            type: "u64";
           },
           {
-            "name": "unlockDate",
-            "type": "u64"
+            name: "unlockDate";
+            type: "u64";
           }
-        ]
-      }
+        ];
+      };
     }
-  ],
-  "errors": [
+  ];
+  errors: [
     {
-      "code": 6000,
-      "name": "InvalidUnlockDate",
-      "msg": "Lock duration is invalid"
+      code: 6000;
+      name: "InvalidUnlockDate";
+      msg: "Lock duration is invalid";
     },
     {
-      "code": 6001,
-      "name": "Locked",
-      "msg": "The lock has not expired yet"
+      code: 6001;
+      name: "Locked";
+      msg: "The lock has not expired yet";
     },
     {
-      "code": 6002,
-      "name": "Unauthorized",
-      "msg": "Not authorized to perform this action"
+      code: 6002;
+      name: "Unauthorized";
+      msg: "Not authorized to perform this action";
     }
-  ]
+  ];
 };
 
 export const IDL: Valhalla = {
-  "version": "0.1.0",
-  "name": "valhalla",
-  "constants": [
+  version: "0.1.0",
+  name: "valhalla",
+  constants: [
     {
-      "name": "LOCKER_SEED",
-      "type": "bytes",
-      "value": "[108, 111, 99, 107, 101, 114]"
+      name: "LOCKER_SEED",
+      type: "bytes",
+      value: "[108, 111, 99, 107, 101, 114]",
     },
     {
-      "name": "LOCK_SEED",
-      "type": "bytes",
-      "value": "[108, 111, 99, 107]"
+      name: "LOCK_SEED",
+      type: "bytes",
+      value: "[108, 111, 99, 107]",
     },
     {
-      "name": "LOCK_TOKEN_ACCOUNT_SEED",
-      "type": "bytes",
-      "value": "[116, 111, 107, 101, 110]"
-    }
+      name: "LOCK_TOKEN_ACCOUNT_SEED",
+      type: "bytes",
+      value: "[116, 111, 107, 101, 110]",
+    },
   ],
-  "instructions": [
+  instructions: [
     {
-      "name": "init",
-      "docs": [
+      name: "init",
+      docs: [
         "# Initializes a new locker.",
         "",
         "## Accounts expected",
@@ -581,40 +581,40 @@ export const IDL: Valhalla = {
         "",
         "## Arguments",
         "",
-        "* `fee` - The fee to be charged for each lock."
+        "* `fee` - The fee to be charged for each lock.",
       ],
-      "accounts": [
+      accounts: [
         {
-          "name": "admin",
-          "isMut": true,
-          "isSigner": true
+          name: "admin",
+          isMut: true,
+          isSigner: true,
         },
         {
-          "name": "locker",
-          "isMut": true,
-          "isSigner": false
+          name: "locker",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "treasury",
-          "isMut": false,
-          "isSigner": false
+          name: "treasury",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "fee",
-          "type": "u64"
-        }
-      ]
+          name: "fee",
+          type: "u64",
+        },
+      ],
     },
     {
-      "name": "updateLockerFee",
-      "docs": [
+      name: "updateLockerFee",
+      docs: [
         "# Updates the fee of a locker.",
         "",
         "## Accounts expected",
@@ -629,35 +629,35 @@ export const IDL: Valhalla = {
         "",
         "## Errors",
         "",
-        "* `Unauthorized` - The signer is not the current admin."
+        "* `Unauthorized` - The signer is not the current admin.",
       ],
-      "accounts": [
+      accounts: [
         {
-          "name": "admin",
-          "isMut": true,
-          "isSigner": true
+          name: "admin",
+          isMut: true,
+          isSigner: true,
         },
         {
-          "name": "locker",
-          "isMut": true,
-          "isSigner": false
+          name: "locker",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "treasury",
-          "isMut": true,
-          "isSigner": false
-        }
+          name: "treasury",
+          isMut: true,
+          isSigner: false,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "fee",
-          "type": "u64"
-        }
-      ]
+          name: "fee",
+          type: "u64",
+        },
+      ],
     },
     {
-      "name": "createLock",
-      "docs": [
+      name: "createLock",
+      docs: [
         "# Creates a new lock.",
         "",
         "## Accounts expected",
@@ -680,74 +680,74 @@ export const IDL: Valhalla = {
         "",
         "## Errors",
         "",
-        "`InvalidUnlockDate` - The unlock date is invalid. Must be in the future."
+        "`InvalidUnlockDate` - The unlock date is invalid. Must be in the future.",
       ],
-      "accounts": [
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user",
+          isMut: true,
+          isSigner: true,
         },
         {
-          "name": "locker",
-          "isMut": false,
-          "isSigner": false
+          name: "locker",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "treasury",
-          "isMut": true,
-          "isSigner": false
+          name: "treasury",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "lock",
-          "isMut": true,
-          "isSigner": false
+          name: "lock",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "userTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "unlockDate",
-          "type": "u64"
+          name: "unlockDate",
+          type: "u64",
         },
         {
-          "name": "depositAmount",
-          "type": "u64"
-        }
-      ]
+          name: "depositAmount",
+          type: "u64",
+        },
+      ],
     },
     {
-      "name": "depositToLock",
-      "docs": [
+      name: "depositToLock",
+      docs: [
         "# Deposits tokens into a lock.",
         "",
         "## Accounts expected",
@@ -763,60 +763,60 @@ export const IDL: Valhalla = {
         "",
         "## Arguments",
         "",
-        "* `deposit_amount` - The amount of tokens to be deposited into the lock."
+        "* `deposit_amount` - The amount of tokens to be deposited into the lock.",
       ],
-      "accounts": [
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user",
+          isMut: true,
+          isSigner: true,
         },
         {
-          "name": "lock",
-          "isMut": false,
-          "isSigner": false
+          name: "lock",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "userTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "depositAmount",
-          "type": "u64"
-        }
-      ]
+          name: "depositAmount",
+          type: "u64",
+        },
+      ],
     },
     {
-      "name": "extendLock",
-      "docs": [
+      name: "extendLock",
+      docs: [
         "# Extends the unlock date of a lock.",
         "",
         "## Accounts expected",
@@ -832,55 +832,55 @@ export const IDL: Valhalla = {
         "",
         "## Errors",
         "",
-        "* `InvalidUnlockDate` - The new unlock date is invalid. Must be greater than the current unlock date."
+        "* `InvalidUnlockDate` - The new unlock date is invalid. Must be greater than the current unlock date.",
       ],
-      "accounts": [
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user",
+          isMut: true,
+          isSigner: true,
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "lock",
-          "isMut": true,
-          "isSigner": false
+          name: "lock",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "newUnlockDate",
-          "type": "u64"
-        }
-      ]
+          name: "newUnlockDate",
+          type: "u64",
+        },
+      ],
     },
     {
-      "name": "withdrawFromLock",
-      "docs": [
+      name: "WithdrawToBeneficiary",
+      docs: [
         "# Withdraws tokens from a lock.",
         "",
         "## Accounts expected",
@@ -901,60 +901,60 @@ export const IDL: Valhalla = {
         "",
         "## Errors",
         "",
-        "* `Locked` - The lock is still locked."
+        "* `Locked` - The lock is still locked.",
       ],
-      "accounts": [
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user",
+          isMut: true,
+          isSigner: true,
         },
         {
-          "name": "lock",
-          "isMut": false,
-          "isSigner": false
+          name: "lock",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "userTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "withdrawAmount",
-          "type": "u64"
-        }
-      ]
+          name: "withdrawAmount",
+          type: "u64",
+        },
+      ],
     },
     {
-      "name": "closeLock",
-      "docs": [
+      name: "closeLock",
+      docs: [
         "# Closes a lock.",
         "",
         "## Accounts expected",
@@ -974,122 +974,122 @@ export const IDL: Valhalla = {
         "",
         "## Errors",
         "",
-        "* `Locked` - The lock is still locked."
+        "* `Locked` - The lock is still locked.",
       ],
-      "accounts": [
+      accounts: [
         {
-          "name": "user",
-          "isMut": true,
-          "isSigner": true
+          name: "user",
+          isMut: true,
+          isSigner: true,
         },
         {
-          "name": "lock",
-          "isMut": true,
-          "isSigner": false
+          name: "lock",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "lockTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "lockTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "userTokenAccount",
-          "isMut": true,
-          "isSigner": false
+          name: "userTokenAccount",
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
+          name: "mint",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false
+          name: "associatedTokenProgram",
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
       ],
-      "args": []
-    }
+      args: [],
+    },
   ],
-  "accounts": [
+  accounts: [
     {
-      "name": "locker",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: "locker",
+      type: {
+        kind: "struct",
+        fields: [
           {
-            "name": "treasury",
-            "type": "publicKey"
+            name: "treasury",
+            type: "publicKey",
           },
           {
-            "name": "admin",
-            "type": "publicKey"
+            name: "admin",
+            type: "publicKey",
           },
           {
-            "name": "fee",
-            "type": "u64"
-          }
-        ]
-      }
+            name: "fee",
+            type: "u64",
+          },
+        ],
+      },
     },
     {
-      "name": "lock",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: "lock",
+      type: {
+        kind: "struct",
+        fields: [
           {
-            "name": "user",
-            "type": "publicKey"
+            name: "user",
+            type: "publicKey",
           },
           {
-            "name": "mint",
-            "type": "publicKey"
+            name: "mint",
+            type: "publicKey",
           },
           {
-            "name": "lockTokenAccount",
-            "type": "publicKey"
+            name: "lockTokenAccount",
+            type: "publicKey",
           },
           {
-            "name": "userTokenAccount",
-            "type": "publicKey"
+            name: "userTokenAccount",
+            type: "publicKey",
           },
           {
-            "name": "lockedDate",
-            "type": "u64"
+            name: "lockedDate",
+            type: "u64",
           },
           {
-            "name": "unlockDate",
-            "type": "u64"
-          }
-        ]
-      }
-    }
+            name: "unlockDate",
+            type: "u64",
+          },
+        ],
+      },
+    },
   ],
-  "errors": [
+  errors: [
     {
-      "code": 6000,
-      "name": "InvalidUnlockDate",
-      "msg": "Lock duration is invalid"
+      code: 6000,
+      name: "InvalidUnlockDate",
+      msg: "Lock duration is invalid",
     },
     {
-      "code": 6001,
-      "name": "Locked",
-      "msg": "The lock has not expired yet"
+      code: 6001,
+      name: "Locked",
+      msg: "The lock has not expired yet",
     },
     {
-      "code": 6002,
-      "name": "Unauthorized",
-      "msg": "Not authorized to perform this action"
-    }
-  ]
+      code: 6002,
+      name: "Unauthorized",
+      msg: "Not authorized to perform this action",
+    },
+  ],
 };

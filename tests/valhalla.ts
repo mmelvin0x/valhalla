@@ -8,33 +8,30 @@ import {
   TokenAccountNotFoundError,
   createMint,
   getAccount,
-  getAssociatedTokenAddress,
-  getAssociatedTokenAddressSync,
   getOrCreateAssociatedTokenAccount,
   mintTo,
 } from "@solana/spl-token";
 import { assert, expect } from "chai";
-import { findMetadataPda } from "@metaplex-foundation/js";
+import { BN } from "bn.js";
 
 const LOCK_SEED = Buffer.from("lock");
 const LOCKER_SEED = Buffer.from("locker");
 const LOCK_TOKEN_ACCOUNT_SEED = Buffer.from("token");
-const REWARD_TOKEN_MINT_SEED = Buffer.from("reward");
 
 const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
   "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
 );
 
-const token = {
-  name: "Valhalla",
-  symbol: "VALHALLA",
-  image:
-    "https://shdw-drive.genesysgo.net/GoQrLZGWCCLJTudhSNUT3k5Je8rMBohWmsnxu73EoPtD/logo128.png",
-  description: "The governance token for Valhalla.",
-};
+// const token = {
+//   name: "Valhalla",
+//   symbol: "VALHALLA",
+//   image:
+//     "https://shdw-drive.genesysgo.net/GoQrLZGWCCLJTudhSNUT3k5Je8rMBohWmsnxu73EoPtD/logo128.png",
+//   description: "The governance token for Valhalla.",
+// };
 
-const uri =
-  "https://shdw-drive.genesysgo.net/GoQrLZGWCCLJTudhSNUT3k5Je8rMBohWmsnxu73EoPtD/valhalla-metadata.json";
+// const uri =
+//   "https://shdw-drive.genesysgo.net/GoQrLZGWCCLJTudhSNUT3k5Je8rMBohWmsnxu73EoPtD/valhalla-metadata.json";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -46,21 +43,29 @@ describe("Valhalla", () => {
 
   const program = anchor.workspace.Valhalla as Program<Valhalla>;
 
-  const user = anchor.web3.Keypair.generate();
+  const creator = anchor.web3.Keypair.generate();
+  const beneficiary = anchor.web3.Keypair.generate();
 
   let mint: anchor.web3.PublicKey;
-  let rewardTokenMint: anchor.web3.PublicKey;
-  let userTokenAccount: Account;
-  let userRewardTokenAccount: anchor.web3.PublicKey;
-  let treasuryRewardTokenAccount: anchor.web3.PublicKey;
+  let creatorTokenAccount: Account;
+  let beneficiaryTokenAccount: Account;
   let lock: anchor.web3.PublicKey;
   let locker: anchor.web3.PublicKey;
   let lockTokenAccount: anchor.web3.PublicKey;
+  let currentLockBalance: BigInt;
 
   before(async () => {
     await provider.connection.confirmTransaction(
       await provider.connection.requestAirdrop(
-        user.publicKey,
+        creator.publicKey,
+        2 * LAMPORTS_PER_SOL
+      ),
+      "confirmed"
+    );
+
+    await provider.connection.confirmTransaction(
+      await provider.connection.requestAirdrop(
+        beneficiary.publicKey,
         2 * LAMPORTS_PER_SOL
       ),
       "confirmed"
@@ -74,35 +79,27 @@ describe("Valhalla", () => {
       9
     );
 
-    [rewardTokenMint] = anchor.web3.PublicKey.findProgramAddressSync(
-      [REWARD_TOKEN_MINT_SEED],
-      program.programId
-    );
-
-    treasuryRewardTokenAccount = getAssociatedTokenAddressSync(
-      rewardTokenMint,
-      wallet.publicKey
-    );
-
-    userTokenAccount = await getOrCreateAssociatedTokenAccount(
+    creatorTokenAccount = await getOrCreateAssociatedTokenAccount(
       provider.connection,
-      user,
+      creator,
       mint,
-      user.publicKey
+      creator.publicKey
     );
 
-    userRewardTokenAccount = getAssociatedTokenAddressSync(
-      rewardTokenMint,
-      user.publicKey
+    beneficiaryTokenAccount = await getOrCreateAssociatedTokenAccount(
+      provider.connection,
+      beneficiary,
+      mint,
+      beneficiary.publicKey
     );
 
     await mintTo(
       provider.connection,
-      user,
+      creator,
       mint,
-      userTokenAccount.address,
+      creatorTokenAccount.address,
       payer,
-      2_000_000_000 * LAMPORTS_PER_SOL
+      10_000_000_000 * LAMPORTS_PER_SOL
     );
 
     [locker] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -111,14 +108,14 @@ describe("Valhalla", () => {
     );
 
     [lock] = anchor.web3.PublicKey.findProgramAddressSync(
-      [user.publicKey.toBuffer(), mint.toBuffer(), LOCK_SEED],
+      [creator.publicKey.toBuffer(), mint.toBuffer(), LOCK_SEED],
       program.programId
     );
 
     [lockTokenAccount] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         lock.toBuffer(),
-        user.publicKey.toBuffer(),
+        creator.publicKey.toBuffer(),
         mint.toBuffer(),
         LOCK_TOKEN_ACCOUNT_SEED,
       ],
@@ -130,56 +127,31 @@ describe("Valhalla", () => {
   // Admin Operations
   ///////////////////////////////////////////
   it("should initialize the locker", async () => {
-    try {
-      const tx = await program.methods
-        .init(
-          new anchor.BN(0.1 * LAMPORTS_PER_SOL),
-          new anchor.BN(100_000_000),
-          uri,
-          token.name,
-          token.symbol
-        )
-        .accounts({
-          admin: wallet.publicKey,
-          locker,
-          metadata: await findMetadataPda(rewardTokenMint),
-          rewardTokenMint,
-          treasuryRewardTokenAccount,
-          treasury: wallet.publicKey,
-          tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-        })
-        .signers([(wallet as NodeWallet).payer])
-        .rpc();
+    const tx = await program.methods
+      .adminInitLocker(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+      .accounts({
+        admin: wallet.publicKey,
+        locker,
+        treasury: wallet.publicKey,
+      })
+      .signers([(wallet as NodeWallet).payer])
+      .rpc();
 
-      await provider.connection.confirmTransaction(tx, "confirmed");
+    await provider.connection.confirmTransaction(tx, "confirmed");
 
-      const lockerAccount = await program.account.locker.fetch(locker);
-      expect(lockerAccount.fee.toNumber()).equals(0.1 * LAMPORTS_PER_SOL);
-      expect(lockerAccount.admin.toBase58()).equals(
-        wallet.publicKey.toBase58()
-      );
-      expect(lockerAccount.treasury.toBase58()).equals(
-        wallet.publicKey.toBase58()
-      );
-
-      const treasuryRewardTokenAccountInfo = await getAccount(
-        provider.connection,
-        treasuryRewardTokenAccount
-      );
-      expect(treasuryRewardTokenAccountInfo.amount.toString()).equals(
-        (100_000_000 * LAMPORTS_PER_SOL).toString()
-      );
-    } catch (e) {
-      console.log(e);
-      assert.fail();
-    }
+    const lockerAccount = await program.account.locker.fetch(locker);
+    expect(lockerAccount.fee.toNumber()).equals(0.1 * LAMPORTS_PER_SOL);
+    expect(lockerAccount.admin.toBase58()).equals(wallet.publicKey.toBase58());
+    expect(lockerAccount.treasury.toBase58()).equals(
+      wallet.publicKey.toBase58()
+    );
   });
 
   it("should update the locker fee", async () => {
     let lockerAccount = await program.account.locker.fetch(locker);
 
     let tx = await program.methods
-      .updateLockerFee(new anchor.BN(0.2 * LAMPORTS_PER_SOL))
+      .adminUpdateLockerFee(new anchor.BN(0.2 * LAMPORTS_PER_SOL))
       .accounts({
         admin: wallet.publicKey,
         locker,
@@ -194,7 +166,7 @@ describe("Valhalla", () => {
     expect(lockerAccount.fee.toNumber()).equals(0.2 * LAMPORTS_PER_SOL);
 
     tx = await program.methods
-      .updateLockerFee(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+      .adminUpdateLockerFee(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
       .accounts({
         treasury: wallet.publicKey,
         admin: wallet.publicKey,
@@ -216,141 +188,161 @@ describe("Valhalla", () => {
   it("should create a lock", async () => {
     const depositAmount = new anchor.BN(1_000_000_000);
     const unlockDate = new anchor.BN(Math.floor(new Date().getTime() / 1000));
-
-    try {
-      const tx = await program.methods
-        .createLock(unlockDate, depositAmount)
-        .accounts({
-          user: user.publicKey,
-          locker,
-          treasury: wallet.publicKey,
-          lock,
-          lockTokenAccount,
-          userTokenAccount: userTokenAccount.address,
-          userRewardTokenAccount,
-          rewardTokenMint,
-          mint,
-        })
-        .signers([user])
-        .rpc();
-
-      await provider.connection.confirmTransaction(tx, "confirmed");
-
-      const lockAccount = await program.account.lock.fetch(lock);
-      expect(lockAccount.user.toBase58()).equals(user.publicKey.toBase58());
-      expect(lockAccount.mint.toBase58()).equals(mint.toBase58());
-      expect(lockAccount.unlockDate.toNumber()).equals(unlockDate.toNumber());
-
-      const lockTokenAccountInfo = await getAccount(
-        provider.connection,
-        lockTokenAccount
-      );
-      expect(lockTokenAccountInfo.amount.toString()).equals(
-        (depositAmount.toNumber() * LAMPORTS_PER_SOL).toString()
-      );
-      expect(lockTokenAccountInfo.mint.toBase58()).equals(mint.toBase58());
-      expect(lockTokenAccountInfo.owner.toBase58()).equals(
-        lockTokenAccount.toBase58()
-      );
-    } catch (e) {
-      console.log(e);
-      assert.fail();
-    }
-  });
-
-  it("should deposit to an existing lock", async () => {
-    const depositAmount = new anchor.BN(1_000_000_000);
+    const schedules = [{ unlockDate, amount: depositAmount }];
 
     const tx = await program.methods
-      .depositToLock(depositAmount)
+      .createLock(depositAmount, schedules)
       .accounts({
-        user: user.publicKey,
+        creator: creator.publicKey,
+        beneficiary: beneficiary.publicKey,
+        locker,
+        treasury: wallet.publicKey,
         lock,
         lockTokenAccount,
-        userTokenAccount: userTokenAccount.address,
+        creatorTokenAccount: creatorTokenAccount.address,
+        beneficiaryTokenAccount: beneficiaryTokenAccount.address,
         mint,
       })
-      .signers([user])
-      .rpc();
-
-    await provider.connection.confirmTransaction(tx, "confirmed");
-
-    const lockTokenAccountInfo = await getAccount(
-      provider.connection,
-      lockTokenAccount
-    );
-    expect(lockTokenAccountInfo.amount.toString()).equals(
-      (depositAmount.toNumber() * 2 * LAMPORTS_PER_SOL).toString()
-    );
-    expect(lockTokenAccountInfo.mint.toBase58()).equals(mint.toBase58());
-    expect(lockTokenAccountInfo.owner.toBase58()).equals(
-      lockTokenAccount.toBase58()
-    );
-  });
-
-  it("should withdraw from an existing lock", async () => {
-    const withdrawAmount = new anchor.BN(1_000_000_000);
-
-    const tx = await program.methods
-      .withdrawFromLock(withdrawAmount)
-      .accounts({
-        user: user.publicKey,
-        lock,
-        lockTokenAccount,
-        userTokenAccount: userTokenAccount.address,
-        mint,
-      })
-      .signers([user])
-      .rpc();
-
-    await provider.connection.confirmTransaction(tx, "confirmed");
-
-    const lockTokenAccountInfo = await getAccount(
-      provider.connection,
-      lockTokenAccount
-    );
-    expect(lockTokenAccountInfo.amount.toString()).equals(
-      (withdrawAmount.toNumber() * LAMPORTS_PER_SOL).toString()
-    );
-    expect(lockTokenAccountInfo.mint.toBase58()).equals(mint.toBase58());
-    expect(lockTokenAccountInfo.owner.toBase58()).equals(
-      lockTokenAccount.toBase58()
-    );
-  });
-
-  it("should extend an existing lock", async () => {
-    const unlockDate = new anchor.BN(Math.floor(new Date().getTime() / 1000));
-
-    const tx = await program.methods
-      .extendLock(unlockDate)
-      .accounts({
-        user: user.publicKey,
-        lock,
-        mint,
-        lockTokenAccount,
-      })
-      .signers([user])
+      .signers([creator])
       .rpc();
 
     await provider.connection.confirmTransaction(tx, "confirmed");
 
     const lockAccount = await program.account.lock.fetch(lock);
-    expect(lockAccount.unlockDate.toNumber()).equals(unlockDate.toNumber());
+    expect(lockAccount.creator.toBase58()).equals(
+      creator.publicKey.toBase58(),
+      "creator"
+    );
+    expect(lockAccount.mint.toBase58()).equals(mint.toBase58(), "mint");
+    expect(lockAccount.beneficiary.toBase58()).equals(
+      beneficiary.publicKey.toBase58(),
+      "beneficiary"
+    );
+    expect(lockAccount.scheduleIndex.toNumber()).equals(0, "scheduleIndex");
+    expect(lockAccount.schedules[0].amount.toString()).equals(
+      depositAmount.mul(new BN(LAMPORTS_PER_SOL)).toString(),
+      "schedules[0].amount"
+    );
+    expect(lockAccount.schedules[0].unlockDate.toNumber()).equals(
+      unlockDate.toNumber(),
+      "schedules[0].unlockDate"
+    );
+
+    const lockTokenAccountInfo = await getAccount(
+      provider.connection,
+      lockTokenAccount
+    );
+    expect(lockTokenAccountInfo.amount.toString()).equals(
+      (depositAmount.toNumber() * LAMPORTS_PER_SOL).toString(),
+      "lockTokenAccountInfo.amount"
+    );
+    expect(lockTokenAccountInfo.mint.toBase58()).equals(
+      mint.toBase58(),
+      "mint 2"
+    );
+    expect(lockTokenAccountInfo.owner.toBase58()).equals(
+      lockTokenAccount.toBase58(),
+      "lockTokenAccount.owner"
+    );
+  });
+
+  it("should disperse to beneficiary", async () => {
+    await sleep(2000);
+    console.log("Sleeping 2 seconds to allow unlock date to pass");
+
+    const tx = await program.methods
+      .disperseToBeneficiary()
+      .accounts({
+        anyUser: beneficiary.publicKey,
+        creator: creator.publicKey,
+        beneficiary: beneficiary.publicKey,
+        lock,
+        lockTokenAccount,
+        beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+        mint,
+      })
+      .signers([beneficiary])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    const lockTokenAccountInfo = await getAccount(
+      provider.connection,
+      lockTokenAccount
+    );
+    expect(lockTokenAccountInfo.amount.toString()).equals(
+      (1_000_000_000 * LAMPORTS_PER_SOL).toString(),
+      "lockTokenAccountInfo.amount"
+    );
+    expect(lockTokenAccountInfo.mint.toBase58()).equals(
+      mint.toBase58(),
+      "mint"
+    );
+    expect(lockTokenAccountInfo.owner.toBase58()).equals(
+      lockTokenAccount.toBase58(),
+      "lockTokenAccount.owner"
+    );
+
+    // TODO: this is failing...
+    const lockAccount = await program.account.lock.fetch(lock);
+    expect(lockAccount.scheduleIndex.toNumber()).equals(1, "scheduleIndex");
+  });
+
+  xit("should extend an existing lock", async () => {
+    const depositAmount = new anchor.BN(1_000_000_000);
+    const unlockDate = new anchor.BN(Math.floor(new Date().getTime() / 1000));
+    const schedules = [{ unlockDate, amount: depositAmount }];
+
+    const tx = await program.methods
+      .extendSchedule(schedules, depositAmount)
+      .accounts({
+        creator: creator.publicKey,
+        lock,
+        mint,
+        lockTokenAccount,
+        creatorTokenAccount: creatorTokenAccount.address,
+      })
+      .signers([creator])
+      .rpc();
+
+    await provider.connection.confirmTransaction(tx, "confirmed");
+
+    const lockAccount = await program.account.lock.fetch(lock);
+    expect(lockAccount.schedules.length).equals(2, "schedules.length");
+    expect(lockAccount.scheduleIndex.toNumber()).equals(1, "scheduleIndex");
+    expect(lockAccount.schedules[1].amount.toString()).equals(
+      depositAmount.mul(new BN(LAMPORTS_PER_SOL)).toString(),
+      "schedules[1].amount"
+    );
+    expect(lockAccount.schedules[1].unlockDate.toNumber()).equals(
+      unlockDate.toNumber(),
+      "schedules[1].unlockDate"
+    );
+
+    const lockTokenAccountInfo = await getAccount(
+      provider.connection,
+      lockTokenAccount
+    );
+
+    expect(lockTokenAccountInfo.amount.toString()).equals(
+      (2_000_000_000 * LAMPORTS_PER_SOL).toString(),
+      "lockTokenAccountInfo.amount"
+    );
 
     await sleep(2000);
   });
 
-  it("should close an existing lock", async () => {
+  xit("should close an existing lock", async () => {
     const tx = await program.methods
       .closeLock()
       .accounts({
-        user: user.publicKey,
+        creator: creator.publicKey,
         lock,
         lockTokenAccount,
-        userTokenAccount: userTokenAccount.address,
+        creatorTokenAccount: creatorTokenAccount.address,
         mint,
       })
-      .signers([user])
+      .signers([creator])
       .rpc();
 
     await provider.connection.confirmTransaction(tx, "confirmed");

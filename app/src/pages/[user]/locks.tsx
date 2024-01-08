@@ -13,13 +13,13 @@ import {
   closeLock,
   depositToLock,
   extendLock,
-  withdrawFromLock,
+  WithdrawToBeneficiary,
 } from "program/instructions";
 import { BN } from "bn.js";
 import ExtendLockDialog from "components/modals/ExtendLockDialog";
 import useLocksStore from "stores/useLocksStore";
 import TransactionSentDescription from "components/notification-messages/TransactionSentDescription";
-import WithdrawFromLockDialog from "components/modals/WidthdrawFromLockDialog";
+import WithdrawToBeneficiaryDialog from "components/modals/WidthdrawFromLockDialog";
 import CloseLockDialog from "components/modals/CloseLockDialog";
 
 const UserLocks: FC = () => {
@@ -173,7 +173,7 @@ const UserLocks: FC = () => {
     }
   };
 
-  const onWithdrawFromLock = async (lock: LockAccount) => {
+  const onWithdrawToBeneficiary = async (lock: LockAccount) => {
     if (!wallet?.publicKey) {
       return;
     }
@@ -190,14 +190,17 @@ const UserLocks: FC = () => {
     setIsLoading(true);
     let signature: TransactionSignature = "";
     try {
-      const withdrawFromLockTx = await withdrawFromLock(
+      const WithdrawToBeneficiaryTx = await WithdrawToBeneficiary(
         wallet.publicKey,
         withdrawAmount,
         lock,
         program
       );
 
-      signature = await wallet.sendTransaction(withdrawFromLockTx, connection);
+      signature = await wallet.sendTransaction(
+        WithdrawToBeneficiaryTx,
+        connection
+      );
       await connection.confirmTransaction(signature, "confirmed");
 
       await getLocks(false);
@@ -316,11 +319,11 @@ const UserLocks: FC = () => {
                 oneThousandYears,
               }}
             />
-            <WithdrawFromLockDialog
+            <WithdrawToBeneficiaryDialog
               lock={lock}
               withdrawAmount={withdrawAmount}
               setWithdrawAmount={setWithdrawAmount}
-              onSubmit={onWithdrawFromLock}
+              onSubmit={onWithdrawToBeneficiary}
             />
             <CloseLockDialog lock={lock} onSubmit={onCloseLock} />
           </div>

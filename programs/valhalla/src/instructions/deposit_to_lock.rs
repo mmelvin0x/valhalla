@@ -1,22 +1,21 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{ self, Mint, Token, TokenAccount, Transfer },
+    token::{ self, Mint, Token, TokenAccount, TransferChecked },
 };
 
 use crate::{ constants, state::Lock };
 
 #[derive(Accounts)]
-#[instruction(deposit_amount: u64)]
 pub struct DepositToLock<'info> {
     #[account(mut)]
-    pub user: Signer<'info>,
+    pub creator: Signer<'info>,
 
     #[account(
-        seeds = [user.key().as_ref(), mint.key().as_ref(), constants::LOCK_SEED],
+        seeds = [creator.key().as_ref(), mint.key().as_ref(), constants::LOCK_SEED],
         bump,
         has_one = mint,
-        has_one = user
+        has_one = creator
     )]
     pub lock: Account<'info, Lock>,
 
@@ -24,7 +23,7 @@ pub struct DepositToLock<'info> {
         mut,
         seeds = [
             lock.key().as_ref(),
-            user.key().as_ref(),
+            creator.key().as_ref(),
             mint.key().as_ref(),
             constants::LOCK_TOKEN_ACCOUNT_SEED,
         ],
@@ -37,9 +36,9 @@ pub struct DepositToLock<'info> {
     #[account(
         mut,
         associated_token::mint = mint,
-        associated_token::authority = user
+        associated_token::authority = creator
     )]
-    pub user_token_account: Account<'info, TokenAccount>,
+    pub creator_token_account: Account<'info, TokenAccount>,
 
     pub mint: Account<'info, Mint>,
 
@@ -48,27 +47,27 @@ pub struct DepositToLock<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn deposit_to_lock(ctx: Context<DepositToLock>, deposit_amount: u64) -> Result<()> {
+pub fn deposit_to_lock_ix(ctx: Context<DepositToLock>, deposit_amount: u64) -> Result<()> {
     let lock_token_account = &ctx.accounts.lock_token_account;
-    let user_token_account = &ctx.accounts.user_token_account;
+    let creator_token_account = &ctx.accounts.creator_token_account;
 
-    // Prevent user from depositing more than they have
-    let calc_amount = deposit_amount
+    // Prevent creator from depositing more than they have
+    let amount = deposit_amount
         .checked_mul((10u64).pow(ctx.accounts.mint.decimals as u32))
-        .unwrap();
+        .unwrap()
+        .min(creator_token_account.amount);
 
-    let amount = calc_amount.min(user_token_account.amount);
-
-    // Transfer tokens from user to lock
-    let cpi_accounts = Transfer {
-        from: user_token_account.to_account_info(),
+    // Transfer tokens from creator to lock
+    let cpi_accounts = TransferChecked {
+        from: creator_token_account.to_account_info(),
+        mint: ctx.accounts.mint.to_account_info(),
         to: lock_token_account.to_account_info(),
-        authority: ctx.accounts.user.to_account_info(),
+        authority: ctx.accounts.creator.to_account_info(),
     };
     let cpi_program = ctx.accounts.token_program.to_account_info();
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-    token::transfer(cpi_ctx, amount)?;
+    token::transfer_checked(cpi_ctx, amount, ctx.accounts.mint.decimals)?;
 
     Ok(())
 }

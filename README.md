@@ -22,7 +22,7 @@ D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k
 3. **createLock**: Creates a new lock with specific parameters.
 4. **depositToLock**: Deposits tokens into a lock.
 5. **extendLock**: Extends the unlock date of a lock.
-6. **withdrawFromLock**: Withdraws tokens from a lock.
+6. **WithdrawToBeneficiary**: Withdraws tokens from a lock.
 7. **closeLock**: Closes a lock.
 
 ## Accounts
