@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_2022::{ self, TransferChecked, CloseAccount },
-    token::{ TokenAccount, Mint, Token },
+    token_2022::{ self as token, TransferChecked, CloseAccount },
+    token_interface::{ Token2022, TokenAccount, Mint },
 };
 
 use crate::{ constants, errors::LockError, state::Lock };
@@ -36,7 +36,7 @@ pub struct CloseLock<'info> {
         token::mint = mint,
         token::authority = lock_token_account,
     )]
-    pub lock_token_account: Account<'info, TokenAccount>,
+    pub lock_token_account: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         init_if_needed,
@@ -44,11 +44,11 @@ pub struct CloseLock<'info> {
         associated_token::mint = mint,
         associated_token::authority = creator
     )]
-    pub creator_token_account: Account<'info, TokenAccount>,
+    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
 
-    pub mint: Account<'info, Mint>,
+    pub mint: InterfaceAccount<'info, Mint>,
 
-    pub token_program: Program<'info, Token>,
+    pub token_program: Program<'info, Token2022>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
@@ -91,7 +91,7 @@ pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
-        token_2022::transfer_checked(
+        token::transfer_checked(
             cpi_ctx,
             ctx.accounts.lock_token_account.amount,
             ctx.accounts.mint.decimals
@@ -106,7 +106,7 @@ pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
-        token_2022::close_account(cpi_ctx)?;
+        token::close_account(cpi_ctx)?;
     }
 
     Ok(())

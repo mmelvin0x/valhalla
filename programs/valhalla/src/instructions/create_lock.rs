@@ -2,7 +2,7 @@ use anchor_lang::{ prelude::*, system_program };
 use anchor_spl::{
     associated_token::AssociatedToken,
     token_2022::{ self as token, TransferChecked },
-    token::{ Mint, TokenAccount, Token },
+    token_interface::{ TokenAccount, Mint, Token2022 },
 };
 
 use crate::{ state::{ Lock, Locker }, constants, errors::LockError };
@@ -44,7 +44,7 @@ pub struct CreateLock<'info> {
         token::mint = mint,
         token::authority = lock_token_account
     )]
-    pub lock_token_account: Box<Account<'info, TokenAccount>>,
+    pub lock_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         init_if_needed,
@@ -52,7 +52,7 @@ pub struct CreateLock<'info> {
         associated_token::mint = mint,
         associated_token::authority = creator
     )]
-    pub creator_token_account: Box<Account<'info, TokenAccount>>,
+    pub creator_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         init_if_needed,
@@ -60,11 +60,11 @@ pub struct CreateLock<'info> {
         associated_token::mint = mint,
         associated_token::authority = beneficiary
     )]
-    pub beneficiary_token_account: Box<Account<'info, TokenAccount>>,
+    pub beneficiary_token_account: Box<InterfaceAccount<'info, TokenAccount>>,
 
-    pub mint: Box<Account<'info, Mint>>,
+    pub mint: Box<InterfaceAccount<'info, Mint>>,
 
-    pub token_program: Program<'info, Token>,
+    pub token_program: Program<'info, Token2022>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }

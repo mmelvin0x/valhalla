@@ -3,8 +3,8 @@ use std::vec;
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{ TokenAccount, Mint, Token },
-    token_2022::{ TransferChecked, self },
+    token_2022::{ self as token, TransferChecked },
+    token_interface::{ TokenAccount, Mint, Token2022 },
 };
 
 use crate::{ constants, state::Lock };
@@ -26,14 +26,10 @@ pub struct ExtendSchedule<'info> {
         token::mint = mint,
         token::authority = lock_token_account,
     )]
-    pub lock_token_account: Account<'info, TokenAccount>,
+    pub lock_token_account: InterfaceAccount<'info, TokenAccount>,
 
-    #[account(
-        mut,
-        associated_token::mint = mint,
-        associated_token::authority = creator
-    )]
-    pub creator_token_account: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         mut,
@@ -48,9 +44,9 @@ pub struct ExtendSchedule<'info> {
     )]
     pub lock: Account<'info, Lock>,
 
-    pub mint: Account<'info, Mint>,
+    pub mint: InterfaceAccount<'info, Mint>,
 
-    pub token_program: Program<'info, Token>,
+    pub token_program: Program<'info, Token2022>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
@@ -78,7 +74,7 @@ pub fn increase_num_payouts_ix(
     let cpi_program = ctx.accounts.token_program.to_account_info();
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-    token_2022::transfer_checked(cpi_ctx, amount, ctx.accounts.mint.decimals)?;
+    token::transfer_checked(cpi_ctx, amount, ctx.accounts.mint.decimals)?;
 
     Ok(())
 }

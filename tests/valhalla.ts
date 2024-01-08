@@ -9,6 +9,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
   ExtensionType,
   TOKEN_2022_PROGRAM_ID,
   TokenAccountNotFoundError,
@@ -236,6 +237,8 @@ describe("Valhalla", () => {
         creatorTokenAccount,
         beneficiaryTokenAccount,
         mint,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .signers([creator])
       .rpc();
@@ -320,6 +323,8 @@ describe("Valhalla", () => {
           lockTokenAccount,
           beneficiaryTokenAccount,
           mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         })
         .signers([beneficiary])
         .rpc();
@@ -358,6 +363,8 @@ describe("Valhalla", () => {
         mint,
         lockTokenAccount,
         creatorTokenAccount,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .signers([creator])
       .rpc();
@@ -393,6 +400,8 @@ describe("Valhalla", () => {
         lockTokenAccount,
         creatorTokenAccount,
         mint,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .signers([creator])
       .rpc();
