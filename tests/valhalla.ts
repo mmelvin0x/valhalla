@@ -40,10 +40,10 @@ describe("Valhalla", () => {
   const beneficiary = anchor.web3.Keypair.generate();
 
   const mintAuthority = payer;
-  const mintKeypair = Keypair.generate();
-  const mint = mintKeypair.publicKey;
   const transferFeeConfigAuthority = payer;
   const withdrawWithheldAuthority = payer;
+  const mintKeypair = Keypair.generate();
+  const mint = mintKeypair.publicKey;
 
   const extensions = [ExtensionType.TransferFeeConfig];
 
