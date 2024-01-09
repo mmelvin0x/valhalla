@@ -88,7 +88,7 @@ pub fn create_lock_ix(
     lock.lock_token_account = ctx.accounts.lock_token_account.to_account_info().key();
     lock.creator_token_account = ctx.accounts.creator_token_account.to_account_info().key();
     lock.beneficiary_token_account = ctx.accounts.beneficiary_token_account.to_account_info().key();
-    lock.locked_date = Clock::get().unwrap().unix_timestamp as u64;
+    lock.start_date = Clock::get().unwrap().unix_timestamp as u64;
     lock.total_payments = total_payments;
     lock.payout_interval = payout_interval;
     lock.num_payments_made = 0;

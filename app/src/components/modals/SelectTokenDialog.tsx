@@ -56,7 +56,7 @@ export default function SelectTokenDialog({
       className="modal modal-bottom sm:modal-middle"
     >
       <div className="modal-box min-h-96 relative">
-        <h3 className="degen-locker">Select Token</h3>
+        <h3 className="">Select Token</h3>
 
         <form method="dialog" className="absolute top-0 right-0 m-1">
           {/* if there is a button in form, it will close the modal */}

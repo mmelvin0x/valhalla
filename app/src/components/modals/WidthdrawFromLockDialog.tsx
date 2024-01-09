@@ -26,7 +26,7 @@ const WithdrawToBeneficiaryDialog: FC<{
       className="modal modal-bottom sm:modal-middle"
     >
       <div className="modal-box min-h-96 relative">
-        <h3 className="degen-locker">Withdraw Tokens</h3>
+        <h3 className="">Withdraw Tokens</h3>
 
         <form method="dialog" className="absolute top-0 right-0 m-1">
           {/* if there is a button in form, it will close the modal */}

@@ -29,7 +29,7 @@ export default function ExtendLockDialog({
       className="modal modal-bottom sm:modal-middle"
     >
       <div className="modal-box min-h-96 relative">
-        <h3 className="degen-locker">New Unlock Date</h3>
+        <h3 className="">New Unlock Date</h3>
 
         <form method="dialog" className="absolute top-0 right-0 m-1">
           {/* if there is a button in form, it will close the modal */}

@@ -26,8 +26,9 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
       <div className="navbar flex flex-row md:mb-2 bg-gradient-to-r from-white to-primary">
         <div className="navbar-start">
           <details className="dropdown">
-            <summary className="m-1 btn btn-circle btn-outline flex gap-2 items-center shadow-xl">
-              <Image src="/logo64.png" alt="logo" width={48} height={48} />{" "}
+            <summary className="m-1 btn btn-ghost flex gap-1 items-center">
+              <Image src="/logo64.png" alt="logo" width={36} height={36} />{" "}
+              <h3 className="">Valhalla</h3>
             </summary>
             <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
               <li>
@@ -84,7 +85,6 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
               )}
             </ul>
           </details>
-          <h3 className="degen-locker">Valhalla</h3>
         </div>
 
         {/* Nav Links */}

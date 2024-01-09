@@ -11,34 +11,25 @@ const Home: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>Valhalla - Liquidity Locking</title>
+        <title>Valhalla - Token Vesting and Locks</title>
         <meta
           name="description"
           content="Secure and Simplify Your Liquidity Management with Valhalla"
         />
       </Head>
 
-      <div className="hidden md:block header -mt-2 p-4">
-        <div className="container mx-auto flex flex-wrap justify-between items-center">
-          <h4 className="text-2xl font-bold">
-            Gain the chain's trust and lock 'til Valhalla
-          </h4>
-          <Link href="/locks/create" className="btn btn-accent">
-            Lock your LP Tokens
-          </Link>
-        </div>
-      </div>
-
-      <div className="hero py-10 hero-gradient">
+      <div className="hero py-10 hero-gradient -mt-3">
         <div className="mx-auto">
           <div className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2">
             <div className="flex flex-col items-center justify-center gap-2">
-              <h1 className="degen-locker text-center">Lock your tokens</h1>
-              <p className="prose">
+              <h1 className=" text-center">Lock 'til Valhalla</h1>
+              <p className="prose text-white">
                 Gain the chain's trust by locking your LP tokens
               </p>
 
-              <p className="text-xl mb-2">Lock your tokens 'til Valhalla</p>
+              <p className="text-xl mb-2">
+                Secure and Simplify Your Token Management with Valhalla
+              </p>
               <div className="card-actions">
                 <Link className="btn btn-primary" href="/locks/create">
                   Lock LP Tokens
@@ -66,7 +57,7 @@ const Home: NextPage = () => {
 
       <div className="p-10">
         <div className="text-center">
-          <h2 className="degen-locker mb-6">Liquidity Locking with Valhalla</h2>
+          <h2 className=" mb-6">Liquidity Locking with Valhalla</h2>
           <p className="mb-6 prose mx-auto text-center">
             Elevate your DeFi experience with Valhalla, the premier destination
             for efficient and secure liquidity locking. Simplify your liquidity
@@ -77,9 +68,7 @@ const Home: NextPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
           <div className="card">
             <div className="card-body">
-              <h3 className="card-title degen-locker">
-                Advanced Liquidity Locking
-              </h3>
+              <h3 className="card-title ">Advanced Liquidity Locking</h3>
               <p className="prose">
                 Experience the pinnacle of liquidity management. Valhalla
                 provides an intuitive, secure, and hassle-free way to lock your
@@ -91,9 +80,7 @@ const Home: NextPage = () => {
 
           <div className="card">
             <div className="card-body">
-              <h3 className="card-title degen-locker">
-                Robust and Simple APIs
-              </h3>
+              <h3 className="card-title ">Robust and Simple APIs</h3>
               <p className="prose">
                 Valhalla's APIs are designed to be simple and easy to use. We
                 provide a variety of endpoints to help you and our partners
@@ -104,9 +91,7 @@ const Home: NextPage = () => {
 
           <div className="card">
             <div className="card-body">
-              <h3 className="card-title degen-locker">
-                Exclusive Locking Rewards
-              </h3>
+              <h3 className="card-title ">Exclusive Locking Rewards</h3>
               <p className="prose">
                 Benefit from locking your liquidity. Valhalla offers unique
                 incentives and rewards for locking your liquidity. Our points

@@ -28,6 +28,20 @@ const LOCK_TOKEN_ACCOUNT_SEED = Buffer.from("token");
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const getFee = (
+  transferAmount: anchor.BN,
+  feeBasisPoints: number,
+  maxFee: BigInt
+): number => {
+  let feeTaken =
+    (transferAmount.toNumber() * LAMPORTS_PER_SOL * feeBasisPoints) / 10000;
+  if (feeTaken > Number(maxFee)) {
+    feeTaken = Number(maxFee);
+  }
+
+  return feeTaken;
+};
+
 describe("Valhalla", () => {
   const provider = anchor.AnchorProvider.env();
   const wallet = provider.wallet as NodeWallet;
@@ -50,7 +64,7 @@ describe("Valhalla", () => {
   const mintLen = getMintLen(extensions);
   const decimals = 9;
   const feeBasisPoints = 50;
-  const maxFee = BigInt(5_000);
+  const maxFee = BigInt(5_000 * LAMPORTS_PER_SOL);
 
   let creatorTokenAccount: anchor.web3.PublicKey;
   let beneficiaryTokenAccount: anchor.web3.PublicKey;
@@ -286,10 +300,14 @@ describe("Valhalla", () => {
 
     const lockTokenAccountInfo = await getAccount(
       provider.connection,
-      lockTokenAccount
+      lockTokenAccount,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
+
+    const feeTaken = getFee(depositAmount, feeBasisPoints, maxFee);
     expect(lockTokenAccountInfo.amount.toString()).equals(
-      (depositAmount.toNumber() * LAMPORTS_PER_SOL).toString(),
+      (depositAmount.toNumber() * LAMPORTS_PER_SOL - feeTaken).toString(),
       "lockTokenAccountInfo.amount"
     );
     expect(lockTokenAccountInfo.mint.toBase58()).equals(
@@ -303,12 +321,14 @@ describe("Valhalla", () => {
   });
 
   it("should disburse to beneficiary", async () => {
-    await sleep(1000);
+    await sleep(250);
     const startingLockAccount = await program.account.lock.fetch(lock);
     const totalPayments = startingLockAccount.totalPayments;
     const startingLockTokenAccountInfo = await getAccount(
       provider.connection,
-      lockTokenAccount
+      lockTokenAccount,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
 
     for (let i = 0; i < totalPayments.toNumber(); i++) {
@@ -330,25 +350,28 @@ describe("Valhalla", () => {
         .rpc();
 
       await provider.connection.confirmTransaction(tx, "confirmed");
-
-      const lockAccount = await program.account.lock.fetch(lock);
-      // expect(lockAccount.numPaymentsMade.toNumber()).equals(
-      //   i + 1,
-      //   "numPaymentsMade"
-      // );
-
-      const lockTokenAccountInfo = await getAccount(
-        provider.connection,
-        lockTokenAccount
-      );
-      expect(lockTokenAccountInfo.amount.toString()).equals(
-        (
-          startingLockTokenAccountInfo.amount -
-          BigInt(lockAccount.amountPerPayout.toString()) * BigInt(i + 1)
-        ).toString(),
-        "lockTokenAccountInfo.amount"
-      );
     }
+
+    const lockAccount = await program.account.lock.fetch(lock);
+    expect(lockAccount.numPaymentsMade.toNumber()).equals(5, "numPaymentsMade");
+
+    const lockTokenAccountInfo = await getAccount(
+      provider.connection,
+      lockTokenAccount,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
+    );
+
+    const amount =
+      BigInt(lockAccount.amountPerPayout.toString()) *
+      BigInt(totalPayments.toString());
+    const fee =
+      BigInt(getFee(new anchor.BN(amount.toString()), feeBasisPoints, maxFee)) *
+      BigInt(totalPayments.toString());
+    expect(lockTokenAccountInfo.amount.toString()).equals(
+      (amount - fee).toString(),
+      "lockTokenAccountInfo.amount"
+    );
   });
 
   it("should increase the number of payouts in an existing lock", async () => {
@@ -380,7 +403,9 @@ describe("Valhalla", () => {
 
     const lockTokenAccountInfo = await getAccount(
       provider.connection,
-      lockTokenAccount
+      lockTokenAccount,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
 
     expect(lockTokenAccountInfo.amount.toString()).equals(
@@ -409,9 +434,14 @@ describe("Valhalla", () => {
     await provider.connection.confirmTransaction(tx, "confirmed");
 
     try {
-      expect(await getAccount(provider.connection, lockTokenAccount)).to.throw(
-        TokenAccountNotFoundError
-      );
+      expect(
+        await getAccount(
+          provider.connection,
+          lockTokenAccount,
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        )
+      ).to.throw(TokenAccountNotFoundError);
     } catch (e) {}
   });
 });

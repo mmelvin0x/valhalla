@@ -145,7 +145,7 @@ const Locks: FC = () => {
 
   return (
     <div className="flex flex-col items-center gap-8 p-10 max-w-screen-md mx-auto">
-      <h1 className="text-center degen-locker">Create a Lock</h1>
+      <h1 className="text-center ">Create a Lock</h1>
 
       <div className="flex flex-col items-center gap-6">
         <p className="prose text-center">
