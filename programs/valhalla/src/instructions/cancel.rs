@@ -5,12 +5,20 @@ use anchor_spl::{
     token_interface::{ Token2022, TokenAccount, Mint },
 };
 
-use crate::{ constants, errors::LockError, state::Lock };
+use crate::{ constants, errors::LockError, state::Lock, Authority };
 
 #[derive(Accounts)]
-pub struct Close<'info> {
-    #[account(mut)]
-    pub funder: Signer<'info>,
+pub struct Cancel<'info> {
+    #[account(mut, constraint = funder.key() == signer.key() || beneficiary.key() == signer.key())]
+    pub signer: Signer<'info>,
+
+    #[account(mut, constraint = lock.funder == funder.key())]
+    /// CHECK: Checked in contstraints
+    pub funder: AccountInfo<'info>,
+
+    #[account(mut, constraint = lock.beneficiary == beneficiary.key())]
+    /// CHECK: Checked in constraints
+    pub beneficiary: AccountInfo<'info>,
 
     #[account(
         mut,
@@ -21,6 +29,9 @@ pub struct Close<'info> {
             constants::LOCK_SEED,
         ],
         bump,
+        has_one = beneficiary,
+        has_one = funder,
+        has_one = mint,
     )]
     pub lock: Account<'info, Lock>,
 
@@ -40,11 +51,11 @@ pub struct Close<'info> {
 
     #[account(
         init_if_needed,
-        payer = funder,
+        payer = signer,
         associated_token::mint = mint,
         associated_token::authority = funder
     )]
-    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub funder_token_account: InterfaceAccount<'info, TokenAccount>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -53,12 +64,32 @@ pub struct Close<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn close_ix(ctx: Context<Close>) -> Result<()> {
+pub fn cancel_ix(ctx: Context<Cancel>) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
 
-    // Ensure that the lock is unlocked
-    if !lock.can_disburse()? {
-        return Err(LockError::Locked.into());
+    // Check the cancel authority
+    match lock.cancel_authority {
+        Authority::Neither => {
+            return Err(LockError::Unauthorized.into());
+        }
+        Authority::Funder => {
+            if ctx.accounts.funder.key() != ctx.accounts.signer.key() {
+                return Err(LockError::Unauthorized.into());
+            }
+        }
+        Authority::Beneficiary => {
+            if ctx.accounts.beneficiary.key() != ctx.accounts.signer.key() {
+                return Err(LockError::Unauthorized.into());
+            }
+        }
+        Authority::Both => {
+            if
+                ctx.accounts.funder.key() != ctx.accounts.signer.key() ||
+                ctx.accounts.beneficiary.key() != ctx.accounts.signer.key()
+            {
+                return Err(LockError::Unauthorized.into());
+            }
+        }
     }
 
     // If the lock token account has a balance, transfer it to the funder
@@ -68,7 +99,7 @@ pub fn close_ix(ctx: Context<Close>) -> Result<()> {
         let mint_key = ctx.accounts.mint.to_account_info().key();
 
         let lock_token_account = &ctx.accounts.lock_token_account;
-        let creator_token_account = &ctx.accounts.creator_token_account;
+        let creator_token_account = &ctx.accounts.funder_token_account;
 
         let bump = ctx.bumps.lock_token_account;
         let signer: &[&[&[u8]]] = &[
@@ -81,7 +112,6 @@ pub fn close_ix(ctx: Context<Close>) -> Result<()> {
             ],
         ];
 
-        // Transfer tokens from lock to funder
         let cpi_accounts = TransferChecked {
             from: lock_token_account.to_account_info(),
             mint: ctx.accounts.mint.to_account_info(),

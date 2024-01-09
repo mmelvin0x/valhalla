@@ -4,7 +4,7 @@ use crate::{ constants, state::Locker, errors::LockError };
 
 #[derive(Accounts)]
 /// Represents an update operation for the admin, treasury, and discount token mint of a Locker account.
-pub struct Update<'info> {
+pub struct AdminUpdate<'info> {
     #[account(mut, constraint = locker.admin == admin.key())]
     /// The current admin account.
     pub admin: Signer<'info>,
@@ -33,7 +33,7 @@ pub struct Update<'info> {
     pub treasury: AccountInfo<'info>,
 }
 
-pub fn admin_update_ix(ctx: Context<Update>, new_fee: u64) -> Result<()> {
+pub fn admin_update_ix(ctx: Context<AdminUpdate>, new_fee: u64) -> Result<()> {
     let locker = &mut ctx.accounts.locker;
 
     if locker.admin != ctx.accounts.admin.key() {

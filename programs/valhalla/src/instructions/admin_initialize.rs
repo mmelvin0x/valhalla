@@ -4,7 +4,7 @@ use crate::{ constants, state::Locker };
 
 #[derive(Accounts)]
 /// Represents the initialization parameters for the admin account.
-pub struct Initialize<'info> {
+pub struct AdminInitialize<'info> {
     /// The admin account that will sign the transaction.
     #[account(mut)]
     pub admin: Signer<'info>,
@@ -37,7 +37,7 @@ pub struct Initialize<'info> {
 /// # Errors
 ///
 /// Returns an error if the initialization fails.
-pub fn admin_initialize_ix(ctx: Context<Initialize>, fee: u64) -> Result<()> {
+pub fn admin_initialize_ix(ctx: Context<AdminInitialize>, fee: u64) -> Result<()> {
     let locker = &mut ctx.accounts.locker;
 
     locker.fee = fee;

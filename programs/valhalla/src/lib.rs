@@ -26,7 +26,7 @@ pub mod valhalla {
     /// # Errors
     ///
     /// Returns an error if the initialization fails.
-    pub fn admin_initialize(ctx: Context<Initialize>, fee: u64) -> Result<()> {
+    pub fn admin_initialize(ctx: Context<AdminInitialize>, fee: u64) -> Result<()> {
         instructions::admin_initialize_ix(ctx, fee)
     }
 
@@ -40,7 +40,7 @@ pub mod valhalla {
     /// # Errors
     ///
     /// Returns an error if the update fails.
-    pub fn admin_update(ctx: Context<Update>, new_fee: u64) -> Result<()> {
+    pub fn admin_update(ctx: Context<AdminUpdate>, new_fee: u64) -> Result<()> {
         instructions::admin_update_ix(ctx, new_fee)
     }
 
@@ -103,7 +103,20 @@ pub mod valhalla {
     /// # Errors
     ///
     /// Returns an error if the lock closure fails.
-    pub fn close_lock_(ctx: Context<Close>) -> Result<()> {
-        instructions::close_ix(ctx)
+    pub fn cancel(ctx: Context<Cancel>) -> Result<()> {
+        instructions::cancel_ix(ctx)
+    }
+
+    /// Updates the beneficiary of a lock.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the update.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the update fails.
+    pub fn update(ctx: Context<Update>) -> Result<()> {
+        instructions::update_ix(ctx)
     }
 }

@@ -7,6 +7,7 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   Account,
   TOKEN_2022_PROGRAM_ID,
+  getAccount,
 } from "@solana/spl-token";
 import { assert, expect } from "chai";
 import { airdrop } from "./utils/airdrop";
@@ -120,6 +121,30 @@ describe("⚡️ Valhalla", () => {
       expect(lockerAccount_.fee.toNumber()).equals(0.1 * LAMPORTS_PER_SOL);
     });
 
+    it("should not allow a non-admin to update the locker fee", async () => {
+      try {
+        const tx = await program.methods
+          .adminUpdate(new anchor.BN(0.2 * LAMPORTS_PER_SOL))
+          .accounts({
+            admin: wallet.publicKey,
+            newAdmin: wallet.publicKey,
+            locker,
+            treasury: wallet.publicKey,
+            newTreasury: wallet.publicKey,
+          })
+          .signers([beneficiary])
+          .rpc();
+
+        await provider.connection.confirmTransaction(tx, "confirmed");
+
+        assert.ok(false);
+      } catch (e) {
+        expect(e.message).equals(
+          `unknown signer: ${beneficiary.publicKey.toBase58()}`
+        );
+      }
+    });
+
     it("should update the locker treasury", async () => {
       let lockerAccount;
       const newTreasury = Keypair.generate().publicKey;
@@ -159,6 +184,30 @@ describe("⚡️ Valhalla", () => {
       expect(lockerAccount.treasury.toBase58()).equals(
         wallet.publicKey.toBase58()
       );
+    });
+
+    it("should not allow a non-admin to update the locker treasury", async () => {
+      try {
+        const newTreasury = Keypair.generate().publicKey;
+
+        const tx = await program.methods
+          .adminUpdate(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+          .accounts({
+            admin: wallet.publicKey,
+            newAdmin: wallet.publicKey,
+            locker,
+            treasury: wallet.publicKey,
+            newTreasury,
+          })
+          .signers([funder])
+          .rpc();
+
+        await provider.connection.confirmTransaction(tx, "confirmed");
+      } catch (e) {
+        expect(e.message).equals(
+          `unknown signer: ${funder.publicKey.toBase58()}`
+        );
+      }
     });
 
     it("should update the locker admin", async () => {
@@ -210,6 +259,30 @@ describe("⚡️ Valhalla", () => {
       expect(lockerAccount.treasury.toBase58()).equals(
         wallet.publicKey.toBase58()
       );
+    });
+
+    it("should not allow a non-admin to update the locker admin", async () => {
+      try {
+        const newAdmin = Keypair.generate();
+
+        const tx = await program.methods
+          .adminUpdate(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+          .accounts({
+            admin: wallet.publicKey,
+            newAdmin: newAdmin.publicKey,
+            locker,
+            treasury: wallet.publicKey,
+            newTreasury: wallet.publicKey,
+          })
+          .signers([funder])
+          .rpc();
+
+        await provider.connection.confirmTransaction(tx, "confirmed");
+      } catch (e) {
+        expect(e.message).equals(
+          `unknown signer: ${funder.publicKey.toBase58()}`
+        );
+      }
     });
   });
 
@@ -304,11 +377,126 @@ describe("⚡️ Valhalla", () => {
         );
       });
 
-      it("should not allow the depoitor to cancel", async () => {});
-      it("should not allow the beneficiary to cancel", async () => {});
-      it("should not allow the depoitor to change the beneficiary", async () => {});
-      it("should not allow the beneficiary to change the beneficiary", async () => {});
-      it("should disperse the funds to the beneficiary", async () => {});
+      it("should not allow the funder to cancel", async () => {
+        try {
+          const tx = await program.methods
+            .cancel()
+            .accounts({
+              signer: funder.publicKey,
+              funder: funder.publicKey,
+              beneficiary: beneficiary.publicKey,
+              lock,
+              lockTokenAccount,
+              funderTokenAccount: funderTokenAccount.address,
+              mint,
+              tokenProgram: TOKEN_2022_PROGRAM_ID,
+              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            })
+            .transaction();
+
+          await provider.sendAndConfirm(tx, [funder]);
+          assert.ok(false);
+        } catch (e) {
+          const logs = e.logs;
+          expect(logs[logs.length - 1]).equals(
+            // Unauthorized
+            `Program ${program.programId.toBase58()} failed: custom program error: 0x1773`
+          );
+        }
+      });
+
+      it("should not allow the beneficiary to cancel", async () => {
+        try {
+          const tx = await program.methods
+            .cancel()
+            .accounts({
+              signer: beneficiary.publicKey,
+              funder: funder.publicKey,
+              beneficiary: beneficiary.publicKey,
+              lock,
+              lockTokenAccount,
+              funderTokenAccount: funderTokenAccount.address,
+              mint,
+              tokenProgram: TOKEN_2022_PROGRAM_ID,
+              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            })
+            .transaction();
+
+          await provider.sendAndConfirm(tx, [beneficiary]);
+          assert.ok(false);
+        } catch (e) {
+          const logs = e.logs;
+          expect(logs[logs.length - 1]).equals(
+            // Unauthorized
+            `Program ${program.programId.toBase58()} failed: custom program error: 0x1773`
+          );
+        }
+      });
+
+      it("should not allow the funder to change the beneficiary", async () => {
+        try {
+          const tx = await program.methods
+            .update()
+            .accounts({
+              signer: funder.publicKey,
+              funder: funder.publicKey,
+              beneficiary: beneficiary.publicKey,
+              newBeneficiary: funder.publicKey,
+              lock,
+              mint,
+              tokenProgram: TOKEN_2022_PROGRAM_ID,
+              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            })
+            .transaction();
+
+          await provider.sendAndConfirm(tx, [funder]);
+          assert.ok(false);
+        } catch (e) {
+          const logs = e.logs;
+          expect(logs[logs.length - 1]).equals(
+            // Unauthorized
+            `Program ${program.programId.toBase58()} failed: custom program error: 0x1773`
+          );
+        }
+      });
+
+      it("should not allow the beneficiary to change the beneficiary", async () => {
+        try {
+          const tx = await program.methods
+            .update()
+            .accounts({
+              signer: beneficiary.publicKey,
+              funder: funder.publicKey,
+              beneficiary: beneficiary.publicKey,
+              newBeneficiary: funder.publicKey,
+              lock,
+              mint,
+              tokenProgram: TOKEN_2022_PROGRAM_ID,
+              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            })
+            .transaction();
+
+          await provider.sendAndConfirm(tx, [beneficiary]);
+          assert.ok(false);
+        } catch (e) {
+          const logs = e.logs;
+          expect(logs[logs.length - 1]).equals(
+            // Unauthorized
+            `Program ${program.programId.toBase58()} failed: custom program error: 0x1773`
+          );
+        }
+      });
+
+      it("should disperse the funds to the beneficiary", async () => {
+        // There are 5 disbursements, each of 1 second, we will do them individually
+        const lockAccount = await program.account.lock.fetch(lock);
+        const startingLockTokenAccountInfo = await getAccount(
+          provider.connection,
+          lockTokenAccount,
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        );
+      });
     });
 
     describe("🔒 Create a Vesting Lock", () => {});

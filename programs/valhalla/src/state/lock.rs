@@ -39,9 +39,9 @@ impl Lock {
     ///
     /// Returns an error if the operation fails.
     pub fn can_disburse(&self) -> Result<bool> {
-        if self.start_date < (Clock::get()?.unix_timestamp as u64) {
+        let current_time = Clock::get()?.unix_timestamp as u64;
+        if self.start_date < current_time {
             let time_locked = self.start_date + self.payout_interval * (self.num_payments_made + 1);
-            let current_time = Clock::get()?.unix_timestamp as u64;
 
             Ok(time_locked <= current_time)
         } else {
