@@ -18,16 +18,16 @@ const Home: NextPage = () => {
         />
       </Head>
 
-      <div className="hero py-10 hero-gradient -mt-3">
+      <div className="hero py-10 hero-gradient -mt-2">
         <div className="mx-auto">
           <div className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2">
             <div className="flex flex-col items-center justify-center gap-2">
               <h1 className=" text-center">Lock 'til Valhalla</h1>
-              <p className="prose text-white">
+              <p className="prose font-bold">
                 Gain the chain's trust by locking your LP tokens
               </p>
 
-              <p className="text-xl mb-2">
+              <p className="prose text-xl font-bold mb-2">
                 Secure and Simplify Your Token Management with Valhalla
               </p>
               <div className="card-actions">
@@ -48,7 +48,7 @@ const Home: NextPage = () => {
               className="mx-auto"
               width={350}
               height={350}
-              src="/logo512.png"
+              src="/hero.png"
               alt="Valhalla Hero"
             />
           </div>
@@ -112,7 +112,7 @@ const Home: NextPage = () => {
         </div>
 
         <div className="text-center mt-10">
-          <Link href="/locks/create" className="btn btn-primary">
+          <Link href="/locks/create" className="btn btn-accent">
             Start Liquidity Locking with Valhalla
           </Link>
         </div>

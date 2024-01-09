@@ -8,21 +8,21 @@ use anchor_spl::{
 use crate::{ constants, errors::LockError, state::Lock };
 
 #[derive(Accounts)]
-pub struct DisburseToBeneficiary<'info> {
+pub struct Disburse<'info> {
     #[account(mut)]
     pub any_user: Signer<'info>,
 
     /// CHECK: Used for seeds
-    pub creator: AccountInfo<'info>,
+    pub funder: AccountInfo<'info>,
 
     /// CHECK: Used in constraints
     pub beneficiary: AccountInfo<'info>,
 
     #[account(
-        seeds = [creator.key().as_ref(), mint.key().as_ref(), constants::LOCK_SEED],
+        seeds = [funder.key().as_ref(), mint.key().as_ref(), constants::LOCK_SEED],
         bump,
         has_one = mint,
-        has_one = creator,
+        has_one = funder,
         has_one = beneficiary
     )]
     pub lock: Account<'info, Lock>,
@@ -31,7 +31,7 @@ pub struct DisburseToBeneficiary<'info> {
         mut,
         seeds = [
             lock.key().as_ref(),
-            creator.key().as_ref(),
+            funder.key().as_ref(),
             mint.key().as_ref(),
             constants::LOCK_TOKEN_ACCOUNT_SEED,
         ],
@@ -56,7 +56,7 @@ pub struct DisburseToBeneficiary<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn disburse_to_beneficiary_ix(ctx: Context<DisburseToBeneficiary>) -> Result<()> {
+pub fn disburse_ix(ctx: Context<Disburse>) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
 
     let lock_token_account = &ctx.accounts.lock_token_account;
@@ -68,7 +68,7 @@ pub fn disburse_to_beneficiary_ix(ctx: Context<DisburseToBeneficiary>) -> Result
     }
 
     let lock_key = lock.key();
-    let creator_key = ctx.accounts.creator.key();
+    let creator_key = ctx.accounts.funder.key();
     let mint_key = ctx.accounts.mint.key();
 
     let bump = ctx.bumps.lock_token_account;

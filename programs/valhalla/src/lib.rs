@@ -12,45 +12,98 @@ pub use state::*;
 pub use id::ID;
 
 #[program]
+/// The `valhalla` module contains functions for interacting with the Valhalla program.
 pub mod valhalla {
     use super::*;
 
-    pub fn admin_init_locker(ctx: Context<InitLocker>, fee: u64) -> Result<()> {
-        instructions::init_locker_ix(ctx, fee)
+    /// Initializes the Valhalla program with the given context and fee.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the initialization.
+    /// * `fee` - The fee to be charged for the initialization.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the initialization fails.
+    pub fn admin_initialize(ctx: Context<Initialize>, fee: u64) -> Result<()> {
+        instructions::admin_initialize_ix(ctx, fee)
     }
 
-    pub fn admin_update_locker_fee(ctx: Context<UpdateLockerFee>, fee: u64) -> Result<()> {
-        instructions::update_locker_fee_ix(ctx, fee)
+    /// Updates the fee for the Valhalla program with the given context and new fee.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the update.
+    /// * `new_fee` - The new fee to be set.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the update fails.
+    pub fn admin_update(ctx: Context<Update>, new_fee: u64) -> Result<()> {
+        instructions::admin_update_ix(ctx, new_fee)
     }
 
+    /// Creates a lock with the given parameters.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the lock creation.
+    /// * `amount_to_be_vested` - The amount to be vested.
+    /// * `vesting_duration` - The duration of the vesting period.
+    /// * `payout_interval` - The interval at which payouts will be made.
+    /// * `cliff_payment_amount` - The amount to be paid at the cliff.
+    /// * `cancel_authority` - The authority to cancel the lock.
+    /// * `change_recipient_authority` - The authority to change the recipient of the lock.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the lock creation fails.
     pub fn create_lock(
-        ctx: Context<CreateLock>,
-        deposit_amount: u64,
-        total_payments: u64,
-        amount_per_payout: u64,
-        payout_interval: u64
+        ctx: Context<Create>,
+        amount_to_be_vested: u64,
+        vesting_duration: u64,
+        payout_interval: u64,
+        cliff_payment_amount: u64,
+        start_date: u64,
+        cancel_authority: Authority,
+        change_recipient_authority: Authority
     ) -> Result<()> {
-        instructions::create_lock_ix(
+        instructions::create_ix(
             ctx,
-            deposit_amount,
-            total_payments,
-            amount_per_payout,
-            payout_interval
+            amount_to_be_vested,
+            vesting_duration,
+            payout_interval,
+            cliff_payment_amount,
+            start_date,
+            cancel_authority,
+            change_recipient_authority
         )
     }
 
-    pub fn increase_num_payouts(
-        ctx: Context<ExtendSchedule>,
-        total_payments_increase_amount: u64
-    ) -> Result<()> {
-        instructions::increase_num_payouts_ix(ctx, total_payments_increase_amount)
+    /// Disburses the vested amount for a lock.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the disbursement.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the disbursement fails.
+    pub fn disburse(ctx: Context<Disburse>) -> Result<()> {
+        instructions::disburse_ix(ctx)
     }
 
-    pub fn disburse_to_beneficiary(ctx: Context<DisburseToBeneficiary>) -> Result<()> {
-        instructions::disburse_to_beneficiary_ix(ctx)
-    }
-
-    pub fn close_lock_(ctx: Context<CloseLock>) -> Result<()> {
-        instructions::close_lock_ix(ctx)
+    /// Closes a lock.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the lock closure.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the lock closure fails.
+    pub fn close_lock_(ctx: Context<Close>) -> Result<()> {
+        instructions::close_ix(ctx)
     }
 }

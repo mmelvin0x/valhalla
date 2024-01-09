@@ -128,7 +128,7 @@ export type Valhalla = {
         "## Arguments",
         "",
         "* `unlock_date` - The unlock date of the lock.",
-        "* `deposit_amount` - The amount of tokens to be deposited into the lock.",
+        "* `amount_to_be_vested` - The amount of tokens to be deposited into the lock.",
         "",
         "## Errors",
         "",
@@ -215,7 +215,7 @@ export type Valhalla = {
         "",
         "## Arguments",
         "",
-        "* `deposit_amount` - The amount of tokens to be deposited into the lock."
+        "* `amount_to_be_vested` - The amount of tokens to be deposited into the lock."
       ];
       accounts: [
         {
@@ -676,7 +676,7 @@ export const IDL: Valhalla = {
         "## Arguments",
         "",
         "* `unlock_date` - The unlock date of the lock.",
-        "* `deposit_amount` - The amount of tokens to be deposited into the lock.",
+        "* `amount_to_be_vested` - The amount of tokens to be deposited into the lock.",
         "",
         "## Errors",
         "",
@@ -763,7 +763,7 @@ export const IDL: Valhalla = {
         "",
         "## Arguments",
         "",
-        "* `deposit_amount` - The amount of tokens to be deposited into the lock.",
+        "* `amount_to_be_vested` - The amount of tokens to be deposited into the lock.",
       ],
       accounts: [
         {

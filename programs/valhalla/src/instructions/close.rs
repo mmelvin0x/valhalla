@@ -8,15 +8,15 @@ use anchor_spl::{
 use crate::{ constants, errors::LockError, state::Lock };
 
 #[derive(Accounts)]
-pub struct CloseLock<'info> {
+pub struct Close<'info> {
     #[account(mut)]
-    pub creator: Signer<'info>,
+    pub funder: Signer<'info>,
 
     #[account(
         mut,
-        close = creator,
+        close = funder,
         seeds = [
-            creator.key().as_ref(),
+            funder.key().as_ref(),
             mint.key().as_ref(),
             constants::LOCK_SEED,
         ],
@@ -28,7 +28,7 @@ pub struct CloseLock<'info> {
         mut,
         seeds = [
             lock.key().as_ref(),
-            creator.key().as_ref(),
+            funder.key().as_ref(),
             mint.key().as_ref(),
             constants::LOCK_TOKEN_ACCOUNT_SEED,
         ],
@@ -40,9 +40,9 @@ pub struct CloseLock<'info> {
 
     #[account(
         init_if_needed,
-        payer = creator,
+        payer = funder,
         associated_token::mint = mint,
-        associated_token::authority = creator
+        associated_token::authority = funder
     )]
     pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
 
@@ -53,7 +53,7 @@ pub struct CloseLock<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
+pub fn close_ix(ctx: Context<Close>) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
 
     // Ensure that the lock is unlocked
@@ -61,10 +61,10 @@ pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
         return Err(LockError::Locked.into());
     }
 
-    // If the lock token account has a balance, transfer it to the creator
+    // If the lock token account has a balance, transfer it to the funder
     if ctx.accounts.lock_token_account.amount > 0 {
         let lock_key = ctx.accounts.lock.to_account_info().key();
-        let creator_key = ctx.accounts.creator.to_account_info().key();
+        let creator_key = ctx.accounts.funder.to_account_info().key();
         let mint_key = ctx.accounts.mint.to_account_info().key();
 
         let lock_token_account = &ctx.accounts.lock_token_account;
@@ -81,7 +81,7 @@ pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
             ],
         ];
 
-        // Transfer tokens from lock to creator
+        // Transfer tokens from lock to funder
         let cpi_accounts = TransferChecked {
             from: lock_token_account.to_account_info(),
             mint: ctx.accounts.mint.to_account_info(),
@@ -100,7 +100,7 @@ pub fn close_lock_ix(ctx: Context<CloseLock>) -> Result<()> {
         // Close the lock token account
         let cpi_accounts = CloseAccount {
             account: ctx.accounts.lock_token_account.to_account_info(),
-            destination: ctx.accounts.creator.to_account_info(),
+            destination: ctx.accounts.funder.to_account_info(),
             authority: ctx.accounts.lock_token_account.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();

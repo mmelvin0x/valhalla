@@ -2,6 +2,9 @@ use anchor_lang::prelude::*;
 
 #[error_code]
 pub enum LockError {
+    #[msg("The fee is too high")]
+    FeeOverflow,
+
     #[msg("Lock duration is invalid")]
     InvalidUnlockDate,
 
@@ -11,12 +14,9 @@ pub enum LockError {
     #[msg("Not authorized to perform this action")]
     Unauthorized,
 
-    #[msg("The deposit amount is too low")]
-    DepositAmountTooLow,
+    #[msg("You do not have enough tokens to perform this action")]
+    InsufficientFundsForDeposit,
 
-    #[msg("The schedule is invalid")]
-    InvalidSchedule,
-
-    #[msg("No schedules were provided")]
-    NoSchedules,
+    #[msg("You do not have enough tokens to perform this action")]
+    InsufficientFundsForTotalPayouts,
 }

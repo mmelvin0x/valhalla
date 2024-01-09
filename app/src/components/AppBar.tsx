@@ -5,7 +5,14 @@ import Image from "next/image";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FaHome, FaLockOpen, FaPlusCircle, FaUserLock } from "react-icons/fa";
+import {
+  FaHome,
+  FaLockOpen,
+  FaMoon,
+  FaPlusCircle,
+  FaSun,
+  FaUserLock,
+} from "react-icons/fa";
 
 export const AppBar: FC<PropsWithChildren> = (props) => {
   const { connected, publicKey } = useWallet();
