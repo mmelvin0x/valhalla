@@ -19,7 +19,11 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <>
       <Head>
-        <title>Valhalla | Liquidity Lockers</title>
+        <title>Valhalla | Token Vesting Solutions</title>
+        <meta
+          name="description"
+          content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
+        />
       </Head>
 
       <style jsx global>
@@ -33,14 +37,12 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
       </style>
 
       <ContextProvider>
-        <div className="flex flex-col min-h-screen">
-          <Notifications />
-          <AppBar />
-          <div className="flex-1">
-            <Component {...pageProps} />
-          </div>
-          <Footer />
+        <Notifications />
+        <AppBar />
+        <div className="m-10 min-h-screen">
+          <Component {...pageProps} />
         </div>
+        <Footer />
       </ContextProvider>
     </>
   );

@@ -1,5 +1,5 @@
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import DisplayAddress from "components/DisplayAddress";
+import AddressBadge from "components/AddressBadge";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 
@@ -116,7 +116,7 @@ export default function SelectTokenDialog({
                           <span className="font-bold">
                             {asset.content.metadata.symbol || "Unknown"}
                           </span>
-                          <DisplayAddress address={asset.id} />
+                          <AddressBadge address={asset.id} />
                         </div>
                         <span className="text-xs self-start">
                           {asset.content.metadata.name || "Unknown"}

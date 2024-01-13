@@ -31,3 +31,17 @@ export const shortenAddress = (address?: PublicKey) => {
   if (!address) return "";
   return `${address.toBase58().slice(0, 4)}...${address.toBase58().slice(-4)}`;
 };
+
+export const getNumDaysFromMS = (ms: number) => {
+  const days = ms / (60 * 60 * 24 * 1000);
+
+  return Math.round(days);
+};
+
+export const secondsToDaysFromNow = (seconds: number) => {
+  const now = new Date().getTime() / 1000;
+  const diff = seconds - now;
+  const days = diff / (60 * 60 * 24);
+
+  return Math.round(days);
+};

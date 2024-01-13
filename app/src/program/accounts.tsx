@@ -1,16 +1,13 @@
 import {
   Account,
   Mint,
+  TOKEN_2022_PROGRAM_ID,
   getAccount,
   getAssociatedTokenAddressSync,
   getMint,
 } from "@solana/spl-token";
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import Link from "next/link";
-import { ReactNode } from "react";
-import { getExplorerUrl } from "../utils/explorer";
 import { shortenAddress } from "../utils/formatters";
-import { scoreTokenLock } from "../utils/score";
 import * as anchor from "@coral-xyz/anchor";
 import { Valhalla } from "./valhalla";
 import { getLocksByMintFilter, getLocksByUserFilter } from "program/filters";
@@ -19,11 +16,11 @@ import { DasApiAssetContent } from "@metaplex-foundation/digital-asset-standard-
 import { notify } from "utils/notifications";
 
 export const PROGRAM_ID = new PublicKey(
-  "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
+  "BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU"
 );
 
 export const TREASURY = new PublicKey(
-  "AJ7NKueXnNM2sZtBKcf81sMpvyJXENpajLGpdzBKrogJ"
+  "5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb"
 );
 
 export const LOCK_SEED = Buffer.from("lock");
@@ -91,7 +88,7 @@ export const getAllLocks = async (
 
   if (mint) {
     const theMint = await getMint(connection, mint);
-    return await getLocksByMint(connection, theMint, program);
+    return await getLocksByMint(theMint, program);
   }
 
   const filters: any[] = [{ dataSize: 152 }];
@@ -105,31 +102,11 @@ export const getAllLocks = async (
   const theLocks = await program.account.lock.all();
   for (let i = 0; i < theLocks.length; i++) {
     const lock = theLocks[i];
-    console.log("-> ~ lock:", lock.account.userTokenAccount.toBase58());
     const mint = await getMint(connection, lock.account.mint);
     mints.push(mint);
-    const lockTokenAccount = await getAccount(
-      connection,
-      lock.account.lockTokenAccount
-    );
-    const userTokenAccountKey = getUserTokenAccountKey(
-      lock.account.user,
-      mint.address
-    );
-    console.log("-> ~ userTokenAccountKey:", userTokenAccountKey);
-    const userTokenAccount = await getAccount(connection, userTokenAccountKey);
 
     formattedLocks.push(
-      new LockAccount(
-        lock.publicKey,
-        lock.account.lockedDate,
-        mint,
-        lock.account.unlockDate,
-        lock.account.user,
-        lockTokenAccount,
-        userTokenAccount,
-        program.provider.connection.rpcEndpoint
-      )
+      new LockAccount(lock, mint, program.provider.connection.rpcEndpoint)
     );
   }
 
@@ -165,25 +142,9 @@ export const getLocksByUser = async (
     const lock = theLocks[i];
     const mint = await getMint(connection, lock.account.mint);
     mints.push(mint);
-    const lockTokenAccount = await getAccount(
-      connection,
-      lock.account.lockTokenAccount
-    );
-    const userTokenAccount = await getAccount(
-      connection,
-      lock.account.userTokenAccount
-    );
+
     formattedLocks.push(
-      new LockAccount(
-        lock.publicKey,
-        lock.account.lockedDate,
-        mint,
-        lock.account.unlockDate,
-        lock.account.user,
-        lockTokenAccount,
-        userTokenAccount,
-        program.provider.connection.rpcEndpoint
-      )
+      new LockAccount(lock, mint, program.provider.connection.rpcEndpoint)
     );
   }
 
@@ -205,7 +166,6 @@ export const getLocksByUser = async (
 };
 
 export const getLocksByMint = async (
-  connection: Connection,
   mint: Mint,
   program: anchor.Program<Valhalla>
 ): Promise<LockAccount[]> => {
@@ -216,27 +176,9 @@ export const getLocksByMint = async (
 
   for (let i = 0; i < theLocks.length; i++) {
     const lock = theLocks[i];
-    const lockTokenAccount = await getAccount(
-      connection,
-      lock.account.lockTokenAccount
-    );
-    const userTokenAccountKey = getUserTokenAccountKey(
-      mint.address,
-      lock.account.user
-    );
-    const userTokenAccount = await getAccount(connection, userTokenAccountKey);
 
     formattedLocks.push(
-      new LockAccount(
-        lock.publicKey,
-        lock.account.lockedDate,
-        mint,
-        lock.account.unlockDate,
-        lock.account.user,
-        lockTokenAccount,
-        userTokenAccount,
-        program.provider.connection.rpcEndpoint
-      )
+      new LockAccount(lock, mint, program.provider.connection.rpcEndpoint)
     );
   }
 
@@ -262,21 +204,86 @@ export const getLockByPublicKey = async (
 ): Promise<LockAccount> => {
   const lock = await program.account.lock.fetch(lockPublicKey);
   const mint = await getMint(connection, lock.mint);
-  const lockTokenAccount = await getAccount(connection, lock.lockTokenAccount);
-  const userTokenAccountKey = getUserTokenAccountKey(mint.address, lock.user);
-  const userTokenAccount = await getAccount(connection, userTokenAccountKey);
 
-  return new LockAccount(
-    lockPublicKey,
-    lock.lockedDate,
-    mint,
-    lock.unlockDate,
-    lock.user,
-    lockTokenAccount,
-    userTokenAccount,
-    program.provider.connection.rpcEndpoint
-  );
+  return new LockAccount(lock, mint, program.provider.connection.rpcEndpoint);
 };
+
+export class LockAccount {
+  PROGRAM_ID = PROGRAM_ID;
+
+  lockKey: PublicKey;
+  tokenAccount: Account;
+  dasAsset: DasApiAssetContent;
+  funder: PublicKey;
+  beneficiary: PublicKey;
+  cancelAuthority: PublicKey[];
+  changeRecipientAuthority: PublicKey[];
+  vestingDuration: number;
+  payoutInterval: number;
+  amountPerPayout: number;
+  startDate: number;
+  cliffPaymentAmount: number;
+  lastPaymentTimestamp: number;
+
+  constructor(
+    public lock: any,
+    public mint: Mint,
+    public endpoint: string = "mainnet-beta"
+  ) {
+    this.lockKey = new PublicKey(lock.publicKey);
+    this.funder = new PublicKey(lock.account.funder);
+    this.beneficiary = new PublicKey(lock.account.beneficiary);
+    this.mint = mint;
+    this.cancelAuthority = [
+      new PublicKey(lock.account.cancelAuthority[0]),
+      new PublicKey(lock.account.cancelAuthority[1]),
+    ];
+    this.changeRecipientAuthority = [
+      new PublicKey(lock.account.changeRecipientAuthority[0]),
+      new PublicKey(lock.account.changeRecipientAuthority[1]),
+    ];
+    this.vestingDuration = lock.account.vestingDuration;
+    this.payoutInterval = lock.account.payoutInterval;
+    this.amountPerPayout = lock.account.amountPerPayout / LAMPORTS_PER_SOL;
+    this.startDate = lock.account.startDate;
+    this.cliffPaymentAmount =
+      lock.account.cliffPaymentAmount / LAMPORTS_PER_SOL;
+    this.lastPaymentTimestamp = lock.account.lastPaymentTimestamp;
+  }
+
+  setDASAssetContent(dasAsset: DasApiAssetContent) {
+    this.dasAsset = dasAsset;
+  }
+
+  async populateTokenAccount(connection: Connection): Promise<Account> {
+    const [key] = PublicKey.findProgramAddressSync(
+      [
+        this.lockKey.toBuffer(),
+        this.funder.toBuffer(),
+        this.mint.address.toBuffer(),
+        LOCK_TOKEN_ACCOUNT_SEED,
+      ],
+      this.PROGRAM_ID
+    );
+
+    try {
+      const account = await getAccount(connection, key);
+      this.tokenAccount = account;
+      return account;
+    } catch (err) {
+      console.error(err);
+      console.log("Trying Token2022");
+      const account = await getAccount(
+        connection,
+        key,
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+      this.tokenAccount = account;
+      return account;
+    }
+  }
+}
 
 export class LockerAccount {
   constructor(
@@ -303,102 +310,5 @@ export class LockerAccount {
       .div(new anchor.BN(LAMPORTS_PER_SOL))
       .toNumber()
       .toLocaleString();
-  }
-}
-
-export class LockAccount {
-  dasAsset: DasApiAssetContent;
-
-  constructor(
-    public publicKey: PublicKey,
-    public lockedDate: anchor.BN,
-    public mint: Mint,
-    public unlockDate: anchor.BN,
-    public user: PublicKey,
-    public lockTokenAccount: Account,
-    public userTokenAccount: Account,
-    public endpoint: string = "mainnet-beta"
-  ) {}
-
-  setDASAssetContent(dasAsset: DasApiAssetContent) {
-    this.dasAsset = dasAsset;
-  }
-
-  get canUnlock(): boolean {
-    const now = new Date().getTime() / 1000;
-    return this.unlockDate.toNumber() <= now;
-  }
-
-  get daysUntilUnlock(): string {
-    return `${(this.unlockDate.sub(this.lockedDate).toNumber() / 86400).toFixed(
-      2
-    )} days`;
-  }
-
-  get displayPublicKey(): string {
-    return shortenAddress(this.publicKey);
-  }
-
-  get displayLockDate(): string {
-    return new Date(this.lockedDate.toNumber() * 1000).toLocaleDateString();
-  }
-
-  get displayMint(): ReactNode {
-    return (
-      <Link
-        className="link link-secondary"
-        href={getExplorerUrl(this.endpoint, this.mint.address, "token")}
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        {shortenAddress(this.mint.address)}
-      </Link>
-    );
-  }
-
-  get displayUnlockDate(): string {
-    return new Date(this.unlockDate.toNumber() * 1000).toLocaleDateString();
-  }
-
-  get displayUser(): ReactNode {
-    return (
-      <Link
-        className="link link-secondary"
-        href={getExplorerUrl(this.endpoint, this.user)}
-        target="_blank"
-        rel="noreferrer noopener"
-      >
-        {shortenAddress(this.user)}
-      </Link>
-    );
-  }
-
-  get percentLocked(): number {
-    const amountLocked = Number(
-      this.lockTokenAccount.amount / BigInt(10 ** this.mint.decimals)
-    );
-    const supply = Number(this.mint.supply / BigInt(10 ** this.mint.decimals));
-    return amountLocked / supply;
-  }
-
-  get displayPercentLocked(): string {
-    return `${(this.percentLocked * 100).toFixed(2)}%`;
-  }
-
-  get canMint(): boolean {
-    return this.mint.mintAuthority !== null;
-  }
-
-  get canFreeze(): boolean {
-    return this.mint.freezeAuthority !== null;
-  }
-
-  get score(): string {
-    return scoreTokenLock({
-      lockLength: this.unlockDate.sub(this.lockedDate).toNumber(),
-      percentOfSupplyLocked: this.percentLocked,
-      freezeAuthorityRenounced: !this.canFreeze,
-      mintAuthorityRenounced: !this.canMint,
-    });
   }
 }

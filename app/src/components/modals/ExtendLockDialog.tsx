@@ -68,13 +68,13 @@ export default function ExtendLockDialog({
             </div>
           </div>
           <input
-            type="date"
+            type="datetime-local"
             className="input input-bordered"
-            min={new Date(today).toISOString().split("T")[0]}
+            min={new Date(today).toISOString()}
             value={
               unlockDate
-                ? new Date(unlockDate).toISOString().split("T")[0]
-                : new Date(thirtyDays).toISOString().split("T")[0]
+                ? new Date(unlockDate).toISOString()
+                : new Date(thirtyDays).toISOString()
             }
             onChange={(e) => setUnlockDate(new Date(e.target.value).getTime())}
           />

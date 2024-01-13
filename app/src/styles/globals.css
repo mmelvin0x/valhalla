@@ -5,22 +5,14 @@
 body {
   background-image: linear-gradient(
       to bottom,
-      rgba(236, 239, 244, 0.75),
-      rgba(236, 239, 244, 0.75)
+      rgba(94, 129, 172, 0.5),
+      rgba(236, 239, 244, 1)
     ),
     url("/bg.png");
   background-repeat: no-repeat;
-  background-position: top right;
+  background-position: center;
   background-color: #fff;
   background-attachment: fixed;
-}
-
-.hero-gradient {
-  background-image: linear-gradient(
-    to bottom,
-    rgba(94, 129, 172, 0.4),
-    rgba(255, 255, 255, 0)
-  );
 }
 
 .card {
@@ -68,7 +60,7 @@ button.wallet-adapter-button-trigger:hover {
 }
 
 .animate-spin {
-  animation: spin 10s linear infinite;
+  animation: spin 1.5s linear infinite;
 }
 
 @keyframes spin {

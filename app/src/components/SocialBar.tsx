@@ -39,6 +39,10 @@ export default function SocialBar() {
             <FaDiscord className="w-8 h-8" />
           </Link>
         </div>
+
+        <p className="text-center">
+          Follow our socials for the latest updates.
+        </p>
       </div>
     </div>
   );

@@ -4,18 +4,14 @@
 seeds = false
 skip-lint = false
 
-[programs.localnet]
-valhalla = "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
 [programs.devnet]
-valhalla = "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
+valhalla = "BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU"
+
+[programs.localnet]
+valhalla = "BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU"
+
 [programs.mainnet]
-valhalla = "D93S1f9iaTDXaLXXeyFVLcXX7wJiCBbk2Jqe1SmbWk2k"
-
-[test.validator]
-url = "https://api.devnet.solana.com"
-
-[[test.validator.clone]]
-address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+valhalla = "BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU"
 
 [registry]
 url = "https://api.apr.dev"
@@ -25,6 +21,20 @@ cluster = "Localnet"
 wallet = "./.keys/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/valhalla.ts"
-mint-dev-tokens = "yarn run ts-node ./scripts/mint-dev-tokens.ts"
 init = "yarn ts-node ./scripts/init.ts"
+mint-dev-tokens = "yarn run ts-node ./scripts/mint-dev-tokens.ts"
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/valhalla.ts"
+
+[test]
+startup_wait = 5000
+shutdown_wait = 2000
+upgradeable = false
+
+[test.validator]
+bind_address = "0.0.0.0"
+url = "https://api.devnet.solana.com"
+ledger = ".anchor/test-ledger"
+rpc_port = 8899
+
+[[test.validator.clone]]
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"

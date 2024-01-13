@@ -95,17 +95,17 @@ pub fn cancel_ix(ctx: Context<Cancel>) -> Result<()> {
     // If the lock token account has a balance, transfer it to the funder
     if ctx.accounts.lock_token_account.amount > 0 {
         let lock_key = ctx.accounts.lock.to_account_info().key();
-        let creator_key = ctx.accounts.funder.to_account_info().key();
+        let funder_key = ctx.accounts.funder.to_account_info().key();
         let mint_key = ctx.accounts.mint.to_account_info().key();
 
         let lock_token_account = &ctx.accounts.lock_token_account;
-        let creator_token_account = &ctx.accounts.funder_token_account;
+        let funder_token_account = &ctx.accounts.funder_token_account;
 
         let bump = ctx.bumps.lock_token_account;
         let signer: &[&[&[u8]]] = &[
             &[
                 lock_key.as_ref(),
-                creator_key.as_ref(),
+                funder_key.as_ref(),
                 mint_key.as_ref(),
                 constants::LOCK_TOKEN_ACCOUNT_SEED,
                 &[bump],
@@ -115,7 +115,7 @@ pub fn cancel_ix(ctx: Context<Cancel>) -> Result<()> {
         let cpi_accounts = TransferChecked {
             from: lock_token_account.to_account_info(),
             mint: ctx.accounts.mint.to_account_info(),
-            to: creator_token_account.to_account_info(),
+            to: funder_token_account.to_account_info(),
             authority: ctx.accounts.lock_token_account.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();

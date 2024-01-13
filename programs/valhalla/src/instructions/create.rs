@@ -5,7 +5,7 @@ use anchor_spl::{
     associated_token::AssociatedToken,
 };
 
-use crate::{ state::{ Lock, Locker }, constants, Authority };
+use crate::{ state::{ Lock, Locker }, constants, Authority, errors::LockError };
 
 #[derive(Accounts)]
 /// Represents the instruction to create a new lock.
@@ -112,17 +112,45 @@ pub fn create_ix(
     change_recipient_authority: Authority
 ) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
+    let current_time = Clock::get()?.unix_timestamp as u64;
 
-    // Prevent from depositing more than they have
-    let (amount, amount_per_payout) = Lock::validate_deposit_amount(
-        vesting_duration,
-        payout_interval,
-        amount_to_be_vested,
-        cliff_payment_amount,
-        ctx.accounts.funder_token_account.amount,
-        ctx.accounts.mint.decimals as u32
-    )?;
+    // Validate the amount to be vested
+    // Get the user's token account balance and the amount to be vested amount
+    let balance = ctx.accounts.funder_token_account.amount;
+    let mut amount = amount_to_be_vested
+        .checked_mul((10u64).pow(ctx.accounts.mint.decimals as u32))
+        .unwrap();
 
+    // Throw an error if the user doesn't have enough tokens in their account
+    // for the amount to be vested amount
+    if amount > balance {
+        return Err(LockError::InsufficientFundsForDeposit.into());
+    }
+
+    // Throw an error if the total payment amount is greater than the amount to be vested amount.
+    // This means the amount sent in the transaction and the payout intervals don't match up.
+    let total_payouts = vesting_duration.checked_div(payout_interval).unwrap();
+    let amount_per_payout = amount.checked_div(total_payouts).unwrap();
+    let total_payout_amount = amount_per_payout.checked_mul(total_payouts).unwrap();
+    if total_payout_amount > amount {
+        return Err(LockError::InsufficientFundsForDeposit.into());
+    }
+
+    // Validate cliff payment amount if there is one
+    let mut cliff_payment = 0;
+    if cliff_payment_amount > 0 {
+        cliff_payment = cliff_payment_amount
+            .checked_mul((10u64).pow(ctx.accounts.mint.decimals as u32))
+            .unwrap();
+
+        // Throw and error if the cliff payment amount plus amount to be vested amount
+        // is greater than the number of tokens in the user's account
+        if cliff_payment + amount > balance {
+            return Err(LockError::InsufficientFundsForDeposit.into());
+        }
+    }
+
+    // Set the lock state
     lock.funder = ctx.accounts.funder.key();
     lock.beneficiary = ctx.accounts.beneficiary.key();
     lock.mint = ctx.accounts.mint.key();
@@ -130,9 +158,37 @@ pub fn create_ix(
     lock.change_recipient_authority = change_recipient_authority;
     lock.vesting_duration = vesting_duration;
     lock.payout_interval = payout_interval;
+    lock.last_payment_timestamp = current_time;
+    lock.start_date = start_date;
     lock.amount_per_payout = amount_per_payout;
-    lock.cliff_payment_amount = cliff_payment_amount;
-    lock.num_payments_made = 0;
+
+    // Handle the case for a lock starting on creation w/ a cliff payment
+    if cliff_payment > 0 {
+        // Send the cliff payment now if the start date is 0 (now)
+        if start_date == 0 {
+            let cpi_program = ctx.accounts.token_program.to_account_info();
+            let cpi_accounts = TransferChecked {
+                from: ctx.accounts.funder_token_account.to_account_info(),
+                mint: ctx.accounts.mint.to_account_info(),
+                to: ctx.accounts.beneficiary_token_account.to_account_info(),
+                authority: ctx.accounts.funder.to_account_info(),
+            };
+            let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+            token::transfer_checked(cpi_ctx, cliff_payment, ctx.accounts.mint.decimals)?;
+
+            // Update the lock state
+            lock.cliff_payment_amount = cliff_payment;
+            lock.cliff_payment_amount_paid = true;
+            lock.start_date = current_time;
+        } else {
+            // Update the lock state
+            lock.cliff_payment_amount = cliff_payment;
+
+            // Add the cliff payment to the amount to be vested amount
+            amount = amount.checked_add(cliff_payment).unwrap();
+        }
+    }
 
     // Transfer the funder's tokens to the lock token account
     let cpi_program = ctx.accounts.token_program.to_account_info();
@@ -146,29 +202,7 @@ pub fn create_ix(
 
     token::transfer_checked(cpi_ctx, amount, ctx.accounts.mint.decimals)?;
 
-    // Transfer the cliff amount to the beneficiary if there is one and the start date is 0 (now)
-    if lock.cliff_payment_amount > 0 && start_date == 0 {
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_accounts = TransferChecked {
-            from: ctx.accounts.funder_token_account.to_account_info(),
-            mint: ctx.accounts.mint.to_account_info(),
-            to: ctx.accounts.beneficiary_token_account.to_account_info(),
-            authority: ctx.accounts.funder.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-
-        token::transfer_checked(cpi_ctx, cliff_payment_amount, ctx.accounts.mint.decimals)?;
-    }
-
-    // Set the start date. We do this bc if the start date is 0, we want to set it to the current time
-    // after we've transferred the cliff payment amount to the beneficiary (if there was one)
-    lock.start_date = if start_date == 0 {
-        Clock::get()?.unix_timestamp as u64
-    } else {
-        start_date
-    };
-
-    // Transfer the SOL fee from the funder to the admin
+    // Transfer the SOL fee from the funder to the treasury
     let cpi_program = ctx.accounts.system_program.to_account_info();
     let cpi_accounts = system_program::Transfer {
         from: ctx.accounts.funder.to_account_info(),

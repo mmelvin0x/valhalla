@@ -12,5 +12,5 @@ const kinobi = createFromIdls([
 // Update the Kinobi tree using visitors...
 
 // Render JavaScript.
-const jsDir = path.join(__dirname, "server", "src", "program", "generated");
+const jsDir = path.join(__dirname, "app", "src", "program", "generated");
 kinobi.accept(new RenderJavaScriptVisitor(jsDir));
