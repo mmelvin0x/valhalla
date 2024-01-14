@@ -2,7 +2,7 @@ import { LockAccount } from "program/accounts";
 import { Dispatch, FC, SetStateAction, useMemo } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 
-const WithdrawToBeneficiaryDialog: FC<{
+const WithdrawToRecipientDialog: FC<{
   lock: LockAccount;
   withdrawAmount: number;
   onSubmit: (lock: LockAccount) => Promise<void>;
@@ -22,7 +22,7 @@ const WithdrawToBeneficiaryDialog: FC<{
 
   return (
     <dialog
-      id="withdraw_to_beneficiary_modal"
+      id="withdraw_to_recipient_modal"
       className="modal modal-bottom sm:modal-middle"
     >
       <div className="modal-box min-h-96 relative">
@@ -97,4 +97,4 @@ const WithdrawToBeneficiaryDialog: FC<{
   );
 };
 
-export default WithdrawToBeneficiaryDialog;
+export default WithdrawToRecipientDialog;

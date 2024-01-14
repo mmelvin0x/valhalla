@@ -107,7 +107,7 @@ pub mod valhalla {
         instructions::cancel_ix(ctx)
     }
 
-    /// Updates the beneficiary of a lock.
+    /// Updates the recipient of a lock.
     ///
     /// # Arguments
     ///

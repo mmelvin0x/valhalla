@@ -148,11 +148,11 @@ export type Valhalla = {
           isSigner: true;
         },
         {
-          name: "beneficiary";
+          name: "recipient";
           isMut: false;
           isSigner: false;
           docs: [
-            "The account of the beneficiary who will receive the locked tokens."
+            "The account of the recipient who will receive the locked tokens."
           ];
         },
         {
@@ -185,10 +185,10 @@ export type Valhalla = {
           docs: ["The funder's token account."];
         },
         {
-          name: "beneficiaryTokenAccount";
+          name: "recipientTokenAccount";
           isMut: true;
           isSigner: false;
-          docs: ["The beneficiary's token account."];
+          docs: ["The recipient's token account."];
         },
         {
           name: "mint";
@@ -277,7 +277,7 @@ export type Valhalla = {
           isSigner: false;
         },
         {
-          name: "beneficiary";
+          name: "recipient";
           isMut: false;
           isSigner: false;
         },
@@ -292,7 +292,7 @@ export type Valhalla = {
           isSigner: false;
         },
         {
-          name: "beneficiaryTokenAccount";
+          name: "recipientTokenAccount";
           isMut: true;
           isSigner: false;
         },
@@ -344,7 +344,7 @@ export type Valhalla = {
           isSigner: false;
         },
         {
-          name: "beneficiary";
+          name: "recipient";
           isMut: true;
           isSigner: false;
         },
@@ -389,7 +389,7 @@ export type Valhalla = {
     {
       name: "update";
       docs: [
-        "Updates the beneficiary of a lock.",
+        "Updates the recipient of a lock.",
         "",
         "# Arguments",
         "",
@@ -411,12 +411,12 @@ export type Valhalla = {
           isSigner: false;
         },
         {
-          name: "beneficiary";
+          name: "recipient";
           isMut: true;
           isSigner: false;
         },
         {
-          name: "newBeneficiary";
+          name: "newRecipient";
           isMut: false;
           isSigner: false;
         },
@@ -480,7 +480,7 @@ export type Valhalla = {
             type: "publicKey";
           },
           {
-            name: "beneficiary";
+            name: "recipient";
             type: "publicKey";
           },
           {
@@ -544,7 +544,7 @@ export type Valhalla = {
             name: "Funder";
           },
           {
-            name: "Beneficiary";
+            name: "Recipient";
           },
           {
             name: "Both";
@@ -727,11 +727,11 @@ export const IDL: Valhalla = {
           isSigner: true,
         },
         {
-          name: "beneficiary",
+          name: "recipient",
           isMut: false,
           isSigner: false,
           docs: [
-            "The account of the beneficiary who will receive the locked tokens.",
+            "The account of the recipient who will receive the locked tokens.",
           ],
         },
         {
@@ -764,10 +764,10 @@ export const IDL: Valhalla = {
           docs: ["The funder's token account."],
         },
         {
-          name: "beneficiaryTokenAccount",
+          name: "recipientTokenAccount",
           isMut: true,
           isSigner: false,
-          docs: ["The beneficiary's token account."],
+          docs: ["The recipient's token account."],
         },
         {
           name: "mint",
@@ -856,7 +856,7 @@ export const IDL: Valhalla = {
           isSigner: false,
         },
         {
-          name: "beneficiary",
+          name: "recipient",
           isMut: false,
           isSigner: false,
         },
@@ -871,7 +871,7 @@ export const IDL: Valhalla = {
           isSigner: false,
         },
         {
-          name: "beneficiaryTokenAccount",
+          name: "recipientTokenAccount",
           isMut: true,
           isSigner: false,
         },
@@ -923,7 +923,7 @@ export const IDL: Valhalla = {
           isSigner: false,
         },
         {
-          name: "beneficiary",
+          name: "recipient",
           isMut: true,
           isSigner: false,
         },
@@ -968,7 +968,7 @@ export const IDL: Valhalla = {
     {
       name: "update",
       docs: [
-        "Updates the beneficiary of a lock.",
+        "Updates the recipient of a lock.",
         "",
         "# Arguments",
         "",
@@ -990,12 +990,12 @@ export const IDL: Valhalla = {
           isSigner: false,
         },
         {
-          name: "beneficiary",
+          name: "recipient",
           isMut: true,
           isSigner: false,
         },
         {
-          name: "newBeneficiary",
+          name: "newRecipient",
           isMut: false,
           isSigner: false,
         },
@@ -1059,7 +1059,7 @@ export const IDL: Valhalla = {
             type: "publicKey",
           },
           {
-            name: "beneficiary",
+            name: "recipient",
             type: "publicKey",
           },
           {
@@ -1123,7 +1123,7 @@ export const IDL: Valhalla = {
             name: "Funder",
           },
           {
-            name: "Beneficiary",
+            name: "Recipient",
           },
           {
             name: "Both",

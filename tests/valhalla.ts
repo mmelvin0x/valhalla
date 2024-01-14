@@ -27,12 +27,12 @@ describe("⚡️ Valhalla", () => {
   enum Authority {
     Neither,
     Funder,
-    Beneficiary,
+    Recipient,
     Both,
   }
 
   let funder = anchor.web3.Keypair.generate();
-  let beneficiary = anchor.web3.Keypair.generate();
+  let recipient = anchor.web3.Keypair.generate();
 
   let mintKeypair = Keypair.generate();
   let mint = mintKeypair.publicKey;
@@ -43,16 +43,16 @@ describe("⚡️ Valhalla", () => {
   let amountMinted = 10_000_000_000;
 
   let funderTokenAccount: Account;
-  let beneficiaryTokenAccount: Account;
+  let recipientTokenAccount: Account;
   let lock: anchor.web3.PublicKey;
   let locker: anchor.web3.PublicKey;
   let lockTokenAccount: anchor.web3.PublicKey;
 
   before(async () => {
     await airdrop(provider.connection, funder.publicKey);
-    await airdrop(provider.connection, beneficiary.publicKey);
+    await airdrop(provider.connection, recipient.publicKey);
 
-    [mint, funderTokenAccount, beneficiaryTokenAccount] =
+    [mint, funderTokenAccount, recipientTokenAccount] =
       await mintTransferFeeTokens(
         provider.connection,
         payer,
@@ -60,7 +60,7 @@ describe("⚡️ Valhalla", () => {
         feeBasisPoints,
         maxFee,
         funder,
-        beneficiary,
+        recipient,
         amountMinted
       );
 
@@ -130,7 +130,7 @@ describe("⚡️ Valhalla", () => {
             treasury: wallet.publicKey,
             newTreasury: wallet.publicKey,
           })
-          .signers([beneficiary])
+          .signers([recipient])
           .rpc();
 
         await provider.connection.confirmTransaction(tx, "confirmed");
@@ -138,7 +138,7 @@ describe("⚡️ Valhalla", () => {
         assert.ok(false);
       } catch (e) {
         expect(e.message).equals(
-          `unknown signer: ${beneficiary.publicKey.toBase58()}`
+          `unknown signer: ${recipient.publicKey.toBase58()}`
         );
       }
     });
@@ -287,7 +287,7 @@ describe("⚡️ Valhalla", () => {
   describe("🔒 Locks w/ Future Start Date", () => {
     describe("5 Payouts", () => {
       before(async () => {
-        [mint, funderTokenAccount, beneficiaryTokenAccount] =
+        [mint, funderTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
@@ -295,7 +295,7 @@ describe("⚡️ Valhalla", () => {
             feeBasisPoints,
             maxFee,
             funder,
-            beneficiary,
+            recipient,
             amountMinted
           );
 
@@ -336,13 +336,13 @@ describe("⚡️ Valhalla", () => {
             )
             .accounts({
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               locker,
               treasury: wallet.publicKey,
               lock,
               lockTokenAccount,
               funderTokenAccount: funderTokenAccount.address,
-              beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+              recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -360,9 +360,9 @@ describe("⚡️ Valhalla", () => {
           funder.publicKey.toBase58(),
           "funder"
         );
-        expect(lockAccount.beneficiary.toBase58()).equals(
-          beneficiary.publicKey.toBase58(),
-          "beneficiary"
+        expect(lockAccount.recipient.toBase58()).equals(
+          recipient.publicKey.toBase58(),
+          "recipient"
         );
         expect(lockAccount.mint.toBase58()).equals(mint.toBase58(), "mint");
         expect(lockAccount.cancelAuthority.neither).to.not.be.undefined;
@@ -402,7 +402,7 @@ describe("⚡️ Valhalla", () => {
             .accounts({
               signer: funder.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               lock,
               lockTokenAccount,
               funderTokenAccount: funderTokenAccount.address,
@@ -423,14 +423,14 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should not allow the beneficiary to cancel", async () => {
+      it("should not allow the recipient to cancel", async () => {
         try {
           const tx = await program.methods
             .cancel()
             .accounts({
-              signer: beneficiary.publicKey,
+              signer: recipient.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               lock,
               lockTokenAccount,
               funderTokenAccount: funderTokenAccount.address,
@@ -440,7 +440,7 @@ describe("⚡️ Valhalla", () => {
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [beneficiary]);
+          await provider.sendAndConfirm(tx, [recipient]);
           assert.ok(false);
         } catch (e) {
           const logs = e.logs;
@@ -451,15 +451,15 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should not allow the funder to change the beneficiary", async () => {
+      it("should not allow the funder to change the recipient", async () => {
         try {
           const tx = await program.methods
             .update()
             .accounts({
               signer: funder.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
-              newBeneficiary: funder.publicKey,
+              recipient: recipient.publicKey,
+              newRecipient: funder.publicKey,
               lock,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -478,15 +478,15 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should not allow the beneficiary to change the beneficiary", async () => {
+      it("should not allow the recipient to change the recipient", async () => {
         try {
           const tx = await program.methods
             .update()
             .accounts({
-              signer: beneficiary.publicKey,
+              signer: recipient.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
-              newBeneficiary: funder.publicKey,
+              recipient: recipient.publicKey,
+              newRecipient: funder.publicKey,
               lock,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -494,7 +494,7 @@ describe("⚡️ Valhalla", () => {
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [beneficiary]);
+          await provider.sendAndConfirm(tx, [recipient]);
           assert.ok(false);
         } catch (e) {
           const logs = e.logs;
@@ -510,19 +510,19 @@ describe("⚡️ Valhalla", () => {
           const tx = await program.methods
             .disburse()
             .accounts({
-              signer: beneficiary.publicKey,
+              signer: recipient.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               lock,
               lockTokenAccount,
-              beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+              recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [beneficiary]);
+          await provider.sendAndConfirm(tx, [recipient]);
           assert.fail();
         } catch (e) {
           const logs = e.logs;
@@ -533,7 +533,7 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should disperse the funds to the beneficiary", async () => {
+      it("should disperse the funds to the recipient", async () => {
         try {
           // There are 5 disbursements, each of 1 second
           for (let i = 0; i < 5; i++) {
@@ -548,19 +548,19 @@ describe("⚡️ Valhalla", () => {
             const tx = await program.methods
               .disburse()
               .accounts({
-                signer: beneficiary.publicKey,
+                signer: recipient.publicKey,
                 funder: funder.publicKey,
-                beneficiary: beneficiary.publicKey,
+                recipient: recipient.publicKey,
                 lock,
                 lockTokenAccount,
-                beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+                recipientTokenAccount: recipientTokenAccount.address,
                 mint,
                 tokenProgram: TOKEN_2022_PROGRAM_ID,
                 associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
               })
               .transaction();
 
-            await provider.sendAndConfirm(tx, [beneficiary]);
+            await provider.sendAndConfirm(tx, [recipient]);
 
             const lockAccount = await program.account.lock.fetch(lock);
             const lockTokenAccountInfo = await getAccount(
@@ -595,7 +595,7 @@ describe("⚡️ Valhalla", () => {
 
     xdescribe("5 Payouts - Cancel Authority", () => {
       before(async () => {
-        [mint, funderTokenAccount, beneficiaryTokenAccount] =
+        [mint, funderTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
@@ -603,7 +603,7 @@ describe("⚡️ Valhalla", () => {
             feeBasisPoints,
             maxFee,
             funder,
-            beneficiary,
+            recipient,
             amountMinted
           );
 
@@ -615,9 +615,9 @@ describe("⚡️ Valhalla", () => {
       });
     });
 
-    xdescribe("5 Payouts - Change Beneficiary Authority", () => {
+    xdescribe("5 Payouts - Change Recipient Authority", () => {
       before(async () => {
-        [mint, funderTokenAccount, beneficiaryTokenAccount] =
+        [mint, funderTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
@@ -625,7 +625,7 @@ describe("⚡️ Valhalla", () => {
             feeBasisPoints,
             maxFee,
             funder,
-            beneficiary,
+            recipient,
             amountMinted
           );
 
@@ -637,9 +637,9 @@ describe("⚡️ Valhalla", () => {
       });
     });
 
-    xdescribe("5 Payouts - Cancel Authority - Change Beneficiary Authority", () => {
+    xdescribe("5 Payouts - Cancel Authority - Change Recipient Authority", () => {
       before(async () => {
-        [mint, funderTokenAccount, beneficiaryTokenAccount] =
+        [mint, funderTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
@@ -647,7 +647,7 @@ describe("⚡️ Valhalla", () => {
             feeBasisPoints,
             maxFee,
             funder,
-            beneficiary,
+            recipient,
             amountMinted
           );
 
@@ -661,7 +661,7 @@ describe("⚡️ Valhalla", () => {
 
     describe("5 Payouts - Cliff", () => {
       before(async () => {
-        [mint, funderTokenAccount, beneficiaryTokenAccount] =
+        [mint, funderTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
@@ -669,7 +669,7 @@ describe("⚡️ Valhalla", () => {
             feeBasisPoints,
             maxFee,
             funder,
-            beneficiary,
+            recipient,
             amountMinted
           );
 
@@ -710,13 +710,13 @@ describe("⚡️ Valhalla", () => {
             )
             .accounts({
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               locker,
               treasury: wallet.publicKey,
               lock,
               lockTokenAccount,
               funderTokenAccount: funderTokenAccount.address,
-              beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+              recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -734,9 +734,9 @@ describe("⚡️ Valhalla", () => {
           funder.publicKey.toBase58(),
           "funder"
         );
-        expect(lockAccount.beneficiary.toBase58()).equals(
-          beneficiary.publicKey.toBase58(),
-          "beneficiary"
+        expect(lockAccount.recipient.toBase58()).equals(
+          recipient.publicKey.toBase58(),
+          "recipient"
         );
         expect(lockAccount.mint.toBase58()).equals(mint.toBase58(), "mint");
         expect(lockAccount.cancelAuthority.neither).to.not.be.undefined;
@@ -792,7 +792,7 @@ describe("⚡️ Valhalla", () => {
             .accounts({
               signer: funder.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               lock,
               lockTokenAccount,
               funderTokenAccount: funderTokenAccount.address,
@@ -813,14 +813,14 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should not allow the beneficiary to cancel", async () => {
+      it("should not allow the recipient to cancel", async () => {
         try {
           const tx = await program.methods
             .cancel()
             .accounts({
-              signer: beneficiary.publicKey,
+              signer: recipient.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               lock,
               lockTokenAccount,
               funderTokenAccount: funderTokenAccount.address,
@@ -830,7 +830,7 @@ describe("⚡️ Valhalla", () => {
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [beneficiary]);
+          await provider.sendAndConfirm(tx, [recipient]);
           assert.ok(false);
         } catch (e) {
           const logs = e.logs;
@@ -841,15 +841,15 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should not allow the funder to change the beneficiary", async () => {
+      it("should not allow the funder to change the recipient", async () => {
         try {
           const tx = await program.methods
             .update()
             .accounts({
               signer: funder.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
-              newBeneficiary: funder.publicKey,
+              recipient: recipient.publicKey,
+              newRecipient: funder.publicKey,
               lock,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -868,15 +868,15 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should not allow the beneficiary to change the beneficiary", async () => {
+      it("should not allow the recipient to change the recipient", async () => {
         try {
           const tx = await program.methods
             .update()
             .accounts({
-              signer: beneficiary.publicKey,
+              signer: recipient.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
-              newBeneficiary: funder.publicKey,
+              recipient: recipient.publicKey,
+              newRecipient: funder.publicKey,
               lock,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -884,7 +884,7 @@ describe("⚡️ Valhalla", () => {
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [beneficiary]);
+          await provider.sendAndConfirm(tx, [recipient]);
           assert.ok(false);
         } catch (e) {
           const logs = e.logs;
@@ -900,19 +900,19 @@ describe("⚡️ Valhalla", () => {
           const tx = await program.methods
             .disburse()
             .accounts({
-              signer: beneficiary.publicKey,
+              signer: recipient.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               lock,
               lockTokenAccount,
-              beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+              recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [beneficiary]);
+          await provider.sendAndConfirm(tx, [recipient]);
           assert.fail();
         } catch (e) {
           const logs = e.logs;
@@ -923,7 +923,7 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should disperse the funds to the beneficiary", async () => {
+      it("should disperse the funds to the recipient", async () => {
         ///////////////////////////////
         // First disbursement w/ Cliff
         ///////////////////////////////
@@ -939,19 +939,19 @@ describe("⚡️ Valhalla", () => {
         let tx = await program.methods
           .disburse()
           .accounts({
-            signer: beneficiary.publicKey,
+            signer: recipient.publicKey,
             funder: funder.publicKey,
-            beneficiary: beneficiary.publicKey,
+            recipient: recipient.publicKey,
             lock,
             lockTokenAccount,
-            beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+            recipientTokenAccount: recipientTokenAccount.address,
             mint,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           })
           .transaction();
 
-        await provider.sendAndConfirm(tx, [beneficiary]);
+        await provider.sendAndConfirm(tx, [recipient]);
 
         let lockAccount = await program.account.lock.fetch(lock);
         let lockTokenAccountInfo = await getAccount(
@@ -994,19 +994,19 @@ describe("⚡️ Valhalla", () => {
           tx = await program.methods
             .disburse()
             .accounts({
-              signer: beneficiary.publicKey,
+              signer: recipient.publicKey,
               funder: funder.publicKey,
-              beneficiary: beneficiary.publicKey,
+              recipient: recipient.publicKey,
               lock,
               lockTokenAccount,
-              beneficiaryTokenAccount: beneficiaryTokenAccount.address,
+              recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [beneficiary]);
+          await provider.sendAndConfirm(tx, [recipient]);
 
           lockAccount = await program.account.lock.fetch(lock);
           lockTokenAccountInfo = await getAccount(
@@ -1037,7 +1037,7 @@ describe("⚡️ Valhalla", () => {
 
     xdescribe("5 Payouts - Cliff - Cancel Authority", () => {
       before(async () => {
-        [mint, funderTokenAccount, beneficiaryTokenAccount] =
+        [mint, funderTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
@@ -1045,7 +1045,7 @@ describe("⚡️ Valhalla", () => {
             feeBasisPoints,
             maxFee,
             funder,
-            beneficiary,
+            recipient,
             amountMinted
           );
 
@@ -1057,9 +1057,9 @@ describe("⚡️ Valhalla", () => {
       });
     });
 
-    xdescribe("5 Payouts - Cliff - Change Beneficiary Authority", () => {
+    xdescribe("5 Payouts - Cliff - Change Recipient Authority", () => {
       before(async () => {
-        [mint, funderTokenAccount, beneficiaryTokenAccount] =
+        [mint, funderTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
@@ -1067,7 +1067,7 @@ describe("⚡️ Valhalla", () => {
             feeBasisPoints,
             maxFee,
             funder,
-            beneficiary,
+            recipient,
             amountMinted
           );
 
@@ -1079,9 +1079,9 @@ describe("⚡️ Valhalla", () => {
       });
     });
 
-    xdescribe("5 Payouts - Cliff - Cancel Authority - Change Beneficiary Authority", () => {
+    xdescribe("5 Payouts - Cliff - Cancel Authority - Change Recipient Authority", () => {
       before(async () => {
-        [mint, funderTokenAccount, beneficiaryTokenAccount] =
+        [mint, funderTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
@@ -1089,7 +1089,7 @@ describe("⚡️ Valhalla", () => {
             feeBasisPoints,
             maxFee,
             funder,
-            beneficiary,
+            recipient,
             amountMinted
           );
 

@@ -7,15 +7,13 @@ interface LoadingSpinnerProps {
 }
 
 const LoadingSpinner: FC = ({ size, className }: LoadingSpinnerProps) => (
-  <div className={`flex flex-col mx-auto ${className}`}>
-    <Image
-      className="animate-spin"
-      src="/hero.png"
-      width={size || 100}
-      height={size || 100}
-      alt="loading..."
-    />
-  </div>
+  <Image
+    className={`animate-spin ${className}`}
+    src="/hero.png"
+    width={size || 100}
+    height={size || 100}
+    alt="loading..."
+  />
 );
 
 export default LoadingSpinner;

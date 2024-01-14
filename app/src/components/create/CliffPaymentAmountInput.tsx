@@ -36,14 +36,15 @@ export default function CliffPaymentAmountInput({
           <span className="label-text font-bold">Cliff Payment Amount</span>
           {cliffPaymentAmount <= cliffPaymentMax ? (
             <span className="label-text-alt">Paid with first disbursement</span>
-          ) : (
+          ) : cliffPaymentAmount ? (
             <span className="label-text-alt text-error">
               Exceeds available balance
             </span>
-          )}
+          ) : null}
         </label>
 
         <input
+          placeholder="Leave blank for no cliff payment"
           type="number"
           className="input input-sm input-bordered"
           min={0}

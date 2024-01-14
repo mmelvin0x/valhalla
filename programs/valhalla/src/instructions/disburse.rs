@@ -16,7 +16,7 @@ pub struct Disburse<'info> {
     pub funder: AccountInfo<'info>,
 
     /// CHECK: Used in constraints
-    pub beneficiary: AccountInfo<'info>,
+    pub recipient: AccountInfo<'info>,
 
     #[account(
         mut,
@@ -24,7 +24,7 @@ pub struct Disburse<'info> {
         bump,
         has_one = mint,
         has_one = funder,
-        has_one = beneficiary
+        has_one = recipient
     )]
     pub lock: Account<'info, Lock>,
 
@@ -46,9 +46,9 @@ pub struct Disburse<'info> {
         init_if_needed,
         payer = signer,
         associated_token::mint = mint,
-        associated_token::authority = beneficiary
+        associated_token::authority = recipient
     )]
-    pub beneficiary_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub recipient_token_account: InterfaceAccount<'info, TokenAccount>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -103,7 +103,7 @@ pub fn disburse_ix(ctx: Context<Disburse>) -> Result<()> {
         let cpi_accounts = TransferChecked {
             from: ctx.accounts.lock_token_account.to_account_info(),
             mint: ctx.accounts.mint.to_account_info(),
-            to: ctx.accounts.beneficiary_token_account.to_account_info(),
+            to: ctx.accounts.recipient_token_account.to_account_info(),
             authority: ctx.accounts.lock_token_account.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);

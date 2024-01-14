@@ -4,14 +4,14 @@ use anchor_lang::prelude::*;
 pub enum Authority {
     Neither,
     Funder,
-    Beneficiary,
+    Recipient,
     Both,
 }
 
 #[account]
 pub struct Lock {
     pub funder: Pubkey,
-    pub beneficiary: Pubkey,
+    pub recipient: Pubkey,
     pub mint: Pubkey,
     pub cancel_authority: Authority,
     pub change_recipient_authority: Authority,

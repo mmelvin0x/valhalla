@@ -3,15 +3,15 @@ import useProgram from "hooks/useProgram";
 import { useMemo, ChangeEvent, Dispatch, SetStateAction } from "react";
 import { shortenAddress } from "utils/formatters";
 
-export default function BeneficiaryInput({
-  beneficiary,
-  setBeneficiary,
+export default function RecipientInput({
+  recipient,
+  setRecipient,
 }: {
-  beneficiary: string;
-  setBeneficiary: Dispatch<SetStateAction<string>>;
+  recipient: string;
+  setRecipient: Dispatch<SetStateAction<string>>;
 }) {
   const { wallet } = useProgram();
-  const beneficiaryPlaceholder = useMemo(
+  const recipientPlaceholder = useMemo(
     () => shortenAddress(wallet?.publicKey),
     [wallet]
   );
@@ -19,8 +19,8 @@ export default function BeneficiaryInput({
   return (
     <div className="form-control">
       <label htmlFor="" className="label">
-        <span className="label-text font-bold">Beneficiary</span>
-        {beneficiary && !isPublicKey(beneficiary) && (
+        <span className="label-text font-bold">Recipient</span>
+        {recipient && !isPublicKey(recipient) && (
           <span className="label-text-alt text-error">
             Not a valid Solana address
           </span>
@@ -29,11 +29,11 @@ export default function BeneficiaryInput({
       <input
         type="text"
         className="input input-sm input-bordered"
-        placeholder={beneficiaryPlaceholder}
-        value={beneficiary}
-        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-          setBeneficiary(e.target.value)
-        }
+        placeholder={recipientPlaceholder}
+        value={recipient}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+          setRecipient(e.target.value);
+        }}
       />
     </div>
   );

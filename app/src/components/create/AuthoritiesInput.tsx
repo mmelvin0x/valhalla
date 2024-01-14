@@ -1,16 +1,16 @@
-import { Authority } from "models/types";
+import { Authority } from "program/generated";
 import { Dispatch, SetStateAction, ChangeEvent } from "react";
 
 export default function AuthoritiesInput({
   cancelAuthority,
   setCancelAuthority,
-  changeBeneficiaryAuthority,
-  setChangeBeneficiaryAuthority,
+  changeRecipientAuthority,
+  setChangeRecipientAuthority,
 }: {
   cancelAuthority: Authority;
   setCancelAuthority: Dispatch<SetStateAction<Authority>>;
-  changeBeneficiaryAuthority: Authority;
-  setChangeBeneficiaryAuthority: Dispatch<SetStateAction<Authority>>;
+  changeRecipientAuthority: Authority;
+  setChangeRecipientAuthority: Dispatch<SetStateAction<Authority>>;
 }) {
   return (
     <div className="flex flex-col xl:flex-row items-center justify-between gap-2">
@@ -26,68 +26,29 @@ export default function AuthoritiesInput({
             setCancelAuthority(+e.target.value as Authority)
           }
         >
-          <option
-            value={Authority.Neither}
-            selected={cancelAuthority === Authority.Neither}
-          >
-            Neither
-          </option>
-          <option
-            value={Authority.OnlyFunder}
-            selected={cancelAuthority === Authority.OnlyFunder}
-          >
-            Only Funder
-          </option>
-          <option
-            value={Authority.OnlyBeneficiary}
-            selected={cancelAuthority === Authority.OnlyBeneficiary}
-          >
-            Only Beneficiary
-          </option>
-          <option
-            value={Authority.Both}
-            selected={cancelAuthority === Authority.Both}
-          >
-            Both
-          </option>
+          <option value={Authority.Neither}>Neither</option>
+          <option value={Authority.Funder}>Only Funder</option>
+          <option value={Authority.Recipient}>Only Recipient</option>
+          <option value={Authority.Both}>Both</option>
         </select>
       </div>
 
       <div className="form-contol w-full">
         <label htmlFor="" className="label">
-          <span className="label-text font-bold">Change Beneficiary</span>
+          <span className="label-text font-bold">Change Recipient</span>
           <span className="label-text-alt">Can change recipient</span>
         </label>
         <select
+          value={changeRecipientAuthority}
           className="select select-sm select-bordered w-full"
           onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-            setChangeBeneficiaryAuthority(+e.target.value as Authority)
+            setChangeRecipientAuthority(+e.target.value as Authority)
           }
         >
-          <option
-            value={Authority.Neither}
-            selected={changeBeneficiaryAuthority === Authority.Neither}
-          >
-            Neither
-          </option>
-          <option
-            value={Authority.OnlyFunder}
-            selected={changeBeneficiaryAuthority === Authority.OnlyFunder}
-          >
-            Only Funder
-          </option>
-          <option
-            value={Authority.OnlyBeneficiary}
-            selected={changeBeneficiaryAuthority === Authority.OnlyBeneficiary}
-          >
-            Only Beneficiary
-          </option>
-          <option
-            value={Authority.Both}
-            selected={changeBeneficiaryAuthority === Authority.Both}
-          >
-            Both
-          </option>
+          <option value={Authority.Neither}>Neither</option>
+          <option value={Authority.Funder}>Only Funder</option>
+          <option value={Authority.Recipient}>Only Recipient</option>
+          <option value={Authority.Both}>Both</option>
         </select>
       </div>
     </div>

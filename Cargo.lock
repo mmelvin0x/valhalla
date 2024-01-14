@@ -1290,11 +1290,11 @@ dependencies = [
 
 [[package]]
 name = "num_enum"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "683751d591e6d81200c39fb0d1032608b77724f34114db54f571ff1317b337c0"
+checksum = "02339744ee7253741199f897151b38e72257d13802d4ee837285cc2990a90845"
 dependencies = [
- "num_enum_derive 0.7.1",
+ "num_enum_derive 0.7.2",
 ]
 
 [[package]]
@@ -1311,9 +1311,9 @@ dependencies = [
 
 [[package]]
 name = "num_enum_derive"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c11e44798ad209ccdd91fc192f0526a369a01234f7373e1b141c96d7cee4f0e"
+checksum = "681030a937600a36906c185595136d26abfebb4aa9c65701cefcaf8578bb982b"
 dependencies = [
  "proc-macro-crate 1.3.1",
  "proc-macro2",
@@ -1770,9 +1770,9 @@ checksum = "4dccd0940a2dcdf68d092b8cbab7dc0ad8fa938bf95787e1b916b0e3d0e8e970"
 
 [[package]]
 name = "solana-frozen-abi"
-version = "1.17.15"
+version = "1.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4090f2ac64149ce1fbabd5277f41e278edc1f38121927fe8f6355e67ead3e199"
+checksum = "32a64bc1df0fcda5884f6cf6eb50f8aa283dbf767e984fcbbb53e344859b597f"
 dependencies = [
  "ahash 0.8.4",
  "blake3",
@@ -1800,9 +1800,9 @@ dependencies = [
 
 [[package]]
 name = "solana-frozen-abi-macro"
-version = "1.17.15"
+version = "1.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "765bcdc1ecc31ea5d3d7ddb680ffa6645809c122b4ffdc223b161850e6ba352b"
+checksum = "6c8e0e27e6639f23a7d23e0ae7b92b8ab5d848bb649e962f6528a795988ca161"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1812,9 +1812,9 @@ dependencies = [
 
 [[package]]
 name = "solana-logger"
-version = "1.17.15"
+version = "1.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c7f3cad088bc5f00569cb5b4c3aaba8d935f8f7cc25c91cc0c55a8a7de2b137"
+checksum = "b868a3b8148d7ab3e44a6b40530843903bedaaf8c6a2aa3d797eb01b3435538d"
 dependencies = [
  "env_logger",
  "lazy_static",
@@ -1823,9 +1823,9 @@ dependencies = [
 
 [[package]]
 name = "solana-program"
-version = "1.17.15"
+version = "1.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1141d1dffbe68852128f7bbcc3c43a5d2cb715ecffeeb64eb81bb93cbaf80bb"
+checksum = "b1ec090add6d789cd498291fbbcbc4207ec5d8f4df4e93cf9bd30feed14474a1"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -1877,9 +1877,9 @@ dependencies = [
 
 [[package]]
 name = "solana-sdk"
-version = "1.17.15"
+version = "1.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "278a95acb99377dd4585599fdbec23d0a6fcb94ec78285283723fdd365fe885e"
+checksum = "2817e4e1190e3539c989b3b350ee306b91e63959e19638e2632cc92ac9041527"
 dependencies = [
  "assert_matches",
  "base64 0.21.5",
@@ -1931,9 +1931,9 @@ dependencies = [
 
 [[package]]
 name = "solana-sdk-macro"
-version = "1.17.15"
+version = "1.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92dbaf563210f61828800f2a3d8c188fa2afede91920d364982e280318db2eb5"
+checksum = "04051488f4275df58be7abf34dc0583f4d38df72000a047c85a549c6a996acc0"
 dependencies = [
  "bs58 0.4.0",
  "proc-macro2",
@@ -1950,9 +1950,9 @@ checksum = "468aa43b7edb1f9b7b7b686d5c3aeb6630dc1708e86e31343499dd5c4d775183"
 
 [[package]]
 name = "solana-zk-token-sdk"
-version = "1.17.15"
+version = "1.17.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef26fb44734aa940e6648bbbeead677edc68c7e1ec09128e5f16a8924c389a38"
+checksum = "d860992705578848d2a04e8a2a5b2b2d380b0be5db8cf9d0744a166e269c0ceb"
 dependencies = [
  "aes-gcm-siv",
  "base64 0.21.5",
@@ -2128,7 +2128,7 @@ dependencies = [
  "bytemuck",
  "num-derive 0.4.1",
  "num-traits",
- "num_enum 0.7.1",
+ "num_enum 0.7.2",
  "solana-program",
  "solana-zk-token-sdk",
  "spl-memo",
@@ -2150,7 +2150,7 @@ dependencies = [
  "bytemuck",
  "num-derive 0.4.1",
  "num-traits",
- "num_enum 0.7.1",
+ "num_enum 0.7.2",
  "solana-program",
  "solana-security-txt",
  "solana-zk-token-sdk",

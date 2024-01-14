@@ -14,6 +14,7 @@ const aclonica = Aclonica({
 
 require("../styles/globals.css");
 require("@solana/wallet-adapter-react-ui/styles.css");
+require("react-datepicker/dist/react-datepicker.css");
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (

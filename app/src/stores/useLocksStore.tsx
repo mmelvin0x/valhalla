@@ -1,20 +1,26 @@
-import { LockAccount } from "program/accounts";
+import { LockAccount } from "models/types";
 import { create } from "zustand";
 
 interface LocksStore {
-  locks: LockAccount[];
-  setLocks: (locks: LockAccount[]) => void;
-  userLocks: LockAccount[];
-  setUserLocks: (locks: LockAccount[]) => void;
+  allLocks: LockAccount[];
+  setAllLocks: (locks: LockAccount[]) => void;
+  userFunderLocks: LockAccount[];
+  setUserFunderLocks: (locks: LockAccount[]) => void;
+  userRecipientLocks: LockAccount[];
+  setUserRecipientLocks: (locks: LockAccount[]) => void;
   selectedLock: LockAccount | null;
   setSelectedLock: (lock: LockAccount | null) => void;
 }
 
 const useLocksStore = create<LocksStore>((set) => ({
-  locks: [],
-  setLocks: (locks: LockAccount[]) => set({ locks }),
-  userLocks: [],
-  setUserLocks: (locks: LockAccount[]) => set({ userLocks: locks }),
+  allLocks: [],
+  setAllLocks: (allLocks: LockAccount[]) => set({ allLocks }),
+  userFunderLocks: [],
+  setUserFunderLocks: (userFunderLocks: LockAccount[]) =>
+    set({ userFunderLocks }),
+  userRecipientLocks: [],
+  setUserRecipientLocks: (userRecipientLocks: LockAccount[]) =>
+    set({ userRecipientLocks }),
   selectedLock: null,
   setSelectedLock: (lock: LockAccount | null) => set({ selectedLock: lock }),
 }));

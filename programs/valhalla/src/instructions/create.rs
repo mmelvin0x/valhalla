@@ -13,9 +13,9 @@ pub struct Create<'info> {
     #[account(mut)]
     pub funder: Signer<'info>,
 
-    /// The account of the beneficiary who will receive the locked tokens.
+    /// The account of the recipient who will receive the locked tokens.
     /// CHECK: This account is only read from and stored as a Pubkey on the Locker.
-    pub beneficiary: AccountInfo<'info>,
+    pub recipient: AccountInfo<'info>,
 
     #[account(seeds = [constants::LOCKER_SEED], bump, has_one = treasury)]
     pub locker: Box<Account<'info, Locker>>,
@@ -66,11 +66,11 @@ pub struct Create<'info> {
         init_if_needed,
         payer = funder,
         associated_token::mint = mint,
-        associated_token::authority = beneficiary,
+        associated_token::authority = recipient,
         associated_token::token_program = token_program
     )]
-    /// The beneficiary's token account.
-    pub beneficiary_token_account: InterfaceAccount<'info, TokenAccount>,
+    /// The recipient's token account.
+    pub recipient_token_account: InterfaceAccount<'info, TokenAccount>,
 
     /// The mint account for the tokens.
     pub mint: InterfaceAccount<'info, Mint>,
@@ -152,7 +152,7 @@ pub fn create_ix(
 
     // Set the lock state
     lock.funder = ctx.accounts.funder.key();
-    lock.beneficiary = ctx.accounts.beneficiary.key();
+    lock.recipient = ctx.accounts.recipient.key();
     lock.mint = ctx.accounts.mint.key();
     lock.cancel_authority = cancel_authority;
     lock.change_recipient_authority = change_recipient_authority;
@@ -170,7 +170,7 @@ pub fn create_ix(
             let cpi_accounts = TransferChecked {
                 from: ctx.accounts.funder_token_account.to_account_info(),
                 mint: ctx.accounts.mint.to_account_info(),
-                to: ctx.accounts.beneficiary_token_account.to_account_info(),
+                to: ctx.accounts.recipient_token_account.to_account_info(),
                 authority: ctx.accounts.funder.to_account_info(),
             };
             let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);

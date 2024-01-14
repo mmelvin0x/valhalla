@@ -20,7 +20,6 @@ export default function SelectTokenInput({
   setAmountToBeVested,
   amountToBeVested,
 }: SelectTokenInputProps) {
-  const { connected } = useWallet();
   const balance = useMemo(
     () =>
       // @ts-ignore

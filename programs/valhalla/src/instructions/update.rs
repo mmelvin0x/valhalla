@@ -5,19 +5,19 @@ use crate::{ constants, Lock, Authority, errors::LockError };
 
 #[derive(Accounts)]
 pub struct Update<'info> {
-    #[account(mut, constraint = funder.key() == signer.key() || beneficiary.key() == signer.key())]
+    #[account(mut, constraint = funder.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
     #[account(mut, constraint = lock.funder == funder.key())]
     /// CHECK: Checked in contstraints
     pub funder: AccountInfo<'info>,
 
-    #[account(mut, constraint = lock.beneficiary == beneficiary.key())]
+    #[account(mut, constraint = lock.recipient == recipient.key())]
     /// CHECK: Checked in constraints
-    pub beneficiary: AccountInfo<'info>,
+    pub recipient: AccountInfo<'info>,
 
     /// CHECK: Checked in constraints
-    pub new_beneficiary: AccountInfo<'info>,
+    pub new_recipient: AccountInfo<'info>,
 
     #[account(
         mut,
@@ -28,7 +28,7 @@ pub struct Update<'info> {
             constants::LOCK_SEED,
         ],
         bump,
-        has_one = beneficiary,
+        has_one = recipient,
         has_one = funder,
         has_one = mint,
     )]
@@ -54,22 +54,22 @@ pub fn update_ix(ctx: Context<Update>) -> Result<()> {
                 return Err(LockError::Unauthorized.into());
             }
         }
-        Authority::Beneficiary => {
-            if ctx.accounts.beneficiary.key() != ctx.accounts.signer.key() {
+        Authority::Recipient => {
+            if ctx.accounts.recipient.key() != ctx.accounts.signer.key() {
                 return Err(LockError::Unauthorized.into());
             }
         }
         Authority::Both => {
             if
                 ctx.accounts.funder.key() != ctx.accounts.signer.key() ||
-                ctx.accounts.beneficiary.key() != ctx.accounts.signer.key()
+                ctx.accounts.recipient.key() != ctx.accounts.signer.key()
             {
                 return Err(LockError::Unauthorized.into());
             }
         }
     }
 
-    lock.beneficiary = ctx.accounts.new_beneficiary.key();
+    lock.recipient = ctx.accounts.new_recipient.key();
 
     Ok(())
 }

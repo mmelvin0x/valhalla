@@ -22,6 +22,7 @@ export default function PayoutIntervalInput({
           setPayoutInterval(+e.target.value)
         }
       >
+        <option value={Number(3600 * 1000)}>Every Hour</option>
         <option value={Number(3600 * 24 * 1000)}>Every Day</option>
         <option value={Number(3600 * 24 * 7 * 1000)}>Every Week</option>
         <option value={thirtyDays}>Every Month</option>

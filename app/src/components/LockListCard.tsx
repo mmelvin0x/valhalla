@@ -102,7 +102,7 @@ export default function LockListCard({ lock }: LockListCardProps) {
                     onClick={() => {
                       (
                         document.getElementById(
-                          "withdraw_to_beneficiary_modal"
+                          "withdraw_to_recipient_modal"
                         ) as HTMLDialogElement
                       ).showModal();
                     }}

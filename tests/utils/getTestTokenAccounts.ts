@@ -4,7 +4,7 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 export async function getTestTokenAccounts(
   connection: Connection,
   funder: Keypair,
-  beneficiary: Keypair,
+  recipient: Keypair,
   mint: PublicKey,
   programId: PublicKey
 ): Promise<[Account, Account]> {
@@ -19,16 +19,16 @@ export async function getTestTokenAccounts(
     programId
   );
 
-  const beneficiaryTokenAccount = await getOrCreateAssociatedTokenAccount(
+  const recipientTokenAccount = await getOrCreateAssociatedTokenAccount(
     connection,
-    beneficiary,
+    recipient,
     mint,
-    beneficiary.publicKey,
+    recipient.publicKey,
     false,
     undefined,
     undefined,
     programId
   );
 
-  return [funderTokenAccount, beneficiaryTokenAccount];
+  return [funderTokenAccount, recipientTokenAccount];
 }

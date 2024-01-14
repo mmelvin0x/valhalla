@@ -3,50 +3,87 @@ import LoadingSpinner from "components/LoadingSpinner";
 import useProgram from "hooks/useProgram";
 import Head from "next/head";
 import Link from "next/link";
-import { LockAccount, getLocksByUser } from "program/accounts";
+import { Lock } from "program/generated";
 import { useEffect, useState } from "react";
-import {
-  FaArrowAltCircleDown,
-  FaArrowAltCircleUp,
-  FaPlusCircle,
-  FaSearch,
-} from "react-icons/fa";
+import { FaPlusCircle, FaSearch } from "react-icons/fa";
 import useLocksStore from "stores/useLocksStore";
+import { useDates } from "hooks/useDates";
+import { LockAccount } from "models/types";
+import DashboardStats from "components/dashboard/DashboardStats";
+import LockCollapse from "components/dashboard/LockCollapse";
 
 enum Tab {
-  Beneficiary,
+  Recipient,
   Funder,
 }
 
 export default function Dashboard() {
-  const today = new Date();
-  const thirtyDays = new Date().setDate(today.getDate() + 30);
-  const sixtyDays = new Date().setDate(today.getDate() + 60);
-  const ninetyDays = new Date().setDate(today.getDate() + 90);
-  const oneThousandYears = new Date().setFullYear(today.getFullYear() + 1000);
-
+  const { today } = useDates();
   const { wallet, balance, connection, program, connected } = useProgram();
-  const { userLocks, setUserLocks } = useLocksStore();
+  const {
+    userFunderLocks,
+    setUserFunderLocks,
+    userRecipientLocks,
+    setUserRecipientLocks,
+  } = useLocksStore();
 
-  const [tab, setTab] = useState<Tab>(Tab.Beneficiary);
+  const [tab, setTab] = useState<Tab>(Tab.Recipient);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const getLocks = async (showLoadingSpinner: boolean, tab: Tab) => {
-    setIsLoading(showLoadingSpinner);
-    const theLocks = await getLocksByUser(
-      connection,
-      wallet.publicKey,
-      program
+  const getFunderLocks = async () => {
+    const locksWhereUserIsFunder = await Lock.gpaBuilder()
+      .addFilter("funder", wallet.publicKey)
+      .run(connection);
+
+    const funderLocks = locksWhereUserIsFunder.map(
+      (it) =>
+        new LockAccount(
+          Lock.fromAccountInfo(it.account)[0],
+          it.pubkey,
+          connection
+        )
     );
-    setUserLocks(theLocks);
+
+    console.log(funderLocks);
+
+    setUserFunderLocks(funderLocks);
+  };
+
+  const getRecipientLocks = async () => {
+    const locksWhereUserIsRecipient = await Lock.gpaBuilder()
+      .addFilter("recipient", wallet.publicKey)
+      .run(connection);
+
+    const recipientLocks = locksWhereUserIsRecipient.map(
+      (it) =>
+        new LockAccount(
+          Lock.fromAccountInfo(it.account)[0],
+          it.pubkey,
+          connection
+        )
+    );
+
+    console.log(recipientLocks);
+
+    setUserRecipientLocks(recipientLocks);
+  };
+
+  const getLocks = async (showLoadingSpinner: boolean) => {
+    setIsLoading(showLoadingSpinner);
+    await getFunderLocks();
+    await getRecipientLocks();
     setIsLoading(false);
   };
 
   useEffect(() => {
     if (program?.programId && wallet?.publicKey) {
-      getLocks(userLocks && userLocks.length === 0, tab);
+      getLocks(
+        (userFunderLocks && userFunderLocks.length === 0) ||
+          (userRecipientLocks && userRecipientLocks.length === 0)
+      );
     } else {
-      setUserLocks([]);
+      setUserFunderLocks([]);
+      setUserRecipientLocks([]);
     }
   }, [connected, tab]);
 
@@ -66,6 +103,14 @@ export default function Dashboard() {
     alert("Implement: Disburse all");
   };
 
+  const cancel = async (lockAcount: LockAccount) => {
+    alert("Implement: Cancel");
+  };
+
+  const changeRecipient = async (lockAcount: LockAccount) => {
+    alert("Implement: Change recipient");
+  };
+
   return (
     <>
       <Head>
@@ -77,11 +122,9 @@ export default function Dashboard() {
       </Head>
 
       <main className="flex flex-col gap-8 justify-center">
-        <h1 className="font-bold">Dashboard</h1>
-
         {wallet.connected ? (
           <>
-            <div className="flex items-center justify-between px-10">
+            <div className="flex flex-wrap items-center justify-between">
               <h2 className="text-3xl font-bold">Your Vestments</h2>
               <div className="flex gap-2">
                 <Link href="/search" className="btn btn-secondary">
@@ -94,85 +137,85 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-9 lg:grid-cols-3 gap-2 md:gap-4 lg:gap-8 px-10 pb-10">
-              <div className="stats stats-vertical hover:shadow md:col-span-4 lg:col-span-1">
-                <div className="stat">
-                  <button
-                    className="stat-figure animate-pulse"
-                    onClick={() => claimAll(userLocks)}
-                  >
-                    <FaArrowAltCircleDown className="text-success" size={24} />
-                  </button>
-                  <div className="stat-title">Claimable</div>
-                  <div className="stat-value">$9,000</div>
-                  <div className="stat-desc">As of Jan 1st</div>
-                </div>
-
-                <div className="stat">
-                  <button
-                    className="stat-figure"
-                    onClick={() => disburseAll(userLocks)}
-                  >
-                    <FaArrowAltCircleUp className="text-info" size={24} />
-                  </button>
-                  <div className="stat-title">Disbursable</div>
-                  <div className="stat-value">3/6</div>
-                  <div className="stat-desc">Jan 1st - Jan 31st</div>
-                </div>
-
-                <div className="stat">
-                  <button className="stat-figure text-secondary font-bold text-3xl">
-                    ◎
-                  </button>
-                  <div className="stat-title">Wallet Balance</div>
-                  <div className="stat-value">{balance.toLocaleString()}</div>
-                  <div className="stat-desc">$1,200 (TODO)</div>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <DashboardStats claimAll={claimAll} disburseAll={disburseAll} />
 
               {/* Locks */}
-              <div className="md:col-span-5 lg:col-span-2">
-                <div className="card hover:shadow h-full">
-                  <div className="card-body min-h-80">
-                    <div className="tabs tabs-boxed mb-8">
-                      <div
-                        className={`tab ${
-                          tab === Tab.Beneficiary ? "tab-active" : ""
-                        }`}
-                        onClick={() => setTab(Tab.Beneficiary)}
-                      >
-                        Upcoming Unlocks
-                      </div>
-                      <div
-                        className={`tab ${
-                          tab === Tab.Funder ? "tab-active" : ""
-                        }`}
-                        onClick={() => setTab(Tab.Funder)}
-                      >
-                        Your Created Locks
-                      </div>
+              <div className="card hover:shadow h-full md:col-span-2">
+                <div className="card-body min-h-80">
+                  <div className="tabs tabs-boxed mb-8">
+                    <div
+                      className={`tab ${
+                        tab === Tab.Recipient ? "tab-active" : ""
+                      }`}
+                      onClick={() => setTab(Tab.Recipient)}
+                    >
+                      Claim
                     </div>
+                    <div
+                      className={`tab ${
+                        tab === Tab.Funder ? "tab-active" : ""
+                      }`}
+                      onClick={() => setTab(Tab.Funder)}
+                    >
+                      Disburse
+                    </div>
+                  </div>
 
-                    {isLoading && <LoadingSpinner />}
-
-                    {!isLoading && !userLocks.length && wallet?.publicKey && (
-                      <div className="flex flex-col items-center gap-4">
-                        <p className="prose">No locks created yet!</p>
-                        <Link href="/create" className="btn btn-accent">
-                          Create a lock
-                        </Link>
+                  <div className="h-80 overflow-y-scroll">
+                    {isLoading ? (
+                      <div className="flex flex-col w-full h-full items-center justify-center">
+                        <LoadingSpinner />
                       </div>
-                    )}
+                    ) : (
+                      <>
+                        {tab === Tab.Funder && (
+                          <>
+                            {wallet.publicKey && !!userFunderLocks.length ? (
+                              userFunderLocks.map((lock, i) => (
+                                <LockCollapse
+                                  index={i}
+                                  lock={lock}
+                                  disburse={disburse}
+                                  cancel={cancel}
+                                  changeRecipient={changeRecipient}
+                                />
+                              ))
+                            ) : (
+                              <div className="flex flex-col items-center gap-4">
+                                <p className="prose">No funded accounts!</p>
+                                <Link href="/create" className="btn btn-accent">
+                                  Create a lock
+                                </Link>
+                              </div>
+                            )}
+                          </>
+                        )}
 
-                    {!isLoading &&
-                      userLocks.map((lock) => (
-                        <div className="h-80 overflow-y-scroll">
-                          <div key={lock.lockKey.toBase58()}>
-                            {lock.lockKey.toBase58()}
-                          </div>
-                        </div>
-                      ))}
+                        {tab === Tab.Recipient && (
+                          <>
+                            {wallet.publicKey && !!userRecipientLocks.length ? (
+                              userRecipientLocks.map((lock, i) => (
+                                <LockCollapse
+                                  index={i}
+                                  lock={lock}
+                                  disburse={disburse}
+                                  cancel={cancel}
+                                  changeRecipient={changeRecipient}
+                                />
+                              ))
+                            ) : (
+                              <div className="flex flex-col items-center gap-4">
+                                <p className="prose">No receivable accounts!</p>
+                                <Link href="/create" className="btn btn-accent">
+                                  Create a lock
+                                </Link>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

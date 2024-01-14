@@ -1,15 +1,17 @@
 import * as anchor from "@coral-xyz/anchor";
 import { clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { IDL, Valhalla } from "../target/types/valhalla";
-import {} from "../server/src/program/accounts";
-import { VALHALLA_PROGRAM_ID } from "../server/src/program";
+
+const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
+  "BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU"
+);
 
 const FEE = 0.025;
-const TREASURY_ALLOCATION = 100_000_000;
 
 const main = async () => {
   const wallet = anchor.Wallet.local();
-  console.log("-> ~ main ~ wallet:", wallet.publicKey.toBase58());
+  console.log("wallet:", wallet);
+
   const connection = new anchor.web3.Connection(
     clusterApiUrl("devnet"),
     "confirmed"
@@ -26,13 +28,10 @@ const main = async () => {
     [Buffer.from("locker")],
     program.programId
   );
-  console.log("-> ~ main ~ locker:", locker.toBase58());
+  console.log("locker:", locker.toBase58());
 
   const initTx = await program.methods
-    .init(
-      new anchor.BN(FEE * LAMPORTS_PER_SOL),
-      new anchor.BN(TREASURY_ALLOCATION)
-    )
+    .adminInitialize(new anchor.BN(FEE * LAMPORTS_PER_SOL))
     .accounts({
       admin: wallet.publicKey,
       locker: locker,
@@ -41,21 +40,15 @@ const main = async () => {
     .signers([wallet.payer])
     .rpc();
 
-  console.log("-> ~ main ~ initTx:", initTx);
+  console.log("initTx:", initTx);
 
   await provider.connection.confirmTransaction(initTx, "confirmed");
 
   const lockerAccount = await program.account.locker.fetch(locker);
+  console.log("lockerAccount.admin:", lockerAccount.admin.toBase58());
+  console.log("lockerAccount.treasury:", lockerAccount.treasury.toBase58());
   console.log(
-    "-> ~ main ~ lockerAccount.admin:",
-    lockerAccount.admin.toBase58()
-  );
-  console.log(
-    "-> ~ main ~ lockerAccount.treasury:",
-    lockerAccount.treasury.toBase58()
-  );
-  console.log(
-    "-> ~ main ~ lockerAccount.fee:",
+    "lockerAccount.fee:",
     lockerAccount.fee.toNumber() / LAMPORTS_PER_SOL
   );
 };

@@ -24,7 +24,7 @@ export async function mintTransferFeeTokens(
   feeBasisPoints: number,
   maxFee: bigint,
   funder: Keypair,
-  beneficiary: Keypair,
+  recipient: Keypair,
   amount: number
 ): Promise<[PublicKey, Account, Account]> {
   const mintKeypair = Keypair.generate();
@@ -64,11 +64,11 @@ export async function mintTransferFeeTokens(
   ]);
   await connection.confirmTransaction(tx);
 
-  const [funderTokenAccount, beneficiaryTokenAccount] =
+  const [funderTokenAccount, recipientTokenAccount] =
     await getTestTokenAccounts(
       connection,
       funder,
-      beneficiary,
+      recipient,
       mint,
       TOKEN_2022_PROGRAM_ID
     );
@@ -85,5 +85,5 @@ export async function mintTransferFeeTokens(
     TOKEN_2022_PROGRAM_ID
   );
 
-  return [mint, funderTokenAccount, beneficiaryTokenAccount];
+  return [mint, funderTokenAccount, recipientTokenAccount];
 }

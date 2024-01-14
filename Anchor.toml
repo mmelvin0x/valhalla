@@ -21,7 +21,7 @@ cluster = "Localnet"
 wallet = "./.keys/id.json"
 
 [scripts]
-init = "yarn ts-node ./scripts/init.ts"
+init-locker = "yarn ts-node ./scripts/init.ts"
 mint-dev-tokens = "yarn run ts-node ./scripts/mint-dev-tokens.ts"
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/valhalla.ts"
 
