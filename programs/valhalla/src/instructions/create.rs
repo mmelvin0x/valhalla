@@ -8,16 +8,6 @@ use anchor_spl::{
 use crate::{ state::{ Lock, Locker }, constants, Authority, errors::LockError };
 
 #[derive(Accounts)]
-#[instruction(
-    amount_to_be_vested: u64,
-    vesting_duration: u64,
-    payout_interval: u64,
-    cliff_payment_amount: u64,
-    start_date: u64,
-    cancel_authority: Authority,
-    change_recipient_authority: Authority,
-    name: String
-)]
 /// Represents the instruction to create a new lock.
 pub struct Create<'info> {
     #[account(mut)]
@@ -39,7 +29,7 @@ pub struct Create<'info> {
         init,
         payer = funder,
         seeds = [funder.key().as_ref(), mint.key().as_ref(), constants::LOCK_SEED],
-        space = Lock::size_of(name.as_str()),
+        space = Lock::size_of(),
         bump
     )]
     /// The lock PDA that will be created.
@@ -119,8 +109,7 @@ pub fn create_ix(
     cliff_payment_amount: u64,
     start_date: u64,
     cancel_authority: Authority,
-    change_recipient_authority: Authority,
-    name: String
+    change_recipient_authority: Authority
 ) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
     let current_time = Clock::get()?.unix_timestamp as u64;
@@ -161,11 +150,6 @@ pub fn create_ix(
         }
     }
 
-    // Throw an error if the lock name is longer than 32 characters
-    if name.len() > 32 {
-        return Err(LockError::NameTooLong.into());
-    }
-
     // Set the lock state
     lock.funder = ctx.accounts.funder.key();
     lock.recipient = ctx.accounts.recipient.key();
@@ -178,7 +162,6 @@ pub fn create_ix(
     lock.start_date = start_date;
     lock.amount_per_payout = amount_per_payout;
     lock.number_of_payments_made = 0;
-    lock.name = name.clone();
 
     // Handle the case for a lock starting on creation w/ a cliff payment
     if cliff_payment > 0 {

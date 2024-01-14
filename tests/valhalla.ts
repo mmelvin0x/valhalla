@@ -31,7 +31,6 @@ describe("⚡️ Valhalla", () => {
     Both,
   }
 
-  const name = "Valhalla";
   let funder = anchor.web3.Keypair.generate();
   let recipient = anchor.web3.Keypair.generate();
 
@@ -333,8 +332,7 @@ describe("⚡️ Valhalla", () => {
               program.coder.types.decode(
                 "Authority",
                 changeRecipientAuthority.toBuffer()
-              ),
-              name
+              )
             )
             .accounts({
               funder: funder.publicKey,
@@ -708,8 +706,7 @@ describe("⚡️ Valhalla", () => {
               program.coder.types.decode(
                 "Authority",
                 changeRecipientAuthority.toBuffer()
-              ),
-              name
+              )
             )
             .accounts({
               funder: funder.publicKey,

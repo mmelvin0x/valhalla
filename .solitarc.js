@@ -7,7 +7,7 @@ const binaryInstallDir = path.join(__dirname, ".crates");
 module.exports = {
   idlGenerator: "anchor",
   programName: "valhalla",
-  programId: "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg",
+  programId: "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ",
   idlDir,
   sdkDir,
   binaryInstallDir,

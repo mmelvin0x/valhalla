@@ -109,6 +109,8 @@ pub fn disburse_ix(ctx: Context<Disburse>) -> Result<()> {
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
         token::transfer_checked(cpi_ctx, transfer_amount, ctx.accounts.mint.decimals)?;
+
+        lock.number_of_payments_made = lock.number_of_payments_made.checked_add(1).unwrap();
     } else {
         return Err(LockError::NoPayout.into());
     }

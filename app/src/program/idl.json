@@ -284,10 +284,6 @@
           "type": {
             "defined": "Authority"
           }
-        },
-        {
-          "name": "name",
-          "type": "string"
         }
       ]
     },
@@ -569,10 +565,6 @@
           {
             "name": "isCliffPaymentDisbursed",
             "type": "bool"
-          },
-          {
-            "name": "name",
-            "type": "string"
           }
         ]
       }
@@ -628,6 +620,9 @@
     }
   ],
   "metadata": {
-    "address": "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg"
+    "address": "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ",
+    "origin": "anchor",
+    "binaryVersion": "0.29.0",
+    "libVersion": "0.29.0"
   }
 }

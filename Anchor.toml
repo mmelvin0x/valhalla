@@ -5,13 +5,13 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-valhalla = "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg"
+valhalla = "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ"
 
 [programs.localnet]
-valhalla = "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg"
+valhalla = "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ"
 
 [programs.mainnet]
-valhalla = "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg"
+valhalla = "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ"
 
 [registry]
 url = "https://api.apr.dev"

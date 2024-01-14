@@ -284,10 +284,6 @@ export type Valhalla = {
           "type": {
             "defined": "Authority"
           }
-        },
-        {
-          "name": "name",
-          "type": "string"
         }
       ]
     },
@@ -569,10 +565,6 @@ export type Valhalla = {
           {
             "name": "isCliffPaymentDisbursed",
             "type": "bool"
-          },
-          {
-            "name": "name",
-            "type": "string"
           }
         ]
       }
@@ -915,10 +907,6 @@ export const IDL: Valhalla = {
           "type": {
             "defined": "Authority"
           }
-        },
-        {
-          "name": "name",
-          "type": "string"
         }
       ]
     },
@@ -1200,10 +1188,6 @@ export const IDL: Valhalla = {
           {
             "name": "isCliffPaymentDisbursed",
             "type": "bool"
-          },
-          {
-            "name": "name",
-            "type": "string"
           }
         ]
       }

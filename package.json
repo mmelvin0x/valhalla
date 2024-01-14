@@ -6,7 +6,7 @@
   "scripts": {
     "copy:idl": "cp ./target/idl/valhalla.json ./app/src/program/idl.json",
     "copy:types": "cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts",
-    "kinobi": "node kinobi.js",
+    "post-deploy": "yarn solita && yarn copy:idl && yarn copy:types",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
   },

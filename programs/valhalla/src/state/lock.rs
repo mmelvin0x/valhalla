@@ -23,11 +23,10 @@ pub struct Lock {
     pub last_payment_timestamp: u64,
     pub number_of_payments_made: u64,
     pub is_cliff_payment_disbursed: bool,
-    pub name: String,
 }
 
 impl Lock {
-    pub fn size_of(name: &str) -> usize {
+    pub fn size_of() -> usize {
         8 + // discriminator
             32 + // funder
             32 + // recipient
@@ -41,8 +40,6 @@ impl Lock {
             8 + // cliff_payment_amount
             8 + // last_payment_timestamp
             8 + // number_of_payments_made
-            1 + // is_cliff_payment_disbursed
-            4 + // name length
-            name.len()
+            1 // is_cliff_payment_disbursed
     }
 }

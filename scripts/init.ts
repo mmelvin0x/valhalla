@@ -3,7 +3,7 @@ import { clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { IDL, Valhalla } from "../target/types/valhalla";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg"
+  "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ"
 );
 
 const FEE = 0.025;

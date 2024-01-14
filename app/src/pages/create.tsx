@@ -92,7 +92,6 @@ const Create: FC = () => {
       vestingDuration: Math.round(Number(vestingDuration / 1000)),
       payoutInterval: Math.round(payoutInterval / 1000),
       startDate: Math.round(startDate.getTime() / 1000),
-      name,
     };
 
     Object.keys(createLockInstructionArgs).forEach((key) => {

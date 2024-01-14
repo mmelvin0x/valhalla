@@ -5,10 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from "@solana/spl-token";
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
-import { Authority, authorityBeet } from "../types/Authority";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
+import { Authority, authorityBeet } from '../types/Authority'
 
 /**
  * @category Instructions
@@ -16,38 +16,36 @@ import { Authority, authorityBeet } from "../types/Authority";
  * @category generated
  */
 export type CreateLockInstructionArgs = {
-  amountToBeVested: beet.bignum;
-  vestingDuration: beet.bignum;
-  payoutInterval: beet.bignum;
-  cliffPaymentAmount: beet.bignum;
-  startDate: beet.bignum;
-  cancelAuthority: Authority;
-  changeRecipientAuthority: Authority;
-  name: string;
-};
+  amountToBeVested: beet.bignum
+  vestingDuration: beet.bignum
+  payoutInterval: beet.bignum
+  cliffPaymentAmount: beet.bignum
+  startDate: beet.bignum
+  cancelAuthority: Authority
+  changeRecipientAuthority: Authority
+}
 /**
  * @category Instructions
  * @category CreateLock
  * @category generated
  */
-export const createLockStruct = new beet.FixableBeetArgsStruct<
+export const createLockStruct = new beet.BeetArgsStruct<
   CreateLockInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */;
+    instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["amountToBeVested", beet.u64],
-    ["vestingDuration", beet.u64],
-    ["payoutInterval", beet.u64],
-    ["cliffPaymentAmount", beet.u64],
-    ["startDate", beet.u64],
-    ["cancelAuthority", authorityBeet],
-    ["changeRecipientAuthority", authorityBeet],
-    ["name", beet.utf8String],
+    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['amountToBeVested', beet.u64],
+    ['vestingDuration', beet.u64],
+    ['payoutInterval', beet.u64],
+    ['cliffPaymentAmount', beet.u64],
+    ['startDate', beet.u64],
+    ['cancelAuthority', authorityBeet],
+    ['changeRecipientAuthority', authorityBeet],
   ],
-  "CreateLockInstructionArgs"
-);
+  'CreateLockInstructionArgs'
+)
 /**
  * Accounts required by the _createLock_ instruction
  *
@@ -66,23 +64,23 @@ export const createLockStruct = new beet.FixableBeetArgsStruct<
  * @category generated
  */
 export type CreateLockInstructionAccounts = {
-  funder: web3.PublicKey;
-  recipient: web3.PublicKey;
-  locker: web3.PublicKey;
-  treasury: web3.PublicKey;
-  lock: web3.PublicKey;
-  lockTokenAccount: web3.PublicKey;
-  funderTokenAccount: web3.PublicKey;
-  recipientTokenAccount: web3.PublicKey;
-  mint: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  associatedTokenProgram: web3.PublicKey;
-  systemProgram?: web3.PublicKey;
-};
+  funder: web3.PublicKey
+  recipient: web3.PublicKey
+  locker: web3.PublicKey
+  treasury: web3.PublicKey
+  lock: web3.PublicKey
+  lockTokenAccount: web3.PublicKey
+  funderTokenAccount: web3.PublicKey
+  recipientTokenAccount: web3.PublicKey
+  mint: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+  associatedTokenProgram: web3.PublicKey
+  systemProgram?: web3.PublicKey
+}
 
 export const createLockInstructionDiscriminator = [
   171, 216, 92, 167, 165, 8, 153, 90,
-];
+]
 
 /**
  * Creates a _CreateLock_ instruction.
@@ -97,13 +95,12 @@ export const createLockInstructionDiscriminator = [
 export function createCreateLockInstruction(
   accounts: CreateLockInstructionAccounts,
   args: CreateLockInstructionArgs,
-  programId = new web3.PublicKey("C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg")
+  programId = new web3.PublicKey('5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ')
 ) {
   const [data] = createLockStruct.serialize({
     instructionDiscriminator: createLockInstructionDiscriminator,
     ...args,
-  });
-  console.log("-> ~ data:", data);
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.funder,
@@ -165,12 +162,12 @@ export function createCreateLockInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

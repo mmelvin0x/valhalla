@@ -10,7 +10,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { LockAccount } from "models/types";
 
 export const PROGRAM_ID = new PublicKey(
-  "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg"
+  "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ"
 );
 
 export const TREASURY = new PublicKey(
