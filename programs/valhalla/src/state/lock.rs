@@ -28,6 +28,21 @@ pub struct Lock {
 
 impl Lock {
     pub fn size_of(name: &str) -> usize {
-        8 + 32 + 32 + 32 + 1 + 1 + 8 + 8 + 8 + 8 + 8 + 8 + 8 + 1 + 4 + name.len()
+        8 + // discriminator
+            32 + // funder
+            32 + // recipient
+            32 + // mint
+            1 + // cancel_authority
+            1 + // change_recipient_authority
+            8 + // vesting_duration
+            8 + // payout_interval
+            8 + // amount_per_payout
+            8 + // start_date
+            8 + // cliff_payment_amount
+            8 + // last_payment_timestamp
+            8 + // number_of_payments_made
+            1 + // is_cliff_payment_disbursed
+            4 + // name length
+            name.len()
     }
 }

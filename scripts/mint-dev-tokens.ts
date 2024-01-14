@@ -15,7 +15,6 @@ import {
   getMintLen,
   getOrCreateAssociatedTokenAccount,
   mintTo,
-  mintToChecked,
   TOKEN_2022_PROGRAM_ID,
 } from "@solana/spl-token";
 
