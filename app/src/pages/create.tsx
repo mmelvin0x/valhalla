@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
 import useProgram from "hooks/useProgram";
 import axios from "axios";
 import {
@@ -31,13 +31,10 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import {
-  getLockKey,
-  getLockTokenAccountKey,
-  getLockerKey,
+  getPDAs,
   getTreasuryKey,
   getUserTokenAccountKey,
 } from "program/accounts";
-import { toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_2022_PROGRAM_ID,
@@ -51,6 +48,7 @@ const Create: FC = () => {
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
 
   // Lock State
+  const [name, setName] = useState<string>("");
   const [startDate, setStartDate] = useState<Date>(tomorrow);
   const [vestingDuration, setVestingDuration] = useState<number>(0);
   const [vestingEndDate, setVestingEndDate] = useState<Date>(
@@ -72,18 +70,6 @@ const Create: FC = () => {
   const [changeRecipientAuthority, setChangeRecipientAuthority] =
     useState<Authority>(Authority.Neither);
 
-  const balance = useMemo(
-    () =>
-      // @ts-ignore
-      selectedToken?.token_info.balance
-        ? // @ts-ignore
-          selectedToken?.token_info.balance /
-          // @ts-ignore
-          10 ** selectedToken?.token_info.decimals
-        : 0,
-    [selectedToken]
-  );
-
   // Methods
   const onReset = () => {
     setStartDate(tomorrow);
@@ -103,41 +89,44 @@ const Create: FC = () => {
       changeRecipientAuthority,
       amountToBeVested: Number(amountToBeVested),
       cliffPaymentAmount: Number(cliffPaymentAmount),
-      vestingDuration: Number(vestingDuration / 1000),
-      payoutInterval: Math.floor(payoutInterval / 1000),
-      startDate: Math.floor(startDate.getTime() / 1000),
+      vestingDuration: Math.round(Number(vestingDuration / 1000)),
+      payoutInterval: Math.round(payoutInterval / 1000),
+      startDate: Math.round(startDate.getTime() / 1000),
+      name,
     };
 
-    console.log("Create Lock Instruction Args:", createLockInstructionArgs);
+    Object.keys(createLockInstructionArgs).forEach((key) => {
+      console.log(key, createLockInstructionArgs[key]);
+    });
+
+    const [locker, lock, lockTokenAccount] = getPDAs(
+      wallet.publicKey,
+      new PublicKey(selectedToken.id)
+    );
 
     const createLockInstructionAccounts: CreateLockInstructionAccounts = {
       funder: wallet.publicKey,
       recipient: new PublicKey(recipient),
-      locker: getLockerKey(),
+      locker,
       treasury: getTreasuryKey(),
-      lock: getLockKey(wallet.publicKey, toWeb3JsPublicKey(selectedToken.id)),
-      lockTokenAccount: getLockTokenAccountKey(
-        getLockKey(wallet.publicKey, toWeb3JsPublicKey(selectedToken.id)),
-        wallet.publicKey,
-        toWeb3JsPublicKey(selectedToken.id)
-      ),
+      lock,
+      lockTokenAccount,
       funderTokenAccount: getUserTokenAccountKey(
         wallet.publicKey,
-        toWeb3JsPublicKey(selectedToken.id)
+        new PublicKey(selectedToken.id)
       ),
       recipientTokenAccount: getUserTokenAccountKey(
         new PublicKey(recipient),
-        toWeb3JsPublicKey(selectedToken.id)
+        new PublicKey(selectedToken.id)
       ),
-      mint: toWeb3JsPublicKey(selectedToken.id),
+      mint: new PublicKey(selectedToken.id),
       tokenProgram: TOKEN_2022_PROGRAM_ID,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
     };
 
-    console.log(
-      "Create Lock Instruction Accounts:",
-      createLockInstructionAccounts
-    );
+    Object.keys(createLockInstructionAccounts).forEach((key) => {
+      console.log(key, createLockInstructionAccounts[key].toBase58());
+    });
 
     try {
       const createLockInstruction = createCreateLockInstruction(
@@ -219,8 +208,25 @@ const Create: FC = () => {
         <div className="card">
           <div className="card-body">
             <div className="card-title">Configure the vesting account</div>
+            <div className="form-control">
+              <label htmlFor="" className="label">
+                <span className="label-text font-bold">Name</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered input-sm"
+                placeholder="Name the lock"
+                maxLength={32}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setName(e.target.value)
+                }
+              />
+            </div>
+
+            {/* TODO: resolve .sol addresses and add validations */}
             <RecipientInput recipient={recipient} setRecipient={setRecipient} />
 
+            {/* TODO: replace default image with "UNK" */}
             <SelectTokenInput
               assets={assets}
               amountToBeVested={+amountToBeVested}
@@ -229,8 +235,10 @@ const Create: FC = () => {
               setSelectedToken={setSelectedToken}
             />
 
+            {/* TODO: Dates are wonky, we need to include times and consider timezones */}
             <StartDateInput startDate={startDate} setStartDate={setStartDate} />
 
+            {/* TODO: Dates are wonky, we need to include times and consider timezones */}
             <VestingDatesInput
               startDate={startDate}
               vestingEndDate={vestingEndDate}
@@ -242,6 +250,7 @@ const Create: FC = () => {
               setPayoutInterval={setPayoutInterval}
             />
 
+            {/* TODO: Consider bringing back the swith for this */}
             <CliffPaymentAmountInput
               selectedToken={selectedToken}
               amountToBeVested={+amountToBeVested}
@@ -268,6 +277,7 @@ const Create: FC = () => {
         </div>
 
         <div className="flex flex-col gap-2 lg:gap-8">
+          {/* TODO: I think the dates are still a little wonky here */}
           <VestmentChart
             vestingEndDate={vestingEndDate}
             startDate={startDate}

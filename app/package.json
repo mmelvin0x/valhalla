@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@bonfida/spl-name-service": "^2.3.1",
     "@heroicons/react": "^2.0.18",
     "@metaplex-foundation/digital-asset-standard-api": "^1.0.0",
     "@metaplex-foundation/umi": "^0.8.10",

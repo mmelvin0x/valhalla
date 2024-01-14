@@ -31,7 +31,7 @@ export default function DashboardStats({
       const lastPaymentTimestamp = lock.lastPaymentTimestamp;
       const payoutInterval = lock.payoutInterval;
       const timeSinceLastPayment = new anchor.BN(
-        Math.floor(Date.now() / 1000)
+        Math.round(Date.now() / 1000)
       ).sub(lastPaymentTimestamp);
 
       if (timeSinceLastPayment.gte(payoutInterval)) {
@@ -58,7 +58,7 @@ export default function DashboardStats({
       const lastPaymentTimestamp = lock.lastPaymentTimestamp;
       const payoutInterval = lock.payoutInterval;
       const timeSinceLastPayment = new anchor.BN(
-        Math.floor(Date.now() / 1000)
+        Math.round(Date.now() / 1000)
       ).sub(lastPaymentTimestamp);
 
       if (timeSinceLastPayment.gte(payoutInterval)) {
@@ -75,7 +75,7 @@ export default function DashboardStats({
       const lastPaymentTimestamp = lock.lastPaymentTimestamp;
       const payoutInterval = lock.payoutInterval;
       const timeSinceLastPayment = new anchor.BN(
-        Math.floor(Date.now() / 1000)
+        Math.round(Date.now() / 1000)
       ).sub(lastPaymentTimestamp);
 
       if (timeSinceLastPayment.gte(payoutInterval)) {
@@ -106,7 +106,7 @@ export default function DashboardStats({
       const lastPaymentTimestamp = lock.lastPaymentTimestamp;
       const payoutInterval = lock.payoutInterval;
       const timeSinceLastPayment = new anchor.BN(
-        Math.floor(Date.now() / 1000)
+        Math.round(Date.now() / 1000)
       ).sub(lastPaymentTimestamp);
 
       if (timeSinceLastPayment.gte(payoutInterval)) {

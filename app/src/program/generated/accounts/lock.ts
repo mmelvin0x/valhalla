@@ -27,7 +27,9 @@ export type LockArgs = {
   startDate: beet.bignum
   cliffPaymentAmount: beet.bignum
   lastPaymentTimestamp: beet.bignum
-  cliffPaymentAmountPaid: boolean
+  numberOfPaymentsMade: beet.bignum
+  isCliffPaymentDisbursed: boolean
+  name: string
 }
 
 export const lockDiscriminator = [8, 255, 36, 202, 210, 22, 57, 137]
@@ -51,7 +53,9 @@ export class Lock implements LockArgs {
     readonly startDate: beet.bignum,
     readonly cliffPaymentAmount: beet.bignum,
     readonly lastPaymentTimestamp: beet.bignum,
-    readonly cliffPaymentAmountPaid: boolean
+    readonly numberOfPaymentsMade: beet.bignum,
+    readonly isCliffPaymentDisbursed: boolean,
+    readonly name: string
   ) {}
 
   /**
@@ -70,7 +74,9 @@ export class Lock implements LockArgs {
       args.startDate,
       args.cliffPaymentAmount,
       args.lastPaymentTimestamp,
-      args.cliffPaymentAmountPaid
+      args.numberOfPaymentsMade,
+      args.isCliffPaymentDisbursed,
+      args.name
     )
   }
 
@@ -114,7 +120,7 @@ export class Lock implements LockArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU'
+      'C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, lockBeet)
@@ -141,34 +147,36 @@ export class Lock implements LockArgs {
 
   /**
    * Returns the byteSize of a {@link Buffer} holding the serialized data of
-   * {@link Lock}
+   * {@link Lock} for the provided args.
+   *
+   * @param args need to be provided since the byte size for this account
+   * depends on them
    */
-  static get byteSize() {
-    return lockBeet.byteSize
+  static byteSize(args: LockArgs) {
+    const instance = Lock.fromArgs(args)
+    return lockBeet.toFixedFromValue({
+      accountDiscriminator: lockDiscriminator,
+      ...instance,
+    }).byteSize
   }
 
   /**
    * Fetches the minimum balance needed to exempt an account holding
    * {@link Lock} data from rent
    *
+   * @param args need to be provided since the byte size for this account
+   * depends on them
    * @param connection used to retrieve the rent exemption information
    */
   static async getMinimumBalanceForRentExemption(
+    args: LockArgs,
     connection: web3.Connection,
     commitment?: web3.Commitment
   ): Promise<number> {
     return connection.getMinimumBalanceForRentExemption(
-      Lock.byteSize,
+      Lock.byteSize(args),
       commitment
     )
-  }
-
-  /**
-   * Determines if the provided {@link Buffer} has the correct byte size to
-   * hold {@link Lock} data.
-   */
-  static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === Lock.byteSize
   }
 
   /**
@@ -249,7 +257,19 @@ export class Lock implements LockArgs {
         }
         return x
       })(),
-      cliffPaymentAmountPaid: this.cliffPaymentAmountPaid,
+      numberOfPaymentsMade: (() => {
+        const x = <{ toNumber: () => number }>this.numberOfPaymentsMade
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
+      isCliffPaymentDisbursed: this.isCliffPaymentDisbursed,
+      name: this.name,
     }
   }
 }
@@ -258,7 +278,7 @@ export class Lock implements LockArgs {
  * @category Accounts
  * @category generated
  */
-export const lockBeet = new beet.BeetStruct<
+export const lockBeet = new beet.FixableBeetStruct<
   Lock,
   LockArgs & {
     accountDiscriminator: number[] /* size: 8 */
@@ -277,7 +297,9 @@ export const lockBeet = new beet.BeetStruct<
     ['startDate', beet.u64],
     ['cliffPaymentAmount', beet.u64],
     ['lastPaymentTimestamp', beet.u64],
-    ['cliffPaymentAmountPaid', beet.bool],
+    ['numberOfPaymentsMade', beet.u64],
+    ['isCliffPaymentDisbursed', beet.bool],
+    ['name', beet.utf8String],
   ],
   Lock.fromArgs,
   'Lock'

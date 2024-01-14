@@ -44,7 +44,7 @@ export default function ReviewLockCard({
   );
 
   const numPayments = useMemo(
-    () => Math.ceil(vestingDuration / payoutInterval),
+    () => Math.round(vestingDuration / payoutInterval),
     [vestingDuration, payoutInterval]
   );
 

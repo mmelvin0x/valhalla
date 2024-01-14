@@ -23,13 +23,14 @@ export type CreateLockInstructionArgs = {
   startDate: beet.bignum;
   cancelAuthority: Authority;
   changeRecipientAuthority: Authority;
+  name: string;
 };
 /**
  * @category Instructions
  * @category CreateLock
  * @category generated
  */
-export const createLockStruct = new beet.BeetArgsStruct<
+export const createLockStruct = new beet.FixableBeetArgsStruct<
   CreateLockInstructionArgs & {
     instructionDiscriminator: number[] /* size: 8 */;
   }
@@ -43,6 +44,7 @@ export const createLockStruct = new beet.BeetArgsStruct<
     ["startDate", beet.u64],
     ["cancelAuthority", authorityBeet],
     ["changeRecipientAuthority", authorityBeet],
+    ["name", beet.utf8String],
   ],
   "CreateLockInstructionArgs"
 );
@@ -95,12 +97,13 @@ export const createLockInstructionDiscriminator = [
 export function createCreateLockInstruction(
   accounts: CreateLockInstructionAccounts,
   args: CreateLockInstructionArgs,
-  programId = new web3.PublicKey("BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU")
+  programId = new web3.PublicKey("C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg")
 ) {
   const [data] = createLockStruct.serialize({
     instructionDiscriminator: createLockInstructionDiscriminator,
     ...args,
   });
+  console.log("-> ~ data:", data);
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.funder,

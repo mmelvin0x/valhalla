@@ -12,7 +12,7 @@ const createErrorFromCodeLookup: Map<number, () => ErrorWithCode> = new Map()
 const createErrorFromNameLookup: Map<string, () => ErrorWithCode> = new Map()
 
 /**
- * Locked: 'The lock has not expired yet'
+ * Locked: 'The lock has not expired yet!'
  *
  * @category Errors
  * @category generated
@@ -21,7 +21,7 @@ export class LockedError extends Error {
   readonly code: number = 0x1770
   readonly name: string = 'Locked'
   constructor() {
-    super('The lock has not expired yet')
+    super('The lock has not expired yet!')
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, LockedError)
     }
@@ -32,7 +32,7 @@ createErrorFromCodeLookup.set(0x1770, () => new LockedError())
 createErrorFromNameLookup.set('Locked', () => new LockedError())
 
 /**
- * Unauthorized: 'Not authorized to perform this action'
+ * Unauthorized: 'Not authorized to perform this action!'
  *
  * @category Errors
  * @category generated
@@ -41,7 +41,7 @@ export class UnauthorizedError extends Error {
   readonly code: number = 0x1771
   readonly name: string = 'Unauthorized'
   constructor() {
-    super('Not authorized to perform this action')
+    super('Not authorized to perform this action!')
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, UnauthorizedError)
     }
@@ -52,7 +52,7 @@ createErrorFromCodeLookup.set(0x1771, () => new UnauthorizedError())
 createErrorFromNameLookup.set('Unauthorized', () => new UnauthorizedError())
 
 /**
- * InsufficientFundsForDeposit: 'You do not have enough tokens to perform this action'
+ * InsufficientFundsForDeposit: 'You do not have enough tokens to perform this action!'
  *
  * @category Errors
  * @category generated
@@ -61,7 +61,7 @@ export class InsufficientFundsForDepositError extends Error {
   readonly code: number = 0x1772
   readonly name: string = 'InsufficientFundsForDeposit'
   constructor() {
-    super('You do not have enough tokens to perform this action')
+    super('You do not have enough tokens to perform this action!')
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, InsufficientFundsForDepositError)
     }
@@ -96,6 +96,26 @@ export class NoPayoutError extends Error {
 
 createErrorFromCodeLookup.set(0x1773, () => new NoPayoutError())
 createErrorFromNameLookup.set('NoPayout', () => new NoPayoutError())
+
+/**
+ * NameTooLong: 'Name is too long!'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class NameTooLongError extends Error {
+  readonly code: number = 0x1774
+  readonly name: string = 'NameTooLong'
+  constructor() {
+    super('Name is too long!')
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, NameTooLongError)
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x1774, () => new NameTooLongError())
+createErrorFromNameLookup.set('NameTooLong', () => new NameTooLongError())
 
 /**
  * Attempts to resolve a custom program error from the provided error code.

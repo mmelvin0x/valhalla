@@ -5,7 +5,7 @@ use anchor_spl::{
     token_interface::{ Token2022, TokenAccount, Mint },
 };
 
-use crate::{ constants, errors::LockError, state::Lock, Authority };
+use crate::{ constants, errors::LockError, state::Lock, Authority, events::LockCanceled };
 
 #[derive(Accounts)]
 pub struct Cancel<'info> {
@@ -92,25 +92,24 @@ pub fn cancel_ix(ctx: Context<Cancel>) -> Result<()> {
         }
     }
 
+    let lock_key = ctx.accounts.lock.to_account_info().key();
+    let funder_key = ctx.accounts.funder.to_account_info().key();
+    let mint_key = ctx.accounts.mint.to_account_info().key();
+    let bump = ctx.bumps.lock_token_account;
+    let signer: &[&[&[u8]]] = &[
+        &[
+            lock_key.as_ref(),
+            funder_key.as_ref(),
+            mint_key.as_ref(),
+            constants::LOCK_TOKEN_ACCOUNT_SEED,
+            &[bump],
+        ],
+    ];
+
     // If the lock token account has a balance, transfer it to the funder
     if ctx.accounts.lock_token_account.amount > 0 {
-        let lock_key = ctx.accounts.lock.to_account_info().key();
-        let funder_key = ctx.accounts.funder.to_account_info().key();
-        let mint_key = ctx.accounts.mint.to_account_info().key();
-
         let lock_token_account = &ctx.accounts.lock_token_account;
         let funder_token_account = &ctx.accounts.funder_token_account;
-
-        let bump = ctx.bumps.lock_token_account;
-        let signer: &[&[&[u8]]] = &[
-            &[
-                lock_key.as_ref(),
-                funder_key.as_ref(),
-                mint_key.as_ref(),
-                constants::LOCK_TOKEN_ACCOUNT_SEED,
-                &[bump],
-            ],
-        ];
 
         let cpi_accounts = TransferChecked {
             from: lock_token_account.to_account_info(),
@@ -126,18 +125,26 @@ pub fn cancel_ix(ctx: Context<Cancel>) -> Result<()> {
             ctx.accounts.lock_token_account.amount,
             ctx.accounts.mint.decimals
         )?;
-
-        // Close the lock token account
-        let cpi_accounts = CloseAccount {
-            account: ctx.accounts.lock_token_account.to_account_info(),
-            destination: ctx.accounts.funder.to_account_info(),
-            authority: ctx.accounts.lock_token_account.to_account_info(),
-        };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-
-        token::close_account(cpi_ctx)?;
     }
+
+    // Close the lock token account
+    let cpi_accounts = CloseAccount {
+        account: ctx.accounts.lock_token_account.to_account_info(),
+        destination: ctx.accounts.funder.to_account_info(),
+        authority: ctx.accounts.lock_token_account.to_account_info(),
+    };
+    let cpi_program = ctx.accounts.token_program.to_account_info();
+    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+
+    token::close_account(cpi_ctx)?;
+
+    emit!(LockCanceled {
+        funder: ctx.accounts.funder.key(),
+        recipient: ctx.accounts.recipient.key(),
+        canceled_by: ctx.accounts.signer.key(),
+        mint: ctx.accounts.mint.to_account_info().key(),
+        name: ctx.accounts.lock.name.clone(),
+    });
 
     Ok(())
 }

@@ -10,7 +10,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { LockAccount } from "models/types";
 
 export const PROGRAM_ID = new PublicKey(
-  "BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU"
+  "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg"
 );
 
 export const TREASURY = new PublicKey(
@@ -65,23 +65,7 @@ export const getUserTokenAccountKey = (
   return getAssociatedTokenAddressSync(
     tokenMint,
     userKey,
-    true,
-    TOKEN_2022_PROGRAM_ID
-  );
-};
-
-export const getLockTokenAccount = async (
-  connection: Connection,
-  lock: LockAccount
-): Promise<Account> => {
-  return await getAccount(
-    connection,
-    getLockTokenAccountKey(
-      getLockKey(lock.funder, lock.mint),
-      lock.funder,
-      lock.mint
-    ),
-    undefined,
+    false,
     TOKEN_2022_PROGRAM_ID
   );
 };
@@ -92,3 +76,25 @@ export const getTheMint = async (
 ): Promise<Mint> => {
   return await getMint(connection, mint, undefined, TOKEN_2022_PROGRAM_ID);
 };
+
+export function getPDAs(
+  funder: PublicKey,
+  mint: PublicKey
+): [PublicKey, PublicKey, PublicKey] {
+  const [locker] = PublicKey.findProgramAddressSync([LOCKER_SEED], PROGRAM_ID);
+  const [lock] = PublicKey.findProgramAddressSync(
+    [funder.toBuffer(), mint.toBuffer(), LOCK_SEED],
+    PROGRAM_ID
+  );
+  const [lockTokenAccount] = PublicKey.findProgramAddressSync(
+    [
+      lock.toBuffer(),
+      funder.toBuffer(),
+      mint.toBuffer(),
+      LOCK_TOKEN_ACCOUNT_SEED,
+    ],
+    PROGRAM_ID
+  );
+
+  return [locker, lock, lockTokenAccount];
+}

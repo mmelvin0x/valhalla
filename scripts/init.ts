@@ -3,14 +3,14 @@ import { clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { IDL, Valhalla } from "../target/types/valhalla";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU"
+  "C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg"
 );
 
 const FEE = 0.025;
 
 const main = async () => {
   const wallet = anchor.Wallet.local();
-  console.log("wallet:", wallet);
+  console.log("👨‍💻 Deployer:", wallet.publicKey.toBase58());
 
   const connection = new anchor.web3.Connection(
     clusterApiUrl("devnet"),
@@ -20,7 +20,7 @@ const main = async () => {
   const provider = new anchor.AnchorProvider(connection, wallet, {});
   const program = new anchor.Program<Valhalla>(
     IDL,
-    VALHALLA_PROGRAM_ID, // Pass the required argument to the function
+    VALHALLA_PROGRAM_ID,
     provider
   );
 
@@ -28,7 +28,8 @@ const main = async () => {
     [Buffer.from("locker")],
     program.programId
   );
-  console.log("locker:", locker.toBase58());
+
+  console.log("🔐 Locker:", locker.toBase58());
 
   const initTx = await program.methods
     .adminInitialize(new anchor.BN(FEE * LAMPORTS_PER_SOL))
@@ -40,17 +41,14 @@ const main = async () => {
     .signers([wallet.payer])
     .rpc();
 
-  console.log("initTx:", initTx);
+  console.log("✅ Initialization Transaction:", initTx);
 
   await provider.connection.confirmTransaction(initTx, "confirmed");
 
   const lockerAccount = await program.account.locker.fetch(locker);
-  console.log("lockerAccount.admin:", lockerAccount.admin.toBase58());
-  console.log("lockerAccount.treasury:", lockerAccount.treasury.toBase58());
-  console.log(
-    "lockerAccount.fee:",
-    lockerAccount.fee.toNumber() / LAMPORTS_PER_SOL
-  );
+  console.log("🐸 Admin:", lockerAccount.admin.toBase58());
+  console.log("💰 Treasury:", lockerAccount.treasury.toBase58());
+  console.log("❤️‍🩹 Fee:", lockerAccount.fee.toNumber() / LAMPORTS_PER_SOL);
 };
 
 main()

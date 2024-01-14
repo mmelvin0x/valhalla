@@ -34,7 +34,8 @@ const Home: NextPage = () => {
           <div className="flex flex-col items-center justify-center gap-2 text-center">
             <h1>Valhalla</h1>
 
-            <p className="text-xl font-bold mb-2">Token Vesting Solutions</p>
+            <p className="text-xl font-bold">Token Vesting Solutions</p>
+            <p className="prose">Token 2022 Compatible</p>
             <div className="card-actions">
               <Link className="btn btn-primary" href="/search">
                 Search Locks

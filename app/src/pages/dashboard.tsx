@@ -34,6 +34,10 @@ export default function Dashboard() {
     const locksWhereUserIsFunder = await Lock.gpaBuilder()
       .addFilter("funder", wallet.publicKey)
       .run(connection);
+    console.log(
+      "-> ~ getFunderLocks ~ locksWhereUserIsFunder:",
+      locksWhereUserIsFunder
+    );
 
     const funderLocks = locksWhereUserIsFunder.map(
       (it) =>
@@ -76,7 +80,11 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if (program?.programId && wallet?.publicKey) {
+    if (
+      wallet?.publicKey &&
+      connected &&
+      (!userFunderLocks?.length || !userRecipientLocks?.length)
+    ) {
       getLocks(
         (userFunderLocks && userFunderLocks.length === 0) ||
           (userRecipientLocks && userRecipientLocks.length === 0)
@@ -185,6 +193,7 @@ export default function Dashboard() {
                               <div className="flex flex-col items-center gap-4">
                                 <p className="prose">No funded accounts!</p>
                                 <Link href="/create" className="btn btn-accent">
+                                  <FaPlusCircle className="inline" />
                                   Create a lock
                                 </Link>
                               </div>
@@ -208,6 +217,7 @@ export default function Dashboard() {
                               <div className="flex flex-col items-center gap-4">
                                 <p className="prose">No receivable accounts!</p>
                                 <Link href="/create" className="btn btn-accent">
+                                  <FaPlusCircle className="inline" />
                                   Create a lock
                                 </Link>
                               </div>

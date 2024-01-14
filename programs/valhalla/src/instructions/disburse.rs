@@ -5,7 +5,7 @@ use anchor_spl::{
     token_interface::{ Token2022, TokenAccount, Mint },
 };
 
-use crate::{ constants, errors::LockError, state::Lock };
+use crate::{ constants, errors::LockError, state::Lock, events::LockDisbursed };
 
 #[derive(Accounts)]
 pub struct Disburse<'info> {
@@ -65,9 +65,9 @@ pub fn disburse_ix(ctx: Context<Disburse>) -> Result<()> {
     let time_since_last_payout = current_time.checked_sub(lock.last_payment_timestamp).unwrap();
 
     if lock.start_date < current_time {
-        if lock.cliff_payment_amount > 0 && !lock.cliff_payment_amount_paid {
+        if lock.cliff_payment_amount > 0 && !lock.is_cliff_payment_disbursed {
             transfer_amount = transfer_amount.checked_add(lock.cliff_payment_amount).unwrap();
-            lock.cliff_payment_amount_paid = true;
+            lock.is_cliff_payment_disbursed = true;
         }
 
         if time_since_last_payout >= lock.payout_interval {
@@ -109,6 +109,15 @@ pub fn disburse_ix(ctx: Context<Disburse>) -> Result<()> {
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
         token::transfer_checked(cpi_ctx, transfer_amount, ctx.accounts.mint.decimals)?;
+
+        emit!(LockDisbursed {
+            recipient: ctx.accounts.recipient.key(),
+            amount: transfer_amount,
+            funder: ctx.accounts.funder.key(),
+            mint: ctx.accounts.mint.key(),
+            name: lock.name.clone(),
+            is_cliff_payment: false,
+        });
     } else {
         return Err(LockError::NoPayout.into());
     }

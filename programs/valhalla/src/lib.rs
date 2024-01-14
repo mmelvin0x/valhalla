@@ -5,6 +5,7 @@ mod constants;
 mod errors;
 mod instructions;
 mod state;
+mod events;
 
 pub use instructions::*;
 pub use state::*;
@@ -55,6 +56,7 @@ pub mod valhalla {
     /// * `cliff_payment_amount` - The amount to be paid at the cliff.
     /// * `cancel_authority` - The authority to cancel the lock.
     /// * `change_recipient_authority` - The authority to change the recipient of the lock.
+    /// * `name` - The name of the lock.
     ///
     /// # Errors
     ///
@@ -67,7 +69,8 @@ pub mod valhalla {
         cliff_payment_amount: u64,
         start_date: u64,
         cancel_authority: Authority,
-        change_recipient_authority: Authority
+        change_recipient_authority: Authority,
+        name: String
     ) -> Result<()> {
         instructions::create_ix(
             ctx,
@@ -77,7 +80,8 @@ pub mod valhalla {
             cliff_payment_amount,
             start_date,
             cancel_authority,
-            change_recipient_authority
+            change_recipient_authority,
+            name
         )
     }
 

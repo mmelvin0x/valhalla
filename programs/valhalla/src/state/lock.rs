@@ -21,11 +21,13 @@ pub struct Lock {
     pub start_date: u64,
     pub cliff_payment_amount: u64,
     pub last_payment_timestamp: u64,
-    pub cliff_payment_amount_paid: bool,
+    pub number_of_payments_made: u64,
+    pub is_cliff_payment_disbursed: bool,
+    pub name: String,
 }
 
 impl Lock {
-    pub fn size_of() -> usize {
-        8 + 32 + 32 + 32 + 1 + 1 + 8 + 8 + 8 + 8 + 8 + 8 + 1
+    pub fn size_of(name: &str) -> usize {
+        8 + 32 + 32 + 32 + 1 + 1 + 8 + 8 + 8 + 8 + 8 + 8 + 8 + 1 + 4 + name.len()
     }
 }

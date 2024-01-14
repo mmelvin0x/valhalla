@@ -5,9 +5,25 @@ use anchor_spl::{
     associated_token::AssociatedToken,
 };
 
-use crate::{ state::{ Lock, Locker }, constants, Authority, errors::LockError };
+use crate::{
+    state::{ Lock, Locker },
+    constants,
+    Authority,
+    errors::LockError,
+    events::{ LockCreated, LockDisbursed },
+};
 
 #[derive(Accounts)]
+#[instruction(
+    amount_to_be_vested: u64,
+    vesting_duration: u64,
+    payout_interval: u64,
+    cliff_payment_amount: u64,
+    start_date: u64,
+    cancel_authority: Authority,
+    change_recipient_authority: Authority,
+    name: String
+)]
 /// Represents the instruction to create a new lock.
 pub struct Create<'info> {
     #[account(mut)]
@@ -29,7 +45,7 @@ pub struct Create<'info> {
         init,
         payer = funder,
         seeds = [funder.key().as_ref(), mint.key().as_ref(), constants::LOCK_SEED],
-        space = Lock::size_of(),
+        space = Lock::size_of(name.as_str()),
         bump
     )]
     /// The lock PDA that will be created.
@@ -109,7 +125,8 @@ pub fn create_ix(
     cliff_payment_amount: u64,
     start_date: u64,
     cancel_authority: Authority,
-    change_recipient_authority: Authority
+    change_recipient_authority: Authority,
+    name: String
 ) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
     let current_time = Clock::get()?.unix_timestamp as u64;
@@ -150,6 +167,11 @@ pub fn create_ix(
         }
     }
 
+    // Throw an error if the lock name is longer than 32 characters
+    if name.len() > 32 {
+        return Err(LockError::NameTooLong.into());
+    }
+
     // Set the lock state
     lock.funder = ctx.accounts.funder.key();
     lock.recipient = ctx.accounts.recipient.key();
@@ -161,6 +183,8 @@ pub fn create_ix(
     lock.last_payment_timestamp = current_time;
     lock.start_date = start_date;
     lock.amount_per_payout = amount_per_payout;
+    lock.number_of_payments_made = 0;
+    lock.name = name.clone();
 
     // Handle the case for a lock starting on creation w/ a cliff payment
     if cliff_payment > 0 {
@@ -179,8 +203,17 @@ pub fn create_ix(
 
             // Update the lock state
             lock.cliff_payment_amount = cliff_payment;
-            lock.cliff_payment_amount_paid = true;
+            lock.is_cliff_payment_disbursed = true;
             lock.start_date = current_time;
+
+            emit!(LockDisbursed {
+                recipient: ctx.accounts.recipient.key(),
+                amount: cliff_payment,
+                funder: ctx.accounts.funder.key(),
+                mint: ctx.accounts.mint.key(),
+                name: name.clone(),
+                is_cliff_payment: true,
+            });
         } else {
             // Update the lock state
             lock.cliff_payment_amount = cliff_payment;
@@ -211,6 +244,13 @@ pub fn create_ix(
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
     system_program::transfer(cpi_ctx, ctx.accounts.locker.fee)?;
+
+    emit!(LockCreated {
+        funder: ctx.accounts.funder.key(),
+        recipient: ctx.accounts.recipient.key(),
+        mint: ctx.accounts.mint.to_account_info().key(),
+        name: ctx.accounts.lock.name.clone(),
+    });
 
     Ok(())
 }

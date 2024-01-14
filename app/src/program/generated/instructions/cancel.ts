@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from "@solana/spl-token";
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -15,11 +15,11 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export const cancelStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */;
+  instructionDiscriminator: number[] /* size: 8 */
 }>(
-  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
-  "CancelInstructionArgs"
-);
+  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
+  'CancelInstructionArgs'
+)
 /**
  * Accounts required by the _cancel_ instruction
  *
@@ -36,21 +36,21 @@ export const cancelStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type CancelInstructionAccounts = {
-  signer: web3.PublicKey;
-  funder: web3.PublicKey;
-  recipient: web3.PublicKey;
-  lock: web3.PublicKey;
-  lockTokenAccount: web3.PublicKey;
-  funderTokenAccount: web3.PublicKey;
-  mint: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  associatedTokenProgram: web3.PublicKey;
-  systemProgram?: web3.PublicKey;
-};
+  signer: web3.PublicKey
+  funder: web3.PublicKey
+  recipient: web3.PublicKey
+  lock: web3.PublicKey
+  lockTokenAccount: web3.PublicKey
+  funderTokenAccount: web3.PublicKey
+  mint: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+  associatedTokenProgram: web3.PublicKey
+  systemProgram?: web3.PublicKey
+}
 
 export const cancelInstructionDiscriminator = [
   232, 219, 223, 41, 219, 236, 220, 190,
-];
+]
 
 /**
  * Creates a _Cancel_ instruction.
@@ -62,11 +62,11 @@ export const cancelInstructionDiscriminator = [
  */
 export function createCancelInstruction(
   accounts: CancelInstructionAccounts,
-  programId = new web3.PublicKey("BgfvN8xjwoBD8YDvpDAFPZW6QxJeqrEZWvoXGg21PVzU")
+  programId = new web3.PublicKey('C572QduUUQuKezefbfFutKMgKA5uANzCu4LXXVHQbMEg')
 ) {
   const [data] = cancelStruct.serialize({
     instructionDiscriminator: cancelInstructionDiscriminator,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.signer,
@@ -118,12 +118,12 @@ export function createCancelInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

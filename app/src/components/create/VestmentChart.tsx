@@ -42,7 +42,7 @@ export default function VestmentChart({
   vestingEndDate: Date;
 }) {
   const numPayments = useMemo(
-    () => Math.ceil(vestingDuration / payoutInterval),
+    () => Math.round(vestingDuration / payoutInterval),
     [vestingDuration, payoutInterval]
   );
 
