@@ -5,13 +5,7 @@ use anchor_spl::{
     associated_token::AssociatedToken,
 };
 
-use crate::{
-    state::{ Lock, Locker },
-    constants,
-    Authority,
-    errors::LockError,
-    events::{ LockCreated, LockDisbursed },
-};
+use crate::{ state::{ Lock, Locker }, constants, Authority, errors::LockError };
 
 #[derive(Accounts)]
 #[instruction(
@@ -205,15 +199,6 @@ pub fn create_ix(
             lock.cliff_payment_amount = cliff_payment;
             lock.is_cliff_payment_disbursed = true;
             lock.start_date = current_time;
-
-            emit!(LockDisbursed {
-                recipient: ctx.accounts.recipient.key(),
-                amount: cliff_payment,
-                funder: ctx.accounts.funder.key(),
-                mint: ctx.accounts.mint.key(),
-                name: name.clone(),
-                is_cliff_payment: true,
-            });
         } else {
             // Update the lock state
             lock.cliff_payment_amount = cliff_payment;
@@ -244,13 +229,6 @@ pub fn create_ix(
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
     system_program::transfer(cpi_ctx, ctx.accounts.locker.fee)?;
-
-    emit!(LockCreated {
-        funder: ctx.accounts.funder.key(),
-        recipient: ctx.accounts.recipient.key(),
-        mint: ctx.accounts.mint.to_account_info().key(),
-        name: ctx.accounts.lock.name.clone(),
-    });
 
     Ok(())
 }

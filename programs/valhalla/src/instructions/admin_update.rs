@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{ constants, state::Locker, errors::LockError, events::AdminEvent };
+use crate::{ constants, state::Locker, errors::LockError };
 
 #[derive(Accounts)]
 /// Represents an update operation for the admin, treasury, and discount token mint of a Locker account.
@@ -43,12 +43,6 @@ pub fn admin_update_ix(ctx: Context<AdminUpdate>, new_fee: u64) -> Result<()> {
     locker.admin = ctx.accounts.new_admin.key();
     locker.treasury = ctx.accounts.new_treasury.key();
     locker.fee = new_fee;
-
-    emit!(AdminEvent {
-        admin: ctx.accounts.new_admin.key(),
-        treasury: ctx.accounts.new_treasury.key(),
-        fee: new_fee,
-    });
 
     Ok(())
 }

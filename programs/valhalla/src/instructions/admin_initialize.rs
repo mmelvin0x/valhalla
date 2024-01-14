@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{ constants, state::Locker, events::AdminEvent };
+use crate::{ constants, state::Locker };
 
 #[derive(Accounts)]
 /// Represents the initialization parameters for the admin account.
@@ -43,12 +43,6 @@ pub fn admin_initialize_ix(ctx: Context<AdminInitialize>, fee: u64) -> Result<()
     locker.fee = fee;
     locker.admin = ctx.accounts.admin.key();
     locker.treasury = ctx.accounts.treasury.key();
-
-    emit!(AdminEvent {
-        admin: ctx.accounts.admin.key(),
-        treasury: ctx.accounts.treasury.key(),
-        fee,
-    });
 
     Ok(())
 }

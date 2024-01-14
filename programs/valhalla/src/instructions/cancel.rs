@@ -5,7 +5,7 @@ use anchor_spl::{
     token_interface::{ Token2022, TokenAccount, Mint },
 };
 
-use crate::{ constants, errors::LockError, state::Lock, Authority, events::LockCanceled };
+use crate::{ constants, errors::LockError, state::Lock, Authority };
 
 #[derive(Accounts)]
 pub struct Cancel<'info> {
@@ -137,14 +137,6 @@ pub fn cancel_ix(ctx: Context<Cancel>) -> Result<()> {
     let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
     token::close_account(cpi_ctx)?;
-
-    emit!(LockCanceled {
-        funder: ctx.accounts.funder.key(),
-        recipient: ctx.accounts.recipient.key(),
-        canceled_by: ctx.accounts.signer.key(),
-        mint: ctx.accounts.mint.to_account_info().key(),
-        name: ctx.accounts.lock.name.clone(),
-    });
 
     Ok(())
 }

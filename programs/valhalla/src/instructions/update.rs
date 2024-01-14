@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{ token_interface::{ Mint, Token2022 }, associated_token::AssociatedToken };
 
-use crate::{ constants, Lock, Authority, errors::LockError, events::LockUpdated };
+use crate::{ constants, Lock, Authority, errors::LockError };
 
 #[derive(Accounts)]
 pub struct Update<'info> {
@@ -70,14 +70,6 @@ pub fn update_ix(ctx: Context<Update>) -> Result<()> {
     }
 
     lock.recipient = ctx.accounts.new_recipient.key();
-
-    emit!(LockUpdated {
-        recipient: ctx.accounts.new_recipient.key(),
-        funder: ctx.accounts.funder.key(),
-        updated_by: ctx.accounts.signer.key(),
-        mint: ctx.accounts.mint.key(),
-        name: ctx.accounts.lock.name.clone(),
-    });
 
     Ok(())
 }

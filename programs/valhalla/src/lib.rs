@@ -5,7 +5,6 @@ mod constants;
 mod errors;
 mod instructions;
 mod state;
-mod events;
 
 pub use instructions::*;
 pub use state::*;

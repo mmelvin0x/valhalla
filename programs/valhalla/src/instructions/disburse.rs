@@ -5,7 +5,7 @@ use anchor_spl::{
     token_interface::{ Token2022, TokenAccount, Mint },
 };
 
-use crate::{ constants, errors::LockError, state::Lock, events::LockDisbursed };
+use crate::{ constants, errors::LockError, state::Lock };
 
 #[derive(Accounts)]
 pub struct Disburse<'info> {
@@ -109,15 +109,6 @@ pub fn disburse_ix(ctx: Context<Disburse>) -> Result<()> {
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
         token::transfer_checked(cpi_ctx, transfer_amount, ctx.accounts.mint.decimals)?;
-
-        emit!(LockDisbursed {
-            recipient: ctx.accounts.recipient.key(),
-            amount: transfer_amount,
-            funder: ctx.accounts.funder.key(),
-            mint: ctx.accounts.mint.key(),
-            name: lock.name.clone(),
-            is_cliff_payment: false,
-        });
     } else {
         return Err(LockError::NoPayout.into());
     }
