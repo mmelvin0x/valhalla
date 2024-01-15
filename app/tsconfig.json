@@ -17,7 +17,13 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "/src/**/*"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "/src/**/*",
+    "next.config.js"
+  ],
   "exclude": ["node_modules", ".next", "./tsconfig.json"],
   "ts-node": {
     "require": ["tsconfig-paths/register"],
