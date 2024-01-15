@@ -516,7 +516,17 @@
     semver "^7.3.8"
     superstruct "^1.0.3"
 
-"@metaplex-foundation/beet@^0.7.2":
+"@metaplex-foundation/beet-solana@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/beet-solana/-/beet-solana-0.4.1.tgz#255747aa7feee1c20202146a752c057feca1948f"
+  integrity sha512-/6o32FNUtwK8tjhotrvU/vorP7umBuRFvBZrC6XCk51aKidBHe5LPVPA5AjGPbV3oftMfRuXPNd9yAGeEqeCDQ==
+  dependencies:
+    "@metaplex-foundation/beet" ">=0.1.0"
+    "@solana/web3.js" "^1.56.2"
+    bs58 "^5.0.0"
+    debug "^4.3.4"
+
+"@metaplex-foundation/beet@>=0.1.0", "@metaplex-foundation/beet@^0.7.2":
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/beet/-/beet-0.7.2.tgz#fa4726e4cfd4fb6fed6cddc9b5213c1c2a2d0b77"
   integrity sha512-K+g3WhyFxKPc0xIvcIjNyV1eaTVJTiuaHZpig7Xx0MuYRMoJLLvhLTnUXhFdR5Tu2l2QSyKwfyXDgZlzhULqFg==
@@ -1431,7 +1441,7 @@
     rpc-websockets "^7.5.1"
     superstruct "^0.14.2"
 
-"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.68.0":
+"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.56.2", "@solana/web3.js@^1.68.0":
   version "1.89.0"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.89.0.tgz#702af6bc5579cdc58706f78048298eac31fe102e"
   integrity sha512-b6PJxNL/DX+J2zccj3kzxZ6HyUF92tc8L9CjMlnTYKCdotAk163ygQ/jbHDT0yYs7pGeXAszyLuaqUXJ8bxwpA==
