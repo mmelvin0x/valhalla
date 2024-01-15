@@ -35,8 +35,8 @@ import {
   CreateLockInstructionAccounts,
   createCreateLockInstruction,
 } from "program/generated/instructions/createLock";
+// @ts-ignore
 import { Authority } from "program/generated/types/Authority";
-import * as anchor from "@coral-xyz/anchor";
 
 const Create: FC = () => {
   const router = useRouter();

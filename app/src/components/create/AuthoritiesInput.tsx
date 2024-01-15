@@ -1,3 +1,4 @@
+// @ts-ignore
 import { Authority } from "program/generated/types/Authority";
 import { Dispatch, SetStateAction, ChangeEvent } from "react";
 

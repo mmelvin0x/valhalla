@@ -15,10 +15,10 @@ import { getExplorerUrl } from "utils/explorer";
 import { shortenAddress } from "utils/formatters";
 import Image from "next/image";
 import { FaCalendar } from "react-icons/fa";
+// @ts-ignore
 import { Authority } from "program/generated/types/Authority";
 import { Lock } from "program/generated/accounts/Lock";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import axios from "axios";
 
 export class LockAccount {
   // Accounts added by me in an IFFE in the constructor
