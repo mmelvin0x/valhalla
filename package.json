@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",
+    "@metaplex-foundation/beet-solana": "^0.4.1",
     "@metaplex-foundation/js": "^0.20.1",
     "@metaplex-foundation/kinobi": "^0.16.15",
     "@metaplex-foundation/mpl-token-metadata": "^1.2.5",
