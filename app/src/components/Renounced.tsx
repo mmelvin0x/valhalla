@@ -1,4 +1,4 @@
-import { LockAccount } from "program/accounts";
+import { LockAccount } from "models/types";
 import { FC } from "react";
 import { FaExclamationCircle, FaCheckCircle } from "react-icons/fa";
 

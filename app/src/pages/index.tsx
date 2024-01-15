@@ -3,20 +3,11 @@ import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import SocialBar from "components/SocialBar";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+import useProgram from "hooks/useProgram";
 
 const Home: NextPage = () => {
-  const { connected } = useWallet();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (connected) {
-      router.push("/dashboard");
-    }
-  }, [connected]);
+  const { connected } = useProgram();
 
   return (
     <div>

@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from '@solana/spl-token'
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as splToken from "@solana/spl-token";
+import * as beet from "@metaplex-foundation/beet";
+import * as web3 from "@solana/web3.js";
 
 /**
  * @category Instructions
@@ -15,11 +15,11 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export const updateStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */
+  instructionDiscriminator: number[] /* size: 8 */;
 }>(
-  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
-  'UpdateInstructionArgs'
-)
+  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
+  "UpdateInstructionArgs"
+);
 /**
  * Accounts required by the _update_ instruction
  *
@@ -35,20 +35,20 @@ export const updateStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type UpdateInstructionAccounts = {
-  signer: web3.PublicKey
-  funder: web3.PublicKey
-  recipient: web3.PublicKey
-  newRecipient: web3.PublicKey
-  lock: web3.PublicKey
-  mint: web3.PublicKey
-  tokenProgram?: web3.PublicKey
-  associatedTokenProgram: web3.PublicKey
-  systemProgram?: web3.PublicKey
-}
+  signer: web3.PublicKey;
+  funder: web3.PublicKey;
+  recipient: web3.PublicKey;
+  newRecipient: web3.PublicKey;
+  lock: web3.PublicKey;
+  mint: web3.PublicKey;
+  tokenProgram?: web3.PublicKey;
+  associatedTokenProgram: web3.PublicKey;
+  systemProgram?: web3.PublicKey;
+};
 
 export const updateInstructionDiscriminator = [
   219, 200, 88, 176, 158, 63, 253, 127,
-]
+];
 
 /**
  * Creates a _Update_ instruction.
@@ -60,11 +60,11 @@ export const updateInstructionDiscriminator = [
  */
 export function createUpdateInstruction(
   accounts: UpdateInstructionAccounts,
-  programId = new web3.PublicKey('5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ')
+  programId = new web3.PublicKey("5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ")
 ) {
   const [data] = updateStruct.serialize({
     instructionDiscriminator: updateInstructionDiscriminator,
-  })
+  });
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.signer,
@@ -111,12 +111,12 @@ export function createUpdateInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ]
+  ];
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  })
-  return ix
+  });
+  return ix;
 }

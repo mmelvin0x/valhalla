@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Bar, Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -54,14 +54,14 @@ export default function VestmentChart({
     }
 
     return labels;
-  }, [numPayments, payoutInterval, vestingDuration, startDate, vestingEndDate]);
+  }, [numPayments, payoutInterval, startDate]);
 
   const amountPerPayout = useMemo(
     () => ({
       amount: amountToBeVested / numPayments,
       display: shortenNumber(amountToBeVested / numPayments, 2),
     }),
-    [numPayments, amountToBeVested, cliffPaymentAmount]
+    [numPayments, amountToBeVested]
   );
 
   const chartData = useMemo(() => {
@@ -101,15 +101,7 @@ export default function VestmentChart({
     }
 
     return config;
-  }, [
-    numPayments,
-    labels,
-    amountPerPayout,
-    startDate,
-    cliffPaymentAmount,
-    amountToBeVested,
-    vestingDuration,
-  ]);
+  }, [labels, amountPerPayout, cliffPaymentAmount]);
 
   return (
     <div className="card">

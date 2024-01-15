@@ -21,7 +21,7 @@ export default function SelectTokenDialog({
     } else {
       return assets;
     }
-  }, [assets, filteredAssets]);
+  }, [assets, filteredAssets, search.length]);
 
   const onSearch = (value: string) => {
     setSearch(value);
@@ -104,6 +104,7 @@ export default function SelectTokenDialog({
                     >
                       <div className="avatar mx-auto">
                         <div className="rounded-full w-8 h-8">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             className="rounded-full avatar"
                             src={asset.content.links?.["image"] || "/LP.png"}

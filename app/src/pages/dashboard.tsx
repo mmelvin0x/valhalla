@@ -3,14 +3,13 @@ import LoadingSpinner from "components/LoadingSpinner";
 import useProgram from "hooks/useProgram";
 import Head from "next/head";
 import Link from "next/link";
-import { Lock } from "program/generated";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSearch } from "react-icons/fa";
 import useLocksStore from "stores/useLocksStore";
-import { useDates } from "hooks/useDates";
 import { LockAccount } from "models/types";
 import DashboardStats from "components/dashboard/DashboardStats";
 import LockCollapse from "components/dashboard/LockCollapse";
+import { Lock } from "program/generated/accounts/lock";
 
 enum Tab {
   Recipient,
@@ -18,8 +17,7 @@ enum Tab {
 }
 
 export default function Dashboard() {
-  const { today } = useDates();
-  const { wallet, balance, connection, program, connected } = useProgram();
+  const { wallet, connection, connected } = useProgram();
   const {
     userFunderLocks,
     setUserFunderLocks,
@@ -30,7 +28,7 @@ export default function Dashboard() {
   const [tab, setTab] = useState<Tab>(Tab.Recipient);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const getFunderLocks = async () => {
+  const getFunderLocks = useCallback(async () => {
     const locksWhereUserIsFunder = await Lock.gpaBuilder()
       .addFilter("funder", wallet.publicKey)
       .run(connection);
@@ -51,9 +49,9 @@ export default function Dashboard() {
     console.log(funderLocks);
 
     setUserFunderLocks(funderLocks);
-  };
+  }, [connection, setUserFunderLocks, wallet.publicKey]);
 
-  const getRecipientLocks = async () => {
+  const getRecipientLocks = useCallback(async () => {
     const locksWhereUserIsRecipient = await Lock.gpaBuilder()
       .addFilter("recipient", wallet.publicKey)
       .run(connection);
@@ -70,14 +68,17 @@ export default function Dashboard() {
     console.log(recipientLocks);
 
     setUserRecipientLocks(recipientLocks);
-  };
+  }, [connection, setUserRecipientLocks, wallet.publicKey]);
 
-  const getLocks = async (showLoadingSpinner: boolean) => {
-    setIsLoading(showLoadingSpinner);
-    await getFunderLocks();
-    await getRecipientLocks();
-    setIsLoading(false);
-  };
+  const getLocks = useCallback(
+    async (showLoadingSpinner: boolean) => {
+      setIsLoading(showLoadingSpinner);
+      await getFunderLocks();
+      await getRecipientLocks();
+      setIsLoading(false);
+    },
+    [getFunderLocks, getRecipientLocks]
+  );
 
   useEffect(() => {
     if (
@@ -93,7 +94,16 @@ export default function Dashboard() {
       setUserFunderLocks([]);
       setUserRecipientLocks([]);
     }
-  }, [connected, tab]);
+  }, [
+    connected,
+    getLocks,
+    setUserFunderLocks,
+    setUserRecipientLocks,
+    tab,
+    userFunderLocks,
+    userRecipientLocks,
+    wallet?.publicKey,
+  ]);
 
   const claim = async (lockAcount: LockAccount) => {
     alert("Implement: Claim");
@@ -182,6 +192,7 @@ export default function Dashboard() {
                             {wallet.publicKey && !!userFunderLocks.length ? (
                               userFunderLocks.map((lock, i) => (
                                 <LockCollapse
+                                  key={lock.id.toBase58()}
                                   index={i}
                                   lock={lock}
                                   disburse={disburse}
@@ -206,6 +217,7 @@ export default function Dashboard() {
                             {wallet.publicKey && !!userRecipientLocks.length ? (
                               userRecipientLocks.map((lock, i) => (
                                 <LockCollapse
+                                  key={lock.id.toBase58()}
                                   index={i}
                                   lock={lock}
                                   disburse={disburse}

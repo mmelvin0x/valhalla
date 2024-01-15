@@ -22,11 +22,15 @@ export default function RecipientInput({
   const getPublicKeyFromSolDomain = async (
     domain: string
   ): Promise<PublicKey | null> => {
-    const { pubkey } = getDomainKeySync(domain);
-    const owner = (await NameRegistryState.retrieve(connection, pubkey))
-      .registry.owner;
+    try {
+      const { pubkey } = getDomainKeySync(domain);
+      const owner = (await NameRegistryState.retrieve(connection, pubkey))
+        .registry.owner;
 
-    return owner;
+      return owner;
+    } catch (err) {
+      return null;
+    }
   };
 
   return (
@@ -50,6 +54,7 @@ export default function RecipientInput({
             return;
           }
 
+          setRecipient(e.target.value);
           if (e.target.value.endsWith(".sol")) {
             const publicKey = await getPublicKeyFromSolDomain(e.target.value);
             if (publicKey) {
@@ -57,8 +62,6 @@ export default function RecipientInput({
               return;
             }
           }
-
-          setRecipient(e.target.value);
         }}
       />
     </div>

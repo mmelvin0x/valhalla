@@ -8,9 +8,9 @@ import {
   shortenAddress,
   shortenNumber,
 } from "utils/formatters";
-import { Authority } from "program/generated";
 import { PublicKey } from "@solana/web3.js";
 import { isPublicKey } from "@metaplex-foundation/umi";
+import { Authority } from "program/generated/types/Authority";
 
 interface ReviewLockCardProps {
   funder: PublicKey;
@@ -53,7 +53,7 @@ export default function ReviewLockCard({
       amount: Math.round(amountToBeVested / numPayments),
       display: shortenNumber(Math.round(amountToBeVested / numPayments), 2),
     }),
-    [numPayments, amountToBeVested, cliffPaymentAmount]
+    [numPayments, amountToBeVested]
   );
 
   const displayCliffAmount = useMemo(
@@ -107,7 +107,7 @@ export default function ReviewLockCard({
       isPublicKey(selectedToken?.id)
         ? shortenAddress(new PublicKey(selectedToken?.id))
         : "",
-    []
+    [selectedToken?.id]
   );
 
   return (
@@ -121,6 +121,7 @@ export default function ReviewLockCard({
                 href={getExplorerUrl(connection.rpcEndpoint, selectedToken?.id)}
                 className="rounded-full w-12 h-12 link"
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className="rounded-full avatar"
                   src={selectedToken?.content.links?.["image"] || "/LP.png"}

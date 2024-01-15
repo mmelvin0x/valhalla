@@ -1,5 +1,5 @@
-import { LockAccount } from "program/accounts";
-import { Dispatch, FC, SetStateAction, useMemo } from "react";
+import { LockAccount } from "models/types";
+import { FC, useMemo } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 
 const CloseLockDialog: FC<{
@@ -10,8 +10,7 @@ const CloseLockDialog: FC<{
     () =>
       lock
         ? (BigInt(lock.lockTokenAccount.amount)
-            ? BigInt(lock.lockTokenAccount.amount) /
-              BigInt(10 ** lock.mint.decimals)
+            ? BigInt(lock.lockTokenAccount.amount) / BigInt(10 ** lock.decimals)
             : 0
           ).toString()
         : "0",
@@ -22,8 +21,7 @@ const CloseLockDialog: FC<{
     () =>
       lock
         ? (BigInt(lock.lockTokenAccount.amount)
-            ? BigInt(lock.lockTokenAccount.amount) /
-              BigInt(10 ** lock.mint.decimals)
+            ? BigInt(lock.lockTokenAccount.amount) / BigInt(10 ** lock.decimals)
             : 0
           ).toLocaleString()
         : "0",

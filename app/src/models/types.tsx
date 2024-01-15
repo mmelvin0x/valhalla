@@ -4,21 +4,19 @@ import {
   Mint,
   TOKEN_2022_PROGRAM_ID,
   getAccount,
+  getAssociatedTokenAddressSync,
   getMint,
 } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
 import Link from "next/link";
-import {
-  getLockTokenAccountKey,
-  getLockKey,
-  getUserTokenAccountKey,
-} from "program/accounts";
-import { Authority, Lock } from "program/generated";
+import { getPDAs } from "program/accounts";
 import { ReactNode } from "react";
 import { getExplorerUrl } from "utils/explorer";
 import { shortenAddress } from "utils/formatters";
 import Image from "next/image";
 import { FaCalendar } from "react-icons/fa";
+import { Authority } from "program/generated/types/Authority";
+import { Lock } from "program/generated/accounts/lock";
 
 export type EndpointTypes = "mainnet" | "devnet" | "localnet";
 
@@ -42,7 +40,7 @@ export class LockAccount {
   startDate: anchor.BN;
   cliffPaymentAmount: anchor.BN;
   lastPaymentTimestamp: anchor.BN;
-  cliffPaymentAmountPaid: boolean;
+  isCliffPaymentDisbursed: boolean;
 
   constructor(lock: Lock, pubkey: PublicKey, public connection: Connection) {
     this.id = pubkey;
@@ -57,9 +55,11 @@ export class LockAccount {
     this.startDate = new anchor.BN(lock.startDate);
     this.cliffPaymentAmount = new anchor.BN(lock.cliffPaymentAmount);
     this.lastPaymentTimestamp = new anchor.BN(lock.lastPaymentTimestamp);
-    this.cliffPaymentAmountPaid = lock.cliffPaymentAmountPaid;
+    this.isCliffPaymentDisbursed = lock.isCliffPaymentDisbursed;
 
     (async () => {
+      const [, , lockTokenAccount] = getPDAs(lock.funder, lock.mint);
+
       this.mintInfo = await getMint(
         connection,
         lock.mint,
@@ -68,23 +68,29 @@ export class LockAccount {
       );
       this.lockTokenAccount = await getAccount(
         connection,
-        getLockTokenAccountKey(
-          getLockKey(lock.funder, lock.mint),
-          lock.funder,
-          lock.mint
-        ),
+        lockTokenAccount,
         undefined,
         TOKEN_2022_PROGRAM_ID
       );
       this.recipientTokenAccount = await getAccount(
         connection,
-        getUserTokenAccountKey(lock.recipient, lock.mint),
+        getAssociatedTokenAddressSync(
+          lock.mint,
+          lock.recipient,
+          false,
+          TOKEN_2022_PROGRAM_ID
+        ),
         undefined,
         TOKEN_2022_PROGRAM_ID
       );
       this.funderTokenAccount = await getAccount(
         connection,
-        getUserTokenAccountKey(lock.funder, lock.mint),
+        getAssociatedTokenAddressSync(
+          lock.mint,
+          lock.funder,
+          false,
+          TOKEN_2022_PROGRAM_ID
+        ),
         undefined,
         TOKEN_2022_PROGRAM_ID
       );
@@ -115,6 +121,14 @@ export class LockAccount {
       case Authority.Both:
         return user.equals(this.funder) || user.equals(this.recipient);
     }
+  }
+
+  get canMint(): boolean {
+    return this.mintInfo.mintAuthority === null;
+  }
+
+  get canFreeze(): boolean {
+    return this.mintInfo.freezeAuthority === null;
   }
 
   get displayFunder(): ReactNode {

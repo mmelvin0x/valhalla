@@ -52,6 +52,7 @@ export default function SelectTokenInput({
                 <li>
                   <div className="flex items-center gap-8">
                     <div className="rounded-full w-4 h-4">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         className="rounded-full"
                         src={

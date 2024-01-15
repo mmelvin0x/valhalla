@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
 import useProgram from "hooks/useProgram";
 import axios from "axios";
 import {
@@ -20,25 +20,22 @@ import { shortenSignature } from "utils/formatters";
 import VestmentChart from "components/create/VestmentChart";
 import { useRouter } from "next/router";
 import {
-  Authority,
-  CreateLockInstructionAccounts,
-  CreateLockInstructionArgs,
-  createCreateLockInstruction,
-} from "program/generated";
-import {
   PublicKey,
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import {
-  getPDAs,
-  getTreasuryKey,
-  getUserTokenAccountKey,
-} from "program/accounts";
+import { getPDAs, TREASURY } from "program/accounts";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_2022_PROGRAM_ID,
+  getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
+import {
+  CreateLockInstructionArgs,
+  CreateLockInstructionAccounts,
+  createCreateLockInstruction,
+} from "program/generated/instructions/createLock";
+import { Authority } from "program/generated/types/Authority";
 
 const Create: FC = () => {
   const router = useRouter();
@@ -56,7 +53,7 @@ const Create: FC = () => {
   );
   useEffect(() => {
     setVestingDuration(vestingEndDate.getTime() - startDate.getTime());
-  }, [vestingEndDate]);
+  }, [startDate, vestingEndDate]);
   const [recipient, setRecipient] = useState<string>("");
   const [payoutInterval, setPayoutInterval] = useState<number>(thirtyDays);
   const [selectedToken, setSelectedToken] = useState<DasApiAsset | null>(null);
@@ -94,38 +91,34 @@ const Create: FC = () => {
       startDate: Math.round(startDate.getTime() / 1000),
     };
 
-    Object.keys(createLockInstructionArgs).forEach((key) => {
-      console.log(key, createLockInstructionArgs[key]);
-    });
-
-    const [locker, lock, lockTokenAccount] = getPDAs(
-      wallet.publicKey,
-      new PublicKey(selectedToken.id)
+    const mint = new PublicKey(selectedToken.id);
+    const [locker, lock, lockTokenAccount] = getPDAs(wallet.publicKey, mint);
+    const funderTokenAccount = getAssociatedTokenAddressSync(
+      mint,
+      new PublicKey(wallet.publicKey),
+      false,
+      TOKEN_2022_PROGRAM_ID
+    );
+    const recipientTokenAccount = getAssociatedTokenAddressSync(
+      mint,
+      new PublicKey(recipient),
+      false,
+      TOKEN_2022_PROGRAM_ID
     );
 
     const createLockInstructionAccounts: CreateLockInstructionAccounts = {
       funder: wallet.publicKey,
       recipient: new PublicKey(recipient),
       locker,
-      treasury: getTreasuryKey(),
+      treasury: TREASURY,
       lock,
       lockTokenAccount,
-      funderTokenAccount: getUserTokenAccountKey(
-        wallet.publicKey,
-        new PublicKey(selectedToken.id)
-      ),
-      recipientTokenAccount: getUserTokenAccountKey(
-        new PublicKey(recipient),
-        new PublicKey(selectedToken.id)
-      ),
-      mint: new PublicKey(selectedToken.id),
+      funderTokenAccount,
+      recipientTokenAccount,
+      mint,
       tokenProgram: TOKEN_2022_PROGRAM_ID,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
     };
-
-    Object.keys(createLockInstructionAccounts).forEach((key) => {
-      console.log(key, createLockInstructionAccounts[key].toBase58());
-    });
 
     try {
       const createLockInstruction = createCreateLockInstruction(
@@ -175,23 +168,23 @@ const Create: FC = () => {
     }
   };
 
-  const onPageLoad = async () => {
+  const onPageLoad = useCallback(async () => {
     const {
-      data: { cursor, items, limit, total },
+      data: { items },
     } = await axios.get<DasApiAssetList>(
       `/api/getTokensByOwner/?owner=${wallet.publicKey.toString()}`
     );
 
     setAssets(items);
     setSelectedToken(items[0]);
-  };
+  }, [wallet.publicKey]);
 
   useEffect(() => {
     // Get all of the owners SPL Tokens and put them in a select/dropdown
     if (wallet?.publicKey && wallet?.signTransaction) {
       onPageLoad();
     }
-  }, [wallet?.publicKey]);
+  }, [onPageLoad, wallet?.publicKey, wallet?.signTransaction]);
 
   return (
     <>

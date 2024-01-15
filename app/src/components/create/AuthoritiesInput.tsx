@@ -1,4 +1,4 @@
-import { Authority } from "program/generated";
+import { Authority } from "program/generated/types/Authority";
 import { Dispatch, SetStateAction, ChangeEvent } from "react";
 
 export default function AuthoritiesInput({

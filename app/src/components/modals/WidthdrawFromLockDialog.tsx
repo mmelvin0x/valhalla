@@ -1,4 +1,4 @@
-import { LockAccount } from "program/accounts";
+import { LockAccount } from "models/types";
 import { Dispatch, FC, SetStateAction, useMemo } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 
@@ -12,8 +12,7 @@ const WithdrawToRecipientDialog: FC<{
     () =>
       lock
         ? (BigInt(lock.lockTokenAccount.amount)
-            ? BigInt(lock.lockTokenAccount.amount) /
-              BigInt(10 ** lock.mint.decimals)
+            ? BigInt(lock.lockTokenAccount.amount) / BigInt(10 ** lock.decimals)
             : 0
           ).toLocaleString()
         : "0",
@@ -45,7 +44,7 @@ const WithdrawToRecipientDialog: FC<{
                     Number(
                       (
                         BigInt(lock.lockTokenAccount.amount) /
-                        BigInt(10 ** lock.mint.decimals) /
+                        BigInt(10 ** lock.decimals) /
                         BigInt(2)
                       ).toString()
                     )
@@ -61,7 +60,7 @@ const WithdrawToRecipientDialog: FC<{
                     Number(
                       BigInt(
                         BigInt(lock.lockTokenAccount.amount) /
-                          BigInt(10 ** lock.mint.decimals)
+                          BigInt(10 ** lock.decimals)
                       ).toString()
                     )
                   )

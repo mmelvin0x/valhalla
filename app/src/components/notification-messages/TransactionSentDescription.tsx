@@ -1,19 +1,19 @@
 import Link from "next/link";
-import { LockAccount } from "program/accounts";
 import { FC } from "react";
 import { getExplorerUrl } from "utils/explorer";
 import { shortenSignature } from "utils/formatters";
+import useProgram from "hooks/useProgram";
 
 const TransactionSentDescription: FC<{
-  lock: LockAccount;
   signature: string;
-}> = ({ lock, signature }) => {
+}> = ({ signature }) => {
+  const { connection } = useProgram();
   return (
     <p>
       Transaction has been sent to the network. Check it at{" "}
       <Link
         className="link link-primary"
-        href={getExplorerUrl(lock.endpoint, signature)}
+        href={getExplorerUrl(connection.rpcEndpoint, signature)}
       >
         {shortenSignature(signature)}
       </Link>

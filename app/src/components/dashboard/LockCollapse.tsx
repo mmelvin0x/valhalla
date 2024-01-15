@@ -88,7 +88,7 @@ export default function LockCollapse({
               <div className="flex flex-col">
                 <span className="text-lg font-bold">Cliff Paid</span>
                 <span>
-                  {lock.cliffPaymentAmountPaid ? (
+                  {lock.isCliffPaymentDisbursed ? (
                     <span className="flex items-center text-success gap-2">
                       <FaCheckCircle size={20} /> Disbursed
                     </span>
