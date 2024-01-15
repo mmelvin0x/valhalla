@@ -15,9 +15,8 @@ import { getExplorerUrl } from "utils/explorer";
 import { shortenAddress } from "utils/formatters";
 import Image from "next/image";
 import { FaCalendar } from "react-icons/fa";
-// @ts-ignore
-import { Authority } from "program/generated/types/Authority";
-import { Lock } from "program/generated/accounts/Lock";
+import { Authority } from "program/solita/types/Authority";
+import { Lock } from "program/solita/accounts/Lock";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 
 export class LockAccount {

@@ -9,7 +9,7 @@ import useLocksStore from "stores/useLocksStore";
 import { LockAccount } from "models/Lock";
 import DashboardStats from "components/dashboard/DashboardStats";
 import LockCollapse from "components/dashboard/LockCollapse";
-import { Lock } from "program/generated/accounts/Lock";
+import { Lock } from "program/solita/accounts/Lock";
 import { getNameArg } from "utils/formatters";
 import axios from "axios";
 import { DasApiAssetList } from "@metaplex-foundation/digital-asset-standard-api";

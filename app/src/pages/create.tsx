@@ -34,9 +34,8 @@ import {
   CreateLockInstructionArgs,
   CreateLockInstructionAccounts,
   createCreateLockInstruction,
-} from "program/generated/instructions/createLock";
-// @ts-ignore
-import { Authority } from "program/generated/types/Authority";
+} from "program/solita/instructions/createLock";
+import { Authority } from "program/solita/types/Authority";
 
 const Create: FC = () => {
   const router = useRouter();

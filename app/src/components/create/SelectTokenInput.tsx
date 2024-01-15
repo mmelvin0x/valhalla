@@ -42,8 +42,11 @@ export default function SelectTokenInput({
             <ul
               className="select select-sm items-center select-bordered"
               onClick={() => {
-                // @ts-ignore
-                document.getElementById("select_token_modal").showModal();
+                (
+                  document.getElementById(
+                    "select_token_modal"
+                  ) as HTMLDialogElement
+                ).showModal();
                 setSelectedToken(null);
                 setAmountToBeVested(0);
               }}

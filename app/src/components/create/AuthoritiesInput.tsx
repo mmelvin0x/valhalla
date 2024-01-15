@@ -1,5 +1,4 @@
-// @ts-ignore
-import { Authority } from "program/generated/types/Authority";
+import { Authority } from "program/solita/types/Authority";
 import { Dispatch, SetStateAction, ChangeEvent } from "react";
 
 export default function AuthoritiesInput({
