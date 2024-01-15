@@ -20,7 +20,6 @@ import { Lock } from "program/solita/accounts/Lock";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 
 export class LockAccount {
-  // Accounts added by me in an IFFE in the constructor
   lockTokenAccount: Account;
   recipientTokenAccount: Account;
   funderTokenAccount: Account;
