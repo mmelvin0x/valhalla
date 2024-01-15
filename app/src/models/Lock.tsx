@@ -16,9 +16,9 @@ import { shortenAddress } from "utils/formatters";
 import Image from "next/image";
 import { FaCalendar } from "react-icons/fa";
 import { Authority } from "program/generated/types/Authority";
-import { Lock } from "program/generated/accounts/lock";
-
-export type EndpointTypes = "mainnet" | "devnet" | "localnet";
+import { Lock } from "program/generated/accounts/Lock";
+import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
+import axios from "axios";
 
 export class LockAccount {
   // Accounts added by me in an IFFE in the constructor
@@ -41,6 +41,8 @@ export class LockAccount {
   cliffPaymentAmount: anchor.BN;
   lastPaymentTimestamp: anchor.BN;
   isCliffPaymentDisbursed: boolean;
+  name: string;
+  das: DasApiAsset;
 
   constructor(lock: Lock, pubkey: PublicKey, public connection: Connection) {
     this.id = pubkey;
@@ -56,45 +58,45 @@ export class LockAccount {
     this.cliffPaymentAmount = new anchor.BN(lock.cliffPaymentAmount);
     this.lastPaymentTimestamp = new anchor.BN(lock.lastPaymentTimestamp);
     this.isCliffPaymentDisbursed = lock.isCliffPaymentDisbursed;
+    this.name = anchor.utils.bytes.utf8.decode(new Uint8Array(lock.name));
+  }
 
-    (async () => {
-      const [, , lockTokenAccount] = getPDAs(lock.funder, lock.mint);
-
-      this.mintInfo = await getMint(
-        connection,
+  async populateLock(connection: Connection, lock: Lock | LockAccount) {
+    const [, , lockTokenAccount] = getPDAs(lock.funder, lock.mint);
+    this.mintInfo = await getMint(
+      connection,
+      lock.mint,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
+    );
+    this.lockTokenAccount = await getAccount(
+      connection,
+      lockTokenAccount,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
+    );
+    this.recipientTokenAccount = await getAccount(
+      connection,
+      getAssociatedTokenAddressSync(
         lock.mint,
-        undefined,
+        lock.recipient,
+        false,
         TOKEN_2022_PROGRAM_ID
-      );
-      this.lockTokenAccount = await getAccount(
-        connection,
-        lockTokenAccount,
-        undefined,
+      ),
+      undefined,
+      TOKEN_2022_PROGRAM_ID
+    );
+    this.funderTokenAccount = await getAccount(
+      connection,
+      getAssociatedTokenAddressSync(
+        lock.mint,
+        lock.funder,
+        false,
         TOKEN_2022_PROGRAM_ID
-      );
-      this.recipientTokenAccount = await getAccount(
-        connection,
-        getAssociatedTokenAddressSync(
-          lock.mint,
-          lock.recipient,
-          false,
-          TOKEN_2022_PROGRAM_ID
-        ),
-        undefined,
-        TOKEN_2022_PROGRAM_ID
-      );
-      this.funderTokenAccount = await getAccount(
-        connection,
-        getAssociatedTokenAddressSync(
-          lock.mint,
-          lock.funder,
-          false,
-          TOKEN_2022_PROGRAM_ID
-        ),
-        undefined,
-        TOKEN_2022_PROGRAM_ID
-      );
-    })();
+      ),
+      undefined,
+      TOKEN_2022_PROGRAM_ID
+    );
   }
 
   canChangeRecipient(user: PublicKey): boolean {
@@ -166,7 +168,7 @@ export class LockAccount {
             target="_blank"
             href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
           >
-            Funder: {shortenAddress(this.funder)}{" "}
+            {shortenAddress(this.funder)}{" "}
             <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
           </Link>
         );
@@ -177,7 +179,7 @@ export class LockAccount {
             target="_blank"
             href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
           >
-            Recipient: {shortenAddress(this.recipient)}{" "}
+            {shortenAddress(this.recipient)}{" "}
             <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
           </Link>
         );
@@ -189,7 +191,7 @@ export class LockAccount {
               target="_blank"
               href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
             >
-              Funder: {shortenAddress(this.funder)}{" "}
+              {shortenAddress(this.funder)}{" "}
               <Image
                 src={"/solscan.png"}
                 width={20}
@@ -203,7 +205,7 @@ export class LockAccount {
               target="_blank"
               href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
             >
-              Recipient: {shortenAddress(this.recipient)}{" "}
+              {shortenAddress(this.recipient)}{" "}
               <Image
                 src={"/solscan.png"}
                 width={20}
@@ -228,7 +230,7 @@ export class LockAccount {
             target="_blank"
             href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
           >
-            Funder: {shortenAddress(this.funder)}{" "}
+            {shortenAddress(this.funder)}{" "}
             <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
           </Link>
         );
@@ -239,7 +241,7 @@ export class LockAccount {
             target="_blank"
             href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
           >
-            Recipient: {shortenAddress(this.recipient)}{" "}
+            {shortenAddress(this.recipient)}{" "}
             <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
           </Link>
         );
@@ -251,7 +253,7 @@ export class LockAccount {
               target="_blank"
               href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
             >
-              Funder: {shortenAddress(this.funder)}{" "}
+              {shortenAddress(this.funder)}{" "}
               <Image
                 src={"/solscan.png"}
                 width={20}
@@ -265,7 +267,7 @@ export class LockAccount {
               target="_blank"
               href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
             >
-              Recipient: {shortenAddress(this.recipient)}{" "}
+              {shortenAddress(this.recipient)}{" "}
               <Image
                 src={"/solscan.png"}
                 width={20}
@@ -343,7 +345,7 @@ export class LockAccount {
   }
 
   get decimals(): number {
-    return this.mintInfo.decimals;
+    return this.mintInfo?.decimals || 9;
   }
 
   get lockTokenAccountBalance(): anchor.BN {

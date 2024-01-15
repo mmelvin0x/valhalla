@@ -284,6 +284,15 @@ export type Valhalla = {
           "type": {
             "defined": "Authority"
           }
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         }
       ]
     },
@@ -565,6 +574,15 @@ export type Valhalla = {
           {
             "name": "isCliffPaymentDisbursed",
             "type": "bool"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }
@@ -907,6 +925,15 @@ export const IDL: Valhalla = {
           "type": {
             "defined": "Authority"
           }
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         }
       ]
     },
@@ -1188,6 +1215,15 @@ export const IDL: Valhalla = {
           {
             "name": "isCliffPaymentDisbursed",
             "type": "bool"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }

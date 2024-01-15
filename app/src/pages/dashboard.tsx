@@ -3,13 +3,16 @@ import LoadingSpinner from "components/LoadingSpinner";
 import useProgram from "hooks/useProgram";
 import Head from "next/head";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSearch } from "react-icons/fa";
 import useLocksStore from "stores/useLocksStore";
-import { LockAccount } from "models/types";
+import { LockAccount } from "models/Lock";
 import DashboardStats from "components/dashboard/DashboardStats";
 import LockCollapse from "components/dashboard/LockCollapse";
-import { Lock } from "program/generated/accounts/lock";
+import { Lock } from "program/generated/accounts/Lock";
+import { getNameArg } from "utils/formatters";
+import axios from "axios";
+import { DasApiAssetList } from "@metaplex-foundation/digital-asset-standard-api";
 
 enum Tab {
   Recipient,
@@ -27,15 +30,46 @@ export default function Dashboard() {
 
   const [tab, setTab] = useState<Tab>(Tab.Recipient);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [nameSearch, setNameSearch] = useState<string>("");
+
+  const onNameSearch = async (e: ChangeEvent<HTMLInputElement>) => {
+    console.log("Searching for name", e.target.value);
+    setNameSearch(e.target.value);
+    setIsLoading(true);
+    const locksWithName = await Lock.gpaBuilder()
+      .addFilter("name", getNameArg(e.target.value))
+      .run(connection);
+
+    const locks = locksWithName.map(
+      (it) =>
+        new LockAccount(
+          Lock.fromAccountInfo(it.account)[0],
+          it.pubkey,
+          connection
+        )
+    );
+
+    const mints = locks.map((it) => it.mint.toBase58());
+    const { data } = await axios.post<DasApiAssetList>(
+      "/api/getMetadataByMints",
+      { mints }
+    );
+    console.log(data);
+
+    if (tab === Tab.Funder) {
+      setUserFunderLocks(locks);
+    } else {
+      setUserRecipientLocks(locks);
+    }
+
+    setIsLoading(false);
+  };
 
   const getFunderLocks = useCallback(async () => {
+    console.log("Getting funder locks");
     const locksWhereUserIsFunder = await Lock.gpaBuilder()
       .addFilter("funder", wallet.publicKey)
       .run(connection);
-    console.log(
-      "-> ~ getFunderLocks ~ locksWhereUserIsFunder:",
-      locksWhereUserIsFunder
-    );
 
     const funderLocks = locksWhereUserIsFunder.map(
       (it) =>
@@ -46,12 +80,18 @@ export default function Dashboard() {
         )
     );
 
-    console.log(funderLocks);
+    const mints = funderLocks.map((it) => it.mint.toBase58());
+    const { data } = await axios.post<DasApiAssetList>(
+      "/api/getMetadataByMints",
+      { mints }
+    );
+    console.log(data);
 
     setUserFunderLocks(funderLocks);
   }, [connection, setUserFunderLocks, wallet.publicKey]);
 
   const getRecipientLocks = useCallback(async () => {
+    console.log("Getting recipient locks");
     const locksWhereUserIsRecipient = await Lock.gpaBuilder()
       .addFilter("recipient", wallet.publicKey)
       .run(connection);
@@ -65,22 +105,24 @@ export default function Dashboard() {
         )
     );
 
-    console.log(recipientLocks);
+    const mints = recipientLocks.map((it) => it.mint.toBase58());
+    const { data } = await axios.post<DasApiAssetList>(
+      "/api/getMetadataByMints",
+      { mints }
+    );
+    console.log(data);
 
     setUserRecipientLocks(recipientLocks);
   }, [connection, setUserRecipientLocks, wallet.publicKey]);
 
-  const getLocks = useCallback(
-    async (showLoadingSpinner: boolean) => {
+  useEffect(() => {
+    const getLocks = async (showLoadingSpinner: boolean) => {
       setIsLoading(showLoadingSpinner);
       await getFunderLocks();
       await getRecipientLocks();
       setIsLoading(false);
-    },
-    [getFunderLocks, getRecipientLocks]
-  );
+    };
 
-  useEffect(() => {
     if (
       wallet?.publicKey &&
       connected &&
@@ -94,16 +136,8 @@ export default function Dashboard() {
       setUserFunderLocks([]);
       setUserRecipientLocks([]);
     }
-  }, [
-    connected,
-    getLocks,
-    setUserFunderLocks,
-    setUserRecipientLocks,
-    tab,
-    userFunderLocks,
-    userRecipientLocks,
-    wallet?.publicKey,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected, tab, wallet?.publicKey]);
 
   const claim = async (lockAcount: LockAccount) => {
     alert("Implement: Claim");
@@ -161,14 +195,14 @@ export default function Dashboard() {
               {/* Locks */}
               <div className="card hover:shadow h-full md:col-span-2">
                 <div className="card-body min-h-80">
-                  <div className="tabs tabs-boxed mb-8">
+                  <div className="tabs tabs-boxed">
                     <div
                       className={`tab ${
                         tab === Tab.Recipient ? "tab-active" : ""
                       }`}
                       onClick={() => setTab(Tab.Recipient)}
                     >
-                      Claim
+                      Receivable
                     </div>
                     <div
                       className={`tab ${
@@ -176,30 +210,41 @@ export default function Dashboard() {
                       }`}
                       onClick={() => setTab(Tab.Funder)}
                     >
-                      Disburse
+                      Disbursable
                     </div>
                   </div>
 
                   <div className="h-80 overflow-y-scroll">
+                    <div className="form-control my-2">
+                      <input
+                        type="text"
+                        className="input input-bordered input-sm"
+                        placeholder="Search by name"
+                        value={nameSearch}
+                        onChange={onNameSearch}
+                      />
+                    </div>
                     {isLoading ? (
                       <div className="flex flex-col w-full h-full items-center justify-center">
                         <LoadingSpinner />
                       </div>
                     ) : (
-                      <>
+                      <div className="flex flex-col gap-2">
                         {tab === Tab.Funder && (
                           <>
                             {wallet.publicKey && !!userFunderLocks.length ? (
-                              userFunderLocks.map((lock, i) => (
-                                <LockCollapse
-                                  key={lock.id.toBase58()}
-                                  index={i}
-                                  lock={lock}
-                                  disburse={disburse}
-                                  cancel={cancel}
-                                  changeRecipient={changeRecipient}
-                                />
-                              ))
+                              <>
+                                {userFunderLocks.map((lock, i) => (
+                                  <LockCollapse
+                                    key={lock.id.toBase58()}
+                                    index={i}
+                                    lock={lock}
+                                    disburse={disburse}
+                                    cancel={cancel}
+                                    changeRecipient={changeRecipient}
+                                  />
+                                ))}
+                              </>
                             ) : (
                               <div className="flex flex-col items-center gap-4">
                                 <p className="prose">No funded accounts!</p>
@@ -215,16 +260,18 @@ export default function Dashboard() {
                         {tab === Tab.Recipient && (
                           <>
                             {wallet.publicKey && !!userRecipientLocks.length ? (
-                              userRecipientLocks.map((lock, i) => (
-                                <LockCollapse
-                                  key={lock.id.toBase58()}
-                                  index={i}
-                                  lock={lock}
-                                  disburse={disburse}
-                                  cancel={cancel}
-                                  changeRecipient={changeRecipient}
-                                />
-                              ))
+                              <>
+                                {userRecipientLocks.map((lock, i) => (
+                                  <LockCollapse
+                                    key={lock.id.toBase58()}
+                                    index={i}
+                                    lock={lock}
+                                    disburse={disburse}
+                                    cancel={cancel}
+                                    changeRecipient={changeRecipient}
+                                  />
+                                ))}
+                              </>
                             ) : (
                               <div className="flex flex-col items-center gap-4">
                                 <p className="prose">No receivable accounts!</p>
@@ -236,7 +283,7 @@ export default function Dashboard() {
                             )}
                           </>
                         )}
-                      </>
+                      </div>
                     )}
                   </div>
                 </div>

@@ -1,5 +1,4 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
 import { Valhalla } from "../target/types/valhalla";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
@@ -22,7 +21,7 @@ describe("⚡️ Valhalla", () => {
   const payer = (wallet as NodeWallet).payer;
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.Valhalla as Program<Valhalla>;
+  const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
 
   enum Authority {
     Neither,
@@ -31,6 +30,7 @@ describe("⚡️ Valhalla", () => {
     Both,
   }
 
+  const name = "Test Lock";
   let funder = anchor.web3.Keypair.generate();
   let recipient = anchor.web3.Keypair.generate();
 
@@ -316,6 +316,21 @@ describe("⚡️ Valhalla", () => {
         const numPayouts = vestingDuration.div(payoutInterval);
         const amountPerPayout = amountToBeVested.div(numPayouts);
         const startDate = new anchor.BN(Date.now() / 1000);
+        let nameArg = [];
+        const name_ = anchor.utils.bytes.utf8.encode(name);
+        name_.forEach((byte, i) => {
+          if (i < 32) {
+            nameArg.push(byte);
+          }
+        });
+
+        // make the nameArg 32 bytes
+        if (nameArg.length < 32) {
+          const diff = 32 - nameArg.length;
+          for (let i = 0; i < diff; i++) {
+            nameArg.push(0);
+          }
+        }
 
         try {
           const tx = await program.methods
@@ -332,7 +347,8 @@ describe("⚡️ Valhalla", () => {
               program.coder.types.decode(
                 "Authority",
                 changeRecipientAuthority.toBuffer()
-              )
+              ),
+              nameArg
             )
             .accounts({
               funder: funder.publicKey,
@@ -690,6 +706,21 @@ describe("⚡️ Valhalla", () => {
         const numPayouts = vestingDuration.div(payoutInterval);
         const amountPerPayout = amountToBeVested.div(numPayouts);
         const startDate = new anchor.BN(Date.now() / 1000);
+        let nameArg = [];
+        const name_ = anchor.utils.bytes.utf8.encode(name);
+        name_.forEach((byte, i) => {
+          if (i < 32) {
+            nameArg.push(byte);
+          }
+        });
+
+        // make the nameArg 32 bytes
+        if (nameArg.length < 32) {
+          const diff = 32 - nameArg.length;
+          for (let i = 0; i < diff; i++) {
+            nameArg.push(0);
+          }
+        }
 
         try {
           const tx = await program.methods
@@ -706,7 +737,8 @@ describe("⚡️ Valhalla", () => {
               program.coder.types.decode(
                 "Authority",
                 changeRecipientAuthority.toBuffer()
-              )
+              ),
+              nameArg
             )
             .accounts({
               funder: funder.publicKey,

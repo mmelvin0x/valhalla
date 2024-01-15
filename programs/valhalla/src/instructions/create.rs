@@ -109,7 +109,8 @@ pub fn create_ix(
     cliff_payment_amount: u64,
     start_date: u64,
     cancel_authority: Authority,
-    change_recipient_authority: Authority
+    change_recipient_authority: Authority,
+    name: [u8; 32]
 ) -> Result<()> {
     let lock = &mut ctx.accounts.lock;
     let current_time = Clock::get()?.unix_timestamp as u64;
@@ -162,6 +163,7 @@ pub fn create_ix(
     lock.start_date = start_date;
     lock.amount_per_payout = amount_per_payout;
     lock.number_of_payments_made = 0;
+    lock.name = name;
 
     // Handle the case for a lock starting on creation w/ a cliff payment
     if cliff_payment > 0 {

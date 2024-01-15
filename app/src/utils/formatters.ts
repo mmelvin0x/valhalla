@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
+import * as anchor from "@coral-xyz/anchor";
 
 export const shortenNumber = (num: number, digits: number) => {
   const lookup = [
@@ -44,4 +45,24 @@ export const secondsToDaysFromNow = (seconds: number) => {
   const days = diff / (60 * 60 * 24);
 
   return Math.round(days);
+};
+
+export const getNameArg = (name: string): number[] => {
+  let nameArg = [];
+  const name_ = anchor.utils.bytes.utf8.encode(name);
+  name_.forEach((byte, i) => {
+    if (i < 32) {
+      nameArg.push(byte);
+    }
+  });
+
+  // make the nameArg 32 bytes
+  if (nameArg.length < 32) {
+    const diff = 32 - nameArg.length;
+    for (let i = 0; i < diff; i++) {
+      nameArg.push(0);
+    }
+  }
+
+  return nameArg;
 };

@@ -23,6 +23,7 @@ pub struct Lock {
     pub last_payment_timestamp: u64,
     pub number_of_payments_made: u64,
     pub is_cliff_payment_disbursed: bool,
+    pub name: [u8; 32],
 }
 
 impl Lock {
@@ -40,6 +41,7 @@ impl Lock {
             8 + // cliff_payment_amount
             8 + // last_payment_timestamp
             8 + // number_of_payments_made
-            1 // is_cliff_payment_disbursed
+            1 + // is_cliff_payment_disbursed
+            32 // name
     }
 }

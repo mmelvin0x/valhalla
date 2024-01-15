@@ -6,7 +6,13 @@
   "scripts": {
     "copy:idl": "cp ./target/idl/valhalla.json ./app/src/program/idl.json",
     "copy:types": "cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts",
-    "post-deploy": "yarn solita && yarn copy:idl && yarn copy:types",
+    "init-locker:devnet": "anchor init locker --provider.cluster devnet",
+    "init-locker:mainnet": "anchor init locker --provider.cluster mainnet-beta",
+    "test": "anchor test",
+    "deploy:devnet": "anchor deploy --provider.cluster devnet",
+    "deploy:mainnet": "anchor deploy --provider.cluster mainnet-beta",
+    "deploy:devnet:init": "anchor deploy --provider.cluster mainnet-beta && yarn init-locker:mainnet && yarn solita && yarn copy:idl && yarn copy:types",
+    "deploy:mainnet:init": "anchor deploy --provider.cluster mainnet-beta && yarn init-locker:mainnet && yarn solita && yarn copy:idl && yarn copy:types",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
   },

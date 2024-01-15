@@ -5,10 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from "@solana/web3.js";
-import * as beet from "@metaplex-foundation/beet";
-import * as beetSolana from "@metaplex-foundation/beet-solana";
-import { Authority, authorityBeet } from "../types/Authority";
+import * as web3 from '@solana/web3.js'
+import * as beet from '@metaplex-foundation/beet'
+import * as beetSolana from '@metaplex-foundation/beet-solana'
+import { Authority, authorityBeet } from '../types/Authority'
 
 /**
  * Arguments used to create {@link Lock}
@@ -16,22 +16,23 @@ import { Authority, authorityBeet } from "../types/Authority";
  * @category generated
  */
 export type LockArgs = {
-  funder: web3.PublicKey;
-  recipient: web3.PublicKey;
-  mint: web3.PublicKey;
-  cancelAuthority: Authority;
-  changeRecipientAuthority: Authority;
-  vestingDuration: beet.bignum;
-  payoutInterval: beet.bignum;
-  amountPerPayout: beet.bignum;
-  startDate: beet.bignum;
-  cliffPaymentAmount: beet.bignum;
-  lastPaymentTimestamp: beet.bignum;
-  numberOfPaymentsMade: beet.bignum;
-  isCliffPaymentDisbursed: boolean;
-};
+  funder: web3.PublicKey
+  recipient: web3.PublicKey
+  mint: web3.PublicKey
+  cancelAuthority: Authority
+  changeRecipientAuthority: Authority
+  vestingDuration: beet.bignum
+  payoutInterval: beet.bignum
+  amountPerPayout: beet.bignum
+  startDate: beet.bignum
+  cliffPaymentAmount: beet.bignum
+  lastPaymentTimestamp: beet.bignum
+  numberOfPaymentsMade: beet.bignum
+  isCliffPaymentDisbursed: boolean
+  name: number[] /* size: 32 */
+}
 
-export const lockDiscriminator = [8, 255, 36, 202, 210, 22, 57, 137];
+export const lockDiscriminator = [8, 255, 36, 202, 210, 22, 57, 137]
 /**
  * Holds the data for the {@link Lock} Account and provides de/serialization
  * functionality for that data
@@ -53,7 +54,8 @@ export class Lock implements LockArgs {
     readonly cliffPaymentAmount: beet.bignum,
     readonly lastPaymentTimestamp: beet.bignum,
     readonly numberOfPaymentsMade: beet.bignum,
-    readonly isCliffPaymentDisbursed: boolean
+    readonly isCliffPaymentDisbursed: boolean,
+    readonly name: number[] /* size: 32 */
   ) {}
 
   /**
@@ -73,8 +75,9 @@ export class Lock implements LockArgs {
       args.cliffPaymentAmount,
       args.lastPaymentTimestamp,
       args.numberOfPaymentsMade,
-      args.isCliffPaymentDisbursed
-    );
+      args.isCliffPaymentDisbursed,
+      args.name
+    )
   }
 
   /**
@@ -85,7 +88,7 @@ export class Lock implements LockArgs {
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
   ): [Lock, number] {
-    return Lock.deserialize(accountInfo.data, offset);
+    return Lock.deserialize(accountInfo.data, offset)
   }
 
   /**
@@ -102,11 +105,11 @@ export class Lock implements LockArgs {
     const accountInfo = await connection.getAccountInfo(
       address,
       commitmentOrConfig
-    );
+    )
     if (accountInfo == null) {
-      throw new Error(`Unable to find Lock account at ${address}`);
+      throw new Error(`Unable to find Lock account at ${address}`)
     }
-    return Lock.fromAccountInfo(accountInfo, 0)[0];
+    return Lock.fromAccountInfo(accountInfo, 0)[0]
   }
 
   /**
@@ -117,10 +120,10 @@ export class Lock implements LockArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ"
+      '5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ'
     )
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, lockBeet);
+    return beetSolana.GpaBuilder.fromStruct(programId, lockBeet)
   }
 
   /**
@@ -128,7 +131,7 @@ export class Lock implements LockArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [Lock, number] {
-    return lockBeet.deserialize(buf, offset);
+    return lockBeet.deserialize(buf, offset)
   }
 
   /**
@@ -139,7 +142,7 @@ export class Lock implements LockArgs {
     return lockBeet.serialize({
       accountDiscriminator: lockDiscriminator,
       ...this,
-    });
+    })
   }
 
   /**
@@ -147,7 +150,7 @@ export class Lock implements LockArgs {
    * {@link Lock}
    */
   static get byteSize() {
-    return lockBeet.byteSize;
+    return lockBeet.byteSize
   }
 
   /**
@@ -163,7 +166,7 @@ export class Lock implements LockArgs {
     return connection.getMinimumBalanceForRentExemption(
       Lock.byteSize,
       commitment
-    );
+    )
   }
 
   /**
@@ -171,7 +174,7 @@ export class Lock implements LockArgs {
    * hold {@link Lock} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === Lock.byteSize;
+    return buf.byteLength - offset === Lock.byteSize
   }
 
   /**
@@ -183,88 +186,89 @@ export class Lock implements LockArgs {
       funder: this.funder.toBase58(),
       recipient: this.recipient.toBase58(),
       mint: this.mint.toBase58(),
-      cancelAuthority: "Authority." + Authority[this.cancelAuthority],
+      cancelAuthority: 'Authority.' + Authority[this.cancelAuthority],
       changeRecipientAuthority:
-        "Authority." + Authority[this.changeRecipientAuthority],
+        'Authority.' + Authority[this.changeRecipientAuthority],
       vestingDuration: (() => {
-        const x = <{ toNumber: () => number }>this.vestingDuration;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.vestingDuration
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       payoutInterval: (() => {
-        const x = <{ toNumber: () => number }>this.payoutInterval;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.payoutInterval
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       amountPerPayout: (() => {
-        const x = <{ toNumber: () => number }>this.amountPerPayout;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.amountPerPayout
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       startDate: (() => {
-        const x = <{ toNumber: () => number }>this.startDate;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.startDate
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       cliffPaymentAmount: (() => {
-        const x = <{ toNumber: () => number }>this.cliffPaymentAmount;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.cliffPaymentAmount
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       lastPaymentTimestamp: (() => {
-        const x = <{ toNumber: () => number }>this.lastPaymentTimestamp;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.lastPaymentTimestamp
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       numberOfPaymentsMade: (() => {
-        const x = <{ toNumber: () => number }>this.numberOfPaymentsMade;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.numberOfPaymentsMade
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       isCliffPaymentDisbursed: this.isCliffPaymentDisbursed,
-    };
+      name: this.name,
+    }
   }
 }
 
@@ -275,25 +279,26 @@ export class Lock implements LockArgs {
 export const lockBeet = new beet.BeetStruct<
   Lock,
   LockArgs & {
-    accountDiscriminator: number[] /* size: 8 */;
+    accountDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["funder", beetSolana.publicKey],
-    ["recipient", beetSolana.publicKey],
-    ["mint", beetSolana.publicKey],
-    ["cancelAuthority", authorityBeet],
-    ["changeRecipientAuthority", authorityBeet],
-    ["vestingDuration", beet.u64],
-    ["payoutInterval", beet.u64],
-    ["amountPerPayout", beet.u64],
-    ["startDate", beet.u64],
-    ["cliffPaymentAmount", beet.u64],
-    ["lastPaymentTimestamp", beet.u64],
-    ["numberOfPaymentsMade", beet.u64],
-    ["isCliffPaymentDisbursed", beet.bool],
+    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['funder', beetSolana.publicKey],
+    ['recipient', beetSolana.publicKey],
+    ['mint', beetSolana.publicKey],
+    ['cancelAuthority', authorityBeet],
+    ['changeRecipientAuthority', authorityBeet],
+    ['vestingDuration', beet.u64],
+    ['payoutInterval', beet.u64],
+    ['amountPerPayout', beet.u64],
+    ['startDate', beet.u64],
+    ['cliffPaymentAmount', beet.u64],
+    ['lastPaymentTimestamp', beet.u64],
+    ['numberOfPaymentsMade', beet.u64],
+    ['isCliffPaymentDisbursed', beet.bool],
+    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
   ],
   Lock.fromArgs,
-  "Lock"
-);
+  'Lock'
+)

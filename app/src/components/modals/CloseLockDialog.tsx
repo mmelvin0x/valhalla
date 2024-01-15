@@ -1,4 +1,4 @@
-import { LockAccount } from "models/types";
+import { LockAccount } from "models/Lock";
 import { FC, useMemo } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 

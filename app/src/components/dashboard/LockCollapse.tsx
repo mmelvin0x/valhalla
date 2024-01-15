@@ -1,7 +1,8 @@
-import { LockAccount } from "models/types";
+import { LockAccount } from "models/Lock";
 import { useMemo } from "react";
 import { shortenAddress } from "utils/formatters";
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
+import useProgram from "hooks/useProgram";
 
 export default function LockCollapse({
   index,
@@ -16,6 +17,7 @@ export default function LockCollapse({
   changeRecipient: (lock: LockAccount) => Promise<void>;
   cancel: (lock: LockAccount) => Promise<void>;
 }) {
+  const { connection } = useProgram();
   const address = useMemo(() => shortenAddress(lock.id), [lock]);
 
   return (
@@ -23,8 +25,9 @@ export default function LockCollapse({
       key={lock.id.toBase58()}
       tabIndex={index}
       className="collapse collapse-arrow border bg-base-100"
+      onClick={async () => lock.populateLock(connection, lock)}
     >
-      <div className="collapse-title font-bold">{address}</div>
+      <div className="collapse-title font-bold">{lock.name}</div>
       <div className="collapse-content">
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-wrap gap-2 col-span-2">

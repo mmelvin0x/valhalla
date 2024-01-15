@@ -1,4 +1,4 @@
-import { LockAccount } from "models/types";
+import { LockAccount } from "models/Lock";
 import { create } from "zustand";
 
 interface LocksStore {

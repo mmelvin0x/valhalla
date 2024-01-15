@@ -3,7 +3,7 @@ import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
 import useLocksStore from "stores/useLocksStore";
 import * as anchor from "@coral-xyz/anchor";
 import useProgram from "hooks/useProgram";
-import { LockAccount } from "models/types";
+import { LockAccount } from "models/Lock";
 
 export default function DashboardStats({
   claimAll,
@@ -146,7 +146,7 @@ export default function DashboardStats({
         <div className="stat-value">
           {totalLocksClaimable
             ? `${totalLocksClaimable} / ${userRecipientLocks.length}`
-            : "No Locks"}
+            : "None"}
         </div>
         <div className="stat-desc">{earliestClaimableLockDate}</div>
       </div>
@@ -164,7 +164,7 @@ export default function DashboardStats({
         <div className="stat-value">
           {totalLocksDisbursable
             ? `${totalLocksDisbursable} / ${userFunderLocks.length}`
-            : "No Locks"}
+            : "None"}
         </div>
         <div className="stat-desc">{earliestDisbursableLockDate}</div>
       </div>

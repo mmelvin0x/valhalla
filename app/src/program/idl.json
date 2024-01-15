@@ -284,6 +284,15 @@
           "type": {
             "defined": "Authority"
           }
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         }
       ]
     },
@@ -565,6 +574,15 @@
           {
             "name": "isCliffPaymentDisbursed",
             "type": "bool"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           }
         ]
       }
@@ -620,9 +638,6 @@
     }
   ],
   "metadata": {
-    "address": "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ",
-    "origin": "anchor",
-    "binaryVersion": "0.29.0",
-    "libVersion": "0.29.0"
+    "address": "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ"
   }
 }

@@ -68,7 +68,8 @@ pub mod valhalla {
         cliff_payment_amount: u64,
         start_date: u64,
         cancel_authority: Authority,
-        change_recipient_authority: Authority
+        change_recipient_authority: Authority,
+        name: [u8; 32]
     ) -> Result<()> {
         instructions::create_ix(
             ctx,
@@ -78,7 +79,8 @@ pub mod valhalla {
             cliff_payment_amount,
             start_date,
             cancel_authority,
-            change_recipient_authority
+            change_recipient_authority,
+            name
         )
     }
 

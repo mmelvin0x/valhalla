@@ -16,7 +16,7 @@ import PayoutIntervalInput from "components/create/PayoutIntervalInput";
 import CliffPaymentAmountInput from "components/create/CliffPaymentAmountInput";
 import AuthoritiesInput from "components/create/AuthoritiesInput";
 import { notify } from "utils/notifications";
-import { shortenSignature } from "utils/formatters";
+import { getNameArg, shortenSignature } from "utils/formatters";
 import VestmentChart from "components/create/VestmentChart";
 import { useRouter } from "next/router";
 import {
@@ -36,10 +36,11 @@ import {
   createCreateLockInstruction,
 } from "program/generated/instructions/createLock";
 import { Authority } from "program/generated/types/Authority";
+import * as anchor from "@coral-xyz/anchor";
 
 const Create: FC = () => {
   const router = useRouter();
-  const { wallet, connection } = useProgram();
+  const { wallet, connection, program } = useProgram();
   const { tomorrow, thirtyDays, ninetyDaysFromNow } = useDates();
 
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
@@ -89,6 +90,7 @@ const Create: FC = () => {
       vestingDuration: Math.round(Number(vestingDuration / 1000)),
       payoutInterval: Math.round(payoutInterval / 1000),
       startDate: Math.round(startDate.getTime() / 1000),
+      name: getNameArg(name),
     };
 
     const mint = new PublicKey(selectedToken.id);

@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from "@solana/web3.js";
-import * as beet from "@metaplex-foundation/beet";
-import * as beetSolana from "@metaplex-foundation/beet-solana";
+import * as web3 from '@solana/web3.js'
+import * as beet from '@metaplex-foundation/beet'
+import * as beetSolana from '@metaplex-foundation/beet-solana'
 
 /**
  * Arguments used to create {@link Locker}
@@ -15,12 +15,12 @@ import * as beetSolana from "@metaplex-foundation/beet-solana";
  * @category generated
  */
 export type LockerArgs = {
-  admin: web3.PublicKey;
-  treasury: web3.PublicKey;
-  fee: beet.bignum;
-};
+  admin: web3.PublicKey
+  treasury: web3.PublicKey
+  fee: beet.bignum
+}
 
-export const lockerDiscriminator = [74, 246, 6, 113, 249, 228, 75, 169];
+export const lockerDiscriminator = [74, 246, 6, 113, 249, 228, 75, 169]
 /**
  * Holds the data for the {@link Locker} Account and provides de/serialization
  * functionality for that data
@@ -39,7 +39,7 @@ export class Locker implements LockerArgs {
    * Creates a {@link Locker} instance from the provided args.
    */
   static fromArgs(args: LockerArgs) {
-    return new Locker(args.admin, args.treasury, args.fee);
+    return new Locker(args.admin, args.treasury, args.fee)
   }
 
   /**
@@ -50,7 +50,7 @@ export class Locker implements LockerArgs {
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
   ): [Locker, number] {
-    return Locker.deserialize(accountInfo.data, offset);
+    return Locker.deserialize(accountInfo.data, offset)
   }
 
   /**
@@ -67,11 +67,11 @@ export class Locker implements LockerArgs {
     const accountInfo = await connection.getAccountInfo(
       address,
       commitmentOrConfig
-    );
+    )
     if (accountInfo == null) {
-      throw new Error(`Unable to find Locker account at ${address}`);
+      throw new Error(`Unable to find Locker account at ${address}`)
     }
-    return Locker.fromAccountInfo(accountInfo, 0)[0];
+    return Locker.fromAccountInfo(accountInfo, 0)[0]
   }
 
   /**
@@ -82,10 +82,10 @@ export class Locker implements LockerArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ"
+      '5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ'
     )
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, lockerBeet);
+    return beetSolana.GpaBuilder.fromStruct(programId, lockerBeet)
   }
 
   /**
@@ -93,7 +93,7 @@ export class Locker implements LockerArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [Locker, number] {
-    return lockerBeet.deserialize(buf, offset);
+    return lockerBeet.deserialize(buf, offset)
   }
 
   /**
@@ -104,7 +104,7 @@ export class Locker implements LockerArgs {
     return lockerBeet.serialize({
       accountDiscriminator: lockerDiscriminator,
       ...this,
-    });
+    })
   }
 
   /**
@@ -112,7 +112,7 @@ export class Locker implements LockerArgs {
    * {@link Locker}
    */
   static get byteSize() {
-    return lockerBeet.byteSize;
+    return lockerBeet.byteSize
   }
 
   /**
@@ -128,7 +128,7 @@ export class Locker implements LockerArgs {
     return connection.getMinimumBalanceForRentExemption(
       Locker.byteSize,
       commitment
-    );
+    )
   }
 
   /**
@@ -136,7 +136,7 @@ export class Locker implements LockerArgs {
    * hold {@link Locker} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === Locker.byteSize;
+    return buf.byteLength - offset === Locker.byteSize
   }
 
   /**
@@ -148,17 +148,17 @@ export class Locker implements LockerArgs {
       admin: this.admin.toBase58(),
       treasury: this.treasury.toBase58(),
       fee: (() => {
-        const x = <{ toNumber: () => number }>this.fee;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.fee
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
-    };
+    }
   }
 }
 
@@ -169,15 +169,15 @@ export class Locker implements LockerArgs {
 export const lockerBeet = new beet.BeetStruct<
   Locker,
   LockerArgs & {
-    accountDiscriminator: number[] /* size: 8 */;
+    accountDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["admin", beetSolana.publicKey],
-    ["treasury", beetSolana.publicKey],
-    ["fee", beet.u64],
+    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['admin', beetSolana.publicKey],
+    ['treasury', beetSolana.publicKey],
+    ['fee', beet.u64],
   ],
   Locker.fromArgs,
-  "Locker"
-);
+  'Locker'
+)
