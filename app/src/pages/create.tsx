@@ -27,13 +27,13 @@ import {
 import { getPDAs, TREASURY } from "program/accounts";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
+  TOKEN_2022_PROGRAM_ID,
 } from "@solana/spl-token";
 import {
-  CreateLockInstructionArgs,
-  CreateLockInstructionAccounts,
   createCreateLockInstruction,
+  CreateLockInstructionAccounts,
+  CreateLockInstructionArgs,
 } from "program/solita/instructions/createLock";
 import { Authority } from "program/solita/types/Authority";
 
@@ -49,7 +49,7 @@ const Create: FC = () => {
   const [startDate, setStartDate] = useState<Date>(tomorrow);
   const [vestingDuration, setVestingDuration] = useState<number>(0);
   const [vestingEndDate, setVestingEndDate] = useState<Date>(
-    new Date(ninetyDaysFromNow)
+    new Date(ninetyDaysFromNow),
   );
   useEffect(() => {
     setVestingDuration(vestingEndDate.getTime() - startDate.getTime());
@@ -59,10 +59,10 @@ const Create: FC = () => {
   const [selectedToken, setSelectedToken] = useState<DasApiAsset | null>(null);
   const [amountToBeVested, setAmountToBeVested] = useState<number | string>("");
   const [cliffPaymentAmount, setCliffPaymentAmount] = useState<number | string>(
-    ""
+    "",
   );
   const [cancelAuthority, setCancelAuthority] = useState<Authority>(
-    Authority.Neither
+    Authority.Neither,
   );
   const [changeRecipientAuthority, setChangeRecipientAuthority] =
     useState<Authority>(Authority.Neither);
@@ -98,13 +98,13 @@ const Create: FC = () => {
       mint,
       new PublicKey(wallet.publicKey),
       false,
-      TOKEN_2022_PROGRAM_ID
+      TOKEN_2022_PROGRAM_ID,
     );
     const recipientTokenAccount = getAssociatedTokenAddressSync(
       mint,
       new PublicKey(recipient),
       false,
-      TOKEN_2022_PROGRAM_ID
+      TOKEN_2022_PROGRAM_ID,
     );
 
     const createLockInstructionAccounts: CreateLockInstructionAccounts = {
@@ -124,7 +124,7 @@ const Create: FC = () => {
     try {
       const createLockInstruction = createCreateLockInstruction(
         createLockInstructionAccounts,
-        createLockInstructionArgs
+        createLockInstructionArgs,
       );
 
       const latestBlockhash = await connection.getLatestBlockhash();
@@ -173,7 +173,7 @@ const Create: FC = () => {
     const {
       data: { items },
     } = await axios.get<DasApiAssetList>(
-      `/api/getTokensByOwner/?owner=${wallet.publicKey.toString()}`
+      `/api/getTokensByOwner/?owner=${wallet.publicKey.toString()}`,
     );
 
     setAssets(items);
@@ -216,7 +216,7 @@ const Create: FC = () => {
               />
             </div>
 
-            {/* TODO: resolve .sol addresses and add validations */}
+            {/* TODO-CHECK: resolve .sol addresses and add validations */}
             <RecipientInput recipient={recipient} setRecipient={setRecipient} />
 
             {/* TODO: replace default image with "UNK" */}
@@ -243,7 +243,7 @@ const Create: FC = () => {
               setPayoutInterval={setPayoutInterval}
             />
 
-            {/* TODO: Consider bringing back the swith for this */}
+            {/* TODO: Consider bringing back the switch for this */}
             <CliffPaymentAmountInput
               selectedToken={selectedToken}
               amountToBeVested={+amountToBeVested}

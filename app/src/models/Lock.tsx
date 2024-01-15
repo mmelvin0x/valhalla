@@ -1,18 +1,18 @@
 import * as anchor from "@coral-xyz/anchor";
 import {
   Account,
-  Mint,
-  TOKEN_2022_PROGRAM_ID,
   getAccount,
   getAssociatedTokenAddressSync,
   getMint,
+  Mint,
+  TOKEN_2022_PROGRAM_ID,
 } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
 import Link from "next/link";
 import { getPDAs } from "program/accounts";
 import { ReactNode } from "react";
 import { getExplorerUrl } from "utils/explorer";
-import { shortenAddress } from "utils/formatters";
+import { displayTime, shortenAddress } from "utils/formatters";
 import Image from "next/image";
 import { FaCalendar } from "react-icons/fa";
 import { Authority } from "program/solita/types/Authority";
@@ -42,7 +42,11 @@ export class LockAccount {
   name: string;
   das: DasApiAsset;
 
-  constructor(lock: Lock, pubkey: PublicKey, public connection: Connection) {
+  constructor(
+    lock: Lock,
+    pubkey: PublicKey,
+    public connection: Connection,
+  ) {
     this.id = pubkey;
     this.funder = lock.funder;
     this.recipient = lock.recipient;
@@ -65,13 +69,13 @@ export class LockAccount {
       connection,
       lock.mint,
       undefined,
-      TOKEN_2022_PROGRAM_ID
+      TOKEN_2022_PROGRAM_ID,
     );
     this.lockTokenAccount = await getAccount(
       connection,
       lockTokenAccount,
       undefined,
-      TOKEN_2022_PROGRAM_ID
+      TOKEN_2022_PROGRAM_ID,
     );
     this.recipientTokenAccount = await getAccount(
       connection,
@@ -79,10 +83,10 @@ export class LockAccount {
         lock.mint,
         lock.recipient,
         false,
-        TOKEN_2022_PROGRAM_ID
+        TOKEN_2022_PROGRAM_ID,
       ),
       undefined,
-      TOKEN_2022_PROGRAM_ID
+      TOKEN_2022_PROGRAM_ID,
     );
     this.funderTokenAccount = await getAccount(
       connection,
@@ -90,10 +94,10 @@ export class LockAccount {
         lock.mint,
         lock.funder,
         false,
-        TOKEN_2022_PROGRAM_ID
+        TOKEN_2022_PROGRAM_ID,
       ),
       undefined,
-      TOKEN_2022_PROGRAM_ID
+      TOKEN_2022_PROGRAM_ID,
     );
   }
 
@@ -123,6 +127,34 @@ export class LockAccount {
     }
   }
 
+  displayTime(seconds: number): string {
+    return displayTime(seconds);
+  }
+
+  get displayNextPayout(): ReactNode {
+    const currentTimestamp = new anchor.BN(Math.floor(Date.now() / 1000));
+
+    const lastPaymentTimestamp = this.lastPaymentTimestamp;
+    const payoutInterval = this.payoutInterval;
+    const nextPayoutTimestamp = lastPaymentTimestamp.add(payoutInterval);
+
+    return (
+      <div className="flex items-center gap-1">
+        {nextPayoutTimestamp.toNumber() > currentTimestamp.toNumber()
+          ? `${new Date(nextPayoutTimestamp.toNumber() * 1000).toLocaleString()}`
+          : "Now"}
+      </div>
+    );
+  }
+
+  get displayPayoutInterval(): ReactNode {
+    return (
+      <div className="flex items-center gap-1">
+        {this.displayTime(this.payoutIntervalAsNumberInMilliseconds / 1000)}
+      </div>
+    );
+  }
+
   get canMint(): boolean {
     return this.mintInfo.mintAuthority === null;
   }
@@ -139,7 +171,7 @@ export class LockAccount {
         href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
       >
         {shortenAddress(this.funder)}{" "}
-        <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
+        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
       </Link>
     );
   }
@@ -152,7 +184,20 @@ export class LockAccount {
         href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
       >
         {shortenAddress(this.recipient)}{" "}
-        <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
+        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+      </Link>
+    );
+  }
+
+  get displayName(): ReactNode {
+    return (
+      <Link
+        className="link link-primary flex items-center gap-1"
+        target="_blank"
+        href={getExplorerUrl(this.connection.rpcEndpoint, this.id)}
+      >
+        {this.name}{" "}
+        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
       </Link>
     );
   }
@@ -167,7 +212,7 @@ export class LockAccount {
             href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
           >
             {shortenAddress(this.funder)}{" "}
-            <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
+            <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
           </Link>
         );
       case Authority.Recipient:
@@ -178,12 +223,12 @@ export class LockAccount {
             href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
           >
             {shortenAddress(this.recipient)}{" "}
-            <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
+            <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
           </Link>
         );
       case Authority.Both:
         return (
-          <div className="flex gap-1">
+          <div className="flex flex-col gap-1">
             <Link
               className="link link-primary flex items-center gap-1"
               target="_blank"
@@ -192,8 +237,8 @@ export class LockAccount {
               {shortenAddress(this.funder)}{" "}
               <Image
                 src={"/solscan.png"}
-                width={20}
-                height={20}
+                width={14}
+                height={14}
                 alt="solscan"
               />
             </Link>
@@ -206,8 +251,8 @@ export class LockAccount {
               {shortenAddress(this.recipient)}{" "}
               <Image
                 src={"/solscan.png"}
-                width={20}
-                height={20}
+                width={14}
+                height={14}
                 alt="solscan"
               />
             </Link>
@@ -229,7 +274,7 @@ export class LockAccount {
             href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
           >
             {shortenAddress(this.funder)}{" "}
-            <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
+            <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
           </Link>
         );
       case Authority.Recipient:
@@ -240,12 +285,12 @@ export class LockAccount {
             href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
           >
             {shortenAddress(this.recipient)}{" "}
-            <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
+            <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
           </Link>
         );
       case Authority.Both:
         return (
-          <div className="flex gap-1">
+          <div className="flex flex-col gap-1">
             <Link
               className="link link-primary flex items-center gap-1"
               target="_blank"
@@ -254,8 +299,8 @@ export class LockAccount {
               {shortenAddress(this.funder)}{" "}
               <Image
                 src={"/solscan.png"}
-                width={20}
-                height={20}
+                width={14}
+                height={14}
                 alt="solscan"
               />
             </Link>
@@ -268,8 +313,8 @@ export class LockAccount {
               {shortenAddress(this.recipient)}{" "}
               <Image
                 src={"/solscan.png"}
-                width={20}
-                height={20}
+                width={14}
+                height={14}
                 alt="solscan"
               />
             </Link>
@@ -289,7 +334,7 @@ export class LockAccount {
         href={getExplorerUrl(this.connection.rpcEndpoint, this.mint)}
       >
         {shortenAddress(this.mint)}{" "}
-        <Image src={"/solscan.png"} width={20} height={20} alt="solscan" />
+        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
       </Link>
     );
   }
@@ -298,8 +343,7 @@ export class LockAccount {
     return (
       <div className="flex items-center gap-1">
         {this.lockTokenAccountBalanceAsNumberPerDecimals.toLocaleString()}{" "}
-        {/* TODO: We need to have a DAS API call in here some where */}
-        <Image src={"/LP.png"} width={20} height={20} alt="LP" />
+        <Image src={"/LP.png"} width={14} height={14} alt="LP" />
       </div>
     );
   }
@@ -307,7 +351,7 @@ export class LockAccount {
   get displayVestingEndDate(): ReactNode {
     const startDate = this.startDateAsDate;
     const endDate = new Date(
-      startDate.getTime() + this.vestingDurationAsNumberInMilliseconds
+      startDate.getTime() + this.vestingDurationAsNumberInMilliseconds,
     );
     return (
       <div className="flex items-center gap-1">

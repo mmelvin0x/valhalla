@@ -11,13 +11,7 @@ import DashboardStats from "components/dashboard/DashboardStats";
 import LockCollapse from "components/dashboard/LockCollapse";
 import { Lock } from "program/solita/accounts/Lock";
 import { getNameArg } from "utils/formatters";
-import axios from "axios";
-import { DasApiAssetList } from "@metaplex-foundation/digital-asset-standard-api";
-
-enum Tab {
-  Recipient,
-  Funder,
-}
+import { Tab } from "../utils/constants";
 
 export default function Dashboard() {
   const { wallet, connection, connected } = useProgram();
@@ -45,16 +39,9 @@ export default function Dashboard() {
         new LockAccount(
           Lock.fromAccountInfo(it.account)[0],
           it.pubkey,
-          connection
-        )
+          connection,
+        ),
     );
-
-    const mints = locks.map((it) => it.mint.toBase58());
-    const { data } = await axios.post<DasApiAssetList>(
-      "/api/getMetadataByMints",
-      { mints }
-    );
-    console.log(data);
 
     if (tab === Tab.Funder) {
       setUserFunderLocks(locks);
@@ -76,16 +63,9 @@ export default function Dashboard() {
         new LockAccount(
           Lock.fromAccountInfo(it.account)[0],
           it.pubkey,
-          connection
-        )
+          connection,
+        ),
     );
-
-    const mints = funderLocks.map((it) => it.mint.toBase58());
-    const { data } = await axios.post<DasApiAssetList>(
-      "/api/getMetadataByMints",
-      { mints }
-    );
-    console.log(data);
 
     setUserFunderLocks(funderLocks);
   }, [connection, setUserFunderLocks, wallet.publicKey]);
@@ -101,16 +81,9 @@ export default function Dashboard() {
         new LockAccount(
           Lock.fromAccountInfo(it.account)[0],
           it.pubkey,
-          connection
-        )
+          connection,
+        ),
     );
-
-    const mints = recipientLocks.map((it) => it.mint.toBase58());
-    const { data } = await axios.post<DasApiAssetList>(
-      "/api/getMetadataByMints",
-      { mints }
-    );
-    console.log(data);
 
     setUserRecipientLocks(recipientLocks);
   }, [connection, setUserRecipientLocks, wallet.publicKey]);
@@ -130,7 +103,7 @@ export default function Dashboard() {
     ) {
       getLocks(
         (userFunderLocks && userFunderLocks.length === 0) ||
-          (userRecipientLocks && userRecipientLocks.length === 0)
+          (userRecipientLocks && userRecipientLocks.length === 0),
       );
     } else {
       setUserFunderLocks([]);
@@ -233,18 +206,18 @@ export default function Dashboard() {
                         {tab === Tab.Funder && (
                           <>
                             {wallet.publicKey && !!userFunderLocks.length ? (
-                              <>
-                                {userFunderLocks.map((lock, i) => (
+                              <ul>
+                                {userFunderLocks.map((lock) => (
                                   <LockCollapse
                                     key={lock.id.toBase58()}
-                                    index={i}
+                                    tab={tab}
                                     lock={lock}
                                     disburse={disburse}
                                     cancel={cancel}
                                     changeRecipient={changeRecipient}
                                   />
                                 ))}
-                              </>
+                              </ul>
                             ) : (
                               <div className="flex flex-col items-center gap-4">
                                 <p className="prose">No funded accounts!</p>
@@ -260,18 +233,18 @@ export default function Dashboard() {
                         {tab === Tab.Recipient && (
                           <>
                             {wallet.publicKey && !!userRecipientLocks.length ? (
-                              <>
-                                {userRecipientLocks.map((lock, i) => (
+                              <ul>
+                                {userRecipientLocks.map((lock) => (
                                   <LockCollapse
                                     key={lock.id.toBase58()}
-                                    index={i}
+                                    tab={tab}
                                     lock={lock}
                                     disburse={disburse}
                                     cancel={cancel}
                                     changeRecipient={changeRecipient}
                                   />
                                 ))}
-                              </>
+                              </ul>
                             ) : (
                               <div className="flex flex-col items-center gap-4">
                                 <p className="prose">No receivable accounts!</p>

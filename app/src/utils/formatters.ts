@@ -39,12 +39,26 @@ export const getNumDaysFromMS = (ms: number) => {
   return Math.round(days);
 };
 
-export const secondsToDaysFromNow = (seconds: number) => {
-  const now = new Date().getTime() / 1000;
-  const diff = seconds - now;
-  const days = diff / (60 * 60 * 24);
+export const displayTime = (seconds: number) => {
+  const SECONDS_IN_MINUTE = 60;
+  const SECONDS_IN_HOUR = 3600;
+  const SECONDS_IN_DAY = 86400;
+  const SECONDS_IN_WEEK = 604800;
+  const SECONDS_IN_MONTH = 2629800; // Average month length in seconds
 
-  return Math.round(days);
+  if (seconds < SECONDS_IN_MINUTE) {
+    return `${seconds.toFixed(2)} Second(s)`;
+  } else if (seconds < SECONDS_IN_HOUR) {
+    return `${(seconds / SECONDS_IN_MINUTE).toFixed(2)} Minute(s)`;
+  } else if (seconds < SECONDS_IN_DAY) {
+    return `${(seconds / SECONDS_IN_HOUR).toFixed(2)} Hour(s)`;
+  } else if (seconds < SECONDS_IN_WEEK) {
+    return `${(seconds / SECONDS_IN_DAY).toFixed(2)} Day(s)`;
+  } else if (seconds < SECONDS_IN_MONTH) {
+    return `${(seconds / SECONDS_IN_WEEK).toFixed(2)} Week(s)`;
+  } else {
+    return `${(seconds / SECONDS_IN_MONTH).toFixed(2)} Month(s)`;
+  }
 };
 
 export const getNameArg = (name: string): number[] => {

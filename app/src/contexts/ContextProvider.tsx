@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 const ReactUIWalletModalProviderDynamic = dynamic(
   async () =>
     (await import("@solana/wallet-adapter-react-ui")).WalletModalProvider,
-  { ssr: false }
+  { ssr: false },
 );
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
@@ -24,9 +24,8 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const wallets = useMemo(() => [] as Adapter[], []);
 
   return (
-    // TODO: updates needed for updating and referencing endpoint: wallet adapter rework
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect={router.asPath !== "/"}>
+      <WalletProvider wallets={wallets} autoConnect={true}>
         <ReactUIWalletModalProviderDynamic>
           {children}
         </ReactUIWalletModalProviderDynamic>

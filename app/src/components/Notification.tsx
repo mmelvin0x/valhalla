@@ -9,7 +9,7 @@ import {
 
 const NotificationList = () => {
   const { notifications, set: setNotificationStore } = useNotificationStore(
-    (s) => s
+    (s) => s,
   );
 
   const reversedNotifications = [...notifications].reverse();
@@ -46,6 +46,7 @@ const Notification = ({ type, message, description, txid, onHide }: any) => {
   const { connection } = useConnection();
 
   // TODO: we dont have access to the network or endpoint here..
+  // TODO: we have connection.rpcEndpoint, but I don't remember what I was trying to do here
   // getExplorerUrl(connection., txid, 'tx')
   // Either a provider, context, and or wallet adapter related pro/contx need updated
 
