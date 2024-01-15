@@ -10,7 +10,7 @@ import {
 } from "utils/formatters";
 import { PublicKey } from "@solana/web3.js";
 import { isPublicKey } from "@metaplex-foundation/umi";
-import { Authority } from "program/generated/types/Authority";
+import { Authority } from "program/generated/types";
 
 interface ReviewLockCardProps {
   funder: PublicKey;
