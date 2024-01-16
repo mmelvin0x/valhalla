@@ -7,20 +7,16 @@ export const LOCK_TOKEN_ACCOUNT_SEED = Buffer.from("token");
 export function getPDAs(
   programId: PublicKey,
   funder: PublicKey,
+  recipient: PublicKey,
   mint: PublicKey
 ): [PublicKey, PublicKey, PublicKey] {
   const [locker] = PublicKey.findProgramAddressSync([LOCKER_SEED], programId);
   const [lock] = PublicKey.findProgramAddressSync(
-    [funder.toBuffer(), mint.toBuffer(), LOCK_SEED],
+    [funder.toBuffer(), recipient.toBuffer(), mint.toBuffer(), LOCK_SEED],
     programId
   );
   const [lockTokenAccount] = PublicKey.findProgramAddressSync(
-    [
-      lock.toBuffer(),
-      funder.toBuffer(),
-      mint.toBuffer(),
-      LOCK_TOKEN_ACCOUNT_SEED,
-    ],
+    [lock.toBuffer(), LOCK_TOKEN_ACCOUNT_SEED],
     programId
   );
 

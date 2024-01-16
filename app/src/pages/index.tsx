@@ -1,5 +1,5 @@
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import SocialBar from "components/SocialBar";
+import SocialBar from "components/ui/SocialBar";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";

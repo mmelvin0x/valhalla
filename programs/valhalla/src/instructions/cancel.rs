@@ -25,6 +25,7 @@ pub struct Cancel<'info> {
         close = funder,
         seeds = [
             funder.key().as_ref(),
+            recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::LOCK_SEED,
         ],
@@ -37,12 +38,7 @@ pub struct Cancel<'info> {
 
     #[account(
         mut,
-        seeds = [
-            lock.key().as_ref(),
-            funder.key().as_ref(),
-            mint.key().as_ref(),
-            constants::LOCK_TOKEN_ACCOUNT_SEED,
-        ],
+        seeds = [lock.key().as_ref(), constants::LOCK_TOKEN_ACCOUNT_SEED],
         bump,
         token::mint = mint,
         token::authority = lock_token_account,
@@ -93,18 +89,8 @@ pub fn cancel_ix(ctx: Context<Cancel>) -> Result<()> {
     }
 
     let lock_key = ctx.accounts.lock.to_account_info().key();
-    let funder_key = ctx.accounts.funder.to_account_info().key();
-    let mint_key = ctx.accounts.mint.to_account_info().key();
     let bump = ctx.bumps.lock_token_account;
-    let signer: &[&[&[u8]]] = &[
-        &[
-            lock_key.as_ref(),
-            funder_key.as_ref(),
-            mint_key.as_ref(),
-            constants::LOCK_TOKEN_ACCOUNT_SEED,
-            &[bump],
-        ],
-    ];
+    let signer: &[&[&[u8]]] = &[&[lock_key.as_ref(), constants::LOCK_TOKEN_ACCOUNT_SEED, &[bump]]];
 
     // If the lock token account has a balance, transfer it to the funder
     if ctx.accounts.lock_token_account.amount > 0 {

@@ -20,20 +20,16 @@ export const getTreasuryKey = (): PublicKey => {
 
 export function getPDAs(
   funder: PublicKey,
+  recipient: PublicKey,
   mint: PublicKey,
 ): [PublicKey, PublicKey, PublicKey] {
   const [locker] = PublicKey.findProgramAddressSync([LOCKER_SEED], PROGRAM_ID);
   const [lock] = PublicKey.findProgramAddressSync(
-    [funder.toBuffer(), mint.toBuffer(), LOCK_SEED],
+    [funder.toBuffer(), recipient.toBuffer(), mint.toBuffer(), LOCK_SEED],
     PROGRAM_ID,
   );
   const [lockTokenAccount] = PublicKey.findProgramAddressSync(
-    [
-      lock.toBuffer(),
-      funder.toBuffer(),
-      mint.toBuffer(),
-      LOCK_TOKEN_ACCOUNT_SEED,
-    ],
+    [lock.toBuffer(), LOCK_TOKEN_ACCOUNT_SEED],
     PROGRAM_ID,
   );
 

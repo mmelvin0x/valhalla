@@ -28,7 +28,12 @@ pub struct Create<'info> {
     #[account(
         init,
         payer = funder,
-        seeds = [funder.key().as_ref(), mint.key().as_ref(), constants::LOCK_SEED],
+        seeds = [
+            funder.key().as_ref(),
+            recipient.key().as_ref(),
+            mint.key().as_ref(),
+            constants::LOCK_SEED,
+        ],
         space = Lock::size_of(),
         bump
     )]
@@ -37,12 +42,7 @@ pub struct Create<'info> {
 
     #[account(
         init,
-        seeds = [
-            lock.key().as_ref(),
-            funder.key().as_ref(),
-            mint.key().as_ref(),
-            constants::LOCK_TOKEN_ACCOUNT_SEED,
-        ],
+        seeds = [lock.key().as_ref(), constants::LOCK_TOKEN_ACCOUNT_SEED],
         bump,
         payer = funder,
         token::mint = mint,

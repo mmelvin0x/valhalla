@@ -20,7 +20,12 @@ pub struct Disburse<'info> {
 
     #[account(
         mut,
-        seeds = [funder.key().as_ref(), mint.key().as_ref(), constants::LOCK_SEED],
+        seeds = [
+            funder.key().as_ref(),
+            recipient.key().as_ref(),
+            mint.key().as_ref(),
+            constants::LOCK_SEED
+        ],
         bump,
         has_one = mint,
         has_one = funder,
@@ -30,12 +35,7 @@ pub struct Disburse<'info> {
 
     #[account(
         mut,
-        seeds = [
-            lock.key().as_ref(),
-            funder.key().as_ref(),
-            mint.key().as_ref(),
-            constants::LOCK_TOKEN_ACCOUNT_SEED,
-        ],
+        seeds = [lock.key().as_ref(), constants::LOCK_TOKEN_ACCOUNT_SEED],
         bump,
         token::mint = mint,
         token::authority = lock_token_account,
@@ -87,17 +87,9 @@ pub fn disburse_ix(ctx: Context<Disburse>) -> Result<()> {
         }
 
         let lock_key = lock.key();
-        let funder_key = ctx.accounts.funder.key();
-        let mint_key = ctx.accounts.mint.key();
         let bump = ctx.bumps.lock_token_account;
         let signer_seeds: &[&[&[u8]]] = &[
-            &[
-                lock_key.as_ref(),
-                funder_key.as_ref(),
-                mint_key.as_ref(),
-                constants::LOCK_TOKEN_ACCOUNT_SEED,
-                &[bump],
-            ],
+            &[lock_key.as_ref(), constants::LOCK_TOKEN_ACCOUNT_SEED, &[bump]],
         ];
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_accounts = TransferChecked {

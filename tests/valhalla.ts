@@ -3,10 +3,10 @@ import { Valhalla } from "../target/types/valhalla";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
   Account,
-  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
   getAccount,
+  TOKEN_2022_PROGRAM_ID,
 } from "@solana/spl-token";
 import { assert, expect } from "chai";
 import { airdrop } from "./utils/airdrop";
@@ -31,16 +31,16 @@ describe("⚡️ Valhalla", () => {
   }
 
   const name = "Test Lock";
-  let funder = anchor.web3.Keypair.generate();
-  let recipient = anchor.web3.Keypair.generate();
+  const funder = anchor.web3.Keypair.generate();
+  const recipient = anchor.web3.Keypair.generate();
 
-  let mintKeypair = Keypair.generate();
+  const mintKeypair = Keypair.generate();
   let mint = mintKeypair.publicKey;
 
-  let decimals = 9;
-  let feeBasisPoints = 100;
-  let maxFee = BigInt(10_000 * LAMPORTS_PER_SOL);
-  let amountMinted = 10_000_000_000;
+  const decimals = 9;
+  const feeBasisPoints = 100;
+  const maxFee = BigInt(10_000 * LAMPORTS_PER_SOL);
+  const amountMinted = 10_000_000_000;
 
   let funderTokenAccount: Account;
   let recipientTokenAccount: Account;
@@ -64,7 +64,12 @@ describe("⚡️ Valhalla", () => {
         amountMinted
       );
 
-    [locker] = await getPDAs(program.programId, funder.publicKey, mint);
+    [locker] = getPDAs(
+      program.programId,
+      funder.publicKey,
+      recipient.publicKey,
+      mint
+    );
 
     const tx = await program.methods
       .adminInitialize(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
@@ -234,7 +239,7 @@ describe("⚡️ Valhalla", () => {
       await provider.connection.confirmTransaction(
         await provider.connection.requestAirdrop(
           newAdmin.publicKey,
-          1 * LAMPORTS_PER_SOL
+          LAMPORTS_PER_SOL
         ),
         "confirmed"
       );
@@ -299,9 +304,10 @@ describe("⚡️ Valhalla", () => {
             amountMinted
           );
 
-        [locker, lock, lockTokenAccount] = await getPDAs(
+        [locker, lock, lockTokenAccount] = getPDAs(
           program.programId,
           funder.publicKey,
+          recipient.publicKey,
           mint
         );
       });
@@ -623,9 +629,10 @@ describe("⚡️ Valhalla", () => {
             amountMinted
           );
 
-        [locker, lock, lockTokenAccount] = await getPDAs(
+        [locker, lock, lockTokenAccount] = getPDAs(
           program.programId,
           funder.publicKey,
+          recipient.publicKey,
           mint
         );
       });
@@ -645,9 +652,10 @@ describe("⚡️ Valhalla", () => {
             amountMinted
           );
 
-        [locker, lock, lockTokenAccount] = await getPDAs(
+        [locker, lock, lockTokenAccount] = getPDAs(
           program.programId,
           funder.publicKey,
+          recipient.publicKey,
           mint
         );
       });
@@ -667,9 +675,10 @@ describe("⚡️ Valhalla", () => {
             amountMinted
           );
 
-        [locker, lock, lockTokenAccount] = await getPDAs(
+        [locker, lock, lockTokenAccount] = getPDAs(
           program.programId,
           funder.publicKey,
+          recipient.publicKey,
           mint
         );
       });
@@ -689,9 +698,10 @@ describe("⚡️ Valhalla", () => {
             amountMinted
           );
 
-        [locker, lock, lockTokenAccount] = await getPDAs(
+        [locker, lock, lockTokenAccount] = getPDAs(
           program.programId,
           funder.publicKey,
+          recipient.publicKey,
           mint
         );
       });
@@ -1081,9 +1091,10 @@ describe("⚡️ Valhalla", () => {
             amountMinted
           );
 
-        [locker, lock, lockTokenAccount] = await getPDAs(
+        [locker, lock, lockTokenAccount] = getPDAs(
           program.programId,
           funder.publicKey,
+          recipient.publicKey,
           mint
         );
       });
@@ -1103,9 +1114,10 @@ describe("⚡️ Valhalla", () => {
             amountMinted
           );
 
-        [locker, lock, lockTokenAccount] = await getPDAs(
+        [locker, lock, lockTokenAccount] = getPDAs(
           program.programId,
           funder.publicKey,
+          recipient.publicKey,
           mint
         );
       });
@@ -1125,9 +1137,10 @@ describe("⚡️ Valhalla", () => {
             amountMinted
           );
 
-        [locker, lock, lockTokenAccount] = await getPDAs(
+        [locker, lock, lockTokenAccount] = getPDAs(
           program.programId,
           funder.publicKey,
+          recipient.publicKey,
           mint
         );
       });

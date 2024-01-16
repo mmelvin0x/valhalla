@@ -93,7 +93,12 @@ const Create: FC = () => {
     };
 
     const mint = new PublicKey(selectedToken.id);
-    const [locker, lock, lockTokenAccount] = getPDAs(wallet.publicKey, mint);
+    const recipientKey = new PublicKey(recipient);
+    const [locker, lock, lockTokenAccount] = getPDAs(
+      wallet.publicKey,
+      recipientKey,
+      mint,
+    );
     const funderTokenAccount = getAssociatedTokenAddressSync(
       mint,
       new PublicKey(wallet.publicKey),

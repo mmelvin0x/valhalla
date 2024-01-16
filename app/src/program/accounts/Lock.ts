@@ -120,7 +120,7 @@ export class Lock implements LockArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '5KUhgizPG5tiJpfzEpv1JubQsae6suZf5GKZyqDXqeoJ'
+      'AX5THjwe8LJ141rMWRcJupgReLW3bpmv4muHrd5p19Aa'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, lockBeet)

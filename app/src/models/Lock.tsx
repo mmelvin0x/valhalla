@@ -63,7 +63,11 @@ export class LockAccount {
   }
 
   async populateLock(connection: Connection, lock: Lock | LockAccount) {
-    const [, , lockTokenAccount] = getPDAs(lock.funder, lock.mint);
+    const [, , lockTokenAccount] = getPDAs(
+      lock.funder,
+      lock.recipient,
+      lock.mint,
+    );
     this.mintInfo = await getMint(
       connection,
       lock.mint,

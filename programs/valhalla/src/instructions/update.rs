@@ -24,6 +24,7 @@ pub struct Update<'info> {
         close = funder,
         seeds = [
             funder.key().as_ref(),
+            recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::LOCK_SEED,
         ],
