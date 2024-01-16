@@ -31,7 +31,7 @@ export default function DashboardStats({
       const lastPaymentTimestamp = lock.lastPaymentTimestamp;
       const payoutInterval = lock.payoutInterval;
       const timeSinceLastPayment = new anchor.BN(
-        Math.round(Date.now() / 1000)
+        Math.round(Date.now() / 1000),
       ).sub(lastPaymentTimestamp);
 
       if (timeSinceLastPayment.gte(payoutInterval)) {
@@ -58,7 +58,7 @@ export default function DashboardStats({
       const lastPaymentTimestamp = lock.lastPaymentTimestamp;
       const payoutInterval = lock.payoutInterval;
       const timeSinceLastPayment = new anchor.BN(
-        Math.round(Date.now() / 1000)
+        Math.round(Date.now() / 1000),
       ).sub(lastPaymentTimestamp);
 
       if (timeSinceLastPayment.gte(payoutInterval)) {
@@ -72,18 +72,19 @@ export default function DashboardStats({
   // TODO: This seems off
   const earliestClaimableLockDate = useMemo(() => {
     const earliestLock = userRecipientLocks.reduce((acc, lock) => {
-      const lastPaymentTimestamp = lock.lastPaymentTimestamp;
-      const payoutInterval = lock.payoutInterval;
-      const timeSinceLastPayment = new anchor.BN(
-        Math.round(Date.now() / 1000)
-      ).sub(lastPaymentTimestamp);
+      const lastPaymentTimestamp =
+        lock.lastPaymentTimestampAsNumberInMilliseconds;
+      const payoutInterval = lock.payoutIntervalAsNumberInMilliseconds;
+      const timeSinceLastPayment = Date.now() - lastPaymentTimestamp;
 
-      if (timeSinceLastPayment.gte(payoutInterval)) {
+      if (timeSinceLastPayment >= payoutInterval) {
         if (acc === null) {
           return lock;
         }
 
-        if (lastPaymentTimestamp.lt(lock.lastPaymentTimestamp)) {
+        if (
+          lastPaymentTimestamp < lock.lastPaymentTimestampAsNumberInMilliseconds
+        ) {
           return lock;
         }
       }
@@ -93,28 +94,29 @@ export default function DashboardStats({
 
     if (earliestLock) {
       return new Date(
-        earliestLock.lastPaymentTimestamp.mul(new anchor.BN(1000)).toNumber()
+        earliestLock.lastPaymentTimestampAsNumberInMilliseconds,
       ).toLocaleDateString();
     }
 
-    return null;
+    return "No locks available to claim";
   }, [userRecipientLocks]);
 
   // TODO: This seems off
   const earliestDisbursableLockDate = useMemo(() => {
     const earliestLock = userFunderLocks.reduce((acc, lock) => {
-      const lastPaymentTimestamp = lock.lastPaymentTimestamp;
-      const payoutInterval = lock.payoutInterval;
-      const timeSinceLastPayment = new anchor.BN(
-        Math.round(Date.now() / 1000)
-      ).sub(lastPaymentTimestamp);
+      const lastPaymentTimestamp =
+        lock.lastPaymentTimestampAsNumberInMilliseconds;
+      const payoutInterval = lock.payoutIntervalAsNumberInMilliseconds;
+      const timeSinceLastPayment = Date.now() - lastPaymentTimestamp;
 
-      if (timeSinceLastPayment.gte(payoutInterval)) {
+      if (timeSinceLastPayment >= payoutInterval) {
         if (acc === null) {
           return lock;
         }
 
-        if (lastPaymentTimestamp.lt(lock.lastPaymentTimestamp)) {
+        if (
+          lastPaymentTimestamp < lock.lastPaymentTimestampAsNumberInMilliseconds
+        ) {
           return lock;
         }
       }
@@ -124,11 +126,11 @@ export default function DashboardStats({
 
     if (earliestLock) {
       return new Date(
-        earliestLock.lastPaymentTimestamp.mul(new anchor.BN(1000)).toNumber()
+        earliestLock.lastPaymentTimestampAsNumberInMilliseconds,
       ).toLocaleDateString();
     }
 
-    return null;
+    return "No locks available to disburse";
   }, [userFunderLocks]);
 
   return (
@@ -144,11 +146,11 @@ export default function DashboardStats({
         )}
         <div className="stat-title">Claimable</div>
         <div className="stat-value">
-          {totalLocksClaimable
-            ? `${totalLocksClaimable} / ${userRecipientLocks.length}`
-            : "None"}
+          {userRecipientLocks.length === 0
+            ? "None"
+            : `${totalLocksClaimable} / ${userRecipientLocks.length}`}
         </div>
-        <div className="stat-desc">{earliestClaimableLockDate}</div>
+        <div className="stat-desc">{earliestClaimableLockDate || "wtf"}</div>
       </div>
 
       <div className="stat">
@@ -162,11 +164,11 @@ export default function DashboardStats({
         )}
         <div className="stat-title">Disbursable</div>
         <div className="stat-value">
-          {totalLocksDisbursable
-            ? `${totalLocksDisbursable} / ${userFunderLocks.length}`
-            : "None"}
+          {userFunderLocks.length === 0
+            ? "None"
+            : `${totalLocksClaimable} / ${userFunderLocks.length}`}
         </div>
-        <div className="stat-desc">{earliestDisbursableLockDate}</div>
+        <div className="stat-desc">{earliestDisbursableLockDate || "wtf"}</div>
       </div>
 
       <div className="stat">

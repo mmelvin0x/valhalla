@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaTwitter, FaTelegram, FaMedium, FaDiscord } from "react-icons/fa";
+import { FaDiscord, FaMedium, FaTelegram, FaTwitter } from "react-icons/fa";
 
 export default function SocialBar() {
   return (
@@ -9,7 +9,7 @@ export default function SocialBar() {
           <Link
             target="_blank"
             rel="noreferrer"
-            href="https://twitter.com/valhalla"
+            href="https://twitter.com/Valhalla_so"
             className="btn btn-ghost btn-circle"
           >
             <FaTwitter className="w-8 h-8" />

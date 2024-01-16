@@ -27,7 +27,7 @@ export default function LockCollapse({
     <>
       <li
         key={lock.id.toBase58()}
-        className="flex flex-wrap border rounded-lg p-1 items-center gap-1 md:justify-between"
+        className="flex flex-wrap border rounded-lg p-2 items-center gap-1 my-1 md:justify-between cursor-pointer hover:bg-base-200 transition-colors"
         onClick={async () => {
           if (!showDetails) {
             setLoading(true);
@@ -39,19 +39,27 @@ export default function LockCollapse({
         }}
       >
         <div className="font-bold">{lock.displayName}</div>
+
+        <div className="font-bold flex items-center gap-1 text-xs">
+          Token: {lock.displayTokenMint}
+        </div>
+
         {tab === Tab.Recipient && (
           <div className="font-bold flex items-center gap-1">
             Funder: {lock.displayFunder}
           </div>
         )}
+
         {tab === Tab.Funder && (
           <div className="font-bold flex items-center gap-1 text-xs">
             Recipient: {lock.displayRecipient}
           </div>
         )}
+
         <div className="font-bold flex items-center gap-1 text-xs">
           Next: {lock.displayNextPayout}
         </div>
+
         <button className="btn btn-xs btn-ghost">
           {showDetails ? <FaCaretUp /> : <FaCaretDown />}
         </button>

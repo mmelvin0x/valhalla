@@ -22,11 +22,15 @@ const Home: NextPage = () => {
       {/* Hero Section */}
       <div className="py-20">
         <div className="grid grid-cols-1 p-4 md:grid-cols-2">
-          <div className="flex flex-col items-center justify-center gap-2 text-center">
+          <div className="flex flex-col items-center justify-center gap-4 text-center">
             <h1>Valhalla</h1>
 
-            <p className="text-xl font-bold">Token Vesting Solutions</p>
-            <p className="prose">Token 2022 Compatible</p>
+            <p className="text-xl font-bold">
+              Token 2022 Compatible Vesting Solutions
+            </p>
+            <p className="prose">
+              Token Locks - Vesting Schedules - Micro Payments
+            </p>
             <div className="card-actions">
               <Link className="btn btn-primary" href="/search">
                 Search Locks

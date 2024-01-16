@@ -162,11 +162,11 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <DashboardStats claimAll={claimAll} disburseAll={disburseAll} />
 
               {/* Locks */}
-              <div className="card hover:shadow h-full md:col-span-2">
+              <div className="card hover:shadow h-full md:col-span-3">
                 <div className="card-body min-h-80">
                   <div className="tabs tabs-boxed">
                     <div
@@ -183,7 +183,7 @@ export default function Dashboard() {
                       }`}
                       onClick={() => setTab(Tab.Funder)}
                     >
-                      Disbursable
+                      Funded by me
                     </div>
                   </div>
 

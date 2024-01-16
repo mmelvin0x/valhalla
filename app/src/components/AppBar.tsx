@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FaChartPie, FaPlusCircle, FaSearch } from "react-icons/fa";
+import { FaChartPie, FaHome, FaPlusCircle, FaSearch } from "react-icons/fa";
 
 export const AppBar: FC<PropsWithChildren> = (props) => {
   const { connected } = useWallet();
@@ -15,8 +15,8 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
     return connection.rpcEndpoint.toLowerCase().includes("mainnet")
       ? "Mainnet-beta"
       : connection.rpcEndpoint.toLowerCase().includes("devnet")
-      ? "Devnet"
-      : "Local";
+        ? "Devnet"
+        : "Local";
   }, [connection]);
 
   return (
@@ -30,6 +30,17 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
               <h3 className="hidden md:block">Valhalla</h3>
             </summary>
             <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+              <li>
+                <Link
+                  href="/"
+                  className={`flex items-center gap-1 link link-hover font-bold ${
+                    router.pathname === "/" ? "link underline" : ""
+                  }`}
+                >
+                  <FaHome className="inline" />
+                  Home
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/dashboard"
@@ -74,6 +85,16 @@ export const AppBar: FC<PropsWithChildren> = (props) => {
         {/* Nav Links */}
         <div className="hidden lg:inline lg:navbar-center">
           <div className="flex gap-8 items-stretch">
+            <Link
+              href="/"
+              className={`flex items-center gap-1 link link-hover font-bold ${
+                router.pathname === "/" ? "link underline" : ""
+              }`}
+            >
+              <FaHome className="inline" />
+              Home
+            </Link>
+
             <Link
               href="/dashboard"
               className={`flex items-center gap-1 link link-hover font-bold ${
