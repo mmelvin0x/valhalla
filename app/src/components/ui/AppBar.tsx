@@ -1,9 +1,9 @@
-import { FC, PropsWithChildren, useMemo } from "react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import Image from "next/image";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { FC, PropsWithChildren, useMemo } from "react";
 import { FaChartPie, FaHome, FaPlusCircle, FaSearch } from "react-icons/fa";
 
 export const AppBar: FC<PropsWithChildren> = (props) => {

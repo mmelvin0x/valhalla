@@ -1,5 +1,5 @@
-import { FC } from "react";
 import Image from "next/image";
+import { FC } from "react";
 
 interface LoadingSpinnerProps {
   size?: number;

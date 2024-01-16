@@ -1,10 +1,10 @@
 import { LockAccount } from "models/Lock";
+import useProgram from "program/useProgram";
 import { useState } from "react";
-import useProgram from "hooks/useProgram";
-import LockDetails from "./LockDetails";
-import { Tab } from "../../utils/constants";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
-import LoadingSpinner from "../LoadingSpinner";
+import { Tab } from "../../utils/constants";
+import LoadingSpinner from "../ui/LoadingSpinner";
+import LockDetails from "./LockDetails";
 
 export default function LockCollapse({
   tab,
@@ -57,7 +57,7 @@ export default function LockCollapse({
         )}
 
         <div className="font-bold flex items-center gap-1 text-xs">
-          Next: {lock.displayNextPayout}
+          Next Payout: {lock.displayNextPayout}
         </div>
 
         <button className="btn btn-xs btn-ghost">

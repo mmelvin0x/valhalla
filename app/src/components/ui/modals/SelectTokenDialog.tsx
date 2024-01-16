@@ -1,5 +1,5 @@
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import AddressBadge from "components/AddressBadge";
+import AddressBadge from "components/ui/AddressBadge";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 

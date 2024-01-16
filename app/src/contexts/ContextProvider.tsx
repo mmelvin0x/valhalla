@@ -4,10 +4,10 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { clusterApiUrl } from "@solana/web3.js";
-import { FC, ReactNode, useMemo } from "react";
-import { AutoConnectProvider } from "./AutoConnectProvider";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
+import { FC, ReactNode, useMemo } from "react";
+import { AutoConnectProvider } from "./AutoConnectProvider";
 
 const ReactUIWalletModalProviderDynamic = dynamic(
   async () =>

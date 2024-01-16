@@ -1,5 +1,5 @@
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import create from "zustand";
-import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 interface UserSOLBalanceStore {
   balance: number;

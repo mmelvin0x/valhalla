@@ -1,5 +1,5 @@
-import { Authority } from "program/solita/types/Authority";
-import { Dispatch, SetStateAction, ChangeEvent } from "react";
+import { Authority } from "program";
+import { ChangeEvent, Dispatch, SetStateAction } from "react";
 
 export default function AuthoritiesInput({
   cancelAuthority,

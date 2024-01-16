@@ -1,4 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
+import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import {
   Account,
   getAccount,
@@ -8,16 +9,14 @@ import {
   TOKEN_2022_PROGRAM_ID,
 } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
+import Image from "next/image";
 import Link from "next/link";
-import { getPDAs } from "program/accounts";
+import { Authority, Lock } from "program";
 import { ReactNode } from "react";
+import { FaCalendar, FaExclamationCircle } from "react-icons/fa";
+import { getPDAs } from "utils/constants";
 import { getExplorerUrl } from "utils/explorer";
 import { displayTime, shortenAddress } from "utils/formatters";
-import Image from "next/image";
-import { FaCalendar } from "react-icons/fa";
-import { Authority } from "program/solita/types/Authority";
-import { Lock } from "program/solita/accounts/Lock";
-import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 
 export class LockAccount {
   lockTokenAccount: Account;
@@ -140,9 +139,13 @@ export class LockAccount {
 
     return (
       <div className="flex items-center gap-1">
-        {nextPayoutTimestamp.toNumber() > currentTimestamp.toNumber()
-          ? `${new Date(nextPayoutTimestamp.toNumber() * 1000).toLocaleString()}`
-          : "Now"}
+        {nextPayoutTimestamp.toNumber() > currentTimestamp.toNumber() ? (
+          `${new Date(nextPayoutTimestamp.toNumber() * 1000).toLocaleString()}`
+        ) : (
+          <button className="flex items-center gap-1 text-success">
+            Now <FaExclamationCircle />
+          </button>
+        )}
       </div>
     );
   }

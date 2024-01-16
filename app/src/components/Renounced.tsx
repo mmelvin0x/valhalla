@@ -1,6 +1,6 @@
 import { LockAccount } from "models/Lock";
 import { FC } from "react";
-import { FaExclamationCircle, FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 interface RenouncedProps {
   lock: LockAccount;

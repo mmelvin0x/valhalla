@@ -1,17 +1,17 @@
-import { useMemo } from "react";
-import { Bar } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
+  BarElement,
   CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
+  Chart as ChartJS,
   Filler,
   Legend,
-  BarElement,
+  LineElement,
+  LinearScale,
+  PointElement,
+  Title,
+  Tooltip,
 } from "chart.js";
+import { useMemo } from "react";
+import { Bar } from "react-chartjs-2";
 import { shortenNumber } from "utils/formatters";
 
 ChartJS.register(
@@ -23,7 +23,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Filler,
-  Legend
+  Legend,
 );
 
 export default function VestmentChart({
@@ -43,7 +43,7 @@ export default function VestmentChart({
 }) {
   const numPayments = useMemo(
     () => Math.round(vestingDuration / payoutInterval),
-    [vestingDuration, payoutInterval]
+    [vestingDuration, payoutInterval],
   );
 
   const labels = useMemo(() => {
@@ -61,7 +61,7 @@ export default function VestmentChart({
       amount: amountToBeVested / numPayments,
       display: shortenNumber(amountToBeVested / numPayments, 2),
     }),
-    [numPayments, amountToBeVested]
+    [numPayments, amountToBeVested],
   );
 
   const chartData = useMemo(() => {

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
-import { useDates } from "../../hooks/useDates";
 import DatePicker from "react-datepicker";
+import { useDates } from "../../utils/useDates";
 
 interface StartDateProps {
   setStartDate: Dispatch<SetStateAction<Date>>;

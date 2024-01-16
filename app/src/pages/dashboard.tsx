@@ -1,15 +1,15 @@
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import LoadingSpinner from "components/LoadingSpinner";
-import useProgram from "hooks/useProgram";
+import DashboardStats from "components/dashboard/DashboardStats";
+import LockCollapse from "components/dashboard/LockCollapse";
+import LoadingSpinner from "components/ui/LoadingSpinner";
+import { LockAccount } from "models/Lock";
 import Head from "next/head";
 import Link from "next/link";
+import { Lock } from "program";
+import useProgram from "program/useProgram";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSearch } from "react-icons/fa";
 import useLocksStore from "stores/useLocksStore";
-import { LockAccount } from "models/Lock";
-import DashboardStats from "components/dashboard/DashboardStats";
-import LockCollapse from "components/dashboard/LockCollapse";
-import { Lock } from "program/solita/accounts/Lock";
 import { getNameArg } from "utils/formatters";
 import { Tab } from "../utils/constants";
 

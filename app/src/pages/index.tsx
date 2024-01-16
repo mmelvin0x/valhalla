@@ -1,10 +1,10 @@
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import SocialBar from "components/SocialBar";
 import type { NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import Image from "next/image";
-import SocialBar from "components/SocialBar";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import useProgram from "hooks/useProgram";
+import Link from "next/link";
+import useProgram from "program/useProgram";
 
 const Home: NextPage = () => {
   const { connected } = useProgram();

@@ -1,10 +1,9 @@
-import { isPublicKey } from "@metaplex-foundation/umi";
-import useProgram from "hooks/useProgram";
-import { useMemo, ChangeEvent, Dispatch, SetStateAction } from "react";
-import { shortenAddress } from "utils/formatters";
 import { NameRegistryState, getDomainKeySync } from "@bonfida/spl-name-service";
+import { isPublicKey } from "@metaplex-foundation/umi";
 import { PublicKey } from "@solana/web3.js";
-import { FaAddressBook } from "react-icons/fa";
+import useProgram from "program/useProgram";
+import { ChangeEvent, Dispatch, SetStateAction, useMemo } from "react";
+import { shortenAddress } from "utils/formatters";
 
 export default function RecipientInput({
   recipient,
@@ -16,11 +15,11 @@ export default function RecipientInput({
   const { wallet, connection } = useProgram();
   const recipientPlaceholder = useMemo(
     () => shortenAddress(wallet?.publicKey),
-    [wallet]
+    [wallet],
   );
 
   const getPublicKeyFromSolDomain = async (
-    domain: string
+    domain: string,
   ): Promise<PublicKey | null> => {
     try {
       const { pubkey } = getDomainKeySync(domain);

@@ -1,14 +1,11 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from "next";
-import {
-  DasApiAsset,
-  DasApiAssetList,
-} from "@metaplex-foundation/digital-asset-standard-api";
+import { DasApiAssetList } from "@metaplex-foundation/digital-asset-standard-api";
 import axios from "axios";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<DasApiAssetList>
+  res: NextApiResponse<DasApiAssetList>,
 ) {
   const { owner } = req.query;
   const url = `${process.env.RPC_URL}/?api-key=${process.env.RPC_API_KEY}`;

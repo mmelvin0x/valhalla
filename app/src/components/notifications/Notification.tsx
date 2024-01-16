@@ -1,11 +1,11 @@
-import { useEffect } from "react";
-import useNotificationStore from "../stores/useNotificationStore";
-import { useConnection } from "@solana/wallet-adapter-react";
 import {
   CheckCircleIcon,
   InformationCircleIcon,
   XCircleIcon,
 } from "@heroicons/react/20/solid";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { useEffect } from "react";
+import useNotificationStore from "../../stores/useNotificationStore";
 
 const NotificationList = () => {
   const { notifications, set: setNotificationStore } = useNotificationStore(

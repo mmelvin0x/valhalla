@@ -1,8 +1,8 @@
 import Link from "next/link";
+import useProgram from "program/useProgram";
 import { FC } from "react";
 import { getExplorerUrl } from "utils/explorer";
 import { shortenSignature } from "utils/formatters";
-import useProgram from "hooks/useProgram";
 
 const TransactionSentDescription: FC<{
   signature: string;

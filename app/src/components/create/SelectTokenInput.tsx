@@ -1,9 +1,8 @@
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { Dispatch, SetStateAction, useMemo } from "react";
 import { shortenAddress } from "utils/formatters";
-import SelectTokenDialog from "../modals/SelectTokenDialog";
+import SelectTokenDialog from "../ui/modals/SelectTokenDialog";
 
 interface SelectTokenInputProps {
   assets: DasApiAsset[];
@@ -30,7 +29,7 @@ export default function SelectTokenInput({
           10 ** selectedToken?.token_info.decimals
         : 0
       ).toLocaleString(),
-    [selectedToken]
+    [selectedToken],
   );
 
   return (
@@ -44,7 +43,7 @@ export default function SelectTokenInput({
               onClick={() => {
                 (
                   document.getElementById(
-                    "select_token_modal"
+                    "select_token_modal",
                   ) as HTMLDialogElement
                 ).showModal();
                 setSelectedToken(null);
@@ -84,7 +83,7 @@ export default function SelectTokenInput({
                   selectedToken?.token_info.balance /
                     // @ts-ignore
                     10 ** selectedToken?.token_info.decimals /
-                    2
+                    2,
                 )
               }
             >
@@ -98,7 +97,7 @@ export default function SelectTokenInput({
                   // @ts-ignore
                   selectedToken?.token_info.balance /
                     // @ts-ignore
-                    10 ** selectedToken?.token_info.decimals
+                    10 ** selectedToken?.token_info.decimals,
                 )
               }
             >

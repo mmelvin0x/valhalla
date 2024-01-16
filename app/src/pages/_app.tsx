@@ -1,11 +1,11 @@
 import { AppProps } from "next/app";
+import { Aclonica } from "next/font/google";
 import Head from "next/head";
 import { FC } from "react";
+import Notifications from "../components/notifications/Notification";
+import { AppBar } from "../components/ui/AppBar";
+import { Footer } from "../components/ui/Footer";
 import { ContextProvider } from "../contexts/ContextProvider";
-import { AppBar } from "../components/AppBar";
-import { Footer } from "../components/Footer";
-import Notifications from "../components/Notification";
-import { Aclonica } from "next/font/google";
 
 const aclonica = Aclonica({
   subsets: ["latin"],

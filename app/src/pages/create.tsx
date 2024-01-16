@@ -1,41 +1,41 @@
-import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
-import useProgram from "hooks/useProgram";
-import axios from "axios";
 import {
   DasApiAsset,
   DasApiAssetList,
 } from "@metaplex-foundation/digital-asset-standard-api";
-import SelectTokenInput from "components/create/SelectTokenInput";
-import ReviewLockCard from "components/ReviewLockCard";
-import Head from "next/head";
-import StartDateInput from "components/create/StartDateInput";
-import { useDates } from "hooks/useDates";
-import VestingDatesInput from "components/create/VestingDatesInput";
-import RecipientInput from "components/create/RecipientInput";
-import PayoutIntervalInput from "components/create/PayoutIntervalInput";
-import CliffPaymentAmountInput from "components/create/CliffPaymentAmountInput";
-import AuthoritiesInput from "components/create/AuthoritiesInput";
-import { notify } from "utils/notifications";
-import { getNameArg, shortenSignature } from "utils/formatters";
-import VestmentChart from "components/create/VestmentChart";
-import { useRouter } from "next/router";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  getAssociatedTokenAddressSync,
+} from "@solana/spl-token";
 import {
   PublicKey,
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { getPDAs, TREASURY } from "program/accounts";
+import axios from "axios";
+import AuthoritiesInput from "components/create/AuthoritiesInput";
+import CliffPaymentAmountInput from "components/create/CliffPaymentAmountInput";
+import PayoutIntervalInput from "components/create/PayoutIntervalInput";
+import RecipientInput from "components/create/RecipientInput";
+import ReviewLockCard from "components/create/ReviewLockCard";
+import SelectTokenInput from "components/create/SelectTokenInput";
+import StartDateInput from "components/create/StartDateInput";
+import VestingDatesInput from "components/create/VestingDatesInput";
+import VestmentChart from "components/create/VestmentChart";
+import Head from "next/head";
+import { useRouter } from "next/router";
 import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  getAssociatedTokenAddressSync,
-  TOKEN_2022_PROGRAM_ID,
-} from "@solana/spl-token";
-import {
-  createCreateLockInstruction,
+  Authority,
   CreateLockInstructionAccounts,
   CreateLockInstructionArgs,
-} from "program/solita/instructions/createLock";
-import { Authority } from "program/solita/types/Authority";
+  createCreateLockInstruction,
+} from "program";
+import useProgram from "program/useProgram";
+import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
+import { TREASURY, getPDAs } from "utils/constants";
+import { getNameArg, shortenSignature } from "utils/formatters";
+import { notify } from "utils/notifications";
+import { useDates } from "utils/useDates";
 
 const Create: FC = () => {
   const router = useRouter();

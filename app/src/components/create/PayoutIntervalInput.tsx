@@ -1,5 +1,5 @@
-import { useDates } from "hooks/useDates";
-import { Dispatch, SetStateAction, ChangeEvent } from "react";
+import { ChangeEvent, Dispatch, SetStateAction } from "react";
+import { useDates } from "utils/useDates";
 
 export default function PayoutIntervalInput({
   setPayoutInterval,

@@ -1,9 +1,9 @@
+import * as anchor from "@coral-xyz/anchor";
+import { LockAccount } from "models/Lock";
+import useProgram from "program/useProgram";
 import { useMemo } from "react";
 import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
 import useLocksStore from "stores/useLocksStore";
-import * as anchor from "@coral-xyz/anchor";
-import useProgram from "hooks/useProgram";
-import { LockAccount } from "models/Lock";
 
 export default function DashboardStats({
   claimAll,
@@ -93,9 +93,9 @@ export default function DashboardStats({
     }, null);
 
     if (earliestLock) {
-      return new Date(
+      return `Earliest Claim: ${new Date(
         earliestLock.lastPaymentTimestampAsNumberInMilliseconds,
-      ).toLocaleDateString();
+      ).toLocaleString()}`;
     }
 
     return "No locks available to claim";
@@ -125,9 +125,9 @@ export default function DashboardStats({
     }, null);
 
     if (earliestLock) {
-      return new Date(
+      return `Earliest Unlock: ${new Date(
         earliestLock.lastPaymentTimestampAsNumberInMilliseconds,
-      ).toLocaleDateString();
+      ).toLocaleString()}`;
     }
 
     return "No locks available to disburse";
@@ -166,7 +166,7 @@ export default function DashboardStats({
         <div className="stat-value">
           {userFunderLocks.length === 0
             ? "None"
-            : `${totalLocksClaimable} / ${userFunderLocks.length}`}
+            : `${totalLocksDisbursable} / ${userFunderLocks.length}`}
         </div>
         <div className="stat-desc">{earliestDisbursableLockDate || "wtf"}</div>
       </div>

@@ -1,6 +1,9 @@
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
+import { isPublicKey } from "@metaplex-foundation/umi";
 import { useConnection } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
 import Link from "next/link";
+import { Authority } from "program";
 import { useMemo } from "react";
 import { getExplorerUrl } from "utils/explorer";
 import {
@@ -8,9 +11,6 @@ import {
   shortenAddress,
   shortenNumber,
 } from "utils/formatters";
-import { PublicKey } from "@solana/web3.js";
-import { isPublicKey } from "@metaplex-foundation/umi";
-import { Authority } from "program/solita/types/Authority";
 
 interface ReviewLockCardProps {
   funder: PublicKey;
@@ -40,12 +40,12 @@ export default function ReviewLockCard({
   const { connection } = useConnection();
   const displayAmount = useMemo(
     () => shortenNumber(amountToBeVested, 4),
-    [amountToBeVested]
+    [amountToBeVested],
   );
 
   const numPayments = useMemo(
     () => Math.round(vestingDuration / payoutInterval),
-    [vestingDuration, payoutInterval]
+    [vestingDuration, payoutInterval],
   );
 
   const amountPerPayout = useMemo(
@@ -53,17 +53,17 @@ export default function ReviewLockCard({
       amount: Math.round(amountToBeVested / numPayments),
       display: shortenNumber(Math.round(amountToBeVested / numPayments), 2),
     }),
-    [numPayments, amountToBeVested]
+    [numPayments, amountToBeVested],
   );
 
   const displayCliffAmount = useMemo(
     () => shortenNumber(cliffPaymentAmount, 4),
-    [cliffPaymentAmount]
+    [cliffPaymentAmount],
   );
 
   const recipientKey = useMemo(
     () => (isPublicKey(recipient) ? new PublicKey(recipient) : null),
-    [recipient]
+    [recipient],
   );
 
   const whoCanCancel = useMemo(() => {
@@ -94,12 +94,12 @@ export default function ReviewLockCard({
 
   const displayStartDate = useMemo(
     () => new Date(startDate.setHours(0, 0, 0, 0)).toLocaleDateString(),
-    [startDate]
+    [startDate],
   );
 
   const displayInterval = useMemo(
     () => getNumDaysFromMS(payoutInterval),
-    [payoutInterval]
+    [payoutInterval],
   );
 
   const displayTokenAddress = useMemo(
@@ -107,7 +107,7 @@ export default function ReviewLockCard({
       isPublicKey(selectedToken?.id)
         ? shortenAddress(new PublicKey(selectedToken?.id))
         : "",
-    [selectedToken?.id]
+    [selectedToken?.id],
   );
 
   return (
