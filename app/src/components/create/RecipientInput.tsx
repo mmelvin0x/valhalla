@@ -2,16 +2,21 @@ import { NameRegistryState, getDomainKeySync } from "@bonfida/spl-name-service";
 import { isPublicKey } from "@metaplex-foundation/umi";
 import { PublicKey } from "@solana/web3.js";
 import useProgram from "program/useProgram";
-import { ChangeEvent, Dispatch, SetStateAction, useMemo } from "react";
+import { ChangeEventHandler, useMemo } from "react";
 import { shortenAddress } from "utils/formatters";
+import { FormikValues, FormikErrors } from "formik";
+import { ICreateForm } from "utils/interfaces";
 
 export default function RecipientInput({
-  recipient,
-  setRecipient,
+  values,
+  handler,
+  errors,
 }: {
-  recipient: string;
-  setRecipient: Dispatch<SetStateAction<string>>;
+  values: FormikValues;
+  handler: ChangeEventHandler<any>;
+  errors: FormikErrors<ICreateForm>;
 }) {
+  const { recipient } = values;
   const { wallet, connection } = useProgram();
   const recipientPlaceholder = useMemo(
     () => shortenAddress(wallet?.publicKey),
@@ -44,25 +49,15 @@ export default function RecipientInput({
       </label>
       <input
         type="text"
+        name="recipient"
         className="input input-sm input-bordered"
         placeholder={recipientPlaceholder}
         value={recipient}
-        onChange={async (e: ChangeEvent<HTMLInputElement>) => {
-          if (isPublicKey(e.target.value)) {
-            setRecipient(e.target.value);
-            return;
-          }
-
-          setRecipient(e.target.value);
-          if (e.target.value.endsWith(".sol")) {
-            const publicKey = await getPublicKeyFromSolDomain(e.target.value);
-            if (publicKey) {
-              setRecipient(publicKey.toBase58());
-              return;
-            }
-          }
-        }}
+        onChange={handler}
       />
+      {!!errors.recipient && (
+        <span className="text-error label-text-alt">{errors.recipient}</span>
+      )}
     </div>
   );
 }

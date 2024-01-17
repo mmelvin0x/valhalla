@@ -9,7 +9,7 @@ export const useDates = () => {
   const sixtyDaysFromNow = new Date(today.getTime() + sixtyDays).getTime();
   const ninetyDaysFromNow = new Date(today.getTime() + ninetyDays).getTime();
 
-  const oneDayInSeconds = 60 * 60 * 24 * 1000;
+  const oneDayInMilliseconds = 60 * 60 * 24 * 1000;
 
   return {
     today,
@@ -20,6 +20,6 @@ export const useDates = () => {
     thirtyDaysFromNow,
     sixtyDaysFromNow,
     ninetyDaysFromNow,
-    oneDayInSeconds,
+    oneDayInMilliseconds,
   };
 };

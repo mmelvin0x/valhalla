@@ -31,7 +31,10 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
         {`
           h1,
           h2,
-          h3 {
+          h3,
+          h4,
+          h5,
+          h6 {
             font-family: ${aclonica.style.fontFamily}, sans-serif;
           }
         `}

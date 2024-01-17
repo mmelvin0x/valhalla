@@ -1,8 +1,9 @@
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import { PublicKey } from "@solana/web3.js";
-import { Dispatch, SetStateAction, useMemo } from "react";
+import { FormikValues, FormikErrors } from "formik";
+import { ChangeEventHandler, Dispatch, SetStateAction, useMemo } from "react";
 import { shortenAddress } from "utils/formatters";
-import SelectTokenDialog from "../ui/modals/SelectTokenDialog";
+import { ICreateForm } from "utils/interfaces";
 
 interface SelectTokenInputProps {
   assets: DasApiAsset[];
@@ -13,12 +14,16 @@ interface SelectTokenInputProps {
 }
 
 export default function SelectTokenInput({
-  assets,
-  setSelectedToken,
-  selectedToken,
-  setAmountToBeVested,
-  amountToBeVested,
-}: SelectTokenInputProps) {
+  values,
+  handler,
+  errors,
+}: {
+  values: FormikValues;
+  handler: ChangeEventHandler<any>;
+  errors: FormikErrors<ICreateForm>;
+}) {
+  const { amountToBeVested, selectedToken } = values;
+
   const balance = useMemo(
     () =>
       // @ts-ignore
@@ -46,8 +51,6 @@ export default function SelectTokenInput({
                     "select_token_modal",
                   ) as HTMLDialogElement
                 ).showModal();
-                setSelectedToken(null);
-                setAmountToBeVested(0);
               }}
             >
               {selectedToken?.id ? (
@@ -74,45 +77,17 @@ export default function SelectTokenInput({
                 <div className="text-xs">select token</div>
               )}
             </ul>
-
-            <button
-              className="btn btn-xs"
-              onClick={() =>
-                setAmountToBeVested(
-                  // @ts-ignore
-                  selectedToken?.token_info.balance /
-                    // @ts-ignore
-                    10 ** selectedToken?.token_info.decimals /
-                    2,
-                )
-              }
-            >
-              Half
-            </button>
-
-            <button
-              className="btn btn-xs"
-              onClick={() =>
-                setAmountToBeVested(
-                  // @ts-ignore
-                  selectedToken?.token_info.balance /
-                    // @ts-ignore
-                    10 ** selectedToken?.token_info.decimals,
-                )
-              }
-            >
-              Max
-            </button>
           </div>
         </label>
 
         <div className="w-full">
           <input
             type="number"
+            name="amountToBeVested"
             placeholder="Amount"
             className="input input-sm input-bordered w-full"
             value={amountToBeVested}
-            onChange={(e) => setAmountToBeVested(Number(e.target.value))}
+            onChange={handler}
           />
           <label className="label">
             <span className="label-text-alt"></span>
@@ -120,8 +95,6 @@ export default function SelectTokenInput({
           </label>
         </div>
       </div>
-
-      <SelectTokenDialog assets={assets} onTokenSelect={setSelectedToken} />
     </>
   );
 }
