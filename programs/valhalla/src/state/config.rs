@@ -11,16 +11,4 @@ impl Config {
     pub fn size_of() -> usize {
         8 + 32 + 32 + 8
     }
-
-    pub fn admin(&self) -> Pubkey {
-        self.admin
-    }
-
-    pub fn treasury(&self) -> Pubkey {
-        self.treasury
-    }
-
-    pub fn fee(&self) -> u64 {
-        self.fee
-    }
 }

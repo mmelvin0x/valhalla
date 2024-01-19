@@ -16,7 +16,7 @@ pub const TOKEN_LOCK_SEED: &[u8] = b"token_lock";
 pub const TOKEN_LOCK_TOKEN_ACCOUNT_SEED: &[u8] = b"token_lock_token_account";
 
 #[constant]
-pub const SCHEDULED_PAYMENT_SEED: &[u8] = b"payment";
+pub const SCHEDULED_PAYMENT_SEED: &[u8] = b"scheduled_payment";
 
 #[constant]
-pub const SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED: &[u8] = b"payment_token_account";
+pub const SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED: &[u8] = b"scheduled_payment_token_account";

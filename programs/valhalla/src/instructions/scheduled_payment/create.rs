@@ -51,11 +51,11 @@ pub struct CreateScheduledPayment<'info> {
         bump,
         payer = funder,
         token::mint = mint,
-        token::authority = payment_token_account,
+        token::authority = scheduled_payment_token_account,
         token::token_program = token_program
     )]
     /// The token account for the scheduled_payment PDA
-    pub payment_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub scheduled_payment_token_account: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         init_if_needed,
@@ -123,7 +123,10 @@ pub fn create_scheduled_payment_ix(
     let cpi_accounts = TransferChecked {
         from: ctx.accounts.funder_token_account.to_account_info(),
         mint: ctx.accounts.mint.to_account_info(),
-        to: ctx.accounts.payment_token_account.to_account_info(),
+        to: ctx
+            .accounts
+            .scheduled_payment_token_account
+            .to_account_info(),
         authority: ctx.accounts.funder.to_account_info(),
     };
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);

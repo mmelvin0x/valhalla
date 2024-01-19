@@ -6,12 +6,12 @@
   ],
   "constants": [
     {
-      "name": "LOCKER_SEED",
+      "name": "CONFIG_SEED",
       "type": "bytes",
       "value": "[108, 111, 99, 107, 101, 114]"
     },
     {
-      "name": "LOCK_SEED",
+      "name": "CONFIG_SEED",
       "type": "bytes",
       "value": "[108, 111, 99, 107]"
     },
@@ -41,33 +41,25 @@
           "name": "admin",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "The admin account that will sign the transaction."
-          ]
+          "docs": ["The admin account that will sign the transaction."]
         },
         {
           "name": "locker",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The locker account that will be initialized."
-          ]
+          "docs": ["The locker account that will be initialized."]
         },
         {
           "name": "treasury",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The treasury account that receives the fee."
-          ]
+          "docs": ["The treasury account that receives the fee."]
         },
         {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The system program account."
-          ]
+          "docs": ["The system program account."]
         }
       ],
       "args": [
@@ -96,41 +88,31 @@
           "name": "admin",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "The current admin account."
-          ]
+          "docs": ["The current admin account."]
         },
         {
           "name": "newAdmin",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The new admin account."
-          ]
+          "docs": ["The new admin account."]
         },
         {
           "name": "newTreasury",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The new treasury account."
-          ]
+          "docs": ["The new treasury account."]
         },
         {
           "name": "locker",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The Locker account to be updated."
-          ]
+          "docs": ["The Locker account to be updated."]
         },
         {
           "name": "treasury",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The current treasury account that receives the fee."
-          ]
+          "docs": ["The current treasury account that receives the fee."]
         }
       ],
       "args": [
@@ -183,57 +165,43 @@
           "name": "treasury",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The treasury where the fee will be sent too."
-          ]
+          "docs": ["The treasury where the fee will be sent too."]
         },
         {
           "name": "lock",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The lock PDA that will be created."
-          ]
+          "docs": ["The lock PDA that will be created."]
         },
         {
           "name": "lockTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The token account for the lock PDA"
-          ]
+          "docs": ["The token account for the lock PDA"]
         },
         {
           "name": "funderTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The funder's token account."
-          ]
+          "docs": ["The funder's token account."]
         },
         {
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The recipient's token account."
-          ]
+          "docs": ["The recipient's token account."]
         },
         {
           "name": "mint",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The mint account for the tokens."
-          ]
+          "docs": ["The mint account for the tokens."]
         },
         {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The program that provides the token-related functionality."
-          ]
+          "docs": ["The program that provides the token-related functionality."]
         },
         {
           "name": "associatedTokenProgram",
@@ -247,9 +215,7 @@
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The system program."
-          ]
+          "docs": ["The system program."]
         }
       ],
       "args": [
@@ -294,10 +260,7 @@
         {
           "name": "name",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
@@ -590,10 +553,7 @@
           {
             "name": "name",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           }
         ]

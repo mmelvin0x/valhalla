@@ -1,17 +1,18 @@
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import DashboardStats from "components/dashboard/DashboardStats";
-import LockCollapse from "components/dashboard/LockCollapse";
-import LoadingSpinner from "components/ui/LoadingSpinner";
-import { LockAccount } from "models/Lock";
-import Head from "next/head";
-import Link from "next/link";
-import { Lock } from "program";
-import useProgram from "program/useProgram";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { FaPlusCircle, FaSearch } from "react-icons/fa";
-import useLocksStore from "stores/useLocksStore";
+
+import DashboardStats from "components/dashboard/DashboardStats";
+import Head from "next/head";
+import Link from "next/link";
+import LoadingSpinner from "components/ui/LoadingSpinner";
+import { Lock } from "program";
+import { LockAccount } from "models/Lock";
+import LockCollapse from "components/dashboard/LockCollapse";
 import { Tab } from "utils/constants";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { getNameArg } from "utils/formatters";
+import useLocksStore from "stores/useLocksStore";
+import useProgram from "program/useProgram";
 
 export default function DashboardFeature() {
   const { wallet, connection, connected } = useProgram();
@@ -162,11 +163,11 @@ export default function DashboardFeature() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-8">
               <DashboardStats claimAll={claimAll} disburseAll={disburseAll} />
 
               {/* Locks */}
-              <div className="card hover:shadow h-full md:col-span-3">
+              <div className="card hover:shadow h-full md:col-span-4">
                 <div className="card-body min-h-80">
                   <div className="tabs tabs-boxed">
                     <div

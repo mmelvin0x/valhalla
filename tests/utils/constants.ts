@@ -1,4 +1,22 @@
-import { PublicKey } from "@solana/web3.js";
+import { AnchorProvider, Program } from "@coral-xyz/anchor";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+
+import { Account } from "@solana/spl-token";
+import { Valhalla } from "../../target/types/valhalla";
+import { airdrop } from "./airdrop";
+import { mintTransferFeeTokens } from "./mintTransferFeeTokens";
+
+export enum Authority {
+  Neither,
+  Funder,
+  Recipient,
+  Both,
+}
+
+export const decimals = 9;
+export const feeBasisPoints = 100;
+export const maxFee = BigInt(10_000 * LAMPORTS_PER_SOL);
+export const amountMinted = 10_000_000_000;
 
 export const CONFIG_SEED = Buffer.from("config");
 
@@ -82,3 +100,36 @@ export function getPDAs(
     scheduledPaymentTokenAccount,
   };
 }
+
+export const setupTestAccounts = async (
+  provider: AnchorProvider,
+  payer: Keypair,
+  funder: Keypair,
+  recipient: Keypair,
+  program: Program<Valhalla>
+): Promise<[PublicKey, Account, Account, ValhallaPDAs]> => {
+  await airdrop(provider.connection, payer.publicKey);
+  await airdrop(provider.connection, funder.publicKey);
+  await airdrop(provider.connection, recipient.publicKey);
+
+  const [mint, funderTokenAccount, recipientTokenAccount] =
+    await mintTransferFeeTokens(
+      provider.connection,
+      payer,
+      decimals,
+      feeBasisPoints,
+      maxFee,
+      funder,
+      recipient,
+      amountMinted
+    );
+
+  const pdas = getPDAs(
+    program.programId,
+    funder.publicKey,
+    recipient.publicKey,
+    mint
+  );
+
+  return [mint, funderTokenAccount, recipientTokenAccount, pdas];
+};

@@ -1,9 +1,11 @@
 import * as anchor from "@coral-xyz/anchor";
-import { LockAccount } from "models/Lock";
-import useProgram from "program/useProgram";
-import { useMemo } from "react";
+
 import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
+
+import { LockAccount } from "models/Lock";
 import useLocksStore from "stores/useLocksStore";
+import { useMemo } from "react";
+import useProgram from "program/useProgram";
 
 export default function DashboardStats({
   claimAll,
@@ -134,7 +136,7 @@ export default function DashboardStats({
   }, [userFunderLocks]);
 
   return (
-    <div className="stats stats-vertical hover:shadow">
+    <div className="stats stats-vertical hover:shadow md:col-span-2">
       <div className="stat">
         {hasClaimableLocks && (
           <button

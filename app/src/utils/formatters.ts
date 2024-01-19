@@ -1,4 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
+
 import { PublicKey } from "@solana/web3.js";
 
 export const shortenNumber = (num: number, digits: number) => {
@@ -62,7 +63,7 @@ export const displayTime = (seconds: number) => {
 };
 
 export const getNameArg = (name: string): number[] => {
-  let nameArg = [];
+  const nameArg = [];
   const name_ = anchor.utils.bytes.utf8.encode(name);
   name_.forEach((byte, i) => {
     if (i < 32) {
