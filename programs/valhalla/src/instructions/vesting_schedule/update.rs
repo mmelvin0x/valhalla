@@ -1,18 +1,21 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{ token_interface::{ Mint, Token2022 }, associated_token::AssociatedToken };
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token_interface::{Mint, Token2022},
+};
 
-use crate::{ constants, Lock, Authority, errors::LockError };
+use crate::{constants, errors::ValhallaError, Authority, VestingSchedule};
 
 #[derive(Accounts)]
-pub struct Update<'info> {
+pub struct UpdateVestingSchedule<'info> {
     #[account(mut, constraint = funder.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
-    #[account(mut, constraint = lock.funder == funder.key())]
+    #[account(mut, constraint = vesting_schedule.funder == funder.key())]
     /// CHECK: Checked in contstraints
     pub funder: AccountInfo<'info>,
 
-    #[account(mut, constraint = lock.recipient == recipient.key())]
+    #[account(mut, constraint = vesting_schedule.recipient == recipient.key())]
     /// CHECK: Checked in constraints
     pub recipient: AccountInfo<'info>,
 
@@ -26,14 +29,14 @@ pub struct Update<'info> {
             funder.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::LOCK_SEED,
+            constants::VESTING_SCHEDULE_SEED,
         ],
         bump,
         has_one = recipient,
         has_one = funder,
         has_one = mint,
     )]
-    pub lock: Account<'info, Lock>,
+    pub vesting_schedule: Account<'info, VestingSchedule>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -42,35 +45,34 @@ pub struct Update<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn update_ix(ctx: Context<Update>) -> Result<()> {
-    let lock = &mut ctx.accounts.lock;
+pub fn update_vesting_schedule_ix(ctx: Context<UpdateVestingSchedule>) -> Result<()> {
+    let vesting_schedule = &mut ctx.accounts.vesting_schedule;
 
     // Check the change recipient authority
-    match lock.change_recipient_authority {
+    match vesting_schedule.change_recipient_authority {
         Authority::Neither => {
-            return Err(LockError::Unauthorized.into());
+            return Err(ValhallaError::Unauthorized.into());
         }
         Authority::Funder => {
             if ctx.accounts.funder.key() != ctx.accounts.signer.key() {
-                return Err(LockError::Unauthorized.into());
+                return Err(ValhallaError::Unauthorized.into());
             }
         }
         Authority::Recipient => {
             if ctx.accounts.recipient.key() != ctx.accounts.signer.key() {
-                return Err(LockError::Unauthorized.into());
+                return Err(ValhallaError::Unauthorized.into());
             }
         }
         Authority::Both => {
-            if
-                ctx.accounts.funder.key() != ctx.accounts.signer.key() ||
-                ctx.accounts.recipient.key() != ctx.accounts.signer.key()
+            if ctx.accounts.funder.key() != ctx.accounts.signer.key()
+                || ctx.accounts.recipient.key() != ctx.accounts.signer.key()
             {
-                return Err(LockError::Unauthorized.into());
+                return Err(ValhallaError::Unauthorized.into());
             }
         }
     }
 
-    lock.recipient = ctx.accounts.new_recipient.key();
+    vesting_schedule.recipient = ctx.accounts.new_recipient.key();
 
     Ok(())
 }

@@ -1,21 +1,30 @@
-❯ anchor run init-locker # Sun Jan 14 6:32 PM
-yarn run v1.22.19
-$ /Users/mjm_0x/Workspace/valhalla/node_modules/.bin/ts-node ./scripts/init.ts
-👨‍💻 Deployer: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
-🔐 Locker: GQdit1zvXfnsJKkkAesRepy7cJvLWbCL9M2M6ZEr3hYR
-✅ Initialization Transaction: 2QcZ77cU2ngJEbeZGfT3gMC8Y272mGdmfTZmv2FbKitpdgcxNTVaiwUwewDkUMz3bgaR7QY3QPmEzbyfVrVMm7ZF
-🐸 Admin: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
-💰 Treasury: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
-❤️‍🩹 Fee: 0.025
+Thu Jan 18 2024 12:01 PM
 
-❯ yarn init-locker:devnet # Tue Jan 16 6:32 PM
-yarn run v1.22.19
+➜ valhalla git:(main) ✗ solana config get
+Config File: /Users/mmelvin0x/.config/solana/cli/config.yml
+RPC URL: https://api.devnet.solana.com
+WebSocket URL: wss://api.devnet.solana.com/ (computed)
+Keypair Path: /Users/mmelvin0x/.config/solana/id.json
+Commitment: confirmed
+➜ valhalla git:(main) ✗ solana address
+5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
+➜ valhalla git:(main) ✗ solana balance
+63.09250712 SOL
+➜ valhalla git:(main) ✗ anchor deploy --provider.cluster devnet
+Deploying cluster: https://api.devnet.solana.com
+Upgrade authority: ./.keys/id.json
+Deploying program "valhalla"...
+Program path: /Users/mmelvin0x/Projects/valhalla/target/deploy/valhalla.so...
+Program Id: Faccsj4TmRdXeNsmP9X1MA4kqRjsD2MYL67Zc7NYgMoU
+
+Deploy success
+➜ valhalla git:(main) ✗ yarn init-locker:devnet
+yarn run v1.22.21
 $ anchor run init-locker --provider.cluster devnet
-$ /Users/mjm_0x/Workspace/valhalla/node_modules/.bin/ts-node ./scripts/init.ts
+$ /Users/mmelvin0x/Projects/valhalla/node_modules/.bin/ts-node ./scripts/init.ts
 👨‍💻 Deployer: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
-🔐 Locker: 8XLi7gzSmtTBV1bLHPzAcnprwroegeaoA62EZFotdbpe
-✅ Initialization Transaction: 3TNodzt9t9BGfvGhtYFWxt7XtnT51bumWVUYBGwSMQbxsBP66gKFE2Ga6ZtybvyTFzm4zQWQWgppEeHGEFNEKij2
+🔐 Locker: EcCGX2auTTaHNbYVYgCia6TK72SmyH5Rdgzt5kGVdG46
+✅ Initialization Transaction: 4T8n4D3DQcYvjVoMRE9TcRrG1zczLw3YBJR3nVmCk2NNbjcEWhZUgjs4dnugcRvbQ8FgNeoonRCAQmFRFNKqbge
 🐸 Admin: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
 💰 Treasury: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
 ❤️‍🩹 Fee: 0.025
-✨ Done in 2.00s.

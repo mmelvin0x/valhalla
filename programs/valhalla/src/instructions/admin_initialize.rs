@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{ constants, state::Locker };
+use crate::{constants, state::Config};
 
 #[derive(Accounts)]
 /// Represents the initialization parameters for the admin account.
@@ -9,18 +9,18 @@ pub struct AdminInitialize<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
 
-    /// The locker account that will be initialized.
+    /// The config account that will be initialized.
     #[account(
         init,
-        seeds = [constants::LOCKER_SEED],
+        seeds = [constants::CONFIG_SEED],
         bump,
         payer = admin,
-        space = Locker::size_of()
+        space = Config::size_of()
     )]
-    pub locker: Account<'info, Locker>,
+    pub config: Account<'info, Config>,
 
     /// The treasury account that receives the fee.
-    /// CHECK: This account is only read from and stored as a Pubkey on the Locker.
+    /// CHECK: This account is only read from and stored as a Pubkey on the Config.
     pub treasury: AccountInfo<'info>,
 
     /// The system program account.
@@ -38,11 +38,11 @@ pub struct AdminInitialize<'info> {
 ///
 /// Returns an error if the initialization fails.
 pub fn admin_initialize_ix(ctx: Context<AdminInitialize>, fee: u64) -> Result<()> {
-    let locker = &mut ctx.accounts.locker;
+    let config = &mut ctx.accounts.config;
 
-    locker.fee = fee;
-    locker.admin = ctx.accounts.admin.key();
-    locker.treasury = ctx.accounts.treasury.key();
+    config.fee = fee;
+    config.admin = ctx.accounts.admin.key();
+    config.treasury = ctx.accounts.treasury.key();
 
     Ok(())
 }

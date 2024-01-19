@@ -1,13 +1,11 @@
-mod cancel;
-mod create;
 mod admin_initialize;
 mod admin_update;
-mod disburse;
-mod update;
+mod scheduled_payment;
+mod token_lock;
+mod vesting_schedule;
 
-pub use cancel::*;
-pub use create::*;
 pub use admin_initialize::*;
 pub use admin_update::*;
-pub use disburse::*;
-pub use update::*;
+pub use scheduled_payment::*;
+pub use token_lock::*;
+pub use vesting_schedule::*;

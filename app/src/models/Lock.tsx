@@ -52,7 +52,7 @@ export class LockAccount {
     this.mint = lock.mint;
     this.cancelAuthority = lock.cancelAuthority;
     this.changeRecipientAuthority = lock.changeRecipientAuthority;
-    this.vestingDuration = new anchor.BN(lock.vestingDuration);
+    this.vestingDuration = new anchor.BN(lock.totalVestingDuration);
     this.payoutInterval = new anchor.BN(lock.payoutInterval);
     this.amountPerPayout = new anchor.BN(lock.amountPerPayout);
     this.startDate = new anchor.BN(lock.startDate);
@@ -173,7 +173,7 @@ export class LockAccount {
   get displayFunder(): ReactNode {
     return (
       <Link
-        className="link link-primary flex items-center gap-1"
+        className="link link-secondary flex items-center gap-1"
         target="_blank"
         href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
       >
@@ -186,7 +186,7 @@ export class LockAccount {
   get displayRecipient(): ReactNode {
     return (
       <Link
-        className="link link-primary flex items-center gap-1"
+        className="link link-secondary flex items-center gap-1"
         target="_blank"
         href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
       >
@@ -199,7 +199,7 @@ export class LockAccount {
   get displayName(): ReactNode {
     return (
       <Link
-        className="link link-primary flex items-center gap-1"
+        className="link link-secondary flex items-center gap-1"
         target="_blank"
         href={getExplorerUrl(this.connection.rpcEndpoint, this.id)}
       >
@@ -214,7 +214,7 @@ export class LockAccount {
       case Authority.Funder:
         return (
           <Link
-            className="link link-primary flex items-center gap-1"
+            className="link link-secondary flex items-center gap-1"
             target="_blank"
             href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
           >
@@ -225,7 +225,7 @@ export class LockAccount {
       case Authority.Recipient:
         return (
           <Link
-            className="link link-primary flex items-center gap-1"
+            className="link link-secondary flex items-center gap-1"
             target="_blank"
             href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
           >
@@ -237,7 +237,7 @@ export class LockAccount {
         return (
           <div className="flex flex-col gap-1">
             <Link
-              className="link link-primary flex items-center gap-1"
+              className="link link-secondary flex items-center gap-1"
               target="_blank"
               href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
             >
@@ -251,7 +251,7 @@ export class LockAccount {
             </Link>
 
             <Link
-              className="link link-primary flex items-center gap-1"
+              className="link link-secondary flex items-center gap-1"
               target="_blank"
               href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
             >
@@ -276,7 +276,7 @@ export class LockAccount {
       case Authority.Funder:
         return (
           <Link
-            className="link link-primary flex items-center gap-1"
+            className="link link-secondary flex items-center gap-1"
             target="_blank"
             href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
           >
@@ -287,7 +287,7 @@ export class LockAccount {
       case Authority.Recipient:
         return (
           <Link
-            className="link link-primary flex items-center gap-1"
+            className="link link-secondary flex items-center gap-1"
             target="_blank"
             href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
           >
@@ -299,7 +299,7 @@ export class LockAccount {
         return (
           <div className="flex flex-col gap-1">
             <Link
-              className="link link-primary flex items-center gap-1"
+              className="link link-secondary flex items-center gap-1"
               target="_blank"
               href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
             >
@@ -313,7 +313,7 @@ export class LockAccount {
             </Link>
 
             <Link
-              className="link link-primary flex items-center gap-1"
+              className="link link-secondary flex items-center gap-1"
               target="_blank"
               href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
             >
@@ -336,7 +336,7 @@ export class LockAccount {
   get displayTokenMint(): ReactNode {
     return (
       <Link
-        className="link link-primary flex items-center gap-1"
+        className="link link-secondary flex items-center gap-1"
         target="_blank"
         href={getExplorerUrl(this.connection.rpcEndpoint, this.mint)}
       >

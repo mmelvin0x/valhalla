@@ -9,6 +9,7 @@ import * as web3 from '@solana/web3.js'
 import * as beet from '@metaplex-foundation/beet'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 import { Authority, authorityBeet } from '../types/Authority'
+import { VestingType, vestingTypeBeet } from '../types/VestingType'
 
 /**
  * Arguments used to create {@link Lock}
@@ -21,7 +22,7 @@ export type LockArgs = {
   mint: web3.PublicKey
   cancelAuthority: Authority
   changeRecipientAuthority: Authority
-  vestingDuration: beet.bignum
+  totalVestingDuration: beet.bignum
   payoutInterval: beet.bignum
   amountPerPayout: beet.bignum
   startDate: beet.bignum
@@ -29,6 +30,7 @@ export type LockArgs = {
   lastPaymentTimestamp: beet.bignum
   numberOfPaymentsMade: beet.bignum
   isCliffPaymentDisbursed: boolean
+  vestingType: VestingType
   name: number[] /* size: 32 */
 }
 
@@ -47,7 +49,7 @@ export class Lock implements LockArgs {
     readonly mint: web3.PublicKey,
     readonly cancelAuthority: Authority,
     readonly changeRecipientAuthority: Authority,
-    readonly vestingDuration: beet.bignum,
+    readonly totalVestingDuration: beet.bignum,
     readonly payoutInterval: beet.bignum,
     readonly amountPerPayout: beet.bignum,
     readonly startDate: beet.bignum,
@@ -55,6 +57,7 @@ export class Lock implements LockArgs {
     readonly lastPaymentTimestamp: beet.bignum,
     readonly numberOfPaymentsMade: beet.bignum,
     readonly isCliffPaymentDisbursed: boolean,
+    readonly vestingType: VestingType,
     readonly name: number[] /* size: 32 */
   ) {}
 
@@ -68,7 +71,7 @@ export class Lock implements LockArgs {
       args.mint,
       args.cancelAuthority,
       args.changeRecipientAuthority,
-      args.vestingDuration,
+      args.totalVestingDuration,
       args.payoutInterval,
       args.amountPerPayout,
       args.startDate,
@@ -76,6 +79,7 @@ export class Lock implements LockArgs {
       args.lastPaymentTimestamp,
       args.numberOfPaymentsMade,
       args.isCliffPaymentDisbursed,
+      args.vestingType,
       args.name
     )
   }
@@ -120,7 +124,7 @@ export class Lock implements LockArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'AX5THjwe8LJ141rMWRcJupgReLW3bpmv4muHrd5p19Aa'
+      'Faccsj4TmRdXeNsmP9X1MA4kqRjsD2MYL67Zc7NYgMoU'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, lockBeet)
@@ -189,8 +193,8 @@ export class Lock implements LockArgs {
       cancelAuthority: 'Authority.' + Authority[this.cancelAuthority],
       changeRecipientAuthority:
         'Authority.' + Authority[this.changeRecipientAuthority],
-      vestingDuration: (() => {
-        const x = <{ toNumber: () => number }>this.vestingDuration
+      totalVestingDuration: (() => {
+        const x = <{ toNumber: () => number }>this.totalVestingDuration
         if (typeof x.toNumber === 'function') {
           try {
             return x.toNumber()
@@ -267,6 +271,7 @@ export class Lock implements LockArgs {
         return x
       })(),
       isCliffPaymentDisbursed: this.isCliffPaymentDisbursed,
+      vestingType: 'VestingType.' + VestingType[this.vestingType],
       name: this.name,
     }
   }
@@ -289,7 +294,7 @@ export const lockBeet = new beet.BeetStruct<
     ['mint', beetSolana.publicKey],
     ['cancelAuthority', authorityBeet],
     ['changeRecipientAuthority', authorityBeet],
-    ['vestingDuration', beet.u64],
+    ['totalVestingDuration', beet.u64],
     ['payoutInterval', beet.u64],
     ['amountPerPayout', beet.u64],
     ['startDate', beet.u64],
@@ -297,6 +302,7 @@ export const lockBeet = new beet.BeetStruct<
     ['lastPaymentTimestamp', beet.u64],
     ['numberOfPaymentsMade', beet.u64],
     ['isCliffPaymentDisbursed', beet.bool],
+    ['vestingType', vestingTypeBeet],
     ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
   ],
   Lock.fromArgs,

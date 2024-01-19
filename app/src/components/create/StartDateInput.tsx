@@ -1,12 +1,8 @@
-import { ChangeEventHandler, Dispatch, SetStateAction } from "react";
 import { FormikErrors, FormikValues } from "formik";
+
+import { ChangeEventHandler } from "react";
 import { ICreateForm } from "utils/interfaces";
 import { useDates } from "utils/useDates";
-
-interface StartDateProps {
-  setStartDate: Dispatch<SetStateAction<Date>>;
-  startDate: Date;
-}
 
 export default function StartDateInput({
   values,
@@ -26,13 +22,20 @@ export default function StartDateInput({
       </label>
 
       <input
-        type="date"
-        className="input input-sm input-bordered"
+        type="datetime-local"
+        className={`input input-sm input-bordered ${errors.startDate && "input-error"}`}
         name="startDate"
-        min={today.toDateString()}
+        placeholder="Date the first tokens will be unlocked"
+        min={today.toDate().getTime()}
         value={startDate}
         onChange={handler}
       />
+
+      {!!errors.startDate && (
+        <label htmlFor="" className="label">
+          <span className="text-error label-text-alt">Invalid Date</span>
+        </label>
+      )}
     </div>
   );
 }

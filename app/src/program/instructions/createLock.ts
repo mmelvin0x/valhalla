@@ -9,6 +9,7 @@ import * as splToken from '@solana/spl-token'
 import * as beet from '@metaplex-foundation/beet'
 import * as web3 from '@solana/web3.js'
 import { Authority, authorityBeet } from '../types/Authority'
+import { VestingType, vestingTypeBeet } from '../types/VestingType'
 
 /**
  * @category Instructions
@@ -17,12 +18,13 @@ import { Authority, authorityBeet } from '../types/Authority'
  */
 export type CreateLockInstructionArgs = {
   amountToBeVested: beet.bignum
-  vestingDuration: beet.bignum
+  totalVestingDuration: beet.bignum
   payoutInterval: beet.bignum
   cliffPaymentAmount: beet.bignum
   startDate: beet.bignum
   cancelAuthority: Authority
   changeRecipientAuthority: Authority
+  vestingType: VestingType
   name: number[] /* size: 32 */
 }
 /**
@@ -38,12 +40,13 @@ export const createLockStruct = new beet.BeetArgsStruct<
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['amountToBeVested', beet.u64],
-    ['vestingDuration', beet.u64],
+    ['totalVestingDuration', beet.u64],
     ['payoutInterval', beet.u64],
     ['cliffPaymentAmount', beet.u64],
     ['startDate', beet.u64],
     ['cancelAuthority', authorityBeet],
     ['changeRecipientAuthority', authorityBeet],
+    ['vestingType', vestingTypeBeet],
     ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
   ],
   'CreateLockInstructionArgs'
@@ -97,7 +100,7 @@ export const createLockInstructionDiscriminator = [
 export function createCreateLockInstruction(
   accounts: CreateLockInstructionAccounts,
   args: CreateLockInstructionArgs,
-  programId = new web3.PublicKey('AX5THjwe8LJ141rMWRcJupgReLW3bpmv4muHrd5p19Aa')
+  programId = new web3.PublicKey('Faccsj4TmRdXeNsmP9X1MA4kqRjsD2MYL67Zc7NYgMoU')
 ) {
   const [data] = createLockStruct.serialize({
     instructionDiscriminator: createLockInstructionDiscriminator,

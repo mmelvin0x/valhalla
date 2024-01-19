@@ -1,11 +1,13 @@
-import { AppProps } from "next/app";
+import "react-datetime/css/react-datetime.css";
+
 import { Aclonica } from "next/font/google";
-import Head from "next/head";
-import { FC } from "react";
-import Notifications from "../components/notifications/Notification";
 import { AppBar } from "../components/ui/AppBar";
-import { Footer } from "../components/ui/Footer";
+import { AppProps } from "next/app";
 import { ContextProvider } from "../contexts/ContextProvider";
+import { FC } from "react";
+import { Footer } from "../components/ui/Footer";
+import Head from "next/head";
+import Notifications from "../components/notifications/Notification";
 
 const aclonica = Aclonica({
   subsets: ["latin"],
@@ -14,7 +16,6 @@ const aclonica = Aclonica({
 
 require("../styles/globals.css");
 require("@solana/wallet-adapter-react-ui/styles.css");
-require("react-datepicker/dist/react-datepicker.css");
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
@@ -43,7 +44,10 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
       <ContextProvider>
         <Notifications />
         <AppBar />
-        <div className="m-10 min-h-screen">
+        <div
+          id="container"
+          className="my-10 min-h-screen max-w-screen-xl mx-auto"
+        >
           <Component {...pageProps} />
         </div>
         <Footer />

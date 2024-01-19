@@ -1,16 +1,16 @@
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import AddressBadge from "components/ui/AddressBadge";
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 
 interface SelectTokenDialogProps {
   assets: DasApiAsset[];
-  onTokenSelect: Dispatch<SetStateAction<DasApiAsset | null>>;
+  formik: any;
 }
 
 export default function SelectTokenDialog({
   assets,
-  onTokenSelect,
+  formik,
 }: SelectTokenDialogProps) {
   const [search, setSearch] = useState<string>("");
   const [filteredAssets, setFilteredAssets] = useState<DasApiAsset[]>([]);
@@ -38,7 +38,6 @@ export default function SelectTokenDialog({
   const onModalClose = () => {
     setSearch("");
     setFilteredAssets([]);
-    onTokenSelect(null);
   };
 
   const formatTokenBalance = (asset: DasApiAsset) => {
@@ -98,8 +97,8 @@ export default function SelectTokenDialog({
                     <button
                       className="w-full grid grid-cols-6 gap-2 px-2 items-center rounded hover:bg-base-200"
                       onClick={() => {
+                        formik.setFieldValue("selectedToken", asset);
                         onModalClose();
-                        onTokenSelect(asset);
                       }}
                     >
                       <div className="avatar mx-auto">

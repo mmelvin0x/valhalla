@@ -10,9 +10,10 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
-import { useMemo } from "react";
+
 import { Bar } from "react-chartjs-2";
 import { shortenNumber } from "utils/formatters";
+import { useMemo } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -41,28 +42,40 @@ export default function VestmentChart({
   startDate: Date;
   vestingEndDate: Date;
 }) {
-  const numPayments = useMemo(
-    () => Math.round(vestingDuration / payoutInterval),
-    [vestingDuration, payoutInterval],
-  );
+  const numPayments = useMemo(() => {
+    console.log("calculating numPayments");
+    return Math.ceil(
+      vestingDuration / (payoutInterval <= 0 ? 1 : payoutInterval),
+    );
+  }, [vestingDuration, payoutInterval]);
 
   const labels = useMemo(() => {
+    const start = new Date(startDate);
+    const endDate = new Date(vestingEndDate);
+    const numberOfPayments = Math.ceil(
+      vestingDuration / (payoutInterval <= 0 ? 1 : payoutInterval),
+    );
+    if (numberOfPayments < 2) {
+      return [endDate.toLocaleDateString()];
+    }
+
     const labels = [];
-    for (let i = 0; i < numPayments; i++) {
-      const date = new Date(startDate.getTime() + i * payoutInterval);
+    for (let i = 0; i < numberOfPayments; i++) {
+      const date = new Date(start.getTime() + payoutInterval * i);
       labels.push(date.toLocaleDateString());
     }
 
+    console.log("labels", labels);
     return labels;
-  }, [numPayments, payoutInterval, startDate]);
+  }, [payoutInterval, startDate, vestingDuration, vestingEndDate]);
 
-  const amountPerPayout = useMemo(
-    () => ({
+  const amountPerPayout = useMemo(() => {
+    console.log("calculating amountPerPayout");
+    return {
       amount: amountToBeVested / numPayments,
       display: shortenNumber(amountToBeVested / numPayments, 2),
-    }),
-    [numPayments, amountToBeVested],
-  );
+    };
+  }, [numPayments, amountToBeVested]);
 
   const chartData = useMemo(() => {
     const values = [];
@@ -99,6 +112,8 @@ export default function VestmentChart({
         stepped: true,
       });
     }
+
+    console.log("chartData", config);
 
     return config;
   }, [labels, amountPerPayout, cliffPaymentAmount]);

@@ -1,202 +1,150 @@
+import { Authority, VestingType } from "program";
 import {
   DasApiAsset,
   DasApiAssetList,
 } from "@metaplex-foundation/digital-asset-standard-api";
-import { isPublicKey } from "@metaplex-foundation/umi";
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_2022_PROGRAM_ID,
-  getAssociatedTokenAddressSync,
-} from "@solana/spl-token";
-import {
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import axios from "axios";
-import AuthoritiesInput from "components/create/AuthoritiesInput";
-import CliffPaymentAmountInput from "components/create/CliffPaymentAmountInput";
-import PayoutIntervalInput from "components/create/PayoutIntervalInput";
-import RecipientInput from "components/create/RecipientInput";
-import ReviewLockCard from "components/create/ReviewLockCard";
-import SelectTokenInput from "components/create/SelectTokenInput";
-import StartDateInput from "components/create/StartDateInput";
-import VestingEndDateInput from "components/create/VestingEndDateInput";
-import VestmentChart from "components/create/VestmentChart";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import {
-  Authority,
-  CreateLockInstructionAccounts,
-  CreateLockInstructionArgs,
-  createCreateLockInstruction,
-} from "program";
-import useProgram from "program/useProgram";
-import { ChangeEvent, FC, useCallback, useEffect, useState } from "react";
-import { TREASURY, getPDAs } from "utils/constants";
-import { getNameArg, shortenSignature } from "utils/formatters";
-import { notify } from "utils/notifications";
-import { useDates } from "utils/useDates";
 import { FormikHelpers, useFormik } from "formik";
-import * as Yup from "yup";
-import SelectTokenDialog from "components/ui/modals/SelectTokenDialog";
+import {
+  oneTimePaymentValidationSchema,
+  tokenLockValidationSchema,
+  vestingScheduleValidationSchema,
+} from "./validationSchemas";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import CreateForm from "./CreateForm";
+import Head from "next/head";
 import { ICreateForm } from "utils/interfaces";
+import ReviewLockCard from "components/create/ReviewLockCard";
+import SelectTokenDialog from "components/ui/modals/SelectTokenDialog";
+import SelectTypeTabs from "./SelectTypeTabs";
+import VestmentChart from "components/create/VestmentChart";
+import axios from "axios";
+import { createOneTimePayment } from "./createOneTimePayment";
+import { createTokenLock } from "./createTokenLock";
+import { createVestingSchedule } from "./createVestingSchedule";
+import { useDates } from "utils/useDates";
+import useProgram from "program/useProgram";
 
 export default function CreateFeature() {
-  const router = useRouter();
   const { wallet, connection } = useProgram();
-  const {
-    today,
-    tomorrow,
-    oneDayInMilliseconds,
-    thirtyDays,
-    ninetyDaysFromNow,
-  } = useDates();
+  const { today, oneDayInMilliseconds } = useDates();
 
+  const [vestingType, setVestingType] = useState<VestingType>(
+    VestingType.VestingSchedule,
+  );
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
   const [vestingDuration, setVestingDuration] = useState<number>(0);
-  const [selectedToken, setSelectedToken] = useState<DasApiAsset | null>(null);
 
-  const initialValues: ICreateForm = {
-    name: "",
-    startDate: new Date(),
-    vestingEndDate: new Date(),
-    recipient: "",
-    payoutInterval: oneDayInMilliseconds,
-    selectedToken: null,
-    amountToBeVested: "",
-    cliffPaymentAmount: "",
-    cancelAuthority: Authority.Neither,
-    changeRecipientAuthority: Authority.Neither,
-  };
-  const validationSchema = Yup.object().shape({
-    name: Yup.string()
-      .trim()
-      .min(2, "Must be at least 2 characters")
-      .max(32, "Must be less than 32 characters")
-      .required("Required"),
-    startDate: Yup.date().min(new Date(today)).required("Required"),
-    vestingEndDate: Yup.date().min(new Date(tomorrow)).required("Required"),
-    recipient: Yup.string().trim().required("Required"),
-    payoutInterval: Yup.number().required("Required"),
-    selectedToken: Yup.object().required("Required"),
-    amountToBeVested: Yup.number().required("Required"),
-    cliffPaymentAmount: Yup.number().required("Required"),
-    cancelAuthority: Yup.number().required("Required"),
-    changeRecipientAuthority: Yup.number().required("Required"),
-  });
+  const initialValues: ICreateForm = useMemo(
+    () => {
+      switch (vestingType) {
+        case VestingType.VestingSchedule:
+          return {
+            name: "",
+            startDate: new Date(),
+            vestingEndDate: new Date(),
+            recipient: "",
+            payoutInterval: oneDayInMilliseconds,
+            selectedToken: assets[0],
+            amountToBeVested: "",
+            cliffPaymentAmount: "",
+            cancelAuthority: Authority.Neither,
+            changeRecipientAuthority: Authority.Neither,
+          };
+        case VestingType.TokenLock:
+          return {
+            name: "",
+            vestingEndDate: new Date(),
+            selectedToken: assets[0],
+            amountToBeVested: "",
+          };
+        case VestingType.OneTimePayment:
+          return {
+            name: "",
+            vestingEndDate: new Date(),
+            recipient: "",
+            selectedToken: assets[0],
+            amountToBeVested: "",
+            cancelAuthority: Authority.Neither,
+            changeRecipientAuthority: Authority.Neither,
+          };
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [vestingType],
+  );
+
+  const validationSchema = useMemo(() => {
+    switch (vestingType) {
+      case VestingType.VestingSchedule:
+        return vestingScheduleValidationSchema();
+      case VestingType.TokenLock:
+        return tokenLockValidationSchema();
+      case VestingType.OneTimePayment:
+        return oneTimePaymentValidationSchema();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vestingType]);
 
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onReset: (values: ICreateForm, helpers: FormikHelpers<ICreateForm>) => {
-      helpers.resetForm();
-    },
+    validateOnBlur: false,
+    validateOnChange: false,
+    validateOnMount: false,
     onSubmit: async (
       values: ICreateForm,
       helpers: FormikHelpers<ICreateForm>,
     ) => {
-      console.log("-> ~ onFormSubmit ~ helpers:", helpers);
-      console.log("-> ~ onFormSubmit ~ values:", values);
-      return;
-
-      // validate balance
-      // validate vesting duration
-      // validate reicpient
-
-      const createLockInstructionArgs: CreateLockInstructionArgs = {
-        cancelAuthority: formik.values.cancelAuthority,
-        changeRecipientAuthority: formik.values.changeRecipientAuthority,
-        amountToBeVested: Number(formik.values.amountToBeVested),
-        cliffPaymentAmount: Number(formik.values.cliffPaymentAmount),
-        vestingDuration: Math.round(Number(vestingDuration / 1000)),
-        payoutInterval: Math.round(formik.values.payoutInterval / 1000),
-        startDate: Math.round(formik.values.startDate.getTime() / 1000),
-        name: getNameArg(formik.values.name),
-      };
-
-      const mint = new PublicKey(selectedToken.id);
-      const recipientKey = new PublicKey(formik.values.recipient);
-      const [locker, lock, lockTokenAccount] = getPDAs(
-        wallet.publicKey,
-        recipientKey,
-        mint,
-      );
-      const funderTokenAccount = getAssociatedTokenAddressSync(
-        mint,
-        new PublicKey(wallet.publicKey),
-        false,
-        TOKEN_2022_PROGRAM_ID,
-      );
-      const recipientTokenAccount = getAssociatedTokenAddressSync(
-        mint,
-        new PublicKey(formik.values.recipient),
-        false,
-        TOKEN_2022_PROGRAM_ID,
-      );
-
-      const createLockInstructionAccounts: CreateLockInstructionAccounts = {
-        funder: wallet.publicKey,
-        recipient: new PublicKey(formik.values.recipient),
-        locker,
-        treasury: TREASURY,
-        lock,
-        lockTokenAccount,
-        funderTokenAccount,
-        recipientTokenAccount,
-        mint,
-        tokenProgram: TOKEN_2022_PROGRAM_ID,
-        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      };
-
-      try {
-        const createLockInstruction = createCreateLockInstruction(
-          createLockInstructionAccounts,
-          createLockInstructionArgs,
-        );
-
-        const latestBlockhash = await connection.getLatestBlockhash();
-        const messageV0 = new TransactionMessage({
-          payerKey: wallet.publicKey,
-          recentBlockhash: latestBlockhash.blockhash,
-          instructions: [createLockInstruction],
-        }).compileToV0Message();
-
-        const tx = new VersionedTransaction(messageV0);
-        const txid = await wallet.sendTransaction(tx, connection);
-        const confirmation = await connection.confirmTransaction({
-          signature: txid,
-          blockhash: latestBlockhash.blockhash,
-          lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-        });
-
-        if (confirmation.value.err) {
-          notify({
-            message: "Transaction Failed",
-            description: `Transaction ${shortenSignature(txid)} failed (${
-              confirmation.value.err
-            })`,
-            type: "error",
-          });
-        }
-
-        notify({
-          message: "Transaction sent",
-          description: `Transaction ${shortenSignature(txid)} has been sent`,
-          type: "success",
-        });
-
-        router.push("/dashboard");
-      } catch (error) {
-        console.log("-> ~ error", error);
-        notify({
-          message: "Transaction Failed",
-          description: `${error}`,
-          type: "error",
-        });
+      switch (vestingType) {
+        case VestingType.VestingSchedule:
+          await createVestingSchedule(
+            values,
+            helpers,
+            wallet,
+            connection,
+            vestingDuration,
+            balance,
+            today.toDate(),
+          );
+          break;
+        case VestingType.TokenLock:
+          await createTokenLock(
+            values,
+            helpers,
+            wallet,
+            connection,
+            vestingDuration,
+            balance,
+            today.toDate(),
+          );
+          break;
+        case VestingType.OneTimePayment:
+          await createOneTimePayment(
+            values,
+            helpers,
+            wallet,
+            connection,
+            vestingDuration,
+            balance,
+            today.toDate(),
+          );
+          break;
       }
     },
   });
+
+  const balance = useMemo(
+    () =>
+      // @ts-ignore
+      formik.values.selectedToken?.token_info.balance
+        ? // @ts-ignore
+          formik.values.selectedToken?.token_info.balance /
+          // @ts-ignore
+          10 ** formik.values.selectedToken?.token_info.decimals
+        : 0,
+    [formik.values.selectedToken],
+  );
 
   const onPageLoad = useCallback(async () => {
     const {
@@ -206,15 +154,28 @@ export default function CreateFeature() {
     );
 
     setAssets(items);
-    setSelectedToken(items[0]);
+    formik.setFieldValue("selectedToken", items[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey]);
 
   useEffect(() => {
-    if (selectedToken) {
-      formik.setFieldValue("selectedToken", selectedToken);
+    switch (vestingType) {
+      case VestingType.VestingSchedule:
+        break;
+      case VestingType.TokenLock:
+        formik.setFieldValue("startDate", today.toDate());
+        formik.setFieldValue("recipient", wallet.publicKey.toBase58());
+        formik.setFieldValue("payoutInterval", vestingDuration);
+        formik.setFieldValue("cancelAuthority", Authority.Neither);
+        formik.setFieldValue("changeRecipientAuthority", Authority.Neither);
+        break;
+      case VestingType.OneTimePayment:
+        formik.setFieldValue("startDate", today.toDate());
+        formik.setFieldValue("payoutInterval", vestingDuration);
+        break;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedToken]);
+  }, [vestingType]);
 
   useEffect(() => {
     setVestingDuration(
@@ -240,113 +201,57 @@ export default function CreateFeature() {
         />
       </Head>
 
+      <header className="flex flex-col gap-8 mb-12">
+        <h1 className="text-3xl font-bold">Configure a vesting account</h1>
+        <p className="prose">
+          Vesting Schedules, Token Locks, and One-Time Payments each offer
+          distinct ways to manage token distribution.
+        </p>
+      </header>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-8">
-        <form
-          className="card"
-          onReset={formik.handleReset}
-          onSubmit={formik.handleSubmit}
-        >
+        <div className="card">
           <div className="card-body">
-            <div className="card-title">Configure the vesting account</div>
-            <div className="form-control">
-              <label htmlFor="" className="label">
-                <span className="label-text font-bold">Name</span>
-              </label>
-              <input
-                type="text"
-                className="input input-bordered input-sm"
-                placeholder="Name the lock"
-                maxLength={32}
-                value={formik.values.name}
-                onChange={formik.handleChange}
-              />
-            </div>
-
-            {/* TODO-CHECK: resolve .sol addresses and add validations */}
-            <RecipientInput
-              values={formik.values}
-              handler={formik.handleChange}
-              errors={formik.errors}
+            <SelectTypeTabs
+              formik={formik}
+              vestingType={vestingType}
+              setVestingType={setVestingType}
             />
 
-            {/* TODO: replace default image with "UNK" */}
-            <SelectTokenInput
-              values={formik.values}
-              handler={formik.handleChange}
-              errors={formik.errors}
-            />
-
-            {/* TODO: Dates are wonky, we need to include times and consider timezones */}
-            <StartDateInput
-              values={formik.values}
-              handler={formik.handleChange}
-              errors={formik.errors}
-            />
-
-            {/* TODO: Dates are wonky, we need to include times and consider timezones */}
-            <VestingEndDateInput
-              values={formik.values}
-              handler={formik.handleChange}
-              errors={formik.errors}
-            />
-
-            <PayoutIntervalInput
-              values={formik.values}
-              handler={formik.handleChange}
-              errors={formik.errors}
-            />
-
-            {/* TODO: Consider bringing back the switch for this */}
-            <CliffPaymentAmountInput
-              values={formik.values}
-              handler={formik.handleChange}
-              errors={formik.errors}
-            />
-
-            <AuthoritiesInput
-              values={formik.values}
-              handler={formik.handleChange}
-              errors={formik.errors}
-            />
-
-            <div className="card-actions mt-2">
-              <button className="btn btn-secondary" type="reset">
-                Reset
-              </button>
-              <button className="btn btn-accent" type="submit">
-                Submit
-              </button>
-            </div>
+            <CreateForm formik={formik} vestingType={vestingType} />
           </div>
-        </form>
+        </div>
 
         <div className="flex flex-col gap-2 lg:gap-8">
-          {/* TODO: I think the dates are still a little wonky here */}
-          <VestmentChart
-            vestingEndDate={new Date(formik.values.vestingEndDate)}
-            startDate={new Date(formik.values.startDate)}
-            vestingDuration={vestingDuration}
-            amountToBeVested={Number(formik.values.amountToBeVested)}
-            payoutInterval={Number(formik.values.payoutInterval)}
-            cliffPaymentAmount={Number(formik.values.cliffPaymentAmount)}
-          />
+          {vestingType === VestingType.VestingSchedule && (
+            <VestmentChart
+              vestingEndDate={new Date(formik.values.vestingEndDate)}
+              startDate={new Date(formik.values.startDate)}
+              vestingDuration={vestingDuration}
+              amountToBeVested={Number(formik.values.amountToBeVested)}
+              payoutInterval={Number(formik.values.payoutInterval)}
+              cliffPaymentAmount={Number(formik.values.cliffPaymentAmount)}
+            />
+          )}
 
           <ReviewLockCard
             funder={wallet.publicKey}
             recipient={formik.values.recipient}
             selectedToken={formik.values.selectedToken}
             startDate={new Date(formik.values.startDate)}
+            vestingEndDate={new Date(formik.values.vestingEndDate)}
             vestingDuration={vestingDuration}
             amountToBeVested={Number(formik.values.amountToBeVested)}
             payoutInterval={Number(formik.values.payoutInterval)}
             cliffPaymentAmount={Number(formik.values.cliffPaymentAmount)}
             cancelAuthority={formik.values.cancelAuthority}
             changeRecipientAuthority={formik.values.changeRecipientAuthority}
+            vestingType={vestingType}
           />
         </div>
       </div>
 
-      <SelectTokenDialog assets={assets} onTokenSelect={setSelectedToken} />
+      <SelectTokenDialog assets={assets} formik={formik} />
     </>
   );
 }

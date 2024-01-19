@@ -1,4 +1,5 @@
-import { FormikValues, FormikErrors } from "formik";
+import { FormikErrors, FormikValues } from "formik";
+
 import { ChangeEventHandler } from "react";
 import { ICreateForm } from "utils/interfaces";
 
@@ -18,12 +19,20 @@ export default function VestingEndDateInput({
       </label>
 
       <input
-        type="date"
-        className="input input-sm input-bordered"
+        type="datetime-local"
+        className={`input input-sm input-bordered ${errors.vestingEndDate && "input-error"}`}
         name="vestingEndDate"
+        placeholder="Date the last tokens will be unlocked"
+        min={values.startDate}
         value={values.vestingEndDate}
         onChange={handler}
       />
+
+      {!!errors.vestingEndDate && (
+        <label htmlFor="" className="label">
+          <span className="text-error label-text-alt">Invalid Date</span>
+        </label>
+      )}
     </div>
   );
 }

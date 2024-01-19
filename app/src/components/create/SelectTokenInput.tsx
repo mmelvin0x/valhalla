@@ -1,26 +1,24 @@
-import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import { PublicKey } from "@solana/web3.js";
-import { FormikValues, FormikErrors } from "formik";
-import { ChangeEventHandler, Dispatch, SetStateAction, useMemo } from "react";
-import { shortenAddress } from "utils/formatters";
-import { ICreateForm } from "utils/interfaces";
+import { ChangeEventHandler, useMemo } from "react";
+import { FormikErrors, FormikValues } from "formik";
 
-interface SelectTokenInputProps {
-  assets: DasApiAsset[];
-  amountToBeVested: number;
-  selectedToken: DasApiAsset | null;
-  setAmountToBeVested: Dispatch<SetStateAction<number>>;
-  setSelectedToken: Dispatch<SetStateAction<DasApiAsset>>;
-}
+import { ICreateForm } from "utils/interfaces";
+import { PublicKey } from "@solana/web3.js";
+import { shortenAddress } from "utils/formatters";
 
 export default function SelectTokenInput({
   values,
   handler,
   errors,
+  setFieldValue,
 }: {
   values: FormikValues;
   handler: ChangeEventHandler<any>;
   errors: FormikErrors<ICreateForm>;
+  setFieldValue: (
+    field: string,
+    value: any,
+    shouldValidate?: boolean,
+  ) => Promise<void> | Promise<FormikErrors<ICreateForm>>;
 }) {
   const { amountToBeVested, selectedToken } = values;
 
@@ -37,60 +35,91 @@ export default function SelectTokenInput({
     [selectedToken],
   );
 
+  const balanceAsNumber = useMemo(
+    () =>
+      // @ts-ignore
+      selectedToken?.token_info.balance
+        ? // @ts-ignore
+          selectedToken?.token_info.balance /
+          // @ts-ignore
+          10 ** selectedToken?.token_info.decimals
+        : 0,
+    [selectedToken],
+  );
+
   return (
     <>
-      <div className="form-control flex flex-col gap-2">
+      <div className="form-control flex flex-col">
         <label htmlFor="" className="label">
           <span className="label-text font-bold">Select a Token</span>
-          <div className="label-text-alt flex items-center gap-2">
-            <ul
-              className="select select-sm items-center select-bordered"
-              onClick={() => {
-                (
-                  document.getElementById(
-                    "select_token_modal",
-                  ) as HTMLDialogElement
-                ).showModal();
-              }}
+          <span className="label-text-alt flex gap-1">
+            <button
+              type="button"
+              className="btn btn-xs"
+              onClick={() =>
+                setFieldValue(
+                  "amountToBeVested",
+                  Math.round(balanceAsNumber / 2),
+                )
+              }
             >
-              {selectedToken?.id ? (
-                <li>
-                  <div className="flex items-center gap-8">
-                    <div className="rounded-full w-4 h-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        className="rounded-full"
-                        src={
-                          selectedToken?.content.links?.["image"] || "/LP.png"
-                        }
-                        alt={""}
-                      />
-                    </div>
-
-                    <div>
-                      {selectedToken?.content.metadata.name ||
-                        shortenAddress(new PublicKey(selectedToken.id))}
-                    </div>
-                  </div>
-                </li>
-              ) : (
-                <div className="text-xs">select token</div>
-              )}
-            </ul>
-          </div>
+              Half
+            </button>
+            <button
+              type="button"
+              className="btn btn-xs"
+              onClick={() =>
+                setFieldValue("amountToBeVested", Math.round(balanceAsNumber))
+              }
+            >
+              Max
+            </button>
+          </span>
         </label>
+        <ul
+          className={`select select-sm items-center select-bordered mb-2 ${errors.selectedToken ? "select-error" : ""}`}
+          onClick={() => {
+            (
+              document.getElementById("select_token_modal") as HTMLDialogElement
+            ).showModal();
+          }}
+        >
+          {selectedToken?.id ? (
+            <li className="">
+              <div className="flex items-center gap-8">
+                <div className="rounded-full w-4 h-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className="rounded-full"
+                    src={selectedToken?.content.links?.["image"] || "/LP.png"}
+                    alt={""}
+                  />
+                </div>
+
+                <div>
+                  {selectedToken?.content.metadata.name ||
+                    shortenAddress(new PublicKey(selectedToken.id))}
+                </div>
+              </div>
+            </li>
+          ) : (
+            <div className="text-xs">select token</div>
+          )}
+        </ul>
 
         <div className="w-full">
           <input
             type="number"
             name="amountToBeVested"
             placeholder="Amount"
-            className="input input-sm input-bordered w-full"
+            className={`input input-sm input-bordered w-full ${errors.amountToBeVested && "input-error"}`}
             value={amountToBeVested}
             onChange={handler}
           />
           <label className="label">
-            <span className="label-text-alt"></span>
+            <span className="label-text-alt text-error">
+              {errors.amountToBeVested}
+            </span>
             <span className="label-text-alt">Balance: {balance}</span>
           </label>
         </div>

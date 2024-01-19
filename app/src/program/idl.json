@@ -149,7 +149,7 @@
         "",
         "* `ctx` - The context for the lock creation.",
         "* `amount_to_be_vested` - The amount to be vested.",
-        "* `vesting_duration` - The duration of the vesting period.",
+        "* `total_vesting_duration` - The duration of the vesting period.",
         "* `payout_interval` - The interval at which payouts will be made.",
         "* `cliff_payment_amount` - The amount to be paid at the cliff.",
         "* `cancel_authority` - The authority to cancel the lock.",
@@ -258,7 +258,7 @@
           "type": "u64"
         },
         {
-          "name": "vestingDuration",
+          "name": "totalVestingDuration",
           "type": "u64"
         },
         {
@@ -283,6 +283,12 @@
           "name": "changeRecipientAuthority",
           "type": {
             "defined": "Authority"
+          }
+        },
+        {
+          "name": "vestingType",
+          "type": {
+            "defined": "VestingType"
           }
         },
         {
@@ -544,7 +550,7 @@
             }
           },
           {
-            "name": "vestingDuration",
+            "name": "totalVestingDuration",
             "type": "u64"
           },
           {
@@ -574,6 +580,12 @@
           {
             "name": "isCliffPaymentDisbursed",
             "type": "bool"
+          },
+          {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
           },
           {
             "name": "name",
@@ -608,6 +620,23 @@
           }
         ]
       }
+    },
+    {
+      "name": "VestingType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "VestingSchedule"
+          },
+          {
+            "name": "TokenLock"
+          },
+          {
+            "name": "OneTimePayment"
+          }
+        ]
+      }
     }
   ],
   "errors": [
@@ -638,7 +667,7 @@
     }
   ],
   "metadata": {
-    "address": "AX5THjwe8LJ141rMWRcJupgReLW3bpmv4muHrd5p19Aa",
+    "address": "Faccsj4TmRdXeNsmP9X1MA4kqRjsD2MYL67Zc7NYgMoU",
     "origin": "anchor",
     "binaryVersion": "0.29.0",
     "libVersion": "0.29.0"

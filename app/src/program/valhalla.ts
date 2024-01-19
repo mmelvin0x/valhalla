@@ -149,7 +149,7 @@ export type Valhalla = {
         "",
         "* `ctx` - The context for the lock creation.",
         "* `amount_to_be_vested` - The amount to be vested.",
-        "* `vesting_duration` - The duration of the vesting period.",
+        "* `total_vesting_duration` - The duration of the vesting period.",
         "* `payout_interval` - The interval at which payouts will be made.",
         "* `cliff_payment_amount` - The amount to be paid at the cliff.",
         "* `cancel_authority` - The authority to cancel the lock.",
@@ -258,7 +258,7 @@ export type Valhalla = {
           "type": "u64"
         },
         {
-          "name": "vestingDuration",
+          "name": "totalVestingDuration",
           "type": "u64"
         },
         {
@@ -283,6 +283,12 @@ export type Valhalla = {
           "name": "changeRecipientAuthority",
           "type": {
             "defined": "Authority"
+          }
+        },
+        {
+          "name": "vestingType",
+          "type": {
+            "defined": "VestingType"
           }
         },
         {
@@ -544,7 +550,7 @@ export type Valhalla = {
             }
           },
           {
-            "name": "vestingDuration",
+            "name": "totalVestingDuration",
             "type": "u64"
           },
           {
@@ -576,6 +582,12 @@ export type Valhalla = {
             "type": "bool"
           },
           {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
+          },
+          {
             "name": "name",
             "type": {
               "array": [
@@ -605,6 +617,23 @@ export type Valhalla = {
           },
           {
             "name": "Both"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VestingType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "VestingSchedule"
+          },
+          {
+            "name": "TokenLock"
+          },
+          {
+            "name": "OneTimePayment"
           }
         ]
       }
@@ -790,7 +819,7 @@ export const IDL: Valhalla = {
         "",
         "* `ctx` - The context for the lock creation.",
         "* `amount_to_be_vested` - The amount to be vested.",
-        "* `vesting_duration` - The duration of the vesting period.",
+        "* `total_vesting_duration` - The duration of the vesting period.",
         "* `payout_interval` - The interval at which payouts will be made.",
         "* `cliff_payment_amount` - The amount to be paid at the cliff.",
         "* `cancel_authority` - The authority to cancel the lock.",
@@ -899,7 +928,7 @@ export const IDL: Valhalla = {
           "type": "u64"
         },
         {
-          "name": "vestingDuration",
+          "name": "totalVestingDuration",
           "type": "u64"
         },
         {
@@ -924,6 +953,12 @@ export const IDL: Valhalla = {
           "name": "changeRecipientAuthority",
           "type": {
             "defined": "Authority"
+          }
+        },
+        {
+          "name": "vestingType",
+          "type": {
+            "defined": "VestingType"
           }
         },
         {
@@ -1185,7 +1220,7 @@ export const IDL: Valhalla = {
             }
           },
           {
-            "name": "vestingDuration",
+            "name": "totalVestingDuration",
             "type": "u64"
           },
           {
@@ -1217,6 +1252,12 @@ export const IDL: Valhalla = {
             "type": "bool"
           },
           {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
+          },
+          {
             "name": "name",
             "type": {
               "array": [
@@ -1246,6 +1287,23 @@ export const IDL: Valhalla = {
           },
           {
             "name": "Both"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VestingType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "VestingSchedule"
+          },
+          {
+            "name": "TokenLock"
+          },
+          {
+            "name": "OneTimePayment"
           }
         ]
       }

@@ -82,7 +82,7 @@ export class Locker implements LockerArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'AX5THjwe8LJ141rMWRcJupgReLW3bpmv4muHrd5p19Aa'
+      'Faccsj4TmRdXeNsmP9X1MA4kqRjsD2MYL67Zc7NYgMoU'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, lockerBeet)
