@@ -1,5 +1,6 @@
-import BaseModel from "models/Base.model";
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
+
+import BaseModel from "models/models";
 
 export default function LockDetails({
   lock,

@@ -1,7 +1,7 @@
 import { FC, useMemo } from "react";
 
 import { AiOutlineCloseCircle } from "react-icons/ai";
-import { BaseModel } from "models/VestingSchedule";
+import BaseModel from "models/models";
 
 const CloseLockDialog: FC<{
   lock: BaseModel;
@@ -10,8 +10,8 @@ const CloseLockDialog: FC<{
   const value = useMemo(
     () =>
       lock
-        ? (BigInt(lock.lockTokenAccount.amount)
-            ? BigInt(lock.lockTokenAccount.amount) / BigInt(10 ** lock.decimals)
+        ? (BigInt(lock.tokenAccount.amount)
+            ? BigInt(lock.tokenAccount.amount) / BigInt(10 ** lock.decimals)
             : 0
           ).toString()
         : "0",
@@ -21,8 +21,8 @@ const CloseLockDialog: FC<{
   const balance = useMemo(
     () =>
       lock
-        ? (BigInt(lock.lockTokenAccount.amount)
-            ? BigInt(lock.lockTokenAccount.amount) / BigInt(10 ** lock.decimals)
+        ? (BigInt(lock.tokenAccount.amount)
+            ? BigInt(lock.tokenAccount.amount) / BigInt(10 ** lock.decimals)
             : 0
           ).toLocaleString()
         : "0",

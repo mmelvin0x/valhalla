@@ -1,6 +1,6 @@
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
-import { BaseModel } from "models/VestingSchedule";
+import BaseModel from "models/models";
 import { FC } from "react";
 
 interface RenouncedProps {

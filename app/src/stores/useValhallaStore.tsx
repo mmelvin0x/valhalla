@@ -1,4 +1,4 @@
-import BaseModel from "models/Base.model";
+import BaseModel from "models/models";
 import { create } from "zustand";
 
 interface ValhallaStore {

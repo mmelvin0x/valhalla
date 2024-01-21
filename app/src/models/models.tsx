@@ -475,3 +475,33 @@ export default class BaseModel {
     }
   }
 }
+
+export class VestingScheduleAccount extends BaseModel {
+  constructor(
+    publicKey: PublicKey,
+    scheduledPayment: VestingSchedule,
+    public connection: Connection,
+  ) {
+    super(publicKey, scheduledPayment, connection);
+  }
+}
+
+export class TokenLockAccount extends BaseModel {
+  constructor(
+    publicKey: PublicKey,
+    scheduledPayment: TokenLock,
+    public connection: Connection,
+  ) {
+    super(publicKey, scheduledPayment, connection);
+  }
+}
+
+export class ScheduledPaymentAccount extends BaseModel {
+  constructor(
+    publicKey: PublicKey,
+    scheduledPayment: ScheduledPayment,
+    public connection: Connection,
+  ) {
+    super(publicKey, scheduledPayment, connection);
+  }
+}

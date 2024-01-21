@@ -6,7 +6,7 @@ import {
   FaStopwatch,
 } from "react-icons/fa";
 
-import BaseModel from "models/Base.model";
+import BaseModel from "models/models";
 import { displayTime } from "utils/formatters";
 import { useMemo } from "react";
 import useProgram from "program/useProgram";

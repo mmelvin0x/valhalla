@@ -1,9 +1,9 @@
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
-import { VestingType } from "../../../program";
 
-import BaseModel from "models/Base.model";
+import BaseModel from "models/models";
 import LoadingSpinner from "../../ui/LoadingSpinner";
 import LockDetails from "./LockDetails";
+import { VestingType } from "../../../program";
 import useProgram from "program/useProgram";
 import { useState } from "react";
 

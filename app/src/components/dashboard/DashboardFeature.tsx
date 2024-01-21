@@ -1,18 +1,19 @@
+import BaseModel, {
+  ScheduledPaymentAccount,
+  TokenLockAccount,
+  VestingScheduleAccount,
+} from "models/models";
 import { ScheduledPayment, TokenLock, VestingSchedule } from "program";
 import { useEffect, useState } from "react";
 
-import BaseModel from "models/Base.model";
 import DashboardStats from "./ui/DashboardStats";
 import Head from "next/head";
 import LockCollapse from "components/dashboard/ui/LockCollapse";
-import { ScheduledPaymentAccount } from "models/ScheduledPayment";
-import { TokenLockAccount } from "models/TokenLock";
-import { VestingScheduleAccount } from "models/VestingSchedule";
+import { SubType } from "utils/constants";
 import { VestingType } from "program";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
-import { SubType } from "utils/constants";
 
 export default function DashboardFeature() {
   const { wallet, connection } = useProgram();
