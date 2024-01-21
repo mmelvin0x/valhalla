@@ -1,9 +1,10 @@
-import { LockAccount } from "models/Lock";
-import { FC } from "react";
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
+import { BaseModel } from "models/VestingSchedule";
+import { FC } from "react";
+
 interface RenouncedProps {
-  lock: LockAccount;
+  lock: BaseModel;
   showTitle?: boolean;
 }
 

@@ -38,7 +38,7 @@ export const adminUpdateStruct = new beet.BeetArgsStruct<
  * @property [_writable_, **signer**] admin
  * @property [] newAdmin
  * @property [] newTreasury
- * @property [_writable_] locker
+ * @property [_writable_] config
  * @property [] treasury
  * @category Instructions
  * @category AdminUpdate
@@ -48,7 +48,7 @@ export type AdminUpdateInstructionAccounts = {
   admin: web3.PublicKey
   newAdmin: web3.PublicKey
   newTreasury: web3.PublicKey
-  locker: web3.PublicKey
+  config: web3.PublicKey
   treasury: web3.PublicKey
 }
 
@@ -69,7 +69,7 @@ export const adminUpdateInstructionDiscriminator = [
 export function createAdminUpdateInstruction(
   accounts: AdminUpdateInstructionAccounts,
   args: AdminUpdateInstructionArgs,
-  programId = new web3.PublicKey('Faccsj4TmRdXeNsmP9X1MA4kqRjsD2MYL67Zc7NYgMoU')
+  programId = new web3.PublicKey('CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn')
 ) {
   const [data] = adminUpdateStruct.serialize({
     instructionDiscriminator: adminUpdateInstructionDiscriminator,
@@ -92,7 +92,7 @@ export function createAdminUpdateInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.locker,
+      pubkey: accounts.config,
       isWritable: true,
       isSigner: false,
     },

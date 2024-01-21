@@ -1,9 +1,12 @@
 import * as anchor from "@coral-xyz/anchor";
-import { clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
+
 import { IDL, Valhalla } from "../target/types/valhalla";
+import { LAMPORTS_PER_SOL, clusterApiUrl } from "@solana/web3.js";
+
+import { getPDAs } from "../tests/utils/constants";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "Faccsj4TmRdXeNsmP9X1MA4kqRjsD2MYL67Zc7NYgMoU"
+  "CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn"
 );
 
 const FEE = 0.025;
@@ -24,18 +27,15 @@ const main = async () => {
     provider
   );
 
-  const [locker] = await anchor.web3.PublicKey.findProgramAddressSync(
-    [Buffer.from("locker")],
-    program.programId
-  );
+  const { config } = await getPDAs(program.programId, null, null, null);
 
-  console.log("🔐 Locker:", locker.toBase58());
+  console.log("🔐 Config:", config.toBase58());
 
   const initTx = await program.methods
     .adminInitialize(new anchor.BN(FEE * LAMPORTS_PER_SOL))
     .accounts({
       admin: wallet.publicKey,
-      locker: locker,
+      config: config,
       treasury: wallet.publicKey,
     })
     .signers([wallet.payer])
@@ -45,10 +45,10 @@ const main = async () => {
 
   await provider.connection.confirmTransaction(initTx, "confirmed");
 
-  const lockerAccount = await program.account.locker.fetch(locker);
-  console.log("🐸 Admin:", lockerAccount.admin.toBase58());
-  console.log("💰 Treasury:", lockerAccount.treasury.toBase58());
-  console.log("❤️‍🩹 Fee:", lockerAccount.fee.toNumber() / LAMPORTS_PER_SOL);
+  const configAccount = await program.account.config.fetch(config);
+  console.log("🐸 Admin:", configAccount.admin.toBase58());
+  console.log("💰 Treasury:", configAccount.treasury.toBase58());
+  console.log("❤️‍🩹 Fee:", configAccount.fee.toNumber() / LAMPORTS_PER_SOL);
 };
 
 main()

@@ -1,4 +1,5 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+
 import create from "zustand";
 
 interface UserSOLBalanceStore {
@@ -18,7 +19,6 @@ const useUserSOLBalanceStore = create<UserSOLBalanceStore>((set, _get) => ({
     }
     set((s) => {
       s.balance = balance;
-      console.log(`balance updated, `, balance);
       return s;
     });
   },

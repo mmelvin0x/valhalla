@@ -36,7 +36,7 @@ export const adminInitializeStruct = new beet.BeetArgsStruct<
  * Accounts required by the _adminInitialize_ instruction
  *
  * @property [_writable_, **signer**] admin
- * @property [_writable_] locker
+ * @property [_writable_] config
  * @property [] treasury
  * @category Instructions
  * @category AdminInitialize
@@ -44,7 +44,7 @@ export const adminInitializeStruct = new beet.BeetArgsStruct<
  */
 export type AdminInitializeInstructionAccounts = {
   admin: web3.PublicKey
-  locker: web3.PublicKey
+  config: web3.PublicKey
   treasury: web3.PublicKey
   systemProgram?: web3.PublicKey
 }
@@ -66,7 +66,7 @@ export const adminInitializeInstructionDiscriminator = [
 export function createAdminInitializeInstruction(
   accounts: AdminInitializeInstructionAccounts,
   args: AdminInitializeInstructionArgs,
-  programId = new web3.PublicKey('Faccsj4TmRdXeNsmP9X1MA4kqRjsD2MYL67Zc7NYgMoU')
+  programId = new web3.PublicKey('CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn')
 ) {
   const [data] = adminInitializeStruct.serialize({
     instructionDiscriminator: adminInitializeInstructionDiscriminator,
@@ -79,7 +79,7 @@ export function createAdminInitializeInstruction(
       isSigner: true,
     },
     {
-      pubkey: accounts.locker,
+      pubkey: accounts.config,
       isWritable: true,
       isSigner: false,
     },

@@ -13,7 +13,7 @@ import * as beet from '@metaplex-foundation/beet'
 export enum VestingType {
   VestingSchedule,
   TokenLock,
-  OneTimePayment,
+  ScheduledPayment,
 }
 
 /**

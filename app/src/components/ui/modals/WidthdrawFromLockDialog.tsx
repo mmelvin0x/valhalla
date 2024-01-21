@@ -1,11 +1,12 @@
-import { LockAccount } from "models/Lock";
 import { Dispatch, FC, SetStateAction, useMemo } from "react";
+
 import { AiOutlineCloseCircle } from "react-icons/ai";
+import { BaseModel } from "models/VestingSchedule";
 
 const WithdrawToRecipientDialog: FC<{
-  lock: LockAccount;
+  lock: BaseModel;
   withdrawAmount: number;
-  onSubmit: (lock: LockAccount) => Promise<void>;
+  onSubmit: (lock: BaseModel) => Promise<void>;
   setWithdrawAmount: Dispatch<SetStateAction<number>>;
 }> = ({ lock, withdrawAmount, setWithdrawAmount, onSubmit }) => {
   const balance = useMemo(
@@ -16,7 +17,7 @@ const WithdrawToRecipientDialog: FC<{
             : 0
           ).toLocaleString()
         : "0",
-    [lock]
+    [lock],
   );
 
   return (
@@ -46,8 +47,8 @@ const WithdrawToRecipientDialog: FC<{
                         BigInt(lock.lockTokenAccount.amount) /
                         BigInt(10 ** lock.decimals) /
                         BigInt(2)
-                      ).toString()
-                    )
+                      ).toString(),
+                    ),
                   )
                 }
               >
@@ -60,9 +61,9 @@ const WithdrawToRecipientDialog: FC<{
                     Number(
                       BigInt(
                         BigInt(lock.lockTokenAccount.amount) /
-                          BigInt(10 ** lock.decimals)
-                      ).toString()
-                    )
+                          BigInt(10 ** lock.decimals),
+                      ).toString(),
+                    ),
                   )
                 }
               >

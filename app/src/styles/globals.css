@@ -5,19 +5,25 @@
 body {
   background-image: linear-gradient(
       to bottom,
-      rgba(94, 129, 172, 0.5),
-      rgba(236, 239, 244, 1)
+      rgba(94, 129, 172, 0.95),
+      rgba(236, 239, 244, 0.95)
     ),
-    url("/logo1024.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-color: #fff;
+    url("/bg.png");
+  background-repeat: repeat;
   background-attachment: fixed;
 }
 
+.navbar {
+  background-color: rgba(236, 239, 244, 0.7);
+}
+
+.navlinks {
+  background-color: rgba(236, 239, 244, 0.7);
+}
+
+.stats,
 .card {
-  @apply bg-base-100;
-  @apply border;
+  background-color: rgba(236, 239, 244, 0.7);
 }
 
 h1 {

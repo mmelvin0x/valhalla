@@ -1,4 +1,3 @@
-import { Authority, VestingType } from "program";
 import {
   DasApiAsset,
   DasApiAssetList,
@@ -8,24 +7,42 @@ import {
   oneTimePaymentValidationSchema,
   tokenLockValidationSchema,
   vestingScheduleValidationSchema,
-} from "./validationSchemas";
+} from "./utils/validationSchemas";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import CreateForm from "./CreateForm";
+import { Authority } from "program";
+import CreateForm from "./ui/CreateForm";
 import Head from "next/head";
 import { ICreateForm } from "utils/interfaces";
-import ReviewLockCard from "components/create/ReviewLockCard";
+import ReviewLockCard from "components/create/ui/ReviewLockCard";
 import SelectTokenDialog from "components/ui/modals/SelectTokenDialog";
-import SelectTypeTabs from "./SelectTypeTabs";
-import VestmentChart from "components/create/VestmentChart";
+import SelectTypeTabs from "./ui/SelectTypeTabs";
+import { VestingType } from "program";
+import VestmentChart from "components/create/ui/VestmentChart";
 import axios from "axios";
-import { createOneTimePayment } from "./createOneTimePayment";
-import { createTokenLock } from "./createTokenLock";
-import { createVestingSchedule } from "./createVestingSchedule";
+import { createScheduledPayment } from "./instructions/createScheduledPayment";
+import { createTokenLock } from "./instructions/createTokenLock";
+import { createVestingSchedule } from "./instructions/createVestingSchedule";
 import { useDates } from "utils/useDates";
 import useProgram from "program/useProgram";
+import { useRouter } from "next/router";
 
 export default function CreateFeature() {
+  const router = useRouter();
+  useEffect(() => {
+    switch (router.query.vestingType) {
+      case VestingType.VestingSchedule.toString():
+        setVestingType(VestingType.VestingSchedule);
+        break;
+      case VestingType.TokenLock.toString():
+        setVestingType(VestingType.TokenLock);
+        break;
+      case VestingType.ScheduledPayment.toString():
+        setVestingType(VestingType.ScheduledPayment);
+        break;
+    }
+  }, [router.query]);
+
   const { wallet, connection } = useProgram();
   const { today, oneDayInMilliseconds } = useDates();
 
@@ -33,7 +50,7 @@ export default function CreateFeature() {
     VestingType.VestingSchedule,
   );
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
-  const [vestingDuration, setVestingDuration] = useState<number>(0);
+  const [totalVestingDuration, setVestingDuration] = useState<number>(0);
 
   const initialValues: ICreateForm = useMemo(
     () => {
@@ -58,7 +75,7 @@ export default function CreateFeature() {
             selectedToken: assets[0],
             amountToBeVested: "",
           };
-        case VestingType.OneTimePayment:
+        case VestingType.ScheduledPayment:
           return {
             name: "",
             vestingEndDate: new Date(),
@@ -80,7 +97,7 @@ export default function CreateFeature() {
         return vestingScheduleValidationSchema();
       case VestingType.TokenLock:
         return tokenLockValidationSchema();
-      case VestingType.OneTimePayment:
+      case VestingType.ScheduledPayment:
         return oneTimePaymentValidationSchema();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -103,7 +120,7 @@ export default function CreateFeature() {
             helpers,
             wallet,
             connection,
-            vestingDuration,
+            totalVestingDuration,
             balance,
             today.toDate(),
           );
@@ -114,20 +131,19 @@ export default function CreateFeature() {
             helpers,
             wallet,
             connection,
-            vestingDuration,
+            totalVestingDuration,
             balance,
             today.toDate(),
           );
           break;
-        case VestingType.OneTimePayment:
-          await createOneTimePayment(
+        case VestingType.ScheduledPayment:
+          await createScheduledPayment(
             values,
             helpers,
             wallet,
             connection,
-            vestingDuration,
+            totalVestingDuration,
             balance,
-            today.toDate(),
           );
           break;
       }
@@ -165,13 +181,13 @@ export default function CreateFeature() {
       case VestingType.TokenLock:
         formik.setFieldValue("startDate", today.toDate());
         formik.setFieldValue("recipient", wallet.publicKey.toBase58());
-        formik.setFieldValue("payoutInterval", vestingDuration);
+        formik.setFieldValue("payoutInterval", totalVestingDuration);
         formik.setFieldValue("cancelAuthority", Authority.Neither);
         formik.setFieldValue("changeRecipientAuthority", Authority.Neither);
         break;
-      case VestingType.OneTimePayment:
+      case VestingType.ScheduledPayment:
         formik.setFieldValue("startDate", today.toDate());
-        formik.setFieldValue("payoutInterval", vestingDuration);
+        formik.setFieldValue("payoutInterval", totalVestingDuration);
         break;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -201,17 +217,10 @@ export default function CreateFeature() {
         />
       </Head>
 
-      <header className="flex flex-col gap-8 mb-12">
-        <h1 className="text-3xl font-bold">Configure a vesting account</h1>
-        <p className="prose">
-          Vesting Schedules, Token Locks, and One-Time Payments each offer
-          distinct ways to manage token distribution.
-        </p>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="card">
           <div className="card-body">
+            <div className="card-title">Configure an account</div>
             <SelectTypeTabs
               formik={formik}
               vestingType={vestingType}
@@ -222,12 +231,12 @@ export default function CreateFeature() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 lg:gap-8">
+        <div className="flex flex-col gap-8">
           {vestingType === VestingType.VestingSchedule && (
             <VestmentChart
               vestingEndDate={new Date(formik.values.vestingEndDate)}
               startDate={new Date(formik.values.startDate)}
-              vestingDuration={vestingDuration}
+              totalVestingDuration={totalVestingDuration}
               amountToBeVested={Number(formik.values.amountToBeVested)}
               payoutInterval={Number(formik.values.payoutInterval)}
               cliffPaymentAmount={Number(formik.values.cliffPaymentAmount)}
@@ -240,7 +249,7 @@ export default function CreateFeature() {
             selectedToken={formik.values.selectedToken}
             startDate={new Date(formik.values.startDate)}
             vestingEndDate={new Date(formik.values.vestingEndDate)}
-            vestingDuration={vestingDuration}
+            totalVestingDuration={totalVestingDuration}
             amountToBeVested={Number(formik.values.amountToBeVested)}
             payoutInterval={Number(formik.values.payoutInterval)}
             cliffPaymentAmount={Number(formik.values.cliffPaymentAmount)}

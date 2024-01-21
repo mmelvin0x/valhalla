@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::types::Authority;
+use crate::{types::Authority, VestingType};
 
 #[account]
 pub struct VestingSchedule {
@@ -19,6 +19,7 @@ pub struct VestingSchedule {
     pub is_cliff_payment_disbursed: bool,
     pub cancel_authority: Authority,
     pub change_recipient_authority: Authority,
+    pub vesting_type: VestingType,
 }
 
 impl VestingSchedule {
@@ -38,6 +39,7 @@ impl VestingSchedule {
             8 + // number_of_payments_made
             1 + // is_cliff_payment_disbursed
             1 + // cancel_authority
-            1 // change_recipient_authority
+            1 + // change_recipient_authority
+            1 // vesting_type
     }
 }

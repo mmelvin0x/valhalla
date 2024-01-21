@@ -12,7 +12,7 @@ const createErrorFromCodeLookup: Map<number, () => ErrorWithCode> = new Map()
 const createErrorFromNameLookup: Map<string, () => ErrorWithCode> = new Map()
 
 /**
- * Locked: 'The lock has not expired yet!'
+ * Locked: 'The vesting_schedule has not expired yet!'
  *
  * @category Errors
  * @category generated
@@ -21,7 +21,7 @@ export class LockedError extends Error {
   readonly code: number = 0x1770
   readonly name: string = 'Locked'
   constructor() {
-    super('The lock has not expired yet!')
+    super('The vesting_schedule has not expired yet!')
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, LockedError)
     }

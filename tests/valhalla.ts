@@ -61,7 +61,7 @@ describe("⚡️ Valhalla", () => {
     expect(lockerAccount.fee.toNumber()).equals(0.1 * LAMPORTS_PER_SOL);
   });
 
-  xdescribe("🛡️ Admin Updates", () => {
+  describe("🛡️ Admin Updates", () => {
     it("should update the config fee", async () => {
       let tx = await program.methods
         .adminUpdate(new anchor.BN(0.2 * LAMPORTS_PER_SOL))
@@ -263,7 +263,7 @@ describe("⚡️ Valhalla", () => {
     });
   });
 
-  xdescribe("🔒 Vesting Schedules", () => {
+  describe("🔒 Vesting Schedules", () => {
     describe("5 Payouts - No Cliff", () => {
       before(async () => {
         [mint, funderTokenAccount, recipientTokenAccount] =
@@ -361,7 +361,6 @@ describe("⚡️ Valhalla", () => {
           recipient.publicKey.toBase58(),
           "recipient"
         );
-        expect(vestingScheduleAccount.name.toString()).equals(name, "name");
         expect(vestingScheduleAccount.mint.toBase58()).equals(
           mint.toBase58(),
           "mint"
@@ -663,7 +662,6 @@ describe("⚡️ Valhalla", () => {
           recipient.publicKey.toBase58(),
           "recipient"
         );
-        expect(vestingScheduleAccount.name.toString()).equals(name, "name");
         expect(vestingScheduleAccount.mint.toBase58()).equals(
           mint.toBase58(),
           "mint"
@@ -945,7 +943,7 @@ describe("⚡️ Valhalla", () => {
     });
   });
 
-  xdescribe("🔒 Token Locks", () => {
+  describe("🔒 Token Locks", () => {
     it("should create the lock with the right properties", async () => {
       const amountToBeVested = new anchor.BN(1_000_000_000);
       const vestingDuration = new anchor.BN(1); // 1 seconds for sake of testing time

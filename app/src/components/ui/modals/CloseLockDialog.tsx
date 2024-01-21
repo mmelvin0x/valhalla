@@ -1,10 +1,11 @@
-import { LockAccount } from "models/Lock";
 import { FC, useMemo } from "react";
+
 import { AiOutlineCloseCircle } from "react-icons/ai";
+import { BaseModel } from "models/VestingSchedule";
 
 const CloseLockDialog: FC<{
-  lock: LockAccount;
-  onSubmit: (lock: LockAccount) => Promise<void>;
+  lock: BaseModel;
+  onSubmit: (lock: BaseModel) => Promise<void>;
 }> = ({ lock, onSubmit }) => {
   const value = useMemo(
     () =>
@@ -14,7 +15,7 @@ const CloseLockDialog: FC<{
             : 0
           ).toString()
         : "0",
-    [lock]
+    [lock],
   );
 
   const balance = useMemo(
@@ -25,7 +26,7 @@ const CloseLockDialog: FC<{
             : 0
           ).toLocaleString()
         : "0",
-    [lock]
+    [lock],
   );
 
   return (

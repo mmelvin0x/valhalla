@@ -1,1259 +1,2225 @@
 export type Valhalla = {
-  version: "0.1.0";
-  name: "valhalla";
-  docs: [
-    "The `valhalla` module contains functions for interacting with the Valhalla program.",
-  ];
-  constants: [
+  "version": "0.1.0",
+  "name": "valhalla",
+  "constants": [
     {
-      name: "CONFIG_SEED";
-      type: "bytes";
-      value: "[108, 111, 99, 107, 101, 114]";
+      "name": "CONFIG_SEED",
+      "type": "bytes",
+      "value": "[99, 111, 110, 102, 105, 103]"
     },
     {
-      name: "CONFIG_SEED";
-      type: "bytes";
-      value: "[108, 111, 99, 107]";
+      "name": "VESTING_SCHEDULE_SEED",
+      "type": "bytes",
+      "value": "[118, 101, 115, 116, 105, 110, 103, 95, 115, 99, 104, 101, 100, 117, 108, 101]"
     },
     {
-      name: "LOCK_TOKEN_ACCOUNT_SEED";
-      type: "bytes";
-      value: "[116, 111, 107, 101, 110]";
-    },
-  ];
-  instructions: [
-    {
-      name: "adminInitialize";
-      docs: [
-        "Initializes the Valhalla program with the given context and fee.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the initialization.",
-        "* `fee` - The fee to be charged for the initialization.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the initialization fails.",
-      ];
-      accounts: [
-        {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
-          docs: ["The admin account that will sign the transaction."];
-        },
-        {
-          name: "locker";
-          isMut: true;
-          isSigner: false;
-          docs: ["The locker account that will be initialized."];
-        },
-        {
-          name: "treasury";
-          isMut: false;
-          isSigner: false;
-          docs: ["The treasury account that receives the fee."];
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-          docs: ["The system program account."];
-        },
-      ];
-      args: [
-        {
-          name: "fee";
-          type: "u64";
-        },
-      ];
+      "name": "VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED",
+      "type": "bytes",
+      "value": "[118, 101, 115, 116, 105, 110, 103, 95, 115, 99, 104, 101, 100, 117, 108, 101, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
     },
     {
-      name: "adminUpdate";
-      docs: [
-        "Updates the fee for the Valhalla program with the given context and new fee.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the update.",
-        "* `new_fee` - The new fee to be set.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the update fails.",
-      ];
-      accounts: [
-        {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
-          docs: ["The current admin account."];
-        },
-        {
-          name: "newAdmin";
-          isMut: false;
-          isSigner: false;
-          docs: ["The new admin account."];
-        },
-        {
-          name: "newTreasury";
-          isMut: false;
-          isSigner: false;
-          docs: ["The new treasury account."];
-        },
-        {
-          name: "locker";
-          isMut: true;
-          isSigner: false;
-          docs: ["The Locker account to be updated."];
-        },
-        {
-          name: "treasury";
-          isMut: false;
-          isSigner: false;
-          docs: ["The current treasury account that receives the fee."];
-        },
-      ];
-      args: [
-        {
-          name: "newFee";
-          type: "u64";
-        },
-      ];
+      "name": "TOKEN_LOCK_SEED",
+      "type": "bytes",
+      "value": "[116, 111, 107, 101, 110, 95, 108, 111, 99, 107]"
     },
     {
-      name: "createLock";
-      docs: [
-        "Creates a lock with the given parameters.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the lock creation.",
-        "* `amount_to_be_vested` - The amount to be vested.",
-        "* `total_vesting_duration` - The duration of the vesting period.",
-        "* `payout_interval` - The interval at which payouts will be made.",
-        "* `cliff_payment_amount` - The amount to be paid at the cliff.",
-        "* `cancel_authority` - The authority to cancel the lock.",
-        "* `change_recipient_authority` - The authority to change the recipient of the lock.",
-        "* `name` - The name of the lock.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the lock creation fails.",
-      ];
-      accounts: [
-        {
-          name: "funder";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "recipient";
-          isMut: false;
-          isSigner: false;
-          docs: [
-            "The account of the recipient who will receive the locked tokens.",
-          ];
-        },
-        {
-          name: "locker";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "treasury";
-          isMut: true;
-          isSigner: false;
-          docs: ["The treasury where the fee will be sent too."];
-        },
-        {
-          name: "lock";
-          isMut: true;
-          isSigner: false;
-          docs: ["The lock PDA that will be created."];
-        },
-        {
-          name: "lockTokenAccount";
-          isMut: true;
-          isSigner: false;
-          docs: ["The token account for the lock PDA"];
-        },
-        {
-          name: "funderTokenAccount";
-          isMut: true;
-          isSigner: false;
-          docs: ["The funder's token account."];
-        },
-        {
-          name: "recipientTokenAccount";
-          isMut: true;
-          isSigner: false;
-          docs: ["The recipient's token account."];
-        },
-        {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
-          docs: ["The mint account for the tokens."];
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-          docs: ["The program that provides the token-related functionality."];
-        },
-        {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
-          docs: [
-            "The program that provides the associated token functionality.",
-          ];
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-          docs: ["The system program."];
-        },
-      ];
-      args: [
-        {
-          name: "amountToBeVested";
-          type: "u64";
-        },
-        {
-          name: "totalVestingDuration";
-          type: "u64";
-        },
-        {
-          name: "payoutInterval";
-          type: "u64";
-        },
-        {
-          name: "cliffPaymentAmount";
-          type: "u64";
-        },
-        {
-          name: "startDate";
-          type: "u64";
-        },
-        {
-          name: "cancelAuthority";
-          type: {
-            defined: "Authority";
-          };
-        },
-        {
-          name: "changeRecipientAuthority";
-          type: {
-            defined: "Authority";
-          };
-        },
-        {
-          name: "vestingType";
-          type: {
-            defined: "VestingType";
-          };
-        },
-        {
-          name: "name";
-          type: {
-            array: ["u8", 32];
-          };
-        },
-      ];
+      "name": "TOKEN_LOCK_TOKEN_ACCOUNT_SEED",
+      "type": "bytes",
+      "value": "[116, 111, 107, 101, 110, 95, 108, 111, 99, 107, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
     },
     {
-      name: "disburse";
-      docs: [
-        "Disburses the vested amount for a lock.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the disbursement.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the disbursement fails.",
-      ];
-      accounts: [
-        {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "funder";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "recipient";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "lock";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "lockTokenAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "recipientTokenAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [];
+      "name": "SCHEDULED_PAYMENT_SEED",
+      "type": "bytes",
+      "value": "[115, 99, 104, 101, 100, 117, 108, 101, 100, 95, 112, 97, 121, 109, 101, 110, 116]"
     },
     {
-      name: "cancel";
-      docs: [
-        "Closes a lock.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the lock closure.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the lock closure fails.",
-      ];
-      accounts: [
+      "name": "SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED",
+      "type": "bytes",
+      "value": "[115, 99, 104, 101, 100, 117, 108, 101, 100, 95, 112, 97, 121, 109, 101, 110, 116, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
+    }
+  ],
+  "instructions": [
+    {
+      "name": "adminInitialize",
+      "accounts": [
         {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The admin account that will sign the transaction."
+          ]
         },
         {
-          name: "funder";
-          isMut: true;
-          isSigner: false;
+          "name": "config",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The config account that will be initialized."
+          ]
         },
         {
-          name: "recipient";
-          isMut: true;
-          isSigner: false;
+          "name": "treasury",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The treasury account that receives the fee."
+          ]
         },
         {
-          name: "lock";
-          isMut: true;
-          isSigner: false;
-        },
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program account."
+          ]
+        }
+      ],
+      "args": [
         {
-          name: "lockTokenAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "funderTokenAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [];
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "update";
-      docs: [
-        "Updates the recipient of a lock.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the update.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the update fails.",
-      ];
-      accounts: [
+      "name": "adminUpdate",
+      "accounts": [
         {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The current admin account."
+          ]
         },
         {
-          name: "funder";
-          isMut: true;
-          isSigner: false;
+          "name": "newAdmin",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The new admin account."
+          ]
         },
         {
-          name: "recipient";
-          isMut: true;
-          isSigner: false;
+          "name": "newTreasury",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The new treasury account."
+          ]
         },
         {
-          name: "newRecipient";
-          isMut: false;
-          isSigner: false;
+          "name": "config",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The Config account to be updated."
+          ]
         },
         {
-          name: "lock";
-          isMut: true;
-          isSigner: false;
+          "name": "treasury",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The current treasury account that receives the fee."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "newFee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "createVestingSchedule",
+      "accounts": [
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The account of the recipient who will receive the locked tokens."
+          ]
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The treasury where the fee will be sent too."
+          ]
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "vestingSchedule",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The vesting_schedule PDA that will be created."
+          ]
         },
-      ];
-      args: [];
-    },
-  ];
-  accounts: [
-    {
-      name: "locker";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "admin";
-            type: "publicKey";
-          },
-          {
-            name: "treasury";
-            type: "publicKey";
-          },
-          {
-            name: "fee";
-            type: "u64";
-          },
-        ];
-      };
-    },
-    {
-      name: "lock";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "funder";
-            type: "publicKey";
-          },
-          {
-            name: "recipient";
-            type: "publicKey";
-          },
-          {
-            name: "mint";
-            type: "publicKey";
-          },
-          {
-            name: "cancelAuthority";
-            type: {
-              defined: "Authority";
-            };
-          },
-          {
-            name: "changeRecipientAuthority";
-            type: {
-              defined: "Authority";
-            };
-          },
-          {
-            name: "totalVestingDuration";
-            type: "u64";
-          },
-          {
-            name: "payoutInterval";
-            type: "u64";
-          },
-          {
-            name: "amountPerPayout";
-            type: "u64";
-          },
-          {
-            name: "startDate";
-            type: "u64";
-          },
-          {
-            name: "cliffPaymentAmount";
-            type: "u64";
-          },
-          {
-            name: "lastPaymentTimestamp";
-            type: "u64";
-          },
-          {
-            name: "numberOfPaymentsMade";
-            type: "u64";
-          },
-          {
-            name: "isCliffPaymentDisbursed";
-            type: "bool";
-          },
-          {
-            name: "vestingType";
-            type: {
-              defined: "VestingType";
-            };
-          },
-          {
-            name: "name";
-            type: {
-              array: ["u8", 32];
-            };
-          },
-        ];
-      };
-    },
-  ];
-  types: [
-    {
-      name: "Authority";
-      type: {
-        kind: "enum";
-        variants: [
-          {
-            name: "Neither";
-          },
-          {
-            name: "Funder";
-          },
-          {
-            name: "Recipient";
-          },
-          {
-            name: "Both";
-          },
-        ];
-      };
+        {
+          "name": "vestingScheduleTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token account for the vesting_schedule PDA"
+          ]
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The funder's token account."
+          ]
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The recipient's token account."
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The mint account for the tokens."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeVested",
+          "type": "u64"
+        },
+        {
+          "name": "totalVestingDuration",
+          "type": "u64"
+        },
+        {
+          "name": "payoutInterval",
+          "type": "u64"
+        },
+        {
+          "name": "cliffPaymentAmount",
+          "type": "u64"
+        },
+        {
+          "name": "startDate",
+          "type": "u64"
+        },
+        {
+          "name": "cancelAuthority",
+          "type": {
+            "defined": "Authority"
+          }
+        },
+        {
+          "name": "changeRecipientAuthority",
+          "type": {
+            "defined": "Authority"
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
     },
     {
-      name: "VestingType";
-      type: {
-        kind: "enum";
-        variants: [
+      "name": "disburseVestingSchedule",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vestingSchedule",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vestingScheduleTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "cancelVestingSchedule",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vestingSchedule",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vestingScheduleTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateVestingSchedule",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "newRecipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vestingSchedule",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "createTokenLock",
+      "accounts": [
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The treasury where the fee will be sent too."
+          ]
+        },
+        {
+          "name": "tokenLock",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token_lock PDA that will be created."
+          ]
+        },
+        {
+          "name": "tokenLockTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token account for the token_lock PDA"
+          ]
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The funder's token account."
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The mint account for the tokens."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeVested",
+          "type": "u64"
+        },
+        {
+          "name": "totalVestingDuration",
+          "type": "u64"
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "disburseTokenLock",
+      "accounts": [
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The funder's token account."
+          ]
+        },
+        {
+          "name": "tokenLock",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenLockTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "createScheduledPayment",
+      "accounts": [
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The account of the recipient who will receive the locked tokens."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The treasury where the fee will be sent too."
+          ]
+        },
+        {
+          "name": "scheduledPayment",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The scheduled_payment PDA that will be created."
+          ]
+        },
+        {
+          "name": "scheduledPaymentTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token account for the scheduled_payment PDA"
+          ]
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The funder's token account."
+          ]
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The recipient's token account."
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The mint account for the tokens."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeVested",
+          "type": "u64"
+        },
+        {
+          "name": "totalVestingDuration",
+          "type": "u64"
+        },
+        {
+          "name": "cancelAuthority",
+          "type": {
+            "defined": "Authority"
+          }
+        },
+        {
+          "name": "changeRecipientAuthority",
+          "type": {
+            "defined": "Authority"
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "disburseScheduledPayment",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "scheduledPayment",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "paymentTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "cancelScheduledPayment",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "scheduledPayment",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "paymentTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateScheduledPayment",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "newRecipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "scheduledPayment",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "config",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "VestingSchedule";
+            "name": "admin",
+            "type": "publicKey"
           },
           {
-            name: "TokenLock";
+            "name": "treasury",
+            "type": "publicKey"
           },
           {
-            name: "OneTimePayment";
+            "name": "fee",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "scheduledPayment",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "funder",
+            "type": "publicKey"
           },
-        ];
-      };
+          {
+            "name": "recipient",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "totalVestingDuration",
+            "type": "u64"
+          },
+          {
+            "name": "createdTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "cancelAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "changeRecipientAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
+          }
+        ]
+      }
     },
-  ];
-  errors: [
     {
-      code: 6000;
-      name: "Locked";
-      msg: "The lock has not expired yet!";
+      "name": "tokenLock",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "funder",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "totalVestingDuration",
+            "type": "u64"
+          },
+          {
+            "name": "createdTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
+          }
+        ]
+      }
     },
     {
-      code: 6001;
-      name: "Unauthorized";
-      msg: "Not authorized to perform this action!";
+      "name": "vestingSchedule",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "funder",
+            "type": "publicKey"
+          },
+          {
+            "name": "recipient",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "totalVestingDuration",
+            "type": "u64"
+          },
+          {
+            "name": "payoutInterval",
+            "type": "u64"
+          },
+          {
+            "name": "amountPerPayout",
+            "type": "u64"
+          },
+          {
+            "name": "startDate",
+            "type": "u64"
+          },
+          {
+            "name": "cliffPaymentAmount",
+            "type": "u64"
+          },
+          {
+            "name": "createdTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "lastPaymentTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "numberOfPaymentsMade",
+            "type": "u64"
+          },
+          {
+            "name": "isCliffPaymentDisbursed",
+            "type": "bool"
+          },
+          {
+            "name": "cancelAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "changeRecipientAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Authority",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Neither"
+          },
+          {
+            "name": "Funder"
+          },
+          {
+            "name": "Recipient"
+          },
+          {
+            "name": "Both"
+          }
+        ]
+      }
     },
     {
-      code: 6002;
-      name: "InsufficientFundsForDeposit";
-      msg: "You do not have enough tokens to perform this action!";
+      "name": "VestingType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "VestingSchedule"
+          },
+          {
+            "name": "TokenLock"
+          },
+          {
+            "name": "ScheduledPayment"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Locked",
+      "msg": "The vesting_schedule has not expired yet!"
     },
     {
-      code: 6003;
-      name: "NoPayout";
-      msg: "No payout!";
+      "code": 6001,
+      "name": "Unauthorized",
+      "msg": "Not authorized to perform this action!"
     },
     {
-      code: 6004;
-      name: "NameTooLong";
-      msg: "Name is too long!";
+      "code": 6002,
+      "name": "InsufficientFundsForDeposit",
+      "msg": "You do not have enough tokens to perform this action!"
     },
-  ];
+    {
+      "code": 6003,
+      "name": "NoPayout",
+      "msg": "No payout!"
+    },
+    {
+      "code": 6004,
+      "name": "NameTooLong",
+      "msg": "Name is too long!"
+    }
+  ]
 };
 
 export const IDL: Valhalla = {
-  version: "0.1.0",
-  name: "valhalla",
-  docs: [
-    "The `valhalla` module contains functions for interacting with the Valhalla program.",
+  "version": "0.1.0",
+  "name": "valhalla",
+  "constants": [
+    {
+      "name": "CONFIG_SEED",
+      "type": "bytes",
+      "value": "[99, 111, 110, 102, 105, 103]"
+    },
+    {
+      "name": "VESTING_SCHEDULE_SEED",
+      "type": "bytes",
+      "value": "[118, 101, 115, 116, 105, 110, 103, 95, 115, 99, 104, 101, 100, 117, 108, 101]"
+    },
+    {
+      "name": "VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED",
+      "type": "bytes",
+      "value": "[118, 101, 115, 116, 105, 110, 103, 95, 115, 99, 104, 101, 100, 117, 108, 101, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
+    },
+    {
+      "name": "TOKEN_LOCK_SEED",
+      "type": "bytes",
+      "value": "[116, 111, 107, 101, 110, 95, 108, 111, 99, 107]"
+    },
+    {
+      "name": "TOKEN_LOCK_TOKEN_ACCOUNT_SEED",
+      "type": "bytes",
+      "value": "[116, 111, 107, 101, 110, 95, 108, 111, 99, 107, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
+    },
+    {
+      "name": "SCHEDULED_PAYMENT_SEED",
+      "type": "bytes",
+      "value": "[115, 99, 104, 101, 100, 117, 108, 101, 100, 95, 112, 97, 121, 109, 101, 110, 116]"
+    },
+    {
+      "name": "SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED",
+      "type": "bytes",
+      "value": "[115, 99, 104, 101, 100, 117, 108, 101, 100, 95, 112, 97, 121, 109, 101, 110, 116, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
+    }
   ],
-  constants: [
+  "instructions": [
     {
-      name: "CONFIG_SEED",
-      type: "bytes",
-      value: "[108, 111, 99, 107, 101, 114]",
+      "name": "adminInitialize",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The admin account that will sign the transaction."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The config account that will be initialized."
+          ]
+        },
+        {
+          "name": "treasury",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The treasury account that receives the fee."
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The system program account."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "CONFIG_SEED",
-      type: "bytes",
-      value: "[108, 111, 99, 107]",
+      "name": "adminUpdate",
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The current admin account."
+          ]
+        },
+        {
+          "name": "newAdmin",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The new admin account."
+          ]
+        },
+        {
+          "name": "newTreasury",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The new treasury account."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The Config account to be updated."
+          ]
+        },
+        {
+          "name": "treasury",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The current treasury account that receives the fee."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "newFee",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "LOCK_TOKEN_ACCOUNT_SEED",
-      type: "bytes",
-      value: "[116, 111, 107, 101, 110]",
+      "name": "createVestingSchedule",
+      "accounts": [
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The account of the recipient who will receive the locked tokens."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The treasury where the fee will be sent too."
+          ]
+        },
+        {
+          "name": "vestingSchedule",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The vesting_schedule PDA that will be created."
+          ]
+        },
+        {
+          "name": "vestingScheduleTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token account for the vesting_schedule PDA"
+          ]
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The funder's token account."
+          ]
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The recipient's token account."
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The mint account for the tokens."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeVested",
+          "type": "u64"
+        },
+        {
+          "name": "totalVestingDuration",
+          "type": "u64"
+        },
+        {
+          "name": "payoutInterval",
+          "type": "u64"
+        },
+        {
+          "name": "cliffPaymentAmount",
+          "type": "u64"
+        },
+        {
+          "name": "startDate",
+          "type": "u64"
+        },
+        {
+          "name": "cancelAuthority",
+          "type": {
+            "defined": "Authority"
+          }
+        },
+        {
+          "name": "changeRecipientAuthority",
+          "type": {
+            "defined": "Authority"
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
     },
+    {
+      "name": "disburseVestingSchedule",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vestingSchedule",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vestingScheduleTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "cancelVestingSchedule",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vestingSchedule",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vestingScheduleTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateVestingSchedule",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "newRecipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vestingSchedule",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "createTokenLock",
+      "accounts": [
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The treasury where the fee will be sent too."
+          ]
+        },
+        {
+          "name": "tokenLock",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token_lock PDA that will be created."
+          ]
+        },
+        {
+          "name": "tokenLockTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token account for the token_lock PDA"
+          ]
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The funder's token account."
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The mint account for the tokens."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeVested",
+          "type": "u64"
+        },
+        {
+          "name": "totalVestingDuration",
+          "type": "u64"
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "disburseTokenLock",
+      "accounts": [
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The funder's token account."
+          ]
+        },
+        {
+          "name": "tokenLock",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenLockTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "createScheduledPayment",
+      "accounts": [
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The account of the recipient who will receive the locked tokens."
+          ]
+        },
+        {
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "treasury",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The treasury where the fee will be sent too."
+          ]
+        },
+        {
+          "name": "scheduledPayment",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The scheduled_payment PDA that will be created."
+          ]
+        },
+        {
+          "name": "scheduledPaymentTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The token account for the scheduled_payment PDA"
+          ]
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The funder's token account."
+          ]
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The recipient's token account."
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The mint account for the tokens."
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amountToBeVested",
+          "type": "u64"
+        },
+        {
+          "name": "totalVestingDuration",
+          "type": "u64"
+        },
+        {
+          "name": "cancelAuthority",
+          "type": {
+            "defined": "Authority"
+          }
+        },
+        {
+          "name": "changeRecipientAuthority",
+          "type": {
+            "defined": "Authority"
+          }
+        },
+        {
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "disburseScheduledPayment",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "recipientTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "scheduledPayment",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "paymentTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "cancelScheduledPayment",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "scheduledPayment",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "paymentTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "funderTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateScheduledPayment",
+      "accounts": [
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "funder",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "newRecipient",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "scheduledPayment",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    }
   ],
-  instructions: [
+  "accounts": [
     {
-      name: "adminInitialize",
-      docs: [
-        "Initializes the Valhalla program with the given context and fee.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the initialization.",
-        "* `fee` - The fee to be charged for the initialization.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the initialization fails.",
-      ],
-      accounts: [
-        {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
-          docs: ["The admin account that will sign the transaction."],
-        },
-        {
-          name: "locker",
-          isMut: true,
-          isSigner: false,
-          docs: ["The locker account that will be initialized."],
-        },
-        {
-          name: "treasury",
-          isMut: false,
-          isSigner: false,
-          docs: ["The treasury account that receives the fee."],
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-          docs: ["The system program account."],
-        },
-      ],
-      args: [
-        {
-          name: "fee",
-          type: "u64",
-        },
-      ],
-    },
-    {
-      name: "adminUpdate",
-      docs: [
-        "Updates the fee for the Valhalla program with the given context and new fee.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the update.",
-        "* `new_fee` - The new fee to be set.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the update fails.",
-      ],
-      accounts: [
-        {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
-          docs: ["The current admin account."],
-        },
-        {
-          name: "newAdmin",
-          isMut: false,
-          isSigner: false,
-          docs: ["The new admin account."],
-        },
-        {
-          name: "newTreasury",
-          isMut: false,
-          isSigner: false,
-          docs: ["The new treasury account."],
-        },
-        {
-          name: "locker",
-          isMut: true,
-          isSigner: false,
-          docs: ["The Locker account to be updated."],
-        },
-        {
-          name: "treasury",
-          isMut: false,
-          isSigner: false,
-          docs: ["The current treasury account that receives the fee."],
-        },
-      ],
-      args: [
-        {
-          name: "newFee",
-          type: "u64",
-        },
-      ],
-    },
-    {
-      name: "createLock",
-      docs: [
-        "Creates a lock with the given parameters.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the lock creation.",
-        "* `amount_to_be_vested` - The amount to be vested.",
-        "* `total_vesting_duration` - The duration of the vesting period.",
-        "* `payout_interval` - The interval at which payouts will be made.",
-        "* `cliff_payment_amount` - The amount to be paid at the cliff.",
-        "* `cancel_authority` - The authority to cancel the lock.",
-        "* `change_recipient_authority` - The authority to change the recipient of the lock.",
-        "* `name` - The name of the lock.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the lock creation fails.",
-      ],
-      accounts: [
-        {
-          name: "funder",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "recipient",
-          isMut: false,
-          isSigner: false,
-          docs: [
-            "The account of the recipient who will receive the locked tokens.",
-          ],
-        },
-        {
-          name: "locker",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "treasury",
-          isMut: true,
-          isSigner: false,
-          docs: ["The treasury where the fee will be sent too."],
-        },
-        {
-          name: "lock",
-          isMut: true,
-          isSigner: false,
-          docs: ["The lock PDA that will be created."],
-        },
-        {
-          name: "lockTokenAccount",
-          isMut: true,
-          isSigner: false,
-          docs: ["The token account for the lock PDA"],
-        },
-        {
-          name: "funderTokenAccount",
-          isMut: true,
-          isSigner: false,
-          docs: ["The funder's token account."],
-        },
-        {
-          name: "recipientTokenAccount",
-          isMut: true,
-          isSigner: false,
-          docs: ["The recipient's token account."],
-        },
-        {
-          name: "mint",
-          isMut: false,
-          isSigner: false,
-          docs: ["The mint account for the tokens."],
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-          docs: ["The program that provides the token-related functionality."],
-        },
-        {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
-          docs: [
-            "The program that provides the associated token functionality.",
-          ],
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-          docs: ["The system program."],
-        },
-      ],
-      args: [
-        {
-          name: "amountToBeVested",
-          type: "u64",
-        },
-        {
-          name: "totalVestingDuration",
-          type: "u64",
-        },
-        {
-          name: "payoutInterval",
-          type: "u64",
-        },
-        {
-          name: "cliffPaymentAmount",
-          type: "u64",
-        },
-        {
-          name: "startDate",
-          type: "u64",
-        },
-        {
-          name: "cancelAuthority",
-          type: {
-            defined: "Authority",
+      "name": "config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "publicKey"
           },
-        },
-        {
-          name: "changeRecipientAuthority",
-          type: {
-            defined: "Authority",
+          {
+            "name": "treasury",
+            "type": "publicKey"
           },
-        },
-        {
-          name: "vestingType",
-          type: {
-            defined: "VestingType",
-          },
-        },
-        {
-          name: "name",
-          type: {
-            array: ["u8", 32],
-          },
-        },
-      ],
+          {
+            "name": "fee",
+            "type": "u64"
+          }
+        ]
+      }
     },
     {
-      name: "disburse",
-      docs: [
-        "Disburses the vested amount for a lock.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the disbursement.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the disbursement fails.",
-      ],
-      accounts: [
-        {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "funder",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "recipient",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "lock",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "lockTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "recipientTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
+      "name": "scheduledPayment",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "funder",
+            "type": "publicKey"
+          },
+          {
+            "name": "recipient",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "totalVestingDuration",
+            "type": "u64"
+          },
+          {
+            "name": "createdTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "cancelAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "changeRecipientAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
+          }
+        ]
+      }
     },
     {
-      name: "cancel",
-      docs: [
-        "Closes a lock.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the lock closure.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the lock closure fails.",
-      ],
-      accounts: [
-        {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "funder",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "recipient",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "lock",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "lockTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "funderTokenAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
+      "name": "tokenLock",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "funder",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "totalVestingDuration",
+            "type": "u64"
+          },
+          {
+            "name": "createdTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
+          }
+        ]
+      }
     },
     {
-      name: "update",
-      docs: [
-        "Updates the recipient of a lock.",
-        "",
-        "# Arguments",
-        "",
-        "* `ctx` - The context for the update.",
-        "",
-        "# Errors",
-        "",
-        "Returns an error if the update fails.",
-      ],
-      accounts: [
-        {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "funder",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "recipient",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "newRecipient",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "lock",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "mint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-    },
+      "name": "vestingSchedule",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "funder",
+            "type": "publicKey"
+          },
+          {
+            "name": "recipient",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "totalVestingDuration",
+            "type": "u64"
+          },
+          {
+            "name": "payoutInterval",
+            "type": "u64"
+          },
+          {
+            "name": "amountPerPayout",
+            "type": "u64"
+          },
+          {
+            "name": "startDate",
+            "type": "u64"
+          },
+          {
+            "name": "cliffPaymentAmount",
+            "type": "u64"
+          },
+          {
+            "name": "createdTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "lastPaymentTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "numberOfPaymentsMade",
+            "type": "u64"
+          },
+          {
+            "name": "isCliffPaymentDisbursed",
+            "type": "bool"
+          },
+          {
+            "name": "cancelAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "changeRecipientAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "vestingType",
+            "type": {
+              "defined": "VestingType"
+            }
+          }
+        ]
+      }
+    }
   ],
-  accounts: [
+  "types": [
     {
-      name: "locker",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "Authority",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "admin",
-            type: "publicKey",
+            "name": "Neither"
           },
           {
-            name: "treasury",
-            type: "publicKey",
+            "name": "Funder"
           },
           {
-            name: "fee",
-            type: "u64",
+            "name": "Recipient"
           },
-        ],
-      },
+          {
+            "name": "Both"
+          }
+        ]
+      }
     },
     {
-      name: "lock",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "VestingType",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "funder",
-            type: "publicKey",
+            "name": "VestingSchedule"
           },
           {
-            name: "recipient",
-            type: "publicKey",
+            "name": "TokenLock"
           },
           {
-            name: "mint",
-            type: "publicKey",
-          },
-          {
-            name: "cancelAuthority",
-            type: {
-              defined: "Authority",
-            },
-          },
-          {
-            name: "changeRecipientAuthority",
-            type: {
-              defined: "Authority",
-            },
-          },
-          {
-            name: "totalVestingDuration",
-            type: "u64",
-          },
-          {
-            name: "payoutInterval",
-            type: "u64",
-          },
-          {
-            name: "amountPerPayout",
-            type: "u64",
-          },
-          {
-            name: "startDate",
-            type: "u64",
-          },
-          {
-            name: "cliffPaymentAmount",
-            type: "u64",
-          },
-          {
-            name: "lastPaymentTimestamp",
-            type: "u64",
-          },
-          {
-            name: "numberOfPaymentsMade",
-            type: "u64",
-          },
-          {
-            name: "isCliffPaymentDisbursed",
-            type: "bool",
-          },
-          {
-            name: "vestingType",
-            type: {
-              defined: "VestingType",
-            },
-          },
-          {
-            name: "name",
-            type: {
-              array: ["u8", 32],
-            },
-          },
-        ],
-      },
-    },
+            "name": "ScheduledPayment"
+          }
+        ]
+      }
+    }
   ],
-  types: [
+  "errors": [
     {
-      name: "Authority",
-      type: {
-        kind: "enum",
-        variants: [
-          {
-            name: "Neither",
-          },
-          {
-            name: "Funder",
-          },
-          {
-            name: "Recipient",
-          },
-          {
-            name: "Both",
-          },
-        ],
-      },
+      "code": 6000,
+      "name": "Locked",
+      "msg": "The vesting_schedule has not expired yet!"
     },
     {
-      name: "VestingType",
-      type: {
-        kind: "enum",
-        variants: [
-          {
-            name: "VestingSchedule",
-          },
-          {
-            name: "TokenLock",
-          },
-          {
-            name: "OneTimePayment",
-          },
-        ],
-      },
-    },
-  ],
-  errors: [
-    {
-      code: 6000,
-      name: "Locked",
-      msg: "The lock has not expired yet!",
+      "code": 6001,
+      "name": "Unauthorized",
+      "msg": "Not authorized to perform this action!"
     },
     {
-      code: 6001,
-      name: "Unauthorized",
-      msg: "Not authorized to perform this action!",
+      "code": 6002,
+      "name": "InsufficientFundsForDeposit",
+      "msg": "You do not have enough tokens to perform this action!"
     },
     {
-      code: 6002,
-      name: "InsufficientFundsForDeposit",
-      msg: "You do not have enough tokens to perform this action!",
+      "code": 6003,
+      "name": "NoPayout",
+      "msg": "No payout!"
     },
     {
-      code: 6003,
-      name: "NoPayout",
-      msg: "No payout!",
-    },
-    {
-      code: 6004,
-      name: "NameTooLong",
-      msg: "Name is too long!",
-    },
-  ],
+      "code": 6004,
+      "name": "NameTooLong",
+      "msg": "Name is too long!"
+    }
+  ]
 };

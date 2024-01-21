@@ -12,5 +12,5 @@ pub enum Authority {
 pub enum VestingType {
     VestingSchedule,
     TokenLock,
-    OneTimePayment,
+    ScheduledPayment,
 }

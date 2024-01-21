@@ -1,141 +1,104 @@
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { FaPlusCircle, FaSearch } from "react-icons/fa";
+import { ScheduledPayment, TokenLock, VestingSchedule } from "program";
+import { useEffect, useState } from "react";
 
-import DashboardStats from "components/dashboard/DashboardStats";
+import BaseModel from "models/Base.model";
+import DashboardStats from "./ui/DashboardStats";
 import Head from "next/head";
-import Link from "next/link";
-import LoadingSpinner from "components/ui/LoadingSpinner";
-import { Lock } from "program";
-import { LockAccount } from "models/Lock";
-import LockCollapse from "components/dashboard/LockCollapse";
-import { Tab } from "utils/constants";
+import LockCollapse from "components/dashboard/ui/LockCollapse";
+import { ScheduledPaymentAccount } from "models/ScheduledPayment";
+import { TokenLockAccount } from "models/TokenLock";
+import { VestingScheduleAccount } from "models/VestingSchedule";
+import { VestingType } from "program";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { getNameArg } from "utils/formatters";
-import useLocksStore from "stores/useLocksStore";
 import useProgram from "program/useProgram";
+import { useValhallaStore } from "stores/useValhallaStore";
+import { SubType } from "utils/constants";
 
 export default function DashboardFeature() {
-  const { wallet, connection, connected } = useProgram();
+  const { wallet, connection } = useProgram();
   const {
-    userFunderLocks,
-    setUserFunderLocks,
-    userRecipientLocks,
-    setUserRecipientLocks,
-  } = useLocksStore();
+    vestingSchedules,
+    scheduledPayments,
+    tokenLocks,
+    setVestingSchedules,
+    setScheduledPayments,
+    setTokenLocks,
+  } = useValhallaStore();
 
-  const [tab, setTab] = useState<Tab>(Tab.Recipient);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [nameSearch, setNameSearch] = useState<string>("");
-
-  const onNameSearch = async (e: ChangeEvent<HTMLInputElement>) => {
-    console.log("Searching for name", e.target.value);
-    setNameSearch(e.target.value);
-    setIsLoading(true);
-    const locksWithName = await Lock.gpaBuilder()
-      .addFilter("name", getNameArg(e.target.value))
-      .run(connection);
-
-    const locks = locksWithName.map(
-      (it) =>
-        new LockAccount(
-          Lock.fromAccountInfo(it.account)[0],
-          it.pubkey,
-          connection,
-        ),
-    );
-
-    if (tab === Tab.Funder) {
-      setUserFunderLocks(locks);
-    } else {
-      setUserRecipientLocks(locks);
-    }
-
-    setIsLoading(false);
-  };
-
-  const getFunderLocks = useCallback(async () => {
-    console.log("Getting funder locks");
-    const locksWhereUserIsFunder = await Lock.gpaBuilder()
+  const getVestingSchedules = async () => {
+    const funded = await VestingSchedule.gpaBuilder()
+      .addFilter("vestingType", VestingType.VestingSchedule)
       .addFilter("funder", wallet.publicKey)
       .run(connection);
 
-    const funderLocks = locksWhereUserIsFunder.map(
-      (it) =>
-        new LockAccount(
-          Lock.fromAccountInfo(it.account)[0],
-          it.pubkey,
-          connection,
-        ),
-    );
-
-    setUserFunderLocks(funderLocks);
-  }, [connection, setUserFunderLocks, wallet.publicKey]);
-
-  const getRecipientLocks = useCallback(async () => {
-    console.log("Getting recipient locks");
-    const locksWhereUserIsRecipient = await Lock.gpaBuilder()
+    const recipient = await VestingSchedule.gpaBuilder()
+      .addFilter("vestingType", VestingType.VestingSchedule)
       .addFilter("recipient", wallet.publicKey)
       .run(connection);
 
-    const recipientLocks = locksWhereUserIsRecipient.map(
-      (it) =>
-        new LockAccount(
-          Lock.fromAccountInfo(it.account)[0],
-          it.pubkey,
-          connection,
-        ),
-    );
+    const fMapped = funded.map((v) => {
+      const [vs] = VestingSchedule.fromAccountInfo(v.account);
+      return new VestingScheduleAccount(v.pubkey, vs, connection);
+    });
 
-    setUserRecipientLocks(recipientLocks);
-  }, [connection, setUserRecipientLocks, wallet.publicKey]);
+    const rMapped = recipient.map((v) => {
+      const [vs] = VestingSchedule.fromAccountInfo(v.account);
+      return new VestingScheduleAccount(v.pubkey, vs, connection);
+    });
+
+    setVestingSchedules({ funded: fMapped, recipient: rMapped });
+  };
+
+  const getTokenLocks = async () => {
+    const funded = await TokenLock.gpaBuilder()
+      .addFilter("vestingType", VestingType.TokenLock)
+      .addFilter("funder", wallet.publicKey)
+      .run(connection);
+
+    const fMapped = funded.map((v) => {
+      const [vs] = TokenLock.fromAccountInfo(v.account);
+      return new TokenLockAccount(v.pubkey, vs, connection);
+    });
+
+    setTokenLocks({ funded: fMapped });
+  };
+
+  const getScheduledPayments = async () => {
+    const funded = await ScheduledPayment.gpaBuilder()
+      .addFilter("vestingType", VestingType.ScheduledPayment)
+      .addFilter("funder", wallet.publicKey)
+      .run(connection);
+
+    const recipient = await ScheduledPayment.gpaBuilder()
+      .addFilter("vestingType", VestingType.ScheduledPayment)
+      .addFilter("recipient", wallet.publicKey)
+      .run(connection);
+
+    const fMapped = funded.map((v) => {
+      const [vs] = ScheduledPayment.fromAccountInfo(v.account);
+      return new ScheduledPaymentAccount(v.pubkey, vs, connection);
+    });
+
+    const rMapped = recipient.map((v) => {
+      const [vs] = ScheduledPayment.fromAccountInfo(v.account);
+      return new ScheduledPaymentAccount(v.pubkey, vs, connection);
+    });
+
+    setScheduledPayments({ funded: fMapped, recipient: rMapped });
+  };
 
   useEffect(() => {
-    const getLocks = async (showLoadingSpinner: boolean) => {
-      setIsLoading(showLoadingSpinner);
-      await getFunderLocks();
-      await getRecipientLocks();
-      setIsLoading(false);
-    };
-
-    if (
-      wallet?.publicKey &&
-      connected &&
-      (!userFunderLocks?.length || !userRecipientLocks?.length)
-    ) {
-      getLocks(
-        (userFunderLocks && userFunderLocks.length === 0) ||
-          (userRecipientLocks && userRecipientLocks.length === 0),
-      );
-    } else {
-      setUserFunderLocks([]);
-      setUserRecipientLocks([]);
-    }
+    if (!wallet.publicKey) return;
+    getVestingSchedules();
+    getTokenLocks();
+    getScheduledPayments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connected, tab, wallet?.publicKey]);
+  }, [wallet.publicKey]);
 
-  const claim = async (lockAcount: LockAccount) => {
-    alert("Implement: Claim");
-  };
-
-  const claimAll = async (lockAccounts: LockAccount[]) => {
-    alert("Implement: Claim all");
-  };
-
-  const disburse = async (lockAcount: LockAccount) => {
-    alert("Implement: Disburse");
-  };
-
-  const disburseAll = async (lockAccounts: LockAccount[]) => {
-    alert("Implement: Disburse all");
-  };
-
-  const cancel = async (lockAcount: LockAccount) => {
-    alert("Implement: Cancel");
-  };
-
-  const changeRecipient = async (lockAcount: LockAccount) => {
-    alert("Implement: Change recipient");
-  };
+  const [vestingType, setVestingType] = useState<VestingType>(
+    VestingType.VestingSchedule,
+  );
+  const [subType, setSubType] = useState<SubType>(SubType.Created);
 
   return (
     <>
@@ -147,130 +110,176 @@ export default function DashboardFeature() {
         />
       </Head>
 
-      <main className="flex flex-col gap-8 justify-center">
-        {wallet.connected ? (
-          <>
-            <div className="flex flex-wrap items-center justify-between">
-              <h2 className="text-3xl font-bold">Your Vestments</h2>
-              <div className="flex gap-2">
-                <Link href="/search" className="btn btn-secondary">
-                  <FaSearch /> Search
-                </Link>
-
-                <Link href={"/create"} className="btn btn-accent">
-                  <FaPlusCircle /> Create a Lock
-                </Link>
-              </div>
+      {wallet.connected ? (
+        <main className="grid grid-cols-12 gap-4">
+          <div className="card col-span-9">
+            <div className="card-body">
+              <div className="card-title">Upcoming Releases</div>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-8">
-              <DashboardStats claimAll={claimAll} disburseAll={disburseAll} />
+          <DashboardStats />
 
-              {/* Locks */}
-              <div className="card hover:shadow h-full md:col-span-4">
-                <div className="card-body min-h-80">
-                  <div className="tabs tabs-boxed">
-                    <div
-                      className={`tab ${
-                        tab === Tab.Recipient ? "tab-active" : ""
-                      }`}
-                      onClick={() => setTab(Tab.Recipient)}
-                    >
-                      Receivable
-                    </div>
-                    <div
-                      className={`tab ${
-                        tab === Tab.Funder ? "tab-active" : ""
-                      }`}
-                      onClick={() => setTab(Tab.Funder)}
-                    >
-                      Funded by me
-                    </div>
+          <div className="card col-span-12">
+            <div className="card-body">
+              <div className="card-title">All Accounts</div>
+              <div className="tabs tabs-boxed">
+                <div
+                  onClick={() => setVestingType(VestingType.VestingSchedule)}
+                  className={`tab flex items-center gap-1 ${vestingType === VestingType.VestingSchedule ? "tab-active" : ""}`}
+                >
+                  <div>Vesting Schedules</div>
+                  <div className="badge badge-info">
+                    {vestingSchedules.funded.length +
+                      vestingSchedules.recipient.length}
                   </div>
+                </div>
 
-                  <div className="h-80 overflow-y-scroll">
-                    <div className="form-control my-2">
-                      <input
-                        type="text"
-                        className="input input-bordered input-sm"
-                        placeholder="Search by name"
-                        value={nameSearch}
-                        onChange={onNameSearch}
-                      />
-                    </div>
-                    {isLoading ? (
-                      <div className="flex flex-col w-full h-full items-center justify-center">
-                        <LoadingSpinner />
-                      </div>
-                    ) : (
-                      <div className="flex flex-col gap-2">
-                        {tab === Tab.Funder && (
-                          <>
-                            {wallet.publicKey && !!userFunderLocks.length ? (
-                              <ul>
-                                {userFunderLocks.map((lock) => (
-                                  <LockCollapse
-                                    key={lock.id.toBase58()}
-                                    tab={tab}
-                                    lock={lock}
-                                    disburse={disburse}
-                                    cancel={cancel}
-                                    changeRecipient={changeRecipient}
-                                  />
-                                ))}
-                              </ul>
-                            ) : (
-                              <div className="flex flex-col items-center gap-4">
-                                <p className="prose">No funded accounts!</p>
-                                <Link href="/create" className="btn btn-accent">
-                                  <FaPlusCircle className="inline" />
-                                  Create a lock
-                                </Link>
-                              </div>
-                            )}
-                          </>
-                        )}
+                <div
+                  onClick={() => setVestingType(VestingType.ScheduledPayment)}
+                  className={`tab flex items-center gap-1 ${vestingType === VestingType.ScheduledPayment ? "tab-active" : ""}`}
+                >
+                  <div>Scheduled Payments</div>
+                  <div className="badge badge-info">
+                    {scheduledPayments.funded.length +
+                      scheduledPayments.recipient.length}
+                  </div>
+                </div>
 
-                        {tab === Tab.Recipient && (
-                          <>
-                            {wallet.publicKey && !!userRecipientLocks.length ? (
-                              <ul>
-                                {userRecipientLocks.map((lock) => (
-                                  <LockCollapse
-                                    key={lock.id.toBase58()}
-                                    tab={tab}
-                                    lock={lock}
-                                    disburse={disburse}
-                                    cancel={cancel}
-                                    changeRecipient={changeRecipient}
-                                  />
-                                ))}
-                              </ul>
-                            ) : (
-                              <div className="flex flex-col items-center gap-4">
-                                <p className="prose">No receivable accounts!</p>
-                                <Link href="/create" className="btn btn-accent">
-                                  <FaPlusCircle className="inline" />
-                                  Create a lock
-                                </Link>
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    )}
+                <div
+                  onClick={() => setVestingType(VestingType.TokenLock)}
+                  className={`tab flex items-center gap-1 ${vestingType === VestingType.TokenLock ? "tab-active" : ""}`}
+                >
+                  <div>Token Locks</div>
+                  <div className="badge badge-info">
+                    {tokenLocks.funded.length}
                   </div>
                 </div>
               </div>
+
+              <div className="tabs tabs-boxed">
+                <div
+                  onClick={() => setSubType(SubType.Created)}
+                  className={`tab flex items-center gap-1 ${subType === SubType.Created ? "tab-active" : ""}`}
+                >
+                  <div>Created</div>
+                  <div className="badge badge-info">
+                    {vestingSchedules.funded.length}
+                  </div>
+                </div>
+
+                <div
+                  onClick={() =>
+                    vestingType !== VestingType.TokenLock &&
+                    setSubType(SubType.Receivable)
+                  }
+                  className={`tab flex items-center gap-1 ${subType === SubType.Receivable ? "tab-active" : ""} ${vestingType === VestingType.TokenLock ? "tab-disabled" : ""}`}
+                >
+                  <div>Receivable</div>
+                  <div className="badge badge-info">
+                    {scheduledPayments.recipient.length}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2">
+                {vestingType === VestingType.VestingSchedule && (
+                  <ul>
+                    {subType === SubType.Created && (
+                      <>
+                        {vestingSchedules.funded.map((lock) => (
+                          <li key={lock.id.toBase58()}>
+                            <LockCollapse
+                              lock={lock}
+                              vestingType={vestingType}
+                              disburse={async (lock: BaseModel) => {}}
+                              changeRecipient={async (lock: BaseModel) => {}}
+                              cancel={async (lock: BaseModel) => {}}
+                            />
+                          </li>
+                        ))}
+                      </>
+                    )}
+
+                    {subType === SubType.Receivable && (
+                      <>
+                        {vestingSchedules.recipient.map((lock) => (
+                          <li key={lock.id.toBase58()}>
+                            <LockCollapse
+                              lock={lock}
+                              vestingType={vestingType}
+                              disburse={async (lock: BaseModel) => {}}
+                              changeRecipient={async (lock: BaseModel) => {}}
+                              cancel={async (lock: BaseModel) => {}}
+                            />
+                          </li>
+                        ))}
+                      </>
+                    )}
+                  </ul>
+                )}
+
+                {vestingType === VestingType.ScheduledPayment && (
+                  <ul>
+                    {subType === SubType.Created && (
+                      <>
+                        {scheduledPayments.funded.map((lock) => (
+                          <li key={lock.id.toBase58()}>
+                            <LockCollapse
+                              lock={lock}
+                              vestingType={vestingType}
+                              disburse={async (lock: BaseModel) => {}}
+                              changeRecipient={async (lock: BaseModel) => {}}
+                              cancel={async (lock: BaseModel) => {}}
+                            />
+                          </li>
+                        ))}
+                      </>
+                    )}
+
+                    {subType === SubType.Receivable && (
+                      <>
+                        {scheduledPayments.recipient.map((lock) => (
+                          <li key={lock.id.toBase58()}>
+                            <LockCollapse
+                              lock={lock}
+                              vestingType={vestingType}
+                              disburse={async (lock: BaseModel) => {}}
+                              changeRecipient={async (lock: BaseModel) => {}}
+                              cancel={async (lock: BaseModel) => {}}
+                            />
+                          </li>
+                        ))}
+                      </>
+                    )}
+                  </ul>
+                )}
+
+                {vestingType === VestingType.TokenLock && (
+                  <ul>
+                    {scheduledPayments.funded.map((lock) => (
+                      <li key={lock.id.toBase58()}>
+                        <LockCollapse
+                          lock={lock}
+                          vestingType={vestingType}
+                          disburse={async (lock: BaseModel) => {}}
+                          changeRecipient={async (lock: BaseModel) => {}}
+                          cancel={async (lock: BaseModel) => {}}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center gap-4">
-            <p className="prose">Connect your wallet to get started</p>
-            <WalletMultiButton />
           </div>
-        )}
-      </main>
+        </main>
+      ) : (
+        <main className="flex flex-col items-center gap-4">
+          <p className="prose">Connect your wallet to get started</p>
+          <WalletMultiButton />
+        </main>
+      )}
     </>
   );
 }

@@ -9,6 +9,7 @@ use crate::{
     constants,
     errors::ValhallaError,
     state::{Config, TokenLock},
+    VestingType,
 };
 
 #[derive(Accounts)]
@@ -96,6 +97,7 @@ pub fn create_token_lock_ix(
     token_lock.total_vesting_duration = total_vesting_duration;
     token_lock.name = name;
     token_lock.created_timestamp = Clock::get()?.unix_timestamp as u64;
+    token_lock.vesting_type = VestingType::TokenLock;
 
     // Transfer the funder's tokens to the token_lock token account
     let cpi_program = ctx.accounts.token_program.to_account_info();

@@ -1,7 +1,16 @@
-export * from './Lock'
-export * from './Locker'
+export * from './Config'
+export * from './ScheduledPayment'
+export * from './TokenLock'
+export * from './VestingSchedule'
 
-import { Locker } from './Locker'
-import { Lock } from './Lock'
+import { Config } from './Config'
+import { ScheduledPayment } from './ScheduledPayment'
+import { TokenLock } from './TokenLock'
+import { VestingSchedule } from './VestingSchedule'
 
-export const accountProviders = { Locker, Lock }
+export const accountProviders = {
+  Config,
+  ScheduledPayment,
+  TokenLock,
+  VestingSchedule,
+}

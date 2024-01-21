@@ -7,7 +7,9 @@ import { ContextProvider } from "../contexts/ContextProvider";
 import { FC } from "react";
 import { Footer } from "../components/ui/Footer";
 import Head from "next/head";
-import Notifications from "../components/notifications/Notification";
+import Image from "next/image";
+import Notifications from "../components/ui/notifications/Notification";
+import SideDrawer from "components/ui/SideDrawer";
 
 const aclonica = Aclonica({
   subsets: ["latin"],
@@ -42,15 +44,30 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
       </style>
 
       <ContextProvider>
-        <Notifications />
-        <AppBar />
-        <div
-          id="container"
-          className="my-10 min-h-screen max-w-screen-xl mx-auto"
-        >
-          <Component {...pageProps} />
+        <div id="container" className="min-h-screen">
+          <div className="drawer lg:drawer-open">
+            <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
+            <div className="drawer-content">
+              <AppBar />
+
+              <div className="m-8">
+                <Notifications />
+                <Component {...pageProps} />
+              </div>
+            </div>
+
+            <div className="drawer-side">
+              <label
+                htmlFor="my-drawer-2"
+                aria-label="close sidebar"
+                className="drawer-overlay"
+              ></label>
+
+              <SideDrawer />
+            </div>
+          </div>
+          <Footer />
         </div>
-        <Footer />
       </ContextProvider>
     </>
   );

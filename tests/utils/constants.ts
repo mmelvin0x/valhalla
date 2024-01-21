@@ -47,48 +47,63 @@ export interface ValhallaPDAs {
 
 export function getPDAs(
   programId: PublicKey,
-  funder: PublicKey,
-  recipient: PublicKey,
-  mint: PublicKey
+  funder: PublicKey | null,
+  recipient: PublicKey | null,
+  mint: PublicKey | null
 ): ValhallaPDAs {
   const [config] = PublicKey.findProgramAddressSync([CONFIG_SEED], programId);
 
-  const [vestingSchedule] = PublicKey.findProgramAddressSync(
-    [
-      funder.toBuffer(),
-      recipient.toBuffer(),
-      mint.toBuffer(),
-      VESTING_SCHEDULT_SEED,
-    ],
-    programId
-  );
-  const [vestingScheduleTokenAccount] = PublicKey.findProgramAddressSync(
-    [vestingSchedule.toBuffer(), VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED],
-    programId
-  );
+  const [vestingSchedule] =
+    funder && recipient && mint
+      ? PublicKey.findProgramAddressSync(
+          [
+            funder.toBuffer(),
+            recipient.toBuffer(),
+            mint.toBuffer(),
+            VESTING_SCHEDULT_SEED,
+          ],
+          programId
+        )
+      : [null];
+  const [vestingScheduleTokenAccount] = vestingSchedule
+    ? PublicKey.findProgramAddressSync(
+        [vestingSchedule.toBuffer(), VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED],
+        programId
+      )
+    : [null];
 
-  const [tokenLock] = PublicKey.findProgramAddressSync(
-    [funder.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
-    programId
-  );
-  const [tokenLockTokenAccount] = PublicKey.findProgramAddressSync(
-    [tokenLock.toBuffer(), TOKEN_LOCK_TOKEN_ACCOUNT_SEED],
-    programId
-  );
+  const [tokenLock] =
+    funder && mint
+      ? PublicKey.findProgramAddressSync(
+          [funder.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
+          programId
+        )
+      : [null];
+  const [tokenLockTokenAccount] = tokenLock
+    ? PublicKey.findProgramAddressSync(
+        [tokenLock.toBuffer(), TOKEN_LOCK_TOKEN_ACCOUNT_SEED],
+        programId
+      )
+    : [null];
 
-  const [scheduledPayment] = PublicKey.findProgramAddressSync(
-    [
-      funder.toBuffer(),
-      recipient.toBuffer(),
-      mint.toBuffer(),
-      SCHEDULED_PAYMENT_SEED,
-    ],
-    programId
-  );
-  const [scheduledPaymentTokenAccount] = PublicKey.findProgramAddressSync(
-    [scheduledPayment.toBuffer(), SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED],
-    programId
-  );
+  const [scheduledPayment] =
+    funder && recipient && mint
+      ? PublicKey.findProgramAddressSync(
+          [
+            funder.toBuffer(),
+            recipient.toBuffer(),
+            mint.toBuffer(),
+            SCHEDULED_PAYMENT_SEED,
+          ],
+          programId
+        )
+      : [null];
+  const [scheduledPaymentTokenAccount] = scheduledPayment
+    ? PublicKey.findProgramAddressSync(
+        [scheduledPayment.toBuffer(), SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED],
+        programId
+      )
+    : [null];
 
   return {
     config,

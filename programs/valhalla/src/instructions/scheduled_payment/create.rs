@@ -9,7 +9,7 @@ use crate::{
     constants,
     errors::ValhallaError,
     state::{Config, ScheduledPayment},
-    Authority,
+    Authority, VestingType,
 };
 
 #[derive(Accounts)]
@@ -117,6 +117,7 @@ pub fn create_scheduled_payment_ix(
     scheduled_payment.created_timestamp = Clock::get()?.unix_timestamp as u64;
     scheduled_payment.cancel_authority = cancel_authority;
     scheduled_payment.change_recipient_authority = change_recipient_authority;
+    scheduled_payment.vesting_type = VestingType::ScheduledPayment;
 
     // Transfer the funder's tokens to the scheduled_payment token account
     let cpi_program = ctx.accounts.token_program.to_account_info();

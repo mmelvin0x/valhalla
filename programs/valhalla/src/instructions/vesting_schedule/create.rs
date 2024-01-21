@@ -9,7 +9,7 @@ use crate::{
     constants,
     errors::ValhallaError,
     state::{Config, VestingSchedule},
-    Authority,
+    Authority, VestingType,
 };
 
 #[derive(Accounts)]
@@ -148,6 +148,8 @@ pub fn create_vesting_schedule_ix(
     vesting_schedule.amount_per_payout = amount_per_payout;
     vesting_schedule.number_of_payments_made = 0;
     vesting_schedule.name = name;
+    vesting_schedule.created_timestamp = current_time;
+    vesting_schedule.vesting_type = VestingType::VestingSchedule;
 
     // Handle the case for a vesting_schedule starting on creation w/ a cliff payment
     if cliff_payment > 0 {

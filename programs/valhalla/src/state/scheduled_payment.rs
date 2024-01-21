@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::types::Authority;
+use crate::{types::Authority, VestingType};
 
 #[account]
 pub struct ScheduledPayment {
@@ -12,6 +12,7 @@ pub struct ScheduledPayment {
     pub created_timestamp: u64,
     pub cancel_authority: Authority,
     pub change_recipient_authority: Authority,
+    pub vesting_type: VestingType,
 }
 
 impl ScheduledPayment {
@@ -24,6 +25,7 @@ impl ScheduledPayment {
             8 + // total_vesting_duration
             8 + // created_timestamp
             1 + // cancel_authority
-            1 // change_recipient_authority
+            1 + // change_recipient_authority
+            1 // vesting_type
     }
 }

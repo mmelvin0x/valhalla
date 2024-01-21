@@ -1,8 +1,8 @@
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import SocialBar from "components/ui/SocialBar";
 import Head from "next/head";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import SocialBar from "components/ui/SocialBar";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import useProgram from "program/useProgram";
 
 export default function HomeFeature() {
@@ -54,7 +54,9 @@ export default function HomeFeature() {
         </div>
       </div>
 
-      <SocialBar />
+      <div className="py-10">
+        <SocialBar />
+      </div>
     </div>
   );
 }
