@@ -13,17 +13,12 @@ body {
   background-attachment: fixed;
 }
 
-.navbar {
-  background-color: rgba(236, 239, 244, 0.7);
-}
-
-.navlinks {
-  background-color: rgba(236, 239, 244, 0.7);
-}
-
+.footer,
+.navbar,
+.navlinks,
 .stats,
 .card {
-  background-color: rgba(236, 239, 244, 0.7);
+  @apply bg-base-300;
 }
 
 h1 {

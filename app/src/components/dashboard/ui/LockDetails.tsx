@@ -40,7 +40,7 @@ export default function LockDetails({
       </div>
       <div className="flex flex-col">
         <span className="text-lg font-bold">Funder</span>
-        <span>{lock.funderDisplay}</span>
+        <span>{lock.creatorDisplay}</span>
       </div>
       <div className="flex flex-col">
         <span className="text-lg font-bold">Recipient</span>

@@ -5,11 +5,11 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from '@solana/web3.js'
-import * as beet from '@metaplex-foundation/beet'
-import * as beetSolana from '@metaplex-foundation/beet-solana'
-import { Authority, authorityBeet } from '../types/Authority'
-import { VestingType, vestingTypeBeet } from '../types/VestingType'
+import * as web3 from "@solana/web3.js";
+import * as beet from "@metaplex-foundation/beet";
+import * as beetSolana from "@metaplex-foundation/beet-solana";
+import { Authority, authorityBeet } from "../types/Authority";
+import { VestingType, vestingTypeBeet } from "../types/VestingType";
 
 /**
  * Arguments used to create {@link VestingSchedule}
@@ -17,27 +17,27 @@ import { VestingType, vestingTypeBeet } from '../types/VestingType'
  * @category generated
  */
 export type VestingScheduleArgs = {
-  funder: web3.PublicKey
-  recipient: web3.PublicKey
-  mint: web3.PublicKey
-  name: number[] /* size: 32 */
-  totalVestingDuration: beet.bignum
-  payoutInterval: beet.bignum
-  amountPerPayout: beet.bignum
-  startDate: beet.bignum
-  cliffPaymentAmount: beet.bignum
-  createdTimestamp: beet.bignum
-  lastPaymentTimestamp: beet.bignum
-  numberOfPaymentsMade: beet.bignum
-  isCliffPaymentDisbursed: boolean
-  cancelAuthority: Authority
-  changeRecipientAuthority: Authority
-  vestingType: VestingType
-}
+  creator: web3.PublicKey;
+  recipient: web3.PublicKey;
+  mint: web3.PublicKey;
+  name: number[] /* size: 32 */;
+  totalVestingDuration: beet.bignum;
+  payoutInterval: beet.bignum;
+  amountPerPayout: beet.bignum;
+  startDate: beet.bignum;
+  cliffPaymentAmount: beet.bignum;
+  createdTimestamp: beet.bignum;
+  lastPaymentTimestamp: beet.bignum;
+  numberOfPaymentsMade: beet.bignum;
+  isCliffPaymentDisbursed: boolean;
+  cancelAuthority: Authority;
+  changeRecipientAuthority: Authority;
+  vestingType: VestingType;
+};
 
 export const vestingScheduleDiscriminator = [
   130, 200, 173, 148, 39, 75, 243, 147,
-]
+];
 /**
  * Holds the data for the {@link VestingSchedule} Account and provides de/serialization
  * functionality for that data
@@ -47,7 +47,7 @@ export const vestingScheduleDiscriminator = [
  */
 export class VestingSchedule implements VestingScheduleArgs {
   private constructor(
-    readonly funder: web3.PublicKey,
+    readonly creator: web3.PublicKey,
     readonly recipient: web3.PublicKey,
     readonly mint: web3.PublicKey,
     readonly name: number[] /* size: 32 */,
@@ -62,7 +62,7 @@ export class VestingSchedule implements VestingScheduleArgs {
     readonly isCliffPaymentDisbursed: boolean,
     readonly cancelAuthority: Authority,
     readonly changeRecipientAuthority: Authority,
-    readonly vestingType: VestingType
+    readonly vestingType: VestingType,
   ) {}
 
   /**
@@ -70,7 +70,7 @@ export class VestingSchedule implements VestingScheduleArgs {
    */
   static fromArgs(args: VestingScheduleArgs) {
     return new VestingSchedule(
-      args.funder,
+      args.creator,
       args.recipient,
       args.mint,
       args.name,
@@ -85,8 +85,8 @@ export class VestingSchedule implements VestingScheduleArgs {
       args.isCliffPaymentDisbursed,
       args.cancelAuthority,
       args.changeRecipientAuthority,
-      args.vestingType
-    )
+      args.vestingType,
+    );
   }
 
   /**
@@ -95,9 +95,9 @@ export class VestingSchedule implements VestingScheduleArgs {
    */
   static fromAccountInfo(
     accountInfo: web3.AccountInfo<Buffer>,
-    offset = 0
+    offset = 0,
   ): [VestingSchedule, number] {
-    return VestingSchedule.deserialize(accountInfo.data, offset)
+    return VestingSchedule.deserialize(accountInfo.data, offset);
   }
 
   /**
@@ -109,16 +109,16 @@ export class VestingSchedule implements VestingScheduleArgs {
   static async fromAccountAddress(
     connection: web3.Connection,
     address: web3.PublicKey,
-    commitmentOrConfig?: web3.Commitment | web3.GetAccountInfoConfig
+    commitmentOrConfig?: web3.Commitment | web3.GetAccountInfoConfig,
   ): Promise<VestingSchedule> {
     const accountInfo = await connection.getAccountInfo(
       address,
-      commitmentOrConfig
-    )
+      commitmentOrConfig,
+    );
     if (accountInfo == null) {
-      throw new Error(`Unable to find VestingSchedule account at ${address}`)
+      throw new Error(`Unable to find VestingSchedule account at ${address}`);
     }
-    return VestingSchedule.fromAccountInfo(accountInfo, 0)[0]
+    return VestingSchedule.fromAccountInfo(accountInfo, 0)[0];
   }
 
   /**
@@ -129,10 +129,10 @@ export class VestingSchedule implements VestingScheduleArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn'
-    )
+      "CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn",
+    ),
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, vestingScheduleBeet)
+    return beetSolana.GpaBuilder.fromStruct(programId, vestingScheduleBeet);
   }
 
   /**
@@ -140,7 +140,7 @@ export class VestingSchedule implements VestingScheduleArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [VestingSchedule, number] {
-    return vestingScheduleBeet.deserialize(buf, offset)
+    return vestingScheduleBeet.deserialize(buf, offset);
   }
 
   /**
@@ -151,7 +151,7 @@ export class VestingSchedule implements VestingScheduleArgs {
     return vestingScheduleBeet.serialize({
       accountDiscriminator: vestingScheduleDiscriminator,
       ...this,
-    })
+    });
   }
 
   /**
@@ -159,7 +159,7 @@ export class VestingSchedule implements VestingScheduleArgs {
    * {@link VestingSchedule}
    */
   static get byteSize() {
-    return vestingScheduleBeet.byteSize
+    return vestingScheduleBeet.byteSize;
   }
 
   /**
@@ -170,12 +170,12 @@ export class VestingSchedule implements VestingScheduleArgs {
    */
   static async getMinimumBalanceForRentExemption(
     connection: web3.Connection,
-    commitment?: web3.Commitment
+    commitment?: web3.Commitment,
   ): Promise<number> {
     return connection.getMinimumBalanceForRentExemption(
       VestingSchedule.byteSize,
-      commitment
-    )
+      commitment,
+    );
   }
 
   /**
@@ -183,7 +183,7 @@ export class VestingSchedule implements VestingScheduleArgs {
    * hold {@link VestingSchedule} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === VestingSchedule.byteSize
+    return buf.byteLength - offset === VestingSchedule.byteSize;
   }
 
   /**
@@ -192,104 +192,104 @@ export class VestingSchedule implements VestingScheduleArgs {
    */
   pretty() {
     return {
-      funder: this.funder.toBase58(),
+      creator: this.creator.toBase58(),
       recipient: this.recipient.toBase58(),
       mint: this.mint.toBase58(),
       name: this.name,
       totalVestingDuration: (() => {
-        const x = <{ toNumber: () => number }>this.totalVestingDuration
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.totalVestingDuration;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       payoutInterval: (() => {
-        const x = <{ toNumber: () => number }>this.payoutInterval
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.payoutInterval;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       amountPerPayout: (() => {
-        const x = <{ toNumber: () => number }>this.amountPerPayout
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.amountPerPayout;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       startDate: (() => {
-        const x = <{ toNumber: () => number }>this.startDate
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.startDate;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       cliffPaymentAmount: (() => {
-        const x = <{ toNumber: () => number }>this.cliffPaymentAmount
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.cliffPaymentAmount;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       createdTimestamp: (() => {
-        const x = <{ toNumber: () => number }>this.createdTimestamp
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.createdTimestamp;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       lastPaymentTimestamp: (() => {
-        const x = <{ toNumber: () => number }>this.lastPaymentTimestamp
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.lastPaymentTimestamp;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       numberOfPaymentsMade: (() => {
-        const x = <{ toNumber: () => number }>this.numberOfPaymentsMade
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.numberOfPaymentsMade;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       isCliffPaymentDisbursed: this.isCliffPaymentDisbursed,
-      cancelAuthority: 'Authority.' + Authority[this.cancelAuthority],
+      cancelAuthority: "Authority." + Authority[this.cancelAuthority],
       changeRecipientAuthority:
-        'Authority.' + Authority[this.changeRecipientAuthority],
-      vestingType: 'VestingType.' + VestingType[this.vestingType],
-    }
+        "Authority." + Authority[this.changeRecipientAuthority],
+      vestingType: "VestingType." + VestingType[this.vestingType],
+    };
   }
 }
 
@@ -300,28 +300,28 @@ export class VestingSchedule implements VestingScheduleArgs {
 export const vestingScheduleBeet = new beet.BeetStruct<
   VestingSchedule,
   VestingScheduleArgs & {
-    accountDiscriminator: number[] /* size: 8 */
+    accountDiscriminator: number[] /* size: 8 */;
   }
 >(
   [
-    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['funder', beetSolana.publicKey],
-    ['recipient', beetSolana.publicKey],
-    ['mint', beetSolana.publicKey],
-    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
-    ['totalVestingDuration', beet.u64],
-    ['payoutInterval', beet.u64],
-    ['amountPerPayout', beet.u64],
-    ['startDate', beet.u64],
-    ['cliffPaymentAmount', beet.u64],
-    ['createdTimestamp', beet.u64],
-    ['lastPaymentTimestamp', beet.u64],
-    ['numberOfPaymentsMade', beet.u64],
-    ['isCliffPaymentDisbursed', beet.bool],
-    ['cancelAuthority', authorityBeet],
-    ['changeRecipientAuthority', authorityBeet],
-    ['vestingType', vestingTypeBeet],
+    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["creator", beetSolana.publicKey],
+    ["recipient", beetSolana.publicKey],
+    ["mint", beetSolana.publicKey],
+    ["name", beet.uniformFixedSizeArray(beet.u8, 32)],
+    ["totalVestingDuration", beet.u64],
+    ["payoutInterval", beet.u64],
+    ["amountPerPayout", beet.u64],
+    ["startDate", beet.u64],
+    ["cliffPaymentAmount", beet.u64],
+    ["createdTimestamp", beet.u64],
+    ["lastPaymentTimestamp", beet.u64],
+    ["numberOfPaymentsMade", beet.u64],
+    ["isCliffPaymentDisbursed", beet.bool],
+    ["cancelAuthority", authorityBeet],
+    ["changeRecipientAuthority", authorityBeet],
+    ["vestingType", vestingTypeBeet],
   ],
   VestingSchedule.fromArgs,
-  'VestingSchedule'
-)
+  "VestingSchedule",
+);

@@ -13,7 +13,7 @@ pub struct DisburseVestingSchedule<'info> {
     pub signer: Signer<'info>,
 
     /// CHECK: Used for seeds
-    pub funder: AccountInfo<'info>,
+    pub creator: AccountInfo<'info>,
 
     /// CHECK: Used in constraints
     pub recipient: AccountInfo<'info>,
@@ -21,14 +21,14 @@ pub struct DisburseVestingSchedule<'info> {
     #[account(
         mut,
         seeds = [
-            funder.key().as_ref(),
+            creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::VESTING_SCHEDULE_SEED
         ],
         bump,
         has_one = mint,
-        has_one = funder,
+        has_one = creator,
         has_one = recipient
     )]
     pub vesting_schedule: Account<'info, VestingSchedule>,

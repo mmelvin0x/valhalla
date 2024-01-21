@@ -30,8 +30,8 @@ export default class BaseModel {
   changeRecipientAuthority: Authority;
   cliffPaymentAmount: anchor.BN;
   das: DasApiAsset;
-  funder: PublicKey;
-  funderTokenAccount: Account;
+  creator: PublicKey;
+  creatorTokenAccount: Account;
   id: PublicKey;
   isCliffPaymentDisbursed: boolean;
   lastPaymentTimestamp: anchor.BN;
@@ -51,7 +51,7 @@ export default class BaseModel {
     public connection: anchor.web3.Connection,
   ) {
     this.id = publicKey;
-    this.funder = obj.funder;
+    this.creator = obj.creator;
     this.mint = obj.mint;
     this.name = anchor.utils.bytes.utf8.decode(new Uint8Array(obj.name));
     this.totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
@@ -103,14 +103,14 @@ export default class BaseModel {
       .toNumber();
   }
 
-  get funderDisplay(): ReactNode {
+  get creatorDisplay(): ReactNode {
     return (
       <Link
         className="link link-secondary flex items-center gap-1"
         target="_blank"
-        href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
+        href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
       >
-        {shortenAddress(this.funder)}{" "}
+        {shortenAddress(this.creator)}{" "}
         <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
       </Link>
     );
@@ -130,9 +130,9 @@ export default class BaseModel {
       <Link
         className="link link-secondary flex items-center gap-1"
         target="_blank"
-        href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
+        href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
       >
-        {shortenAddress(this.funder)}{" "}
+        {shortenAddress(this.creator)}{" "}
         <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
       </Link>
     );
@@ -175,9 +175,9 @@ export default class BaseModel {
           <Link
             className="link link-secondary flex items-center gap-1"
             target="_blank"
-            href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
+            href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
           >
-            {shortenAddress(this.funder)}{" "}
+            {shortenAddress(this.creator)}{" "}
             <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
           </Link>
         );
@@ -198,9 +198,9 @@ export default class BaseModel {
             <Link
               className="link link-secondary flex items-center gap-1"
               target="_blank"
-              href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
+              href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
             >
-              {shortenAddress(this.funder)}{" "}
+              {shortenAddress(this.creator)}{" "}
               <Image
                 src={"/solscan.png"}
                 width={14}
@@ -237,9 +237,9 @@ export default class BaseModel {
           <Link
             className="link link-secondary flex items-center gap-1"
             target="_blank"
-            href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
+            href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
           >
-            {shortenAddress(this.funder)}{" "}
+            {shortenAddress(this.creator)}{" "}
             <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
           </Link>
         );
@@ -260,9 +260,9 @@ export default class BaseModel {
             <Link
               className="link link-secondary flex items-center gap-1"
               target="_blank"
-              href={getExplorerUrl(this.connection.rpcEndpoint, this.funder)}
+              href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
             >
-              {shortenAddress(this.funder)}{" "}
+              {shortenAddress(this.creator)}{" "}
               <Image
                 src={"/solscan.png"}
                 width={14}
@@ -384,11 +384,11 @@ export default class BaseModel {
       case Authority.Neither:
         return false;
       case Authority.Funder:
-        return user.equals(this.funder);
+        return user.equals(this.creator);
       case Authority.Recipient:
         return user.equals(this.recipient);
       case Authority.Both:
-        return user.equals(this.funder) || user.equals(this.recipient);
+        return user.equals(this.creator) || user.equals(this.recipient);
     }
   }
 
@@ -397,17 +397,17 @@ export default class BaseModel {
       case Authority.Neither:
         return false;
       case Authority.Funder:
-        return user.equals(this.funder);
+        return user.equals(this.creator);
       case Authority.Recipient:
         return user.equals(this.recipient);
       case Authority.Both:
-        return user.equals(this.funder) || user.equals(this.recipient);
+        return user.equals(this.creator) || user.equals(this.recipient);
     }
   }
 
   async populate(connection: Connection, obj: BaseModel) {
     if (obj.recipient) {
-      const pdas = getPDAs(obj.funder, obj.recipient, obj.mint);
+      const pdas = getPDAs(obj.creator, obj.recipient, obj.mint);
       this.mintInfo = await getMint(
         connection,
         obj.mint,
@@ -434,11 +434,11 @@ export default class BaseModel {
         TOKEN_2022_PROGRAM_ID,
       );
 
-      this.funderTokenAccount = await getAccount(
+      this.creatorTokenAccount = await getAccount(
         connection,
         getAssociatedTokenAddressSync(
           obj.mint,
-          obj.funder,
+          obj.creator,
           false,
           TOKEN_2022_PROGRAM_ID,
         ),
@@ -446,7 +446,7 @@ export default class BaseModel {
         TOKEN_2022_PROGRAM_ID,
       );
     } else {
-      const pdas = getPDAs(obj.funder, null, obj.mint);
+      const pdas = getPDAs(obj.creator, null, obj.mint);
       this.mintInfo = await getMint(
         connection,
         obj.mint,
@@ -461,11 +461,11 @@ export default class BaseModel {
         TOKEN_2022_PROGRAM_ID,
       );
 
-      this.funderTokenAccount = await getAccount(
+      this.creatorTokenAccount = await getAccount(
         connection,
         getAssociatedTokenAddressSync(
           obj.mint,
-          obj.funder,
+          obj.creator,
           false,
           TOKEN_2022_PROGRAM_ID,
         ),

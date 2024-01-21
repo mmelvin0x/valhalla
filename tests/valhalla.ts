@@ -33,17 +33,17 @@ describe("⚡️ Valhalla", () => {
   const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
 
   const name = "Test Token 2022";
-  const funder = anchor.web3.Keypair.generate();
+  const creator = anchor.web3.Keypair.generate();
   const recipient = anchor.web3.Keypair.generate();
 
   let mint: anchor.web3.PublicKey;
-  let funderTokenAccount: Account;
+  let creatorTokenAccount: Account;
   let recipientTokenAccount: Account;
   let pdas: ValhallaPDAs;
 
   before(async () => {
-    [mint, funderTokenAccount, recipientTokenAccount, pdas] =
-      await setupTestAccounts(provider, payer, funder, recipient, program);
+    [mint, creatorTokenAccount, recipientTokenAccount, pdas] =
+      await setupTestAccounts(provider, payer, creator, recipient, program);
 
     const tx = await program.methods
       .adminInitialize(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
@@ -176,13 +176,13 @@ describe("⚡️ Valhalla", () => {
             treasury: wallet.publicKey,
             newTreasury,
           })
-          .signers([funder])
+          .signers([creator])
           .rpc();
 
         await provider.connection.confirmTransaction(tx, "confirmed");
       } catch (e) {
         expect(e.message).equals(
-          `unknown signer: ${funder.publicKey.toBase58()}`
+          `unknown signer: ${creator.publicKey.toBase58()}`
         );
       }
     });
@@ -251,13 +251,13 @@ describe("⚡️ Valhalla", () => {
             treasury: wallet.publicKey,
             newTreasury: wallet.publicKey,
           })
-          .signers([funder])
+          .signers([creator])
           .rpc();
 
         await provider.connection.confirmTransaction(tx, "confirmed");
       } catch (e) {
         expect(e.message).equals(
-          `unknown signer: ${funder.publicKey.toBase58()}`
+          `unknown signer: ${creator.publicKey.toBase58()}`
         );
       }
     });
@@ -266,21 +266,21 @@ describe("⚡️ Valhalla", () => {
   describe("🔒 Vesting Schedules", () => {
     describe("5 Payouts - No Cliff", () => {
       before(async () => {
-        [mint, funderTokenAccount, recipientTokenAccount] =
+        [mint, creatorTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
             decimals,
             feeBasisPoints,
             maxFee,
-            funder,
+            creator,
             recipient,
             amountMinted
           );
 
         pdas = getPDAs(
           program.programId,
-          funder.publicKey,
+          creator.publicKey,
           recipient.publicKey,
           mint
         );
@@ -331,13 +331,13 @@ describe("⚡️ Valhalla", () => {
               nameArg
             )
             .accounts({
-              funder: funder.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
               config: pdas.config,
               treasury: wallet.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
-              funderTokenAccount: funderTokenAccount.address,
+              creatorTokenAccount: creatorTokenAccount.address,
               recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -345,7 +345,7 @@ describe("⚡️ Valhalla", () => {
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [funder]);
+          await provider.sendAndConfirm(tx, [creator]);
         } catch (e) {
           console.log(e);
           assert.ok(false);
@@ -353,9 +353,9 @@ describe("⚡️ Valhalla", () => {
 
         const vestingScheduleAccount =
           await program.account.vestingSchedule.fetch(pdas.vestingSchedule);
-        expect(vestingScheduleAccount.funder.toBase58()).equals(
-          funder.publicKey.toBase58(),
-          "funder"
+        expect(vestingScheduleAccount.creator.toBase58()).equals(
+          creator.publicKey.toBase58(),
+          "creator"
         );
         expect(vestingScheduleAccount.recipient.toBase58()).equals(
           recipient.publicKey.toBase58(),
@@ -394,30 +394,29 @@ describe("⚡️ Valhalla", () => {
         ).to.be.closeTo(startDate.toNumber(), 2, "lastPaymentTimestamp");
       });
 
-      it("should not allow the funder to cancel", async () => {
+      it("should not allow the creator to cancel", async () => {
         try {
           const tx = await program.methods
             .cancelVestingSchedule()
             .accounts({
-              signer: funder.publicKey,
-              funder: funder.publicKey,
+              signer: creator.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
-              funderTokenAccount: funderTokenAccount.address,
+              creatorTokenAccount: creatorTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [funder]);
+          await provider.sendAndConfirm(tx, [creator]);
           assert.ok(false);
         } catch (e) {
-          const logs = e.logs;
-          expect(logs[logs.length - 1]).equals(
+          expect(e.message).equals(
             // Unauthorized
-            `Program ${program.programId.toBase58()} failed: custom program error: 0x1771`
+            `failed to send transaction: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x1771`
           );
         }
       });
@@ -428,11 +427,11 @@ describe("⚡️ Valhalla", () => {
             .cancelVestingSchedule()
             .accounts({
               signer: recipient.publicKey,
-              funder: funder.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
-              funderTokenAccount: funderTokenAccount.address,
+              creatorTokenAccount: creatorTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -450,15 +449,15 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should not allow the funder to change the recipient", async () => {
+      it("should not allow the creator to change the recipient", async () => {
         try {
           const tx = await program.methods
             .updateVestingSchedule()
             .accounts({
-              signer: funder.publicKey,
-              funder: funder.publicKey,
+              signer: creator.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
-              newRecipient: funder.publicKey,
+              newRecipient: creator.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -466,7 +465,7 @@ describe("⚡️ Valhalla", () => {
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [funder]);
+          await provider.sendAndConfirm(tx, [creator]);
           assert.ok(false);
         } catch (e) {
           const logs = e.logs;
@@ -483,9 +482,9 @@ describe("⚡️ Valhalla", () => {
             .updateVestingSchedule()
             .accounts({
               signer: recipient.publicKey,
-              funder: funder.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
-              newRecipient: funder.publicKey,
+              newRecipient: creator.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -522,7 +521,7 @@ describe("⚡️ Valhalla", () => {
             .disburseVestingSchedule()
             .accounts({
               signer: recipient.publicKey,
-              funder: funder.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
@@ -567,21 +566,21 @@ describe("⚡️ Valhalla", () => {
 
     describe("5 Payouts - Cliff", () => {
       before(async () => {
-        [mint, funderTokenAccount, recipientTokenAccount] =
+        [mint, creatorTokenAccount, recipientTokenAccount] =
           await mintTransferFeeTokens(
             provider.connection,
             payer,
             decimals,
             feeBasisPoints,
             maxFee,
-            funder,
+            creator,
             recipient,
             amountMinted
           );
 
         pdas = getPDAs(
           program.programId,
-          funder.publicKey,
+          creator.publicKey,
           recipient.publicKey,
           mint
         );
@@ -632,13 +631,13 @@ describe("⚡️ Valhalla", () => {
               nameArg
             )
             .accounts({
-              funder: funder.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
               config: pdas.config,
               treasury: wallet.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
-              funderTokenAccount: funderTokenAccount.address,
+              creatorTokenAccount: creatorTokenAccount.address,
               recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -646,7 +645,7 @@ describe("⚡️ Valhalla", () => {
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [funder]);
+          await provider.sendAndConfirm(tx, [creator]);
         } catch (e) {
           console.log(e);
           assert.ok(false);
@@ -654,9 +653,9 @@ describe("⚡️ Valhalla", () => {
 
         const vestingScheduleAccount =
           await program.account.vestingSchedule.fetch(pdas.vestingSchedule);
-        expect(vestingScheduleAccount.funder.toBase58()).equals(
-          funder.publicKey.toBase58(),
-          "funder"
+        expect(vestingScheduleAccount.creator.toBase58()).equals(
+          creator.publicKey.toBase58(),
+          "creator"
         );
         expect(vestingScheduleAccount.recipient.toBase58()).equals(
           recipient.publicKey.toBase58(),
@@ -711,30 +710,29 @@ describe("⚡️ Valhalla", () => {
         );
       });
 
-      it("should not allow the funder to cancel", async () => {
+      it("should not allow the creator to cancel", async () => {
         try {
           const tx = await program.methods
             .cancelVestingSchedule()
             .accounts({
-              signer: funder.publicKey,
-              funder: funder.publicKey,
+              signer: creator.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
-              funderTokenAccount: funderTokenAccount.address,
+              creatorTokenAccount: creatorTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [funder]);
+          await provider.sendAndConfirm(tx, [creator]);
           assert.ok(false);
         } catch (e) {
-          const logs = e.logs;
-          expect(logs[logs.length - 1]).equals(
+          expect(e.message).equals(
             // Unauthorized
-            `Program ${program.programId.toBase58()} failed: custom program error: 0x1771`
+            `failed to send transaction: Transaction simulation failed: Error processing Instruction 0: custom program error: 0x1771`
           );
         }
       });
@@ -745,11 +743,11 @@ describe("⚡️ Valhalla", () => {
             .cancelVestingSchedule()
             .accounts({
               signer: recipient.publicKey,
-              funder: funder.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
-              funderTokenAccount: funderTokenAccount.address,
+              creatorTokenAccount: creatorTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -767,15 +765,15 @@ describe("⚡️ Valhalla", () => {
         }
       });
 
-      it("should not allow the funder to change the recipient", async () => {
+      it("should not allow the creator to change the recipient", async () => {
         try {
           const tx = await program.methods
             .updateVestingSchedule()
             .accounts({
-              signer: funder.publicKey,
-              funder: funder.publicKey,
+              signer: creator.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
-              newRecipient: funder.publicKey,
+              newRecipient: creator.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -783,7 +781,7 @@ describe("⚡️ Valhalla", () => {
             })
             .transaction();
 
-          await provider.sendAndConfirm(tx, [funder]);
+          await provider.sendAndConfirm(tx, [creator]);
           assert.ok(false);
         } catch (e) {
           const logs = e.logs;
@@ -800,9 +798,9 @@ describe("⚡️ Valhalla", () => {
             .updateVestingSchedule()
             .accounts({
               signer: recipient.publicKey,
-              funder: funder.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
-              newRecipient: funder.publicKey,
+              newRecipient: creator.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -843,7 +841,7 @@ describe("⚡️ Valhalla", () => {
           .disburseVestingSchedule()
           .accounts({
             signer: recipient.publicKey,
-            funder: funder.publicKey,
+            creator: creator.publicKey,
             recipient: recipient.publicKey,
             vestingSchedule: pdas.vestingSchedule,
             vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
@@ -900,7 +898,7 @@ describe("⚡️ Valhalla", () => {
             .disburseVestingSchedule()
             .accounts({
               signer: recipient.publicKey,
-              funder: funder.publicKey,
+              creator: creator.publicKey,
               recipient: recipient.publicKey,
               vestingSchedule: pdas.vestingSchedule,
               vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
@@ -967,26 +965,26 @@ describe("⚡️ Valhalla", () => {
       const tx = await program.methods
         .createTokenLock(amountToBeVested, vestingDuration, nameArg)
         .accounts({
-          funder: funder.publicKey,
+          creator: creator.publicKey,
           config: pdas.config,
           treasury: wallet.publicKey,
           tokenLock: pdas.tokenLock,
           tokenLockTokenAccount: pdas.tokenLockTokenAccount,
-          funderTokenAccount: funderTokenAccount.address,
+          creatorTokenAccount: creatorTokenAccount.address,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         })
         .transaction();
 
-      await provider.sendAndConfirm(tx, [funder]);
+      await provider.sendAndConfirm(tx, [creator]);
 
       const tokenLockAccount = await program.account.tokenLock.fetch(
         pdas.tokenLock
       );
-      expect(tokenLockAccount.funder.toBase58()).equals(
-        funder.publicKey.toBase58(),
-        "funder"
+      expect(tokenLockAccount.creator.toBase58()).equals(
+        creator.publicKey.toBase58(),
+        "creator"
       );
       expect(tokenLockAccount.mint.toBase58()).equals(mint.toBase58(), "mint");
       expect(tokenLockAccount.totalVestingDuration.toString()).equals(
@@ -1015,13 +1013,13 @@ describe("⚡️ Valhalla", () => {
       );
     });
 
-    it("should not allow a signer that is not the funder to disburse the funds", async () => {
+    it("should not allow a signer that is not the creator to disburse the funds", async () => {
       try {
         const tx = await program.methods
           .disburseTokenLock()
           .accounts({
-            funder: funder.publicKey,
-            funderTokenAccount: funderTokenAccount.address,
+            creator: creator.publicKey,
+            creatorTokenAccount: creatorTokenAccount.address,
             tokenLock: pdas.tokenLock,
             tokenLockTokenAccount: pdas.tokenLockTokenAccount,
             mint,
@@ -1044,8 +1042,8 @@ describe("⚡️ Valhalla", () => {
       const tx = await program.methods
         .disburseTokenLock()
         .accounts({
-          funder: funder.publicKey,
-          funderTokenAccount: funderTokenAccount.address,
+          creator: creator.publicKey,
+          creatorTokenAccount: creatorTokenAccount.address,
           tokenLock: pdas.tokenLock,
           tokenLockTokenAccount: pdas.tokenLockTokenAccount,
           mint,
@@ -1054,7 +1052,7 @@ describe("⚡️ Valhalla", () => {
         })
         .transaction();
 
-      await provider.sendAndConfirm(tx, [funder]);
+      await provider.sendAndConfirm(tx, [creator]);
 
       const tokenLockTokenAccount = await getAccount(
         provider.connection,
@@ -1100,13 +1098,13 @@ describe("⚡️ Valhalla", () => {
           nameArg
         )
         .accounts({
-          funder: funder.publicKey,
+          creator: creator.publicKey,
           recipient: recipient.publicKey,
           config: pdas.config,
           treasury: wallet.publicKey,
           scheduledPayment: pdas.scheduledPayment,
           scheduledPaymentTokenAccount: pdas.scheduledPaymentTokenAccount,
-          funderTokenAccount: funderTokenAccount.address,
+          creatorTokenAccount: creatorTokenAccount.address,
           recipientTokenAccount: recipientTokenAccount.address,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -1114,14 +1112,14 @@ describe("⚡️ Valhalla", () => {
         })
         .transaction();
 
-      await provider.sendAndConfirm(tx, [funder]);
+      await provider.sendAndConfirm(tx, [creator]);
 
       const scheduledPaymentAccount =
         await program.account.scheduledPayment.fetch(pdas.scheduledPayment);
 
-      expect(scheduledPaymentAccount.funder.toBase58()).equals(
-        funder.publicKey.toBase58(),
-        "funder"
+      expect(scheduledPaymentAccount.creator.toBase58()).equals(
+        creator.publicKey.toBase58(),
+        "creator"
       );
       expect(scheduledPaymentAccount.recipient.toBase58()).equals(
         recipient.publicKey.toBase58(),

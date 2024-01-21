@@ -46,7 +46,7 @@ export default function LockCollapse({
         </div>
 
         <div className="font-bold flex items-center gap-1">
-          Funder: {lock.funderDisplay}
+          Funder: {lock.creatorDisplay}
         </div>
 
         <div className="font-bold flex items-center gap-1 text-xs">

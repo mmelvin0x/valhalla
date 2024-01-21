@@ -29,7 +29,7 @@ export interface ValhallaPDAs {
 
 export function getPDAs(
   programId: PublicKey,
-  funder: PublicKey,
+  creator: PublicKey,
   recipient: PublicKey,
   mint: PublicKey
 ): ValhallaPDAs {
@@ -37,7 +37,7 @@ export function getPDAs(
 
   const [vestingSchedule] = PublicKey.findProgramAddressSync(
     [
-      funder.toBuffer(),
+      creator.toBuffer(),
       recipient.toBuffer(),
       mint.toBuffer(),
       VESTING_SCHEDULT_SEED,
@@ -50,7 +50,7 @@ export function getPDAs(
   );
 
   const [tokenLock] = PublicKey.findProgramAddressSync(
-    [funder.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
+    [creator.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
     programId
   );
   const [tokenLockTokenAccount] = PublicKey.findProgramAddressSync(
@@ -60,7 +60,7 @@ export function getPDAs(
 
   const [scheduledPayment] = PublicKey.findProgramAddressSync(
     [
-      funder.toBuffer(),
+      creator.toBuffer(),
       recipient.toBuffer(),
       mint.toBuffer(),
       SCHEDULED_PAYMENT_SEED,

@@ -244,7 +244,7 @@ export default function CreateFeature() {
           )}
 
           <ReviewLockCard
-            funder={wallet.publicKey}
+            creator={wallet.publicKey}
             recipient={formik.values.recipient}
             selectedToken={formik.values.selectedToken}
             startDate={new Date(formik.values.startDate)}

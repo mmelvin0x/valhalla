@@ -8,12 +8,12 @@ use crate::{constants, errors::ValhallaError, Authority, ScheduledPayment};
 
 #[derive(Accounts)]
 pub struct UpdateScheduledPayment<'info> {
-    #[account(mut, constraint = funder.key() == signer.key() || recipient.key() == signer.key())]
+    #[account(mut, constraint = creator.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
-    #[account(mut, constraint = scheduled_payment.funder == funder.key())]
+    #[account(mut, constraint = scheduled_payment.creator == creator.key())]
     /// CHECK: Checked in contstraints
-    pub funder: AccountInfo<'info>,
+    pub creator: AccountInfo<'info>,
 
     #[account(mut, constraint = scheduled_payment.recipient == recipient.key())]
     /// CHECK: Checked in constraints
@@ -24,16 +24,16 @@ pub struct UpdateScheduledPayment<'info> {
 
     #[account(
         mut,
-        close = funder,
+        close = creator,
         seeds = [
-            funder.key().as_ref(),
+            creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::SCHEDULED_PAYMENT_SEED,
         ],
         bump,
         has_one = recipient,
-        has_one = funder,
+        has_one = creator,
         has_one = mint,
     )]
     pub scheduled_payment: Account<'info, ScheduledPayment>,
@@ -54,7 +54,7 @@ pub fn update_scheduled_payment_ix(ctx: Context<UpdateScheduledPayment>) -> Resu
             return Err(ValhallaError::Unauthorized.into());
         }
         Authority::Funder => {
-            if ctx.accounts.funder.key() != ctx.accounts.signer.key() {
+            if ctx.accounts.creator.key() != ctx.accounts.signer.key() {
                 return Err(ValhallaError::Unauthorized.into());
             }
         }
@@ -64,7 +64,7 @@ pub fn update_scheduled_payment_ix(ctx: Context<UpdateScheduledPayment>) -> Resu
             }
         }
         Authority::Both => {
-            if ctx.accounts.funder.key() != ctx.accounts.signer.key()
+            if ctx.accounts.creator.key() != ctx.accounts.signer.key()
                 || ctx.accounts.recipient.key() != ctx.accounts.signer.key()
             {
                 return Err(ValhallaError::Unauthorized.into());

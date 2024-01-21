@@ -47,17 +47,17 @@ export interface ValhallaPDAs {
 
 export function getPDAs(
   programId: PublicKey,
-  funder: PublicKey | null,
+  creator: PublicKey | null,
   recipient: PublicKey | null,
   mint: PublicKey | null
 ): ValhallaPDAs {
   const [config] = PublicKey.findProgramAddressSync([CONFIG_SEED], programId);
 
   const [vestingSchedule] =
-    funder && recipient && mint
+    creator && recipient && mint
       ? PublicKey.findProgramAddressSync(
           [
-            funder.toBuffer(),
+            creator.toBuffer(),
             recipient.toBuffer(),
             mint.toBuffer(),
             VESTING_SCHEDULT_SEED,
@@ -73,9 +73,9 @@ export function getPDAs(
     : [null];
 
   const [tokenLock] =
-    funder && mint
+    creator && mint
       ? PublicKey.findProgramAddressSync(
-          [funder.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
+          [creator.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
           programId
         )
       : [null];
@@ -87,10 +87,10 @@ export function getPDAs(
     : [null];
 
   const [scheduledPayment] =
-    funder && recipient && mint
+    creator && recipient && mint
       ? PublicKey.findProgramAddressSync(
           [
-            funder.toBuffer(),
+            creator.toBuffer(),
             recipient.toBuffer(),
             mint.toBuffer(),
             SCHEDULED_PAYMENT_SEED,
@@ -119,32 +119,32 @@ export function getPDAs(
 export const setupTestAccounts = async (
   provider: AnchorProvider,
   payer: Keypair,
-  funder: Keypair,
+  creator: Keypair,
   recipient: Keypair,
   program: Program<Valhalla>
 ): Promise<[PublicKey, Account, Account, ValhallaPDAs]> => {
   await airdrop(provider.connection, payer.publicKey);
-  await airdrop(provider.connection, funder.publicKey);
+  await airdrop(provider.connection, creator.publicKey);
   await airdrop(provider.connection, recipient.publicKey);
 
-  const [mint, funderTokenAccount, recipientTokenAccount] =
+  const [mint, creatorTokenAccount, recipientTokenAccount] =
     await mintTransferFeeTokens(
       provider.connection,
       payer,
       decimals,
       feeBasisPoints,
       maxFee,
-      funder,
+      creator,
       recipient,
       amountMinted
     );
 
   const pdas = getPDAs(
     program.programId,
-    funder.publicKey,
+    creator.publicKey,
     recipient.publicKey,
     mint
   );
 
-  return [mint, funderTokenAccount, recipientTokenAccount, pdas];
+  return [mint, creatorTokenAccount, recipientTokenAccount, pdas];
 };

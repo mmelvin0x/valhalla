@@ -10,28 +10,28 @@ use crate::{constants, errors::ValhallaError, state::TokenLock};
 #[derive(Accounts)]
 pub struct DisburseTokenLock<'info> {
     #[account(mut)]
-    pub funder: Signer<'info>,
+    pub creator: Signer<'info>,
 
     #[account(
         init_if_needed,
-        payer = funder,
+        payer = creator,
         associated_token::mint = mint,
-        associated_token::authority = funder,
+        associated_token::authority = creator,
         associated_token::token_program = token_program
     )]
-    /// The funder's token account.
-    pub funder_token_account: InterfaceAccount<'info, TokenAccount>,
+    /// The creator's token account.
+    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         mut,
         seeds = [
-            funder.key().as_ref(),
+            creator.key().as_ref(),
             mint.key().as_ref(),
             constants::TOKEN_LOCK_SEED
         ],
         bump,
         has_one = mint,
-        has_one = funder,
+        has_one = creator,
     )]
     pub token_lock: Account<'info, TokenLock>,
 
@@ -72,7 +72,7 @@ pub fn disburse_token_lock_ix(ctx: Context<DisburseTokenLock>) -> Result<()> {
         let cpi_accounts = TransferChecked {
             from: ctx.accounts.token_lock_token_account.to_account_info(),
             mint: ctx.accounts.mint.to_account_info(),
-            to: ctx.accounts.funder_token_account.to_account_info(),
+            to: ctx.accounts.creator_token_account.to_account_info(),
             authority: ctx.accounts.token_lock_token_account.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);

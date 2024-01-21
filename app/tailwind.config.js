@@ -12,6 +12,7 @@ module.exports = {
   daisyui: {
     styled: true,
     themes: [
+      "nord",
       {
         nord: {
           primary: "#5E81AC",

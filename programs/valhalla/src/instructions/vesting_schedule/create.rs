@@ -16,7 +16,7 @@ use crate::{
 /// Represents the instruction to create a new vesting_schedule.
 pub struct CreateVestingSchedule<'info> {
     #[account(mut)]
-    pub funder: Signer<'info>,
+    pub creator: Signer<'info>,
 
     /// The account of the recipient who will receive the locked tokens.
     /// CHECK: This account is only read from and stored as a Pubkey on the Config.
@@ -32,9 +32,9 @@ pub struct CreateVestingSchedule<'info> {
 
     #[account(
         init,
-        payer = funder,
+        payer = creator,
         seeds = [
-            funder.key().as_ref(),
+            creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::VESTING_SCHEDULE_SEED,
@@ -49,7 +49,7 @@ pub struct CreateVestingSchedule<'info> {
         init,
         seeds = [vesting_schedule.key().as_ref(), constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED],
         bump,
-        payer = funder,
+        payer = creator,
         token::mint = mint,
         token::authority = vesting_schedule_token_account,
         token::token_program = token_program
@@ -59,17 +59,17 @@ pub struct CreateVestingSchedule<'info> {
 
     #[account(
         init_if_needed,
-        payer = funder,
+        payer = creator,
         associated_token::mint = mint,
-        associated_token::authority = funder,
+        associated_token::authority = creator,
         associated_token::token_program = token_program
     )]
-    /// The funder's token account.
-    pub funder_token_account: InterfaceAccount<'info, TokenAccount>,
+    /// The creator's token account.
+    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         init_if_needed,
-        payer = funder,
+        payer = creator,
         associated_token::mint = mint,
         associated_token::authority = recipient,
         associated_token::token_program = token_program
@@ -101,7 +101,7 @@ pub fn create_vesting_schedule_ix(
 
     // Validate the amount to be vested
     // Get the user's token account balance and the amount to be vested amount
-    let balance = ctx.accounts.funder_token_account.amount;
+    let balance = ctx.accounts.creator_token_account.amount;
     let mut amount = amount_to_be_vested
         .checked_mul((10u64).pow(ctx.accounts.mint.decimals as u32))
         .unwrap();
@@ -136,7 +136,7 @@ pub fn create_vesting_schedule_ix(
     }
 
     // Set the vesting_schedule state
-    vesting_schedule.funder = ctx.accounts.funder.key();
+    vesting_schedule.creator = ctx.accounts.creator.key();
     vesting_schedule.recipient = ctx.accounts.recipient.key();
     vesting_schedule.mint = ctx.accounts.mint.key();
     vesting_schedule.cancel_authority = cancel_authority;
@@ -157,10 +157,10 @@ pub fn create_vesting_schedule_ix(
         if start_date == 0 {
             let cpi_program = ctx.accounts.token_program.to_account_info();
             let cpi_accounts = TransferChecked {
-                from: ctx.accounts.funder_token_account.to_account_info(),
+                from: ctx.accounts.creator_token_account.to_account_info(),
                 mint: ctx.accounts.mint.to_account_info(),
                 to: ctx.accounts.recipient_token_account.to_account_info(),
-                authority: ctx.accounts.funder.to_account_info(),
+                authority: ctx.accounts.creator.to_account_info(),
             };
             let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
@@ -179,25 +179,25 @@ pub fn create_vesting_schedule_ix(
         }
     }
 
-    // Transfer the funder's tokens to the vesting_schedule token account
+    // Transfer the creator's tokens to the vesting_schedule token account
     let cpi_program = ctx.accounts.token_program.to_account_info();
     let cpi_accounts = TransferChecked {
-        from: ctx.accounts.funder_token_account.to_account_info(),
+        from: ctx.accounts.creator_token_account.to_account_info(),
         mint: ctx.accounts.mint.to_account_info(),
         to: ctx
             .accounts
             .vesting_schedule_token_account
             .to_account_info(),
-        authority: ctx.accounts.funder.to_account_info(),
+        authority: ctx.accounts.creator.to_account_info(),
     };
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
     token::transfer_checked(cpi_ctx, amount, ctx.accounts.mint.decimals)?;
 
-    // Transfer the SOL fee from the funder to the treasury
+    // Transfer the SOL fee from the creator to the treasury
     let cpi_program = ctx.accounts.system_program.to_account_info();
     let cpi_accounts = system_program::Transfer {
-        from: ctx.accounts.funder.to_account_info(),
+        from: ctx.accounts.creator.to_account_info(),
         to: ctx.accounts.treasury.to_account_info(),
     };
     let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);

@@ -23,7 +23,7 @@ export async function mintTransferFeeTokens(
   decimals: number,
   feeBasisPoints: number,
   maxFee: bigint,
-  funder: Keypair,
+  creator: Keypair,
   recipient: Keypair,
   amount: number
 ): Promise<[PublicKey, Account, Account]> {
@@ -64,10 +64,10 @@ export async function mintTransferFeeTokens(
   ]);
   await connection.confirmTransaction(tx);
 
-  const [funderTokenAccount, recipientTokenAccount] =
+  const [creatorTokenAccount, recipientTokenAccount] =
     await getTestTokenAccounts(
       connection,
-      funder,
+      creator,
       recipient,
       mint,
       TOKEN_2022_PROGRAM_ID
@@ -77,7 +77,7 @@ export async function mintTransferFeeTokens(
     connection,
     payer,
     mint,
-    funderTokenAccount.address,
+    creatorTokenAccount.address,
     payer,
     amount * LAMPORTS_PER_SOL,
     [],
@@ -85,5 +85,5 @@ export async function mintTransferFeeTokens(
     TOKEN_2022_PROGRAM_ID
   );
 
-  return [mint, funderTokenAccount, recipientTokenAccount];
+  return [mint, creatorTokenAccount, recipientTokenAccount];
 }

@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from '@solana/spl-token'
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as splToken from "@solana/spl-token";
+import * as beet from "@metaplex-foundation/beet";
+import * as web3 from "@solana/web3.js";
 
 /**
  * @category Instructions
@@ -15,16 +15,16 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export const disburseScheduledPaymentStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */
+  instructionDiscriminator: number[] /* size: 8 */;
 }>(
-  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
-  'DisburseScheduledPaymentInstructionArgs'
-)
+  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
+  "DisburseScheduledPaymentInstructionArgs",
+);
 /**
  * Accounts required by the _disburseScheduledPayment_ instruction
  *
  * @property [_writable_, **signer**] signer
- * @property [] funder
+ * @property [] creator
  * @property [] recipient
  * @property [_writable_] recipientTokenAccount
  * @property [_writable_] scheduledPayment
@@ -36,21 +36,21 @@ export const disburseScheduledPaymentStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type DisburseScheduledPaymentInstructionAccounts = {
-  signer: web3.PublicKey
-  funder: web3.PublicKey
-  recipient: web3.PublicKey
-  recipientTokenAccount: web3.PublicKey
-  scheduledPayment: web3.PublicKey
-  paymentTokenAccount: web3.PublicKey
-  mint: web3.PublicKey
-  tokenProgram?: web3.PublicKey
-  associatedTokenProgram: web3.PublicKey
-  systemProgram?: web3.PublicKey
-}
+  signer: web3.PublicKey;
+  creator: web3.PublicKey;
+  recipient: web3.PublicKey;
+  recipientTokenAccount: web3.PublicKey;
+  scheduledPayment: web3.PublicKey;
+  paymentTokenAccount: web3.PublicKey;
+  mint: web3.PublicKey;
+  tokenProgram?: web3.PublicKey;
+  associatedTokenProgram: web3.PublicKey;
+  systemProgram?: web3.PublicKey;
+};
 
 export const disburseScheduledPaymentInstructionDiscriminator = [
   103, 97, 120, 57, 34, 113, 22, 27,
-]
+];
 
 /**
  * Creates a _DisburseScheduledPayment_ instruction.
@@ -62,11 +62,13 @@ export const disburseScheduledPaymentInstructionDiscriminator = [
  */
 export function createDisburseScheduledPaymentInstruction(
   accounts: DisburseScheduledPaymentInstructionAccounts,
-  programId = new web3.PublicKey('CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn')
+  programId = new web3.PublicKey(
+    "CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn",
+  ),
 ) {
   const [data] = disburseScheduledPaymentStruct.serialize({
     instructionDiscriminator: disburseScheduledPaymentInstructionDiscriminator,
-  })
+  });
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.signer,
@@ -74,7 +76,7 @@ export function createDisburseScheduledPaymentInstruction(
       isSigner: true,
     },
     {
-      pubkey: accounts.funder,
+      pubkey: accounts.creator,
       isWritable: false,
       isSigner: false,
     },
@@ -118,12 +120,12 @@ export function createDisburseScheduledPaymentInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ]
+  ];
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  })
-  return ix
+  });
+  return ix;
 }

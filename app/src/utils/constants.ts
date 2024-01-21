@@ -42,7 +42,7 @@ interface ValhallaPDAs {
 }
 
 export function getPDAs(
-  funder: PublicKey,
+  creator: PublicKey,
   recipient: PublicKey | null,
   mint: PublicKey,
 ): ValhallaPDAs {
@@ -56,7 +56,7 @@ export function getPDAs(
   if (recipient) {
     [vestingSchedule] = PublicKey.findProgramAddressSync(
       [
-        funder.toBuffer(),
+        creator.toBuffer(),
         recipient.toBuffer(),
         mint.toBuffer(),
         VESTING_SCHEDULT_SEED,
@@ -70,7 +70,7 @@ export function getPDAs(
 
     [scheduledPayment] = PublicKey.findProgramAddressSync(
       [
-        funder.toBuffer(),
+        creator.toBuffer(),
         recipient.toBuffer(),
         mint.toBuffer(),
         SCHEDULED_PAYMENT_SEED,
@@ -84,7 +84,7 @@ export function getPDAs(
   }
 
   const [tokenLock] = PublicKey.findProgramAddressSync(
-    [funder.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
+    [creator.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
     PROGRAM_ID,
   );
   const [tokenLockTokenAccount] = PublicKey.findProgramAddressSync(

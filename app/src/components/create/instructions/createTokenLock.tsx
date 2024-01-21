@@ -61,7 +61,7 @@ export const createTokenLock = async (
 
   const mint = new PublicKey(values.selectedToken.id);
   const pdas = getPDAs(wallet.publicKey, null, mint);
-  const funderTokenAccount = getAssociatedTokenAddressSync(
+  const creatorTokenAccount = getAssociatedTokenAddressSync(
     mint,
     new PublicKey(wallet.publicKey),
     false,
@@ -69,12 +69,12 @@ export const createTokenLock = async (
   );
 
   const createLockInstructionAccounts: CreateTokenLockInstructionAccounts = {
-    funder: wallet.publicKey,
+    creator: wallet.publicKey,
     config: pdas.config,
     treasury: TREASURY,
     tokenLock: pdas.tokenLock,
     tokenLockTokenAccount: pdas.tokenLockTokenAccount,
-    funderTokenAccount,
+    creatorTokenAccount,
     mint,
     tokenProgram: TOKEN_2022_PROGRAM_ID,
     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,

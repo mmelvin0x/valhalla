@@ -9,12 +9,12 @@ use crate::{constants, errors::ValhallaError, state::VestingSchedule, Authority}
 
 #[derive(Accounts)]
 pub struct CancelVestingSchedule<'info> {
-    #[account(mut, constraint = funder.key() == signer.key() || recipient.key() == signer.key())]
+    #[account(mut, constraint = creator.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
-    #[account(mut, constraint = vesting_schedule.funder == funder.key())]
+    #[account(mut, constraint = vesting_schedule.creator == creator.key())]
     /// CHECK: Checked in contstraints
-    pub funder: AccountInfo<'info>,
+    pub creator: AccountInfo<'info>,
 
     #[account(mut, constraint = vesting_schedule.recipient == recipient.key())]
     /// CHECK: Checked in constraints
@@ -22,16 +22,16 @@ pub struct CancelVestingSchedule<'info> {
 
     #[account(
         mut,
-        close = funder,
+        close = creator,
         seeds = [
-            funder.key().as_ref(),
+            creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::VESTING_SCHEDULE_SEED,
         ],
         bump,
         has_one = recipient,
-        has_one = funder,
+        has_one = creator,
         has_one = mint,
     )]
     pub vesting_schedule: Account<'info, VestingSchedule>,
@@ -49,9 +49,9 @@ pub struct CancelVestingSchedule<'info> {
         init_if_needed,
         payer = signer,
         associated_token::mint = mint,
-        associated_token::authority = funder
+        associated_token::authority = creator
     )]
-    pub funder_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -69,7 +69,7 @@ pub fn cancel_vesting_schedule_ix(ctx: Context<CancelVestingSchedule>) -> Result
             return Err(ValhallaError::Unauthorized.into());
         }
         Authority::Funder => {
-            if ctx.accounts.funder.key() != ctx.accounts.signer.key() {
+            if ctx.accounts.creator.key() != ctx.accounts.signer.key() {
                 return Err(ValhallaError::Unauthorized.into());
             }
         }
@@ -79,7 +79,7 @@ pub fn cancel_vesting_schedule_ix(ctx: Context<CancelVestingSchedule>) -> Result
             }
         }
         Authority::Both => {
-            if ctx.accounts.funder.key() != ctx.accounts.signer.key()
+            if ctx.accounts.creator.key() != ctx.accounts.signer.key()
                 || ctx.accounts.recipient.key() != ctx.accounts.signer.key()
             {
                 return Err(ValhallaError::Unauthorized.into());
@@ -95,15 +95,15 @@ pub fn cancel_vesting_schedule_ix(ctx: Context<CancelVestingSchedule>) -> Result
         &[bump],
     ]];
 
-    // If the vesting_schedule token account has a balance, transfer it to the funder
+    // If the vesting_schedule token account has a balance, transfer it to the creator
     if ctx.accounts.vesting_schedule_token_account.amount > 0 {
         let vesting_schedule_token_account = &ctx.accounts.vesting_schedule_token_account;
-        let funder_token_account = &ctx.accounts.funder_token_account;
+        let creator_token_account = &ctx.accounts.creator_token_account;
 
         let cpi_accounts = TransferChecked {
             from: vesting_schedule_token_account.to_account_info(),
             mint: ctx.accounts.mint.to_account_info(),
-            to: funder_token_account.to_account_info(),
+            to: creator_token_account.to_account_info(),
             authority: ctx
                 .accounts
                 .vesting_schedule_token_account
@@ -125,7 +125,7 @@ pub fn cancel_vesting_schedule_ix(ctx: Context<CancelVestingSchedule>) -> Result
             .accounts
             .vesting_schedule_token_account
             .to_account_info(),
-        destination: ctx.accounts.funder.to_account_info(),
+        destination: ctx.accounts.creator.to_account_info(),
         authority: ctx
             .accounts
             .vesting_schedule_token_account

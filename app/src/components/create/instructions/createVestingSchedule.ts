@@ -81,7 +81,7 @@ export const createVestingSchedule = async (
   const mint = new PublicKey(values.selectedToken.id);
   const recipientKey = new PublicKey(values.recipient);
   const pdas = getPDAs(wallet.publicKey, recipientKey, mint);
-  const funderTokenAccount = getAssociatedTokenAddressSync(
+  const creatorTokenAccount = getAssociatedTokenAddressSync(
     mint,
     new PublicKey(wallet.publicKey),
     false,
@@ -96,13 +96,13 @@ export const createVestingSchedule = async (
 
   const createLockInstructionAccounts: CreateVestingScheduleInstructionAccounts =
     {
-      funder: wallet.publicKey,
+      creator: wallet.publicKey,
       recipient: new PublicKey(values.recipient),
       config: pdas.config,
       treasury: TREASURY,
       vestingSchedule: pdas.vestingSchedule,
       vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
-      funderTokenAccount,
+      creatorTokenAccount,
       recipientTokenAccount,
       mint,
       tokenProgram: TOKEN_2022_PROGRAM_ID,

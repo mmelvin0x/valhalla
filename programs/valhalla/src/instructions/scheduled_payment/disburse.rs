@@ -13,7 +13,7 @@ pub struct DisburseScheduledPayment<'info> {
     pub signer: Signer<'info>,
 
     /// CHECK: Used in constraints
-    pub funder: AccountInfo<'info>,
+    pub creator: AccountInfo<'info>,
 
     /// CHECK: Used in constraints
     pub recipient: AccountInfo<'info>,
@@ -29,13 +29,13 @@ pub struct DisburseScheduledPayment<'info> {
     #[account(
         mut,
         seeds = [
-            funder.key().as_ref(),
+            creator.key().as_ref(),
             mint.key().as_ref(),
             constants::SCHEDULED_PAYMENT_SEED
         ],
         bump,
         has_one = mint,
-        has_one = funder,
+        has_one = creator,
     )]
     pub scheduled_payment: Account<'info, ScheduledPayment>,
 

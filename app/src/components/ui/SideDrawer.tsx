@@ -1,6 +1,7 @@
 import {
   FaCalendar,
   FaChartPie,
+  FaClipboardList,
   FaHome,
   FaLock,
   FaSearch,
@@ -9,6 +10,7 @@ import {
 
 import Image from "next/image";
 import Link from "next/link";
+import SocialBar from "./SocialBar";
 import { VestingType } from "program";
 import router from "next/router";
 import { useMemo } from "react";
@@ -99,6 +101,20 @@ export default function SideDrawer() {
             </Link>
           </li>
         ))}
+
+        <li>
+          <Link
+            href={`https://docs.valhalla.so`}
+            className={`flex items-center gap-2 text-xl link link-hover font-bold`}
+          >
+            <FaClipboardList className="inline" />
+            Documentation
+          </Link>
+        </li>
+
+        <div className="mx-auto mt-8">
+          <SocialBar showText={false} />
+        </div>
       </ul>
     </>
   );

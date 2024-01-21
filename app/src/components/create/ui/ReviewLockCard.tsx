@@ -12,7 +12,7 @@ import { useMemo } from "react";
 import useProgram from "program/useProgram";
 
 interface ReviewLockCardProps {
-  funder: PublicKey;
+  creator: PublicKey;
   recipient: string;
   selectedToken?: DasApiAsset | null;
   totalVestingDuration: number;
@@ -27,7 +27,7 @@ interface ReviewLockCardProps {
 }
 
 export default function ReviewLockCard({
-  funder,
+  creator,
   recipient,
   selectedToken,
   vestingEndDate,

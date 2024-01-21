@@ -4,7 +4,7 @@ use crate::VestingType;
 
 #[account]
 pub struct TokenLock {
-    pub funder: Pubkey,
+    pub creator: Pubkey,
     pub mint: Pubkey,
     pub name: [u8; 32],
     pub total_vesting_duration: u64,
@@ -15,7 +15,7 @@ pub struct TokenLock {
 impl TokenLock {
     pub fn size_of() -> usize {
         8 + // discriminator
-            32 + // funder
+            32 + // creator
             32 + // mint
             32 + // name
             8 + // total_vesting_duration

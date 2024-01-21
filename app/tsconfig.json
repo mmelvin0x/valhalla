@@ -18,7 +18,12 @@
     "incremental": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "/src/**/*"],
-  "exclude": ["node_modules", ".next", "./tsconfig.json"],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "./tsconfig.json",
+    "./tailwind.config.js"
+  ],
   "ts-node": {
     "require": ["tsconfig-paths/register"],
     "compilerOptions": {

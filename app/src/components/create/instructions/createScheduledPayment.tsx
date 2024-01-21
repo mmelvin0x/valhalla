@@ -67,7 +67,7 @@ export const createScheduledPayment = async (
   const mint = new PublicKey(values.selectedToken.id);
   const recipientKey = new PublicKey(values.recipient);
   const pdas = getPDAs(wallet.publicKey, recipientKey, mint);
-  const funderTokenAccount = getAssociatedTokenAddressSync(
+  const creatorTokenAccount = getAssociatedTokenAddressSync(
     mint,
     new PublicKey(wallet.publicKey),
     false,
@@ -82,13 +82,13 @@ export const createScheduledPayment = async (
 
   const createLockInstructionAccounts: CreateScheduledPaymentInstructionAccounts =
     {
-      funder: wallet.publicKey,
+      creator: wallet.publicKey,
       recipient: new PublicKey(values.recipient),
       config: pdas.config,
       treasury: TREASURY,
       scheduledPayment: pdas.scheduledPayment,
       scheduledPaymentTokenAccount: pdas.scheduledPaymentTokenAccount,
-      funderTokenAccount,
+      creatorTokenAccount,
       recipientTokenAccount,
       mint,
       tokenProgram: TOKEN_2022_PROGRAM_ID,

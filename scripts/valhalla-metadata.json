@@ -3,7 +3,7 @@
   "symbol": "VALHALLA",
   "image": "https://shdw-drive.genesysgo.net/GoQrLZGWCCLJTudhSNUT3k5Je8rMBohWmsnxu73EoPtD/logo128.png",
   "description": "The governance token for Valhalla.",
-  "funder": {
+  "creator": {
     "name": "mmelvin0x",
     "site": "https://valhalla.so"
   }

@@ -4,7 +4,7 @@ use crate::{types::Authority, VestingType};
 
 #[account]
 pub struct VestingSchedule {
-    pub funder: Pubkey,
+    pub creator: Pubkey,
     pub recipient: Pubkey,
     pub mint: Pubkey,
     pub name: [u8; 32],
@@ -25,7 +25,7 @@ pub struct VestingSchedule {
 impl VestingSchedule {
     pub fn size_of() -> usize {
         8 + // discriminator
-            32 + // funder
+            32 + // creator
             32 + // recipient
             32 + // mint
             32 + // name

@@ -9,12 +9,12 @@ use crate::{constants, errors::ValhallaError, state::ScheduledPayment, Authority
 
 #[derive(Accounts)]
 pub struct CancelScheduledPayment<'info> {
-    #[account(mut, constraint = funder.key() == signer.key() || recipient.key() == signer.key())]
+    #[account(mut, constraint = creator.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
-    #[account(mut, constraint = scheduled_payment.funder == funder.key())]
+    #[account(mut, constraint = scheduled_payment.creator == creator.key())]
     /// CHECK: Checked in contstraints
-    pub funder: AccountInfo<'info>,
+    pub creator: AccountInfo<'info>,
 
     #[account(mut, constraint = scheduled_payment.recipient == recipient.key())]
     /// CHECK: Checked in constraints
@@ -22,16 +22,16 @@ pub struct CancelScheduledPayment<'info> {
 
     #[account(
         mut,
-        close = funder,
+        close = creator,
         seeds = [
-            funder.key().as_ref(),
+            creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::SCHEDULED_PAYMENT_SEED,
         ],
         bump,
         has_one = recipient,
-        has_one = funder,
+        has_one = creator,
         has_one = mint,
     )]
     pub scheduled_payment: Account<'info, ScheduledPayment>,
@@ -49,9 +49,9 @@ pub struct CancelScheduledPayment<'info> {
         init_if_needed,
         payer = signer,
         associated_token::mint = mint,
-        associated_token::authority = funder
+        associated_token::authority = creator
     )]
-    pub funder_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -69,7 +69,7 @@ pub fn cancel_scheduled_payment_ix(ctx: Context<CancelScheduledPayment>) -> Resu
             return Err(ValhallaError::Unauthorized.into());
         }
         Authority::Funder => {
-            if ctx.accounts.funder.key() != ctx.accounts.signer.key() {
+            if ctx.accounts.creator.key() != ctx.accounts.signer.key() {
                 return Err(ValhallaError::Unauthorized.into());
             }
         }
@@ -79,7 +79,7 @@ pub fn cancel_scheduled_payment_ix(ctx: Context<CancelScheduledPayment>) -> Resu
             }
         }
         Authority::Both => {
-            if ctx.accounts.funder.key() != ctx.accounts.signer.key()
+            if ctx.accounts.creator.key() != ctx.accounts.signer.key()
                 || ctx.accounts.recipient.key() != ctx.accounts.signer.key()
             {
                 return Err(ValhallaError::Unauthorized.into());
@@ -95,15 +95,15 @@ pub fn cancel_scheduled_payment_ix(ctx: Context<CancelScheduledPayment>) -> Resu
         &[bump],
     ]];
 
-    // If the scheduled_payment token account has a balance, transfer it to the funder
+    // If the scheduled_payment token account has a balance, transfer it to the creator
     if ctx.accounts.payment_token_account.amount > 0 {
         let payment_token_account = &ctx.accounts.payment_token_account;
-        let funder_token_account = &ctx.accounts.funder_token_account;
+        let creator_token_account = &ctx.accounts.creator_token_account;
 
         let cpi_accounts = TransferChecked {
             from: payment_token_account.to_account_info(),
             mint: ctx.accounts.mint.to_account_info(),
-            to: funder_token_account.to_account_info(),
+            to: creator_token_account.to_account_info(),
             authority: ctx.accounts.payment_token_account.to_account_info(),
         };
         let cpi_program = ctx.accounts.token_program.to_account_info();
@@ -119,7 +119,7 @@ pub fn cancel_scheduled_payment_ix(ctx: Context<CancelScheduledPayment>) -> Resu
     // Close the scheduled_payment token account
     let cpi_accounts = CloseAccount {
         account: ctx.accounts.payment_token_account.to_account_info(),
-        destination: ctx.accounts.funder.to_account_info(),
+        destination: ctx.accounts.creator.to_account_info(),
         authority: ctx.accounts.payment_token_account.to_account_info(),
     };
     let cpi_program = ctx.accounts.token_program.to_account_info();

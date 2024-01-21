@@ -29,7 +29,7 @@ export default function DashboardFeature() {
   const getVestingSchedules = async () => {
     const funded = await VestingSchedule.gpaBuilder()
       .addFilter("vestingType", VestingType.VestingSchedule)
-      .addFilter("funder", wallet.publicKey)
+      .addFilter("creator", wallet.publicKey)
       .run(connection);
 
     const recipient = await VestingSchedule.gpaBuilder()
@@ -53,7 +53,7 @@ export default function DashboardFeature() {
   const getTokenLocks = async () => {
     const funded = await TokenLock.gpaBuilder()
       .addFilter("vestingType", VestingType.TokenLock)
-      .addFilter("funder", wallet.publicKey)
+      .addFilter("creator", wallet.publicKey)
       .run(connection);
 
     const fMapped = funded.map((v) => {
@@ -67,7 +67,7 @@ export default function DashboardFeature() {
   const getScheduledPayments = async () => {
     const funded = await ScheduledPayment.gpaBuilder()
       .addFilter("vestingType", VestingType.ScheduledPayment)
-      .addFilter("funder", wallet.publicKey)
+      .addFilter("creator", wallet.publicKey)
       .run(connection);
 
     const recipient = await ScheduledPayment.gpaBuilder()
