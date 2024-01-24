@@ -1,22 +1,23 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import {
-  clusterApiUrl,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  ExtensionType,
+  TOKEN_2022_PROGRAM_ID,
+  createInitializeMintInstruction,
+  createInitializeTransferFeeConfigInstruction,
+  createMint,
+  getMintLen,
+  getOrCreateAssociatedTokenAccount,
+  mintTo,
+} from "@solana/spl-token";
+import {
   Keypair,
   LAMPORTS_PER_SOL,
   SystemProgram,
   Transaction,
+  clusterApiUrl,
 } from "@solana/web3.js";
-import * as anchor from "@coral-xyz/anchor";
-import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  createInitializeMintInstruction,
-  createInitializeTransferFeeConfigInstruction,
-  createMint,
-  ExtensionType,
-  getMintLen,
-  getOrCreateAssociatedTokenAccount,
-  mintTo,
-  TOKEN_2022_PROGRAM_ID,
-} from "@solana/spl-token";
 
 const receiverOne = new anchor.web3.PublicKey(
   "5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb"
@@ -155,7 +156,7 @@ async function mintSPLTokens() {
     receiverTwo
   );
 
-  const sig1 = await mintTo(
+  await mintTo(
     connection,
     wallet.payer,
     mint,
@@ -164,7 +165,7 @@ async function mintSPLTokens() {
     1_000_000_000 * LAMPORTS_PER_SOL
   );
 
-  const sig2 = await mintTo(
+  mintTo(
     connection,
     wallet.payer,
     mint,
@@ -172,8 +173,6 @@ async function mintSPLTokens() {
     wallet.publicKey,
     1_000_000_000 * LAMPORTS_PER_SOL
   );
-
-  console.log(sig1, sig2);
 }
 
 async function main() {

@@ -1,14 +1,16 @@
 import * as anchor from "@coral-xyz/anchor";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { PROGRAM_ID } from "program";
+
 import { IDL, Valhalla } from "program/valhalla";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { PROGRAM_ID } from "program";
 
 const useProgram = () => {
   const wallet = useWallet();
   const { connection } = useConnection();
-  const [balance, setBalance] = useState<number>(0);
+  const [balance, setBalance] = useState<string>("0 ◎");
   const provider = useMemo(
     () => new anchor.AnchorProvider(connection, wallet, {}),
     [connection, wallet],
@@ -19,9 +21,9 @@ const useProgram = () => {
   );
 
   const getBalance = useCallback(async () => {
-    if (!wallet?.publicKey) return 0;
+    if (!wallet?.publicKey) return "0 ◎";
     const balance = await connection.getBalance(wallet.publicKey);
-    return balance / LAMPORTS_PER_SOL;
+    return (balance / LAMPORTS_PER_SOL).toLocaleString() + " ◎";
   }, [connection, wallet?.publicKey]);
 
   useEffect(() => {

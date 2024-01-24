@@ -5,10 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from "@solana/spl-token";
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
-import { Authority, authorityBeet } from "../types/Authority";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
+import { Authority, authorityBeet } from '../types/Authority'
 
 /**
  * @category Instructions
@@ -16,15 +16,15 @@ import { Authority, authorityBeet } from "../types/Authority";
  * @category generated
  */
 export type CreateVestingScheduleInstructionArgs = {
-  amountToBeVested: beet.bignum;
-  totalVestingDuration: beet.bignum;
-  payoutInterval: beet.bignum;
-  cliffPaymentAmount: beet.bignum;
-  startDate: beet.bignum;
-  cancelAuthority: Authority;
-  changeRecipientAuthority: Authority;
-  name: number[] /* size: 32 */;
-};
+  amountToBeVested: beet.bignum
+  totalVestingDuration: beet.bignum
+  payoutInterval: beet.bignum
+  cliffPaymentAmount: beet.bignum
+  startDate: beet.bignum
+  cancelAuthority: Authority
+  changeRecipientAuthority: Authority
+  name: number[] /* size: 32 */
+}
 /**
  * @category Instructions
  * @category CreateVestingSchedule
@@ -32,22 +32,22 @@ export type CreateVestingScheduleInstructionArgs = {
  */
 export const createVestingScheduleStruct = new beet.BeetArgsStruct<
   CreateVestingScheduleInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */;
+    instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["amountToBeVested", beet.u64],
-    ["totalVestingDuration", beet.u64],
-    ["payoutInterval", beet.u64],
-    ["cliffPaymentAmount", beet.u64],
-    ["startDate", beet.u64],
-    ["cancelAuthority", authorityBeet],
-    ["changeRecipientAuthority", authorityBeet],
-    ["name", beet.uniformFixedSizeArray(beet.u8, 32)],
+    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['amountToBeVested', beet.u64],
+    ['totalVestingDuration', beet.u64],
+    ['payoutInterval', beet.u64],
+    ['cliffPaymentAmount', beet.u64],
+    ['startDate', beet.u64],
+    ['cancelAuthority', authorityBeet],
+    ['changeRecipientAuthority', authorityBeet],
+    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
   ],
-  "CreateVestingScheduleInstructionArgs",
-);
+  'CreateVestingScheduleInstructionArgs'
+)
 /**
  * Accounts required by the _createVestingSchedule_ instruction
  *
@@ -66,23 +66,23 @@ export const createVestingScheduleStruct = new beet.BeetArgsStruct<
  * @category generated
  */
 export type CreateVestingScheduleInstructionAccounts = {
-  creator: web3.PublicKey;
-  recipient: web3.PublicKey;
-  config: web3.PublicKey;
-  treasury: web3.PublicKey;
-  vestingSchedule: web3.PublicKey;
-  vestingScheduleTokenAccount: web3.PublicKey;
-  creatorTokenAccount: web3.PublicKey;
-  recipientTokenAccount: web3.PublicKey;
-  mint: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  associatedTokenProgram: web3.PublicKey;
-  systemProgram?: web3.PublicKey;
-};
+  creator: web3.PublicKey
+  recipient: web3.PublicKey
+  config: web3.PublicKey
+  treasury: web3.PublicKey
+  vestingSchedule: web3.PublicKey
+  vestingScheduleTokenAccount: web3.PublicKey
+  creatorTokenAccount: web3.PublicKey
+  recipientTokenAccount: web3.PublicKey
+  mint: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+  associatedTokenProgram: web3.PublicKey
+  systemProgram?: web3.PublicKey
+}
 
 export const createVestingScheduleInstructionDiscriminator = [
   195, 30, 184, 253, 77, 154, 187, 66,
-];
+]
 
 /**
  * Creates a _CreateVestingSchedule_ instruction.
@@ -97,14 +97,12 @@ export const createVestingScheduleInstructionDiscriminator = [
 export function createCreateVestingScheduleInstruction(
   accounts: CreateVestingScheduleInstructionAccounts,
   args: CreateVestingScheduleInstructionArgs,
-  programId = new web3.PublicKey(
-    "CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn",
-  ),
+  programId = new web3.PublicKey('4RjGEao2c8JSNvtbN48PnqzhRHB2iscC9MAN6JXmzypM')
 ) {
   const [data] = createVestingScheduleStruct.serialize({
     instructionDiscriminator: createVestingScheduleInstructionDiscriminator,
     ...args,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.creator,
@@ -166,12 +164,12 @@ export function createCreateVestingScheduleInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

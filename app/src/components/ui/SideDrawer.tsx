@@ -12,23 +12,18 @@ import Image from "next/image";
 import Link from "next/link";
 import SocialBar from "./SocialBar";
 import { VestingType } from "program";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import router from "next/router";
 import { useMemo } from "react";
+import useProgram from "program/useProgram";
 
 export default function SideDrawer() {
+  const { wallet } = useProgram();
+
   const links = useMemo(
     () => [
       {
-        pathname: "/",
-        content: (
-          <>
-            <FaHome className="inline" />
-            Home
-          </>
-        ),
-      },
-      {
-        pathname: "/dashboard",
+        pathname: `/dashboard/${wallet?.publicKey?.toBase58()}`,
         content: (
           <>
             <FaChartPie className="inline" />
@@ -73,49 +68,68 @@ export default function SideDrawer() {
         ),
       },
     ],
-    [],
+    [wallet?.publicKey],
   );
 
   return (
-    <>
-      <ul className="menu p-4 w-80 gap-4 min-h-full navlinks">
-        <div className="flex flex-col items-center justify-center gap-8 my-8">
-          <Image
-            src="/logo256.png"
-            width={200}
-            height={200}
-            alt="Valhalla Logo"
-          />
+    <ul className="menu p-2 w-60 gap-2 min-h-full navlinks">
+      <div className="flex flex-col items-center justify-center gap-8 my-8">
+        <Image
+          src="/logo128.png"
+          width={128}
+          height={128}
+          alt="Valhalla Logo"
+        />
 
-          <h1>Valhalla</h1>
-        </div>
-        {links.map(({ pathname, content }) => (
-          <li key={pathname}>
+        <h2>Valhalla</h2>
+      </div>
+      <li>
+        <Link
+          href={"/"}
+          className={`flex items-center gap-2 link link-hover font-bold ${
+            router?.pathname === "/" ? "link link-primary" : ""
+          }`}
+        >
+          <FaHome />
+          Home
+        </Link>
+      </li>
+      {links.map(({ pathname, content }) => (
+        <li key={pathname}>
+          {wallet?.connected ? (
             <Link
-              href={pathname}
-              className={`flex items-center gap-2 text-xl link link-hover font-bold ${
+              href={wallet?.connected ? pathname : "/"}
+              className={`flex items-center gap-2 link link-hover font-bold ${
                 router?.pathname === pathname ? "link link-primary" : ""
               }`}
             >
               {content}
             </Link>
-          </li>
-        ))}
-
-        <li>
-          <Link
-            href={`https://docs.valhalla.so`}
-            className={`flex items-center gap-2 text-xl link link-hover font-bold`}
-          >
-            <FaClipboardList className="inline" />
-            Documentation
-          </Link>
+          ) : (
+            <div className="flex items-center gap-2 text-gray-400 font-bold">
+              {content}
+            </div>
+          )}
         </li>
+      ))}
 
-        <div className="mx-auto mt-8">
-          <SocialBar showText={false} />
-        </div>
-      </ul>
-    </>
+      <li>
+        <Link
+          href={`https://docs.valhalla.so`}
+          className={`flex items-center gap-2 link link-hover font-bold`}
+        >
+          <FaClipboardList className="inline" />
+          Documentation
+        </Link>
+      </li>
+
+      <li className="items-center">
+        <WalletMultiButton />
+      </li>
+
+      <div className="mx-auto mt-8">
+        <SocialBar showText={false} iconClassName="w-6 h-6" iconGap="gap-1" />
+      </div>
+    </ul>
   );
 }

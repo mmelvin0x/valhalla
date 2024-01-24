@@ -194,6 +194,8 @@ export default function CreateFeature() {
   }, [vestingType]);
 
   useEffect(() => {
+    console.log(new Date(formik.values.vestingEndDate).getTime());
+    console.log(new Date(formik.values.startDate).getTime());
     setVestingDuration(
       new Date(formik.values.vestingEndDate).getTime() -
         new Date(formik.values.startDate).getTime(),
@@ -234,8 +236,9 @@ export default function CreateFeature() {
         <div className="flex flex-col gap-8">
           {vestingType === VestingType.VestingSchedule && (
             <VestmentChart
-              vestingEndDate={new Date(formik.values.vestingEndDate)}
-              startDate={new Date(formik.values.startDate)}
+              formik={formik}
+              vestingEndDate={formik.values.vestingEndDate}
+              startDate={formik.values.startDate}
               totalVestingDuration={totalVestingDuration}
               amountToBeVested={Number(formik.values.amountToBeVested)}
               payoutInterval={Number(formik.values.payoutInterval)}
@@ -247,9 +250,12 @@ export default function CreateFeature() {
             creator={wallet.publicKey}
             recipient={formik.values.recipient}
             selectedToken={formik.values.selectedToken}
-            startDate={new Date(formik.values.startDate)}
-            vestingEndDate={new Date(formik.values.vestingEndDate)}
-            totalVestingDuration={totalVestingDuration}
+            startDate={formik.values.startDate}
+            vestingEndDate={formik.values.vestingEndDate}
+            totalVestingDuration={
+              new Date(formik.values.vestingEndDate).getTime() -
+              new Date(formik.values.startDate).getTime()
+            }
             amountToBeVested={Number(formik.values.amountToBeVested)}
             payoutInterval={Number(formik.values.payoutInterval)}
             cliffPaymentAmount={Number(formik.values.cliffPaymentAmount)}

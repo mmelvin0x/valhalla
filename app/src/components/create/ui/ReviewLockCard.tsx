@@ -51,7 +51,7 @@ export default function ReviewLockCard({
     () =>
       !!totalVestingDuration && !!payoutInterval
         ? Math.round(totalVestingDuration / payoutInterval)
-        : 0,
+        : 1,
     [totalVestingDuration, payoutInterval],
   );
 
@@ -60,7 +60,7 @@ export default function ReviewLockCard({
       amount: Math.round(amountToBeVested / numPayments),
       display:
         !!numPayments && !!amountToBeVested
-          ? (Math.round(amountToBeVested / numPayments), 2)
+          ? shortenNumber(Math.round(amountToBeVested / numPayments), 2)
           : "N/A",
     }),
     [numPayments, amountToBeVested],
@@ -80,7 +80,7 @@ export default function ReviewLockCard({
     switch (Number(cancelAuthority)) {
       case Authority.Neither:
         return "No one";
-      case Authority.Funder:
+      case Authority.Creator:
         return "You";
       case Authority.Recipient:
         return "Recipient";
@@ -93,7 +93,7 @@ export default function ReviewLockCard({
     switch (Number(changeRecipientAuthority)) {
       case Authority.Neither:
         return "No one";
-      case Authority.Funder:
+      case Authority.Creator:
         return "You";
       case Authority.Recipient:
         return "Recipient";

@@ -1,7 +1,6 @@
 import "react-datetime/css/react-datetime.css";
 
 import { Aclonica } from "next/font/google";
-import { AppBar } from "../components/ui/AppBar";
 import { AppProps } from "next/app";
 import { ContextProvider } from "../contexts/ContextProvider";
 import { FC } from "react";
@@ -9,6 +8,7 @@ import { Footer } from "../components/ui/Footer";
 import Head from "next/head";
 import Image from "next/image";
 import Notifications from "../components/ui/notifications/Notification";
+import { QueryProvider } from "contexts/QueryProvider";
 import SideDrawer from "components/ui/SideDrawer";
 
 const aclonica = Aclonica({
@@ -21,7 +21,7 @@ require("@solana/wallet-adapter-react-ui/styles.css");
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
   return (
-    <>
+    <QueryProvider>
       <Head>
         <title>Valhalla | Token Vesting Solutions</title>
         <meta
@@ -45,12 +45,27 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
 
       <ContextProvider>
         <div id="container" className="min-h-screen">
-          <div className="drawer lg:drawer-open">
+          <div className="drawer xl:drawer-open">
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content">
-              <AppBar />
+              <div className="m-8 mt-0 min-h-screen">
+                <div className="navbar flex">
+                  <div className="navbar-start">
+                    <label
+                      htmlFor="my-drawer-2"
+                      className="flex items-center gap-1 cursor-pointer drawer-button xl:hidden"
+                    >
+                      <Image
+                        src="/logo64.png"
+                        alt="logo"
+                        width={36}
+                        height={36}
+                      />{" "}
+                      <h3>Valhalla</h3>
+                    </label>
+                  </div>
+                </div>
 
-              <div className="m-8">
                 <Notifications />
                 <Component {...pageProps} />
               </div>
@@ -69,7 +84,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
           <Footer />
         </div>
       </ContextProvider>
-    </>
+    </QueryProvider>
   );
 };
 

@@ -3,6 +3,7 @@ import {
   InformationCircleIcon,
   XCircleIcon,
 } from "@heroicons/react/20/solid";
+
 import { useConnection } from "@solana/wallet-adapter-react";
 import { useEffect } from "react";
 import useNotificationStore from "../../../stores/useNotificationStore";
@@ -62,7 +63,7 @@ const Notification = ({ type, message, description, txid, onHide }: any) => {
 
   return (
     <div
-      className={`max-w-sm w-full bg-white shadow-xl rounded-md mt-2 pointer-events-auto ring-1 ring-black ring-opacity-5 p-2 mx-4 mb-12 overflow-hidden`}
+      className={`max-w-sm w-full bg-white shadow-xl rounded mt-2 pointer-events-auto ring-1 ring-black ring-opacity-5 p-2 mx-4 mb-12 overflow-hidden`}
     >
       <div className={`p-4`}>
         <div className={`flex items-center`}>
@@ -117,7 +118,7 @@ const Notification = ({ type, message, description, txid, onHide }: any) => {
           <div className={`ml-4 flex-shrink-0 self-start flex`}>
             <button
               onClick={() => onHide()}
-              className={`bg-bkg-2 default-transition rounded-md inline-flex text-fgd-3 hover:text-fgd-4 focus:outline-none`}
+              className={`bg-bkg-2 default-transition rounded inline-flex text-fgd-3 hover:text-fgd-4 focus:outline-none`}
             >
               <span className={`sr-only`}>Close</span>
               <XCircleIcon className="h-5 w-5" />

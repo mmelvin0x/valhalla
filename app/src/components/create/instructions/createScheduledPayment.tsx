@@ -132,7 +132,7 @@ export const createScheduledPayment = async (
       type: "success",
     });
 
-    router.push("/dashboard");
+    router.push(`/dashboard/${wallet.publicKey.toBase58()}`);
   } catch (error) {
     console.log("-> ~ error", error);
     notify({

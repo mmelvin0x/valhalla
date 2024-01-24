@@ -1,6 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 
 import { PublicKey } from "@solana/web3.js";
+import { isPublicKey } from "@metaplex-foundation/umi";
 
 export const shortenNumber = (num: number, digits: number) => {
   const lookup = [
@@ -31,6 +32,11 @@ export const shortenSignature = (signature?: string) => {
 
 export const shortenAddress = (address?: PublicKey) => {
   if (!address) return "";
+  if (typeof address === "string") {
+    if (!isPublicKey(address)) return address;
+    address = new PublicKey(address);
+  }
+
   return `${address.toBase58().slice(0, 4)}...${address.toBase58().slice(-4)}`;
 };
 
@@ -41,6 +47,8 @@ export const getNumDaysFromMS = (ms: number) => {
 };
 
 export const displayTime = (seconds: number) => {
+  if (seconds <= 0) return "Now";
+
   const SECONDS_IN_MINUTE = 60;
   const SECONDS_IN_HOUR = 3600;
   const SECONDS_IN_DAY = 86400;

@@ -68,7 +68,7 @@ pub fn cancel_vesting_schedule_ix(ctx: Context<CancelVestingSchedule>) -> Result
         Authority::Neither => {
             return Err(ValhallaError::Unauthorized.into());
         }
-        Authority::Funder => {
+        Authority::Creator => {
             if ctx.accounts.creator.key() != ctx.accounts.signer.key() {
                 return Err(ValhallaError::Unauthorized.into());
             }

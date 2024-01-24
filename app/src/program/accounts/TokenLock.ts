@@ -5,10 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from "@solana/web3.js";
-import * as beet from "@metaplex-foundation/beet";
-import * as beetSolana from "@metaplex-foundation/beet-solana";
-import { VestingType, vestingTypeBeet } from "../types/VestingType";
+import * as web3 from '@solana/web3.js'
+import * as beet from '@metaplex-foundation/beet'
+import * as beetSolana from '@metaplex-foundation/beet-solana'
+import { VestingType, vestingTypeBeet } from '../types/VestingType'
 
 /**
  * Arguments used to create {@link TokenLock}
@@ -16,15 +16,15 @@ import { VestingType, vestingTypeBeet } from "../types/VestingType";
  * @category generated
  */
 export type TokenLockArgs = {
-  creator: web3.PublicKey;
-  mint: web3.PublicKey;
-  name: number[] /* size: 32 */;
-  totalVestingDuration: beet.bignum;
-  createdTimestamp: beet.bignum;
-  vestingType: VestingType;
-};
+  creator: web3.PublicKey
+  mint: web3.PublicKey
+  name: number[] /* size: 32 */
+  totalVestingDuration: beet.bignum
+  createdTimestamp: beet.bignum
+  vestingType: VestingType
+}
 
-export const tokenLockDiscriminator = [73, 228, 144, 241, 154, 44, 93, 238];
+export const tokenLockDiscriminator = [73, 228, 144, 241, 154, 44, 93, 238]
 /**
  * Holds the data for the {@link TokenLock} Account and provides de/serialization
  * functionality for that data
@@ -39,7 +39,7 @@ export class TokenLock implements TokenLockArgs {
     readonly name: number[] /* size: 32 */,
     readonly totalVestingDuration: beet.bignum,
     readonly createdTimestamp: beet.bignum,
-    readonly vestingType: VestingType,
+    readonly vestingType: VestingType
   ) {}
 
   /**
@@ -52,8 +52,8 @@ export class TokenLock implements TokenLockArgs {
       args.name,
       args.totalVestingDuration,
       args.createdTimestamp,
-      args.vestingType,
-    );
+      args.vestingType
+    )
   }
 
   /**
@@ -62,9 +62,9 @@ export class TokenLock implements TokenLockArgs {
    */
   static fromAccountInfo(
     accountInfo: web3.AccountInfo<Buffer>,
-    offset = 0,
+    offset = 0
   ): [TokenLock, number] {
-    return TokenLock.deserialize(accountInfo.data, offset);
+    return TokenLock.deserialize(accountInfo.data, offset)
   }
 
   /**
@@ -76,16 +76,16 @@ export class TokenLock implements TokenLockArgs {
   static async fromAccountAddress(
     connection: web3.Connection,
     address: web3.PublicKey,
-    commitmentOrConfig?: web3.Commitment | web3.GetAccountInfoConfig,
+    commitmentOrConfig?: web3.Commitment | web3.GetAccountInfoConfig
   ): Promise<TokenLock> {
     const accountInfo = await connection.getAccountInfo(
       address,
-      commitmentOrConfig,
-    );
+      commitmentOrConfig
+    )
     if (accountInfo == null) {
-      throw new Error(`Unable to find TokenLock account at ${address}`);
+      throw new Error(`Unable to find TokenLock account at ${address}`)
     }
-    return TokenLock.fromAccountInfo(accountInfo, 0)[0];
+    return TokenLock.fromAccountInfo(accountInfo, 0)[0]
   }
 
   /**
@@ -96,10 +96,10 @@ export class TokenLock implements TokenLockArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn",
-    ),
+      '4RjGEao2c8JSNvtbN48PnqzhRHB2iscC9MAN6JXmzypM'
+    )
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, tokenLockBeet);
+    return beetSolana.GpaBuilder.fromStruct(programId, tokenLockBeet)
   }
 
   /**
@@ -107,7 +107,7 @@ export class TokenLock implements TokenLockArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [TokenLock, number] {
-    return tokenLockBeet.deserialize(buf, offset);
+    return tokenLockBeet.deserialize(buf, offset)
   }
 
   /**
@@ -118,7 +118,7 @@ export class TokenLock implements TokenLockArgs {
     return tokenLockBeet.serialize({
       accountDiscriminator: tokenLockDiscriminator,
       ...this,
-    });
+    })
   }
 
   /**
@@ -126,7 +126,7 @@ export class TokenLock implements TokenLockArgs {
    * {@link TokenLock}
    */
   static get byteSize() {
-    return tokenLockBeet.byteSize;
+    return tokenLockBeet.byteSize
   }
 
   /**
@@ -137,12 +137,12 @@ export class TokenLock implements TokenLockArgs {
    */
   static async getMinimumBalanceForRentExemption(
     connection: web3.Connection,
-    commitment?: web3.Commitment,
+    commitment?: web3.Commitment
   ): Promise<number> {
     return connection.getMinimumBalanceForRentExemption(
       TokenLock.byteSize,
-      commitment,
-    );
+      commitment
+    )
   }
 
   /**
@@ -150,7 +150,7 @@ export class TokenLock implements TokenLockArgs {
    * hold {@link TokenLock} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === TokenLock.byteSize;
+    return buf.byteLength - offset === TokenLock.byteSize
   }
 
   /**
@@ -163,29 +163,29 @@ export class TokenLock implements TokenLockArgs {
       mint: this.mint.toBase58(),
       name: this.name,
       totalVestingDuration: (() => {
-        const x = <{ toNumber: () => number }>this.totalVestingDuration;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.totalVestingDuration
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       createdTimestamp: (() => {
-        const x = <{ toNumber: () => number }>this.createdTimestamp;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.createdTimestamp
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
-      vestingType: "VestingType." + VestingType[this.vestingType],
-    };
+      vestingType: 'VestingType.' + VestingType[this.vestingType],
+    }
   }
 }
 
@@ -196,18 +196,18 @@ export class TokenLock implements TokenLockArgs {
 export const tokenLockBeet = new beet.BeetStruct<
   TokenLock,
   TokenLockArgs & {
-    accountDiscriminator: number[] /* size: 8 */;
+    accountDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["creator", beetSolana.publicKey],
-    ["mint", beetSolana.publicKey],
-    ["name", beet.uniformFixedSizeArray(beet.u8, 32)],
-    ["totalVestingDuration", beet.u64],
-    ["createdTimestamp", beet.u64],
-    ["vestingType", vestingTypeBeet],
+    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['creator', beetSolana.publicKey],
+    ['mint', beetSolana.publicKey],
+    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
+    ['totalVestingDuration', beet.u64],
+    ['createdTimestamp', beet.u64],
+    ['vestingType', vestingTypeBeet],
   ],
   TokenLock.fromArgs,
-  "TokenLock",
-);
+  'TokenLock'
+)

@@ -12,7 +12,7 @@ import * as beet from '@metaplex-foundation/beet'
  */
 export enum Authority {
   Neither,
-  Funder,
+  Creator,
   Recipient,
   Both,
 }

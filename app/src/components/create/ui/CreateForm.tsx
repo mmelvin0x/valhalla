@@ -67,7 +67,9 @@ export default function CreateForm({
       {vestingType === VestingType.VestingSchedule && (
         <StartDateInput
           values={formik.values}
-          handler={formik.handleChange}
+          handler={(e) => {
+            formik.handleChange(e);
+          }}
           errors={formik.errors}
         />
       )}

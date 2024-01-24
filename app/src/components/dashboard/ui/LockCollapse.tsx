@@ -28,7 +28,7 @@ export default function LockCollapse({
     <>
       <li
         key={lock.id.toBase58()}
-        className="flex flex-wrap border rounded-lg p-2 items-center gap-1 my-1 md:justify-between cursor-pointer hover:bg-base-200 transition-colors"
+        className="border rounded p-2 items-center gap-1 my-1 md:justify-between cursor-pointer bg-base-100 hover:bg-base-200 transition-colors"
         onClick={async () => {
           if (!showDetails) {
             setLoading(true);
@@ -41,25 +41,27 @@ export default function LockCollapse({
       >
         <div className="font-bold">{lock.nameDisplay}</div>
 
-        <div className="font-bold flex items-center gap-1 text-xs">
-          Token: {lock.tokenMintDisplay}
-        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className="font-bold flex items-center gap-1 text-xs">
+            Token: {lock.tokenMintDisplay}
+          </div>
 
-        <div className="font-bold flex items-center gap-1">
-          Funder: {lock.creatorDisplay}
-        </div>
+          <div className="font-bold flex items-center gap-1 text-xs">
+            Creator: {lock.creatorDisplay}
+          </div>
 
-        <div className="font-bold flex items-center gap-1 text-xs">
-          Recipient: {lock.recipientDisplay}
-        </div>
+          <div className="font-bold flex items-center gap-1 text-xs">
+            Recipient: {lock.recipientDisplay}
+          </div>
 
-        <div className="font-bold flex items-center gap-1 text-xs">
-          Next Payout: {lock.nextPayoutDisplay}
-        </div>
+          <div className="font-bold flex items-center gap-1 text-xs">
+            Next Payout: {lock.nextPayoutDisplay}
+          </div>
 
-        <button className="btn btn-xs btn-ghost">
-          {showDetails ? <FaCaretUp /> : <FaCaretDown />}
-        </button>
+          <button className="btn btn-xs btn-ghost">
+            {showDetails ? <FaCaretUp /> : <FaCaretDown />}
+          </button>
+        </div>
       </li>
       {loading ? (
         <div className="flex flex-col items-center justify-center mt-8">

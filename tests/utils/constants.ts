@@ -8,7 +8,7 @@ import { mintTransferFeeTokens } from "./mintTransferFeeTokens";
 
 export enum Authority {
   Neither,
-  Funder,
+  Creator,
   Recipient,
   Both,
 }

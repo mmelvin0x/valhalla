@@ -8,7 +8,6 @@ import { FC, ReactNode, useMemo } from "react";
 import { AutoConnectProvider } from "./AutoConnectProvider";
 import { clusterApiUrl } from "@solana/web3.js";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
 
 const ReactUIWalletModalProviderDynamic = dynamic(
   async () =>
@@ -17,14 +16,13 @@ const ReactUIWalletModalProviderDynamic = dynamic(
 );
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const router = useRouter();
   const network = process.env.NEXT_PUBLIC_NETWORK! as WalletAdapterNetwork;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(() => [] as Adapter[], []);
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect={true}>
+      <WalletProvider wallets={wallets}>
         <ReactUIWalletModalProviderDynamic>
           {children}
         </ReactUIWalletModalProviderDynamic>

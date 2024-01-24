@@ -13,6 +13,7 @@ import {
   ScheduledPayment,
   TokenLock,
   VestingSchedule,
+  VestingType,
 } from "program";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { displayTime, shortenAddress } from "utils/formatters";
@@ -28,22 +29,23 @@ import { getPDAs } from "utils/constants";
 export default class BaseModel {
   cancelAuthority: Authority;
   changeRecipientAuthority: Authority;
-  cliffPaymentAmount: anchor.BN;
+  cliffPaymentAmount: anchor.BN = new anchor.BN(0);
   das: DasApiAsset;
   creator: PublicKey;
   creatorTokenAccount: Account;
   id: PublicKey;
   isCliffPaymentDisbursed: boolean;
-  lastPaymentTimestamp: anchor.BN;
+  lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
   mint: PublicKey;
   mintInfo: Mint;
   name: string;
-  payoutInterval: anchor.BN;
+  payoutInterval: anchor.BN = new anchor.BN(0);
   recipient: PublicKey;
   recipientTokenAccount: Account;
-  startDate: anchor.BN;
+  startDate: anchor.BN = new anchor.BN(0);
   tokenAccount: Account;
-  totalVestingDuration: anchor.BN;
+  totalVestingDuration: anchor.BN = new anchor.BN(0);
+  vestingType: VestingType;
 
   constructor(
     publicKey: PublicKey,
@@ -55,6 +57,7 @@ export default class BaseModel {
     this.mint = obj.mint;
     this.name = anchor.utils.bytes.utf8.decode(new Uint8Array(obj.name));
     this.totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
+    this.vestingType = obj.vestingType;
 
     if (obj instanceof VestingSchedule || obj instanceof ScheduledPayment) {
       this.cancelAuthority = obj.cancelAuthority;
@@ -62,7 +65,7 @@ export default class BaseModel {
       this.recipient = obj.recipient;
     }
 
-    if (obj instanceof ScheduledPayment) {
+    if (obj instanceof ScheduledPayment || obj instanceof TokenLock) {
       this.startDate = new anchor.BN(obj.createdTimestamp);
     }
 
@@ -88,9 +91,23 @@ export default class BaseModel {
   }
 
   get canDisburse(): boolean {
-    return this.startDate
-      .add(this.totalVestingDuration)
-      .gte(new anchor.BN(Math.floor(Date.now() / 1000)));
+    const currentTime = Math.floor(Date.now() / 1000);
+    const startDate = this.startDate.toNumber();
+    if (startDate < currentTime) {
+      switch (this.vestingType) {
+        case VestingType.VestingSchedule:
+          return (
+            this.payoutInterval.toNumber() +
+              this.lastPaymentTimestamp.toNumber() <
+            currentTime
+          );
+        case VestingType.ScheduledPayment:
+        case VestingType.TokenLock:
+          return startDate + this.totalVestingDuration.toNumber() < currentTime;
+      }
+    }
+
+    return false;
   }
 
   get tokenAccountBalance(): anchor.BN {
@@ -151,7 +168,7 @@ export default class BaseModel {
 
   get cliffPaymentAmountDisplay(): ReactNode {
     return this.cliffPaymentAmount
-      .div(new anchor.BN(this.mintInfo.decimals))
+      .div(new anchor.BN(10 ** this.mintInfo.decimals))
       .toLocaleString();
   }
 
@@ -160,17 +177,16 @@ export default class BaseModel {
       <Link
         className="link link-secondary flex items-center gap-1"
         target="_blank"
-        href={getExplorerUrl(this.connection.rpcEndpoint, this.id)}
+        href={`/vesting/${this.id.toBase58()}`}
       >
         {this.name}{" "}
-        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
       </Link>
     );
   }
 
   get cancelAuthorityDisplay(): ReactNode {
     switch (this.cancelAuthority) {
-      case Authority.Funder:
+      case Authority.Creator:
         return (
           <Link
             className="link link-secondary flex items-center gap-1"
@@ -232,7 +248,7 @@ export default class BaseModel {
 
   get changeRecipientAuthorityDisplay(): ReactNode {
     switch (this.cancelAuthority) {
-      case Authority.Funder:
+      case Authority.Creator:
         return (
           <Link
             className="link link-secondary flex items-center gap-1"
@@ -323,6 +339,13 @@ export default class BaseModel {
     );
   }
 
+  get endDate(): Date {
+    const startDate = new Date(this.startDate.toNumber() * 1000);
+    return new Date(
+      startDate.getTime() + this.totalVestingDuration.toNumber() * 1000,
+    );
+  }
+
   get endDateDisplay(): ReactNode {
     const startDate = new Date(this.startDate.toNumber() * 1000);
     const endDate = new Date(
@@ -336,43 +359,25 @@ export default class BaseModel {
   }
 
   get nextPayoutDate(): Date {
-    const startDate = new Date(this.startDate.toNumber() * 1000);
-    if (this.payoutInterval) {
-      return new Date(
-        startDate.getTime() +
+    switch (this.vestingType) {
+      case VestingType.VestingSchedule:
+        return new Date(
           this.lastPaymentTimestamp.toNumber() * 1000 +
-          this.payoutInterval.toNumber() * 1000,
-      );
-    } else {
-      return new Date(
-        startDate.getTime() + this.totalVestingDuration.toNumber() * 1000,
-      );
+            this.payoutInterval.toNumber() * 1000,
+        );
+
+      case VestingType.ScheduledPayment:
+      case VestingType.TokenLock:
+        return this.endDate;
     }
   }
 
-  get nextPayoutDisplay(): ReactNode {
-    const startDate = new Date(this.startDate.toNumber() * 1000);
-    if (this.payoutInterval) {
-      const nextPayoutDate = new Date(
-        startDate.getTime() +
-          this.lastPaymentTimestamp.toNumber() * 1000 +
-          this.payoutInterval.toNumber() * 1000,
-      );
-      return (
-        <div className="flex items-center gap-1">
-          {nextPayoutDate.toLocaleDateString()} <FaCalendar />
-        </div>
-      );
-    } else {
-      const nextPayoutDate = new Date(
-        startDate.getTime() + this.totalVestingDuration.toNumber() * 1000,
-      );
-      return (
-        <div className="flex items-center gap-1">
-          {this.displayTime(nextPayoutDate.getTime() / 1000)} <FaCalendar />
-        </div>
-      );
-    }
+  get nextPayoutDisplay(): string {
+    return this.nextPayoutDate.toLocaleString();
+  }
+
+  get nextPayoutDisplayShort(): string {
+    return this.nextPayoutDate.toLocaleDateString();
   }
 
   displayTime(seconds: number): string {
@@ -383,7 +388,7 @@ export default class BaseModel {
     switch (this.changeRecipientAuthority) {
       case Authority.Neither:
         return false;
-      case Authority.Funder:
+      case Authority.Creator:
         return user.equals(this.creator);
       case Authority.Recipient:
         return user.equals(this.recipient);
@@ -396,7 +401,7 @@ export default class BaseModel {
     switch (this.cancelAuthority) {
       case Authority.Neither:
         return false;
-      case Authority.Funder:
+      case Authority.Creator:
         return user.equals(this.creator);
       case Authority.Recipient:
         return user.equals(this.recipient);
@@ -454,9 +459,15 @@ export default class BaseModel {
         TOKEN_2022_PROGRAM_ID,
       );
 
+      const destination =
+        this.vestingType === VestingType.VestingSchedule
+          ? pdas.vestingScheduleTokenAccount
+          : this.vestingType === VestingType.TokenLock
+            ? pdas.tokenLockTokenAccount
+            : pdas.scheduledPaymentTokenAccount;
       this.tokenAccount = await getAccount(
         connection,
-        pdas.vestingScheduleTokenAccount,
+        destination,
         undefined,
         TOKEN_2022_PROGRAM_ID,
       );

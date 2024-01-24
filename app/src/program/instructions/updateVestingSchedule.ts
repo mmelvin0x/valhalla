@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from "@solana/spl-token";
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -15,11 +15,11 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export const updateVestingScheduleStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */;
+  instructionDiscriminator: number[] /* size: 8 */
 }>(
-  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
-  "UpdateVestingScheduleInstructionArgs",
-);
+  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
+  'UpdateVestingScheduleInstructionArgs'
+)
 /**
  * Accounts required by the _updateVestingSchedule_ instruction
  *
@@ -35,20 +35,20 @@ export const updateVestingScheduleStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type UpdateVestingScheduleInstructionAccounts = {
-  signer: web3.PublicKey;
-  creator: web3.PublicKey;
-  recipient: web3.PublicKey;
-  newRecipient: web3.PublicKey;
-  vestingSchedule: web3.PublicKey;
-  mint: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  associatedTokenProgram: web3.PublicKey;
-  systemProgram?: web3.PublicKey;
-};
+  signer: web3.PublicKey
+  creator: web3.PublicKey
+  recipient: web3.PublicKey
+  newRecipient: web3.PublicKey
+  vestingSchedule: web3.PublicKey
+  mint: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+  associatedTokenProgram: web3.PublicKey
+  systemProgram?: web3.PublicKey
+}
 
 export const updateVestingScheduleInstructionDiscriminator = [
   249, 18, 68, 193, 205, 46, 146, 114,
-];
+]
 
 /**
  * Creates a _UpdateVestingSchedule_ instruction.
@@ -60,13 +60,11 @@ export const updateVestingScheduleInstructionDiscriminator = [
  */
 export function createUpdateVestingScheduleInstruction(
   accounts: UpdateVestingScheduleInstructionAccounts,
-  programId = new web3.PublicKey(
-    "CpeQRExCTr7a6pzjF7mGsT6HZVpAM636xSUFC4STTJFn",
-  ),
+  programId = new web3.PublicKey('4RjGEao2c8JSNvtbN48PnqzhRHB2iscC9MAN6JXmzypM')
 ) {
   const [data] = updateVestingScheduleStruct.serialize({
     instructionDiscriminator: updateVestingScheduleInstructionDiscriminator,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.signer,
@@ -113,12 +111,12 @@ export function createUpdateVestingScheduleInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

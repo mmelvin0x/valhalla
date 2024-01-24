@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 import BaseModel from "models/models";
@@ -14,7 +16,7 @@ export default function LockDetails({
   cancel: (lock: BaseModel) => Promise<void>;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-4 p-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-base-200 rounded">
       <div className="flex flex-wrap gap-2 col-span-2">
         <button
           className="btn btn-sm btn-accent"
@@ -39,7 +41,7 @@ export default function LockDetails({
         </button>
       </div>
       <div className="flex flex-col">
-        <span className="text-lg font-bold">Funder</span>
+        <span className="text-lg font-bold">Creator</span>
         <span>{lock.creatorDisplay}</span>
       </div>
       <div className="flex flex-col">
@@ -70,7 +72,7 @@ export default function LockDetails({
         <span className="text-lg font-bold">Payout Interval</span>
         <span>{lock.payoutIntervalDisplay}</span>
       </div>
-      {lock.cliffPaymentAmount.toNumber() > 0 && (
+      {lock.cliffPaymentAmount.gt(new anchor.BN(0)) && (
         <>
           <div className="flex flex-col">
             <span className="text-lg font-bold">Cliff Amount</span>

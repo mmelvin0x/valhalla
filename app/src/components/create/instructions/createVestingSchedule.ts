@@ -67,6 +67,8 @@ export const createVestingSchedule = async (
     return;
   }
 
+  console.log(values);
+
   const createLockInstructionArgs: CreateVestingScheduleInstructionArgs = {
     amountToBeVested: Number(values.amountToBeVested),
     totalVestingDuration: Math.round(Number(totalVestingDuration / 1000)),
@@ -146,7 +148,7 @@ export const createVestingSchedule = async (
       type: "success",
     });
 
-    router.push("/dashboard");
+    router.push(`/dashboard/${wallet.publicKey.toBase58()}`);
   } catch (error) {
     console.log("-> ~ error", error);
     notify({

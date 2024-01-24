@@ -37,9 +37,9 @@ export default function AuthoritiesInput({
           onChange={handler}
         >
           <option value={Authority.Neither}>No One</option>
-          <option value={Authority.Funder}>Only Funder</option>
+          <option value={Authority.Creator}>Only Creator</option>
           <option value={Authority.Recipient}>Only Recipient</option>
-          <option value={Authority.Both}>Funder & Recipient</option>
+          <option value={Authority.Both}>Creator & Recipient</option>
         </select>
 
         {!!errors.cancelAuthority && (
@@ -71,9 +71,9 @@ export default function AuthoritiesInput({
           onChange={handler}
         >
           <option value={Authority.Neither}>No One</option>
-          <option value={Authority.Funder}>Only Funder</option>
+          <option value={Authority.Creator}>Only Creator</option>
           <option value={Authority.Recipient}>Only Recipient</option>
-          <option value={Authority.Both}>Funder & Recipient</option>
+          <option value={Authority.Both}>Creator & Recipient</option>
         </select>
 
         {!!errors.changeRecipientAuthority && (

@@ -34,6 +34,7 @@ export default function VestmentChart({
   cliffPaymentAmount,
   startDate,
   vestingEndDate,
+  formik,
 }: {
   totalVestingDuration: number;
   amountToBeVested: number;
@@ -41,19 +42,25 @@ export default function VestmentChart({
   cliffPaymentAmount: number;
   startDate: Date;
   vestingEndDate: Date;
+  formik: any;
 }) {
   const numPayments = useMemo(() => {
-    return Math.ceil(
-      totalVestingDuration / (payoutInterval <= 0 ? 1 : payoutInterval),
-    );
+    return payoutInterval
+      ? Math.ceil(
+          totalVestingDuration / (payoutInterval <= 0 ? 1 : payoutInterval),
+        )
+      : 1;
   }, [totalVestingDuration, payoutInterval]);
 
   const labels = useMemo(() => {
+    console.log("wtf");
     const start = new Date(startDate);
     const endDate = new Date(vestingEndDate);
-    const numberOfPayments = Math.ceil(
-      totalVestingDuration / (payoutInterval <= 0 ? 1 : payoutInterval),
-    );
+    console.log(payoutInterval);
+    console.log(totalVestingDuration);
+    const numberOfPayments = payoutInterval
+      ? Math.ceil(totalVestingDuration / payoutInterval)
+      : 1;
     if (numberOfPayments < 2) {
       return [endDate.toLocaleDateString()];
     }
@@ -64,8 +71,15 @@ export default function VestmentChart({
       labels.push(date.toLocaleDateString());
     }
 
+    console.log(labels);
     return labels;
-  }, [payoutInterval, startDate, totalVestingDuration, vestingEndDate]);
+  }, [
+    payoutInterval,
+    startDate,
+    totalVestingDuration,
+    vestingEndDate,
+    formik.values,
+  ]);
 
   const amountPerPayout = useMemo(() => {
     return {
