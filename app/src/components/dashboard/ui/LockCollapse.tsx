@@ -3,18 +3,15 @@ import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import BaseModel from "models/models";
 import LoadingSpinner from "../../ui/LoadingSpinner";
 import LockDetails from "./LockDetails";
-import { VestingType } from "../../../program";
 import useProgram from "program/useProgram";
 import { useState } from "react";
 
 export default function LockCollapse({
-  vestingType,
   lock,
   disburse,
   changeRecipient,
   cancel,
 }: {
-  vestingType: VestingType;
   lock: BaseModel;
   disburse: (lock: BaseModel) => Promise<void>;
   changeRecipient: (lock: BaseModel) => Promise<void>;
@@ -43,7 +40,7 @@ export default function LockCollapse({
 
         <div className="flex flex-wrap gap-4">
           <div className="font-bold flex items-center gap-1 text-xs">
-            Token: {lock.tokenMintDisplay}
+            Mint: {lock.tokenMintDisplay}
           </div>
 
           <div className="font-bold flex items-center gap-1 text-xs">

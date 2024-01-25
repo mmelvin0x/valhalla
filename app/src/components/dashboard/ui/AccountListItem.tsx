@@ -10,7 +10,13 @@ export default function AccountListItem({
   vestingType,
   subType,
   list,
+  disburse,
+  changeRecipient,
+  cancel,
 }: {
+  disburse: (lock: BaseModel) => Promise<void>;
+  changeRecipient: (lock: BaseModel) => Promise<void>;
+  cancel: (lock: BaseModel) => Promise<void>;
   loading: boolean;
   vestingType: VestingType;
   subType: SubType;
@@ -19,7 +25,7 @@ export default function AccountListItem({
   return (
     <ul>
       {loading && (
-        <div>
+        <div className="my-10 flex flex-col items-center">
           <LoadingSpinner />
         </div>
       )}
@@ -30,14 +36,21 @@ export default function AccountListItem({
               <LockCollapse
                 key={lock.id.toBase58()}
                 lock={lock}
-                vestingType={vestingType}
-                disburse={async () => alert("Implement me")}
-                changeRecipient={async () => alert("Implement me")}
-                cancel={async () => alert("Implement me")}
+                disburse={disburse}
+                changeRecipient={changeRecipient}
+                cancel={cancel}
               />
             ))
           ) : (
-            <div className="h-60 w-full flex flex-col items-center justify-center">
+            <div className="h-60 w-full flex flex-col items-center justify-center gap-4">
+              <span className="text-center">
+                You have not created any{" "}
+                {vestingType === VestingType.VestingSchedule
+                  ? "Vesting Schedules"
+                  : vestingType === VestingType.TokenLock
+                    ? "Token Locks"
+                    : "Scheduled Payments"}
+              </span>
               <Link
                 href={`/create?vestingType=${vestingType}`}
                 className="btn btn-accent"
@@ -56,20 +69,21 @@ export default function AccountListItem({
               <LockCollapse
                 key={lock.id.toBase58()}
                 lock={lock}
-                vestingType={vestingType}
-                disburse={async () => alert("Implement me")}
-                changeRecipient={async () => alert("Implement me")}
-                cancel={async () => alert("Implement me")}
+                disburse={disburse}
+                changeRecipient={changeRecipient}
+                cancel={cancel}
               />
             ))
           ) : (
             <div className="h-60 w-full flex flex-col items-center justify-center">
-              <Link
-                href={`/create?vestingType=${vestingType}`}
-                className="btn btn-accent"
-              >
-                Create One
-              </Link>
+              <span className="text-center">
+                No Receivable{" "}
+                {vestingType === VestingType.VestingSchedule
+                  ? "Vesting Schedules"
+                  : vestingType === VestingType.TokenLock
+                    ? "Token Locks"
+                    : "Scheduled Payments"}
+              </span>
             </div>
           )}
         </>

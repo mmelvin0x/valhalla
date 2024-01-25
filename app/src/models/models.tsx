@@ -16,7 +16,7 @@ import {
   VestingType,
 } from "program";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { displayTime, shortenAddress } from "utils/formatters";
+import { displayTime, shortenAddress, shortenNumber } from "utils/formatters";
 
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import { FaCalendar } from "react-icons/fa";
@@ -79,15 +79,15 @@ export default class BaseModel {
   }
 
   get decimals(): number {
-    return this.mintInfo.decimals;
+    return this.mintInfo?.decimals;
   }
 
   get canMint(): boolean {
-    return this.mintInfo.mintAuthority === null;
+    return this.mintInfo?.mintAuthority === null;
   }
 
   get canFreeze(): boolean {
-    return this.mintInfo.freezeAuthority === null;
+    return this.mintInfo?.freezeAuthority === null;
   }
 
   get canDisburse(): boolean {
@@ -115,9 +115,12 @@ export default class BaseModel {
   }
 
   get tokenAccountBalanceAsNumberPerDecimals(): number {
-    return this.tokenAccountBalance
-      .div(new anchor.BN(Math.pow(10, this.decimals)))
-      .toNumber();
+    return (
+      this.tokenAccountBalance &&
+      this.tokenAccountBalance
+        .div(new anchor.BN(Math.pow(10, this.decimals)))
+        .toNumber()
+    );
   }
 
   get creatorDisplay(): ReactNode {
@@ -167,9 +170,12 @@ export default class BaseModel {
   }
 
   get cliffPaymentAmountDisplay(): ReactNode {
-    return this.cliffPaymentAmount
-      .div(new anchor.BN(10 ** this.mintInfo.decimals))
-      .toLocaleString();
+    return shortenNumber(
+      this.cliffPaymentAmount
+        .div(new anchor.BN(10 ** this.mintInfo?.decimals))
+        .toNumber(),
+      4,
+    );
   }
 
   get nameDisplay(): ReactNode {
@@ -324,7 +330,7 @@ export default class BaseModel {
   get balanceDisplay(): ReactNode {
     return (
       <div className="flex items-center gap-1">
-        {this.tokenAccountBalanceAsNumberPerDecimals.toLocaleString()}{" "}
+        {shortenNumber(this.tokenAccountBalanceAsNumberPerDecimals, 4)}{" "}
         <Image src={"/LP.png"} width={14} height={14} alt="LP" />
       </div>
     );

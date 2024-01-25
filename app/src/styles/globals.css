@@ -13,6 +13,13 @@ body {
   background-attachment: fixed;
 }
 
+.bg-image-shield {
+  background-image: url("/bg-image-shield.png");
+  background-repeat: center;
+  background-size: contain;
+  background-position: top right;
+}
+
 .footer,
 .navlinks,
 .stats,

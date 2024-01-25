@@ -17,6 +17,7 @@ import { VestingType } from "program";
 import VestingTypeTabs from "./ui/VestingTypeTabs";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { dashboardSearchValidationSchema } from "./utils/validationSchema";
+import { getNameArg } from "utils/formatters";
 import { notify } from "utils/notifications";
 import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
@@ -45,31 +46,34 @@ export default function DashboardFeature() {
   const totalVestingSchedules = useMemo(() => {
     return vestingSchedules.created.length + vestingSchedules.recipient.length;
   }, [vestingSchedules.created, vestingSchedules.recipient]);
-
-  // TODO: Add dataslice for paging
-  const getVestingSchedules = async () => {
+  const getVestingSchedules = async (search = "") => {
     setLoading(true);
     try {
       const created = await VestingSchedule.gpaBuilder()
         .addFilter("vestingType", VestingType.VestingSchedule)
-        .addFilter("creator", wallet.publicKey)
-        .run(connection);
-
+        .addFilter("creator", wallet.publicKey);
       const recipient = await VestingSchedule.gpaBuilder()
         .addFilter("vestingType", VestingType.VestingSchedule)
-        .addFilter("recipient", wallet.publicKey)
-        .run(connection);
+        .addFilter("recipient", wallet.publicKey);
 
-      const fMapped = created.map((v) => {
+      if (search) {
+        created.addFilter("name", getNameArg(search));
+        recipient.addFilter("name", getNameArg(search));
+      }
+
+      const fMapped = (await created.run(connection)).map((v) => {
+        const [vs] = VestingSchedule.fromAccountInfo(v.account);
+        return new VestingScheduleAccount(v.pubkey, vs, connection);
+      });
+      const rMapped = (await recipient.run(connection)).map((v) => {
         const [vs] = VestingSchedule.fromAccountInfo(v.account);
         return new VestingScheduleAccount(v.pubkey, vs, connection);
       });
 
-      const rMapped = recipient.map((v) => {
-        const [vs] = VestingSchedule.fromAccountInfo(v.account);
-        return new VestingScheduleAccount(v.pubkey, vs, connection);
+      setVestingSchedules({
+        created: fMapped,
+        recipient: rMapped,
       });
-      setVestingSchedules({ created: fMapped, recipient: rMapped });
     } catch (e) {
       console.error(e);
       notify({
@@ -82,20 +86,20 @@ export default function DashboardFeature() {
     }
   };
 
-  // TODO: Add dataslice for paging
-
   const totalTokenLocks = useMemo(() => {
     return tokenLocks.created.length;
   }, [tokenLocks.created]);
-
-  const getTokenLocks = async () => {
+  const getTokenLocks = async (search = "") => {
     try {
       const created = await TokenLock.gpaBuilder()
         .addFilter("vestingType", VestingType.TokenLock)
-        .addFilter("creator", wallet.publicKey)
-        .run(connection);
+        .addFilter("creator", wallet.publicKey);
 
-      const fMapped = created.map((v) => {
+      if (search) {
+        created.addFilter("name", getNameArg(search));
+      }
+
+      const fMapped = (await created.run(connection)).map((v) => {
         const [vs] = TokenLock.fromAccountInfo(v.account);
         return new TokenLockAccount(v.pubkey, vs, connection);
       });
@@ -113,31 +117,31 @@ export default function DashboardFeature() {
     }
   };
 
-  // TODO: Add dataslice for paging
   const totalScheduledPayments = useMemo(() => {
     return (
       scheduledPayments.created.length + scheduledPayments.recipient.length
     );
   }, [scheduledPayments.created, scheduledPayments.recipient]);
-
-  const getScheduledPayments = async () => {
+  const getScheduledPayments = async (search = "") => {
     try {
-      const created = await ScheduledPayment.gpaBuilder()
+      const created = await VestingSchedule.gpaBuilder()
         .addFilter("vestingType", VestingType.ScheduledPayment)
-        .addFilter("creator", wallet.publicKey)
-        .run(connection);
-
-      const recipient = await ScheduledPayment.gpaBuilder()
+        .addFilter("creator", wallet.publicKey);
+      const recipient = await VestingSchedule.gpaBuilder()
         .addFilter("vestingType", VestingType.ScheduledPayment)
-        .addFilter("recipient", wallet.publicKey)
-        .run(connection);
+        .addFilter("recipient", wallet.publicKey);
 
-      const fMapped = created.map((v) => {
+      if (search) {
+        created.addFilter("name", getNameArg(search));
+        recipient.addFilter("name", getNameArg(search));
+      }
+
+      const fMapped = (await created.run(connection)).map((v) => {
         const [vs] = ScheduledPayment.fromAccountInfo(v.account);
         return new ScheduledPaymentAccount(v.pubkey, vs, connection);
       });
 
-      const rMapped = recipient.map((v) => {
+      const rMapped = (await created.run(connection)).map((v) => {
         const [vs] = ScheduledPayment.fromAccountInfo(v.account);
         return new ScheduledPaymentAccount(v.pubkey, vs, connection);
       });
@@ -155,6 +159,8 @@ export default function DashboardFeature() {
     }
   };
 
+  // Grabs the locks for the user
+  // TODO: Add dataslice for paging
   useEffect(() => {
     if (!wallet.publicKey) return;
     getVestingSchedules();
@@ -163,6 +169,7 @@ export default function DashboardFeature() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey]);
 
+  // Sets the current list based on the vesting type
   useEffect(() => {
     switch (vestingType) {
       case VestingType.VestingSchedule:
@@ -195,11 +202,19 @@ export default function DashboardFeature() {
     vestingType,
   ]);
 
-  const onSearch = (
+  const onSearch = async (
     values: { search: string },
     helpers: FormikHelpers<{ search: string }>,
   ) => {
     setLoading(true);
+    setVestingSchedules({ created: [], recipient: [] });
+    setTokenLocks({ created: [] });
+    setScheduledPayments({ created: [], recipient: [] });
+
+    await getVestingSchedules(values.search);
+    await getTokenLocks(values.search);
+    await getScheduledPayments(values.search);
+
     setLoading(false);
   };
 
@@ -208,6 +223,12 @@ export default function DashboardFeature() {
     validationSchema: dashboardSearchValidationSchema,
     onSubmit: onSearch,
   });
+
+  const disburse = async (lock: BaseModel) => {};
+
+  const changeRecipient = async (lock: BaseModel) => {};
+
+  const cancel = async (lock: BaseModel) => {};
 
   return (
     <>
@@ -252,6 +273,9 @@ export default function DashboardFeature() {
                 vestingSchedules={vestingSchedules}
                 scheduledPayments={scheduledPayments}
                 tokenLocks={tokenLocks}
+                disburse={disburse}
+                changeRecipient={changeRecipient}
+                cancel={cancel}
               />
             </div>
           </div>

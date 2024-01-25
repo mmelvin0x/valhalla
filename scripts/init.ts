@@ -9,7 +9,7 @@ const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
   "4RjGEao2c8JSNvtbN48PnqzhRHB2iscC9MAN6JXmzypM"
 );
 
-const FEE = 0.025;
+const FEE = 0.25;
 
 const main = async () => {
   const wallet = anchor.Wallet.local();

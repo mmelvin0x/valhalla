@@ -10,7 +10,13 @@ export default function AccountList({
   vestingSchedules,
   scheduledPayments,
   tokenLocks,
+  disburse,
+  changeRecipient,
+  cancel,
 }: {
+  disburse: (lock: BaseModel) => Promise<void>;
+  changeRecipient: (lock: BaseModel) => Promise<void>;
+  cancel: (lock: BaseModel) => Promise<void>;
   loading: boolean;
   vestingType: VestingType;
   subType: SubType;
@@ -26,6 +32,9 @@ export default function AccountList({
           list={vestingSchedules}
           subType={subType}
           vestingType={vestingType}
+          disburse={disburse}
+          changeRecipient={changeRecipient}
+          cancel={cancel}
         />
       )}
 
@@ -35,6 +44,9 @@ export default function AccountList({
           list={scheduledPayments}
           subType={subType}
           vestingType={vestingType}
+          disburse={disburse}
+          changeRecipient={changeRecipient}
+          cancel={cancel}
         />
       )}
 
@@ -44,6 +56,9 @@ export default function AccountList({
           list={tokenLocks}
           subType={subType}
           vestingType={vestingType}
+          disburse={disburse}
+          changeRecipient={changeRecipient}
+          cancel={cancel}
         />
       )}
     </div>
