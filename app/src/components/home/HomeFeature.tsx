@@ -37,7 +37,7 @@ export default function HomeFeature() {
       </Head>
 
       {/* Hero Section */}
-      <section className="py-20 max-w-screen-lg mx-auto">
+      <section className="py-20">
         <div className="grid grid-cols-1 p-4 md:grid-cols-2">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <h1>Valhalla</h1>
@@ -510,13 +510,12 @@ export default function HomeFeature() {
 
           <p className="prose max-w-screen-lg">
             Ready to take control of your crypto journey? Start with Valhalla.so
-            today! Our platform on the Solana blockchain offers innovative tools
-            for token vesting, locks, and scheduled payments, designed to
-            optimize your digital asset management. Whether you&apos;re a
-            developer, investor, or crypto enthusiast, Valhalla.so provides the
-            perfect blend of security, efficiency, and ease of use. Join us now
-            and experience the future of decentralized finance. Begin your
-            adventure with Valhalla.so - where crypto empowerment begins!
+            today! Our platform offers innovative tools for token vesting,
+            locks, and scheduled payments, designed to optimize your digital
+            asset management. Whether you&apos;re a developer, investor, or
+            crypto enthusiast, Valhalla.so provides the perfect blend of
+            security, efficiency, and ease of use. Join us now to begin your
+            adventure with us - Valhalla awaits!
           </p>
 
           {connected ? (
