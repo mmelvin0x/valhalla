@@ -1,4 +1,11 @@
-import { FaCalendarAlt, FaCalendarCheck, FaLock } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaCalendarCheck,
+  FaClipboardList,
+  FaInfo,
+  FaLock,
+  FaTwitter,
+} from "react-icons/fa";
 
 import Head from "next/head";
 import Image from "next/image";
@@ -11,7 +18,7 @@ export default function HomeFeature() {
   const { connected, wallet } = useProgram();
 
   return (
-    <div>
+    <main>
       <Head>
         <title>Valhalla - Token Vesting Solutions</title>
         <meta
@@ -21,7 +28,7 @@ export default function HomeFeature() {
       </Head>
 
       {/* Hero Section */}
-      <div className="py-20 max-w-screen-lg mx-auto">
+      <section className="py-20 max-w-screen-lg mx-auto">
         <div className="grid grid-cols-1 p-4 md:grid-cols-2">
           <div className="flex flex-col items-center justify-center gap-4 text-center">
             <h1>Valhalla</h1>
@@ -78,14 +85,14 @@ export default function HomeFeature() {
             alt="Valhalla Hero"
           />
         </div>
-      </div>
+      </section>
 
-      <div className="py-10">
+      <section className="py-10">
         <SocialBar />
-      </div>
+      </section>
 
       <section className="max-w-screen-lg mx-auto">
-        <div className="py-10">
+        <section className="py-10">
           <h2 className="text-center">What can you do with Valhalla?</h2>
 
           <div className="stats w-full my-10">
@@ -125,9 +132,9 @@ export default function HomeFeature() {
             height={945 / 2}
             alt="Dashboard image"
           />
-        </div>
+        </section>
 
-        <div className="flex flex-col items-center gap-4">
+        <section className="flex flex-col items-center gap-4">
           <h3 className="text-center">Get started today</h3>
           {connected ? (
             <div className="flex gap-2">
@@ -163,9 +170,9 @@ export default function HomeFeature() {
               </div>
             </div>
           )}
-        </div>
+        </section>
 
-        <div className="mt-20">
+        <section className="mt-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto item-center">
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-2 my-4">
@@ -201,9 +208,9 @@ export default function HomeFeature() {
               alt="Vesting Schedules"
             />
           </div>
-        </div>
+        </section>
 
-        <div className="mt-20">
+        <section className="mt-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto">
             <Image
               className="self-center"
@@ -240,9 +247,9 @@ export default function HomeFeature() {
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="mt-20">
+        <section className="mt-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-2 my-4">
@@ -279,9 +286,9 @@ export default function HomeFeature() {
               alt="Token Locks"
             />
           </div>
-        </div>
+        </section>
 
-        <div className="mt-20">
+        <section className="mt-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Image
               className="self-center rounded"
@@ -325,10 +332,173 @@ export default function HomeFeature() {
               </p>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="flex flex-col items-center gap-4 my-20">
-          <h3 className="text-center">Create your Valhalla account</h3>
+        <section className="my-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto items-center">
+            <Image
+              src={"/ship.png"}
+              width={512}
+              height={512}
+              alt={"Viking Ship"}
+            />
+            <div className="flex flex-col items-center gap-4">
+              <h3 className="text-center">
+                Ready to create your first Valhalla account?
+              </h3>
+              {connected ? (
+                <div className="flex gap-2">
+                  <Link
+                    className="btn btn-accent"
+                    href={`/dashboard/${wallet.publicKey.toBase58()}`}
+                  >
+                    Launch App
+                  </Link>
+
+                  <Link
+                    target="_blank"
+                    href={"https://discord.gg/valhalla_so"}
+                    className="btn btn-primary"
+                  >
+                    Book a Demo
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <p className="prose">Connect your wallet to get started</p>
+
+                  <div className="flex gap-2">
+                    <Link
+                      target="_blank"
+                      href={"https://discord.gg/valhalla_so"}
+                      className="btn btn-primary"
+                    >
+                      Book a Demo
+                    </Link>
+
+                    <WalletMultiButton />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="my-20">
+          <div className="flex flex-col items-center gap-8 md:gap-0">
+            <h2 className="text-center mb-20">Meet the Team</h2>
+
+            <div className="flex flex-col gap-4 items-center w-80">
+              <Image
+                src={"/team-placeholder-00.png"}
+                width={200}
+                height={200}
+                alt={"Team Placeholder"}
+              />
+
+              <h4>Michael</h4>
+              <p className="prose text-center">Founder | CEO | Dev Lead</p>
+
+              <Link
+                href={"https://twitter.com/mmelvin0x"}
+                target="_blank"
+                className="link flex gap-1"
+              >
+                <FaTwitter size={24} /> @mmelvin0x
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-8 md:justify-between w-full">
+              <div className="flex flex-col gap-4 items-center w-80">
+                <Image
+                  src={"/team-placeholder-01.png"}
+                  width={200}
+                  height={200}
+                  alt={"Team Placeholder"}
+                />
+                <h4>Right Clickable</h4>
+                <p className="prose text-center">
+                  Co-Founder | Marketing | Operations
+                </p>
+                <Link
+                  href={"https://twitter.com/_KIZG"}
+                  target="_blank"
+                  className="link flex gap-1"
+                >
+                  <FaTwitter size={24} /> @_KIZG
+                </Link>
+              </div>
+
+              <div className="flex flex-col gap-4 items-center w-80">
+                <Image
+                  src={"/team-placeholder-02.png"}
+                  width={200}
+                  height={200}
+                  alt={"Team Placeholder"}
+                />
+
+                <h4>Yat Sultan</h4>
+                <p className="prose text-center">
+                  Co-Founder | Legal | Operations
+                </p>
+                <Link
+                  href={"https://twitter.com/Yat_Sultan"}
+                  target="_blank"
+                  className="link flex gap-1"
+                >
+                  <FaTwitter size={24} /> @Yat_Sultan
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="my-20">
+          <div className="card">
+            <div className="card-body">
+              <div className="flex items-center justify-between gap-2">
+                <Image
+                  src={"/logo128.png"}
+                  width={128}
+                  height={128}
+                  alt={"Valhalla Logo"}
+                />
+
+                <div className="flex flex-col items-center gap-4">
+                  <h4 className="text-primary">Find More in the Docs</h4>
+                  <p className="prose">
+                    Perfect for both beginners and seasoned Solana blockchain
+                    users, it guides you through all of our features. Quick,
+                    informative, and easy to navigate.
+                  </p>
+
+                  <Link
+                    href={"https://docs.valhalla.so"}
+                    target="_blank"
+                    className="btn btn-primary"
+                  >
+                    <FaClipboardList /> Read the Docs
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="my-20 flex flex-col items-center gap-8">
+          <h2>Get Started</h2>
+
+          <p className="prose max-w-screen-lg">
+            Ready to take control of your crypto journey? Start with Valhalla.so
+            today! Our platform on the Solana blockchain offers innovative tools
+            for token vesting, locks, and scheduled payments, designed to
+            optimize your digital asset management. Whether you&apos;re a
+            developer, investor, or crypto enthusiast, Valhalla.so provides the
+            perfect blend of security, efficiency, and ease of use. Join us now
+            and experience the future of decentralized finance. Begin your
+            adventure with Valhalla.so - where crypto empowerment begins!
+          </p>
+
           {connected ? (
             <div className="flex gap-2">
               <Link
@@ -363,8 +533,8 @@ export default function HomeFeature() {
               </div>
             </div>
           )}
-        </div>
+        </section>
       </section>
-    </div>
+    </main>
   );
 }

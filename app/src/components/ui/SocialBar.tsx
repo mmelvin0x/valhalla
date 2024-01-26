@@ -6,13 +6,15 @@ export default function SocialBar({
   showText = true,
   iconClassName = "w-8 h-8",
   iconGap = "gap-6",
+  className = "",
 }: {
   showText?: boolean;
   iconClassName?: string;
   iconGap?: string;
+  className?: string;
 }) {
   return (
-    <div className="text-center flex flex-col gap-6 mx-auto">
+    <div className={`text-center flex flex-col gap-6 mx-auto ${className}`}>
       <div className={`flex justify-center ${iconGap}`}>
         <Link
           target="_blank"
