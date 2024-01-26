@@ -72,64 +72,63 @@ export default function SideDrawer() {
   );
 
   return (
-    <ul className="menu p-2 w-60 gap-2 min-h-full navlinks">
-      <div className="flex flex-col items-center justify-center gap-8 my-8">
-        <Image
-          src="/logo128.png"
-          width={128}
-          height={128}
-          alt="Valhalla Logo"
-        />
+    <div className="min-h-full navlinks">
+      <ul className="menu p-2 w-60 gap-2 ">
+        <div className="flex flex-col items-center justify-center gap-8 my-8">
+          <Image
+            src="/logo128.png"
+            width={128}
+            height={128}
+            alt="Valhalla Logo"
+          />
 
-        <h2>Valhalla</h2>
-      </div>
-      <li>
-        <Link
-          href={"/"}
-          className={`flex items-center gap-2 link link-hover font-bold ${
-            router?.pathname === "/" ? "link link-primary" : ""
-          }`}
-        >
-          <FaHome />
-          Home
-        </Link>
-      </li>
-      {links.map(({ pathname, content }) => (
-        <li key={pathname}>
-          {wallet?.connected ? (
-            <Link
-              href={wallet?.connected ? pathname : "/"}
-              className={`flex items-center gap-2 link link-hover font-bold ${
-                router?.pathname === pathname ? "link link-primary" : ""
-              }`}
-            >
-              {content}
-            </Link>
-          ) : (
-            <div className="flex items-center gap-2 text-gray-400 font-bold">
-              {content}
-            </div>
-          )}
+          <h2>Valhalla</h2>
+        </div>
+        <li>
+          <Link
+            href={"/"}
+            className={`flex items-center gap-2 link link-hover font-bold ${
+              router?.pathname === "/" ? "link link-primary" : ""
+            }`}
+          >
+            <FaHome />
+            Home
+          </Link>
         </li>
-      ))}
+        {links.map(({ pathname, content }) => (
+          <li key={pathname}>
+            {wallet?.connected ? (
+              <Link
+                href={wallet?.connected ? pathname : "/"}
+                className={`flex items-center gap-2 link link-hover font-bold ${
+                  router?.pathname === pathname ? "link link-primary" : ""
+                }`}
+              >
+                {content}
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2 text-gray-400 font-bold">
+                {content}
+              </div>
+            )}
+          </li>
+        ))}
 
-      <li>
-        <Link
-          href={`https://docs.valhalla.so`}
-          className={`flex items-center gap-2 link link-hover font-bold`}
-        >
-          <FaClipboardList className="inline" />
-          Documentation
-        </Link>
-      </li>
+        <li>
+          <Link
+            href={`https://docs.valhalla.so`}
+            className={`flex items-center gap-2 link link-hover font-bold`}
+          >
+            <FaClipboardList className="inline" />
+            Documentation
+          </Link>
+        </li>
+      </ul>
 
-      <li className="items-center">
+      <div className="mt-8 flex flex-col items-center gap-8">
         <WalletMultiButton />
-      </li>
-
-      <div className="mx-auto mt-8">
         <SocialBar showText={false} iconClassName="w-6 h-6" iconGap="gap-1" />
       </div>
-    </ul>
+    </div>
   );
 }
