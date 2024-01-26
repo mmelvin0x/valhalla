@@ -2,7 +2,6 @@ import {
   FaCalendarAlt,
   FaCalendarCheck,
   FaClipboardList,
-  FaInfo,
   FaLock,
   FaTwitter,
 } from "react-icons/fa";
@@ -81,7 +80,7 @@ export default function HomeFeature() {
             className="hidden md:block mx-auto my-4"
             width={400}
             height={400}
-            src="/hero.png"
+            src="/logo512.png"
             alt="Valhalla Hero"
           />
         </div>
@@ -127,7 +126,7 @@ export default function HomeFeature() {
 
           <Image
             className="mx-auto rounded-lg rounded-b-none"
-            src="/dashboard-image.png"
+            src="/dashboard.png"
             width={1440 / 2}
             height={945 / 2}
             alt="Dashboard image"
@@ -292,7 +291,7 @@ export default function HomeFeature() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Image
               className="self-center rounded"
-              src="/dashboard-image.png"
+              src="/dashboard.png"
               width={1440 / 2}
               height={945 / 2}
               alt="Dashboard image"
@@ -390,7 +389,7 @@ export default function HomeFeature() {
 
             <div className="flex flex-col gap-4 items-center w-80">
               <Image
-                src={"/team-placeholder-00.png"}
+                src={"/team-00.png"}
                 width={200}
                 height={200}
                 alt={"Team Placeholder"}
@@ -411,7 +410,7 @@ export default function HomeFeature() {
             <div className="flex flex-wrap items-center justify-center gap-8 md:justify-between w-full">
               <div className="flex flex-col gap-4 items-center w-80">
                 <Image
-                  src={"/team-placeholder-01.png"}
+                  src={"/team-01.png"}
                   width={200}
                   height={200}
                   alt={"Team Placeholder"}
@@ -431,7 +430,7 @@ export default function HomeFeature() {
 
               <div className="flex flex-col gap-4 items-center w-80">
                 <Image
-                  src={"/team-placeholder-02.png"}
+                  src={"/team-02.png"}
                   width={200}
                   height={200}
                   alt={"Team Placeholder"}
