@@ -72,7 +72,7 @@ export const Footer: FC = () => {
   );
 
   return (
-    <footer className="footer footer-center p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+    <footer className="footer footer-center p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <div className="flex flex-col items-center gap-2">
         <Image
           placeholder="blur"
@@ -86,7 +86,7 @@ export const Footer: FC = () => {
 
       <div className="flex flex-col gap-2">
         <h6>Quick Links</h6>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+        <ul className="grid grid-cols-2 gap-2 text-xs">
           <li>
             <Link
               href={"/"}

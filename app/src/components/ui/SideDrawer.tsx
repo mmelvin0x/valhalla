@@ -74,8 +74,8 @@ export default function SideDrawer() {
 
   return (
     <div className="min-h-full navlinks">
-      <ul className="menu p-2 w-60 gap-2 ">
-        <div className="flex flex-col items-center justify-center gap-8 my-8">
+      <ul className="menu p-2 w-60 gap-1">
+        <div className="flex flex-col items-center justify-center gap-8 mt-12">
           <Image
             placeholder="blur"
             src={logo128}
@@ -86,6 +86,7 @@ export default function SideDrawer() {
 
           <h2>Valhalla</h2>
         </div>
+
         <li>
           <Link
             href={"/"}
@@ -97,6 +98,7 @@ export default function SideDrawer() {
             Home
           </Link>
         </li>
+
         {links.map(({ pathname, content }) => (
           <li key={pathname}>
             {wallet?.connected ? (

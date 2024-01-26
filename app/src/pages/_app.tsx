@@ -49,12 +49,12 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
           <div className="drawer xl:drawer-open">
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content">
-              <div className="m-8 mt-0 min-h-screen">
-                <div className="navbar flex">
+              <div className="min-h-screen">
+                <div className="navbar fixed z-10">
                   <div className="navbar-start">
                     <label
                       htmlFor="my-drawer-2"
-                      className="flex items-center gap-1 cursor-pointer drawer-button xl:hidden"
+                      className="btn flex items-center gap-1 cursor-pointer drawer-button xl:hidden"
                     >
                       <Image
                         placeholder="blur"
@@ -71,6 +71,8 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                 <Notifications />
                 <Component {...pageProps} />
               </div>
+
+              <Footer />
             </div>
 
             <div className="drawer-side">
@@ -83,7 +85,6 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
               <SideDrawer />
             </div>
           </div>
-          <Footer />
         </div>
       </ContextProvider>
     </QueryProvider>
