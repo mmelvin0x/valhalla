@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_2022::{self as token, TransferChecked},
-    token_interface::{Mint, Token2022, TokenAccount},
+    token_2022::{self as token},
+    token_interface::{CloseAccount, Mint, Token2022, TokenAccount, TransferChecked},
 };
 
 use crate::{constants, errors::ValhallaError, state::ScheduledPayment};
@@ -28,6 +28,7 @@ pub struct DisburseScheduledPayment<'info> {
 
     #[account(
         mut,
+        close = creator,
         seeds = [
             creator.key().as_ref(),
             mint.key().as_ref(),
@@ -67,7 +68,7 @@ pub fn disburse_scheduled_payment_ix(ctx: Context<DisburseScheduledPayment>) -> 
     if !is_locked {
         let lock_key = scheduled_payment.key();
         let bump = ctx.bumps.payment_token_account;
-        let signer_seeds: &[&[&[u8]]] = &[&[
+        let signer: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
             constants::SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED,
             &[bump],
@@ -79,13 +80,24 @@ pub fn disburse_scheduled_payment_ix(ctx: Context<DisburseScheduledPayment>) -> 
             to: ctx.accounts.recipient_token_account.to_account_info(),
             authority: ctx.accounts.payment_token_account.to_account_info(),
         };
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
         token::transfer_checked(
             cpi_ctx,
             ctx.accounts.payment_token_account.amount,
             ctx.accounts.mint.decimals,
         )?;
+
+        // Close the token account
+        let cpi_accounts = CloseAccount {
+            account: ctx.accounts.payment_token_account.to_account_info(),
+            destination: ctx.accounts.creator.to_account_info(),
+            authority: ctx.accounts.payment_token_account.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
+
+        token::close_account(cpi_ctx)?;
     } else {
         return Err(ValhallaError::Locked.into());
     }

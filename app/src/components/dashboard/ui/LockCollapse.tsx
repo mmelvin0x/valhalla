@@ -11,11 +11,13 @@ export default function LockCollapse({
   disburse,
   changeRecipient,
   cancel,
+  close,
 }: {
   lock: BaseModel;
   disburse: (lock: BaseModel) => Promise<void>;
   changeRecipient: (lock: BaseModel) => Promise<void>;
   cancel: (lock: BaseModel) => Promise<void>;
+  close: (lock: BaseModel) => Promise<void>;
 }) {
   const { connection } = useProgram();
   const [loading, setLoading] = useState(false);
@@ -72,6 +74,7 @@ export default function LockCollapse({
               disburse={disburse}
               cancel={cancel}
               changeRecipient={changeRecipient}
+              close={close}
             />
           )}
         </>

@@ -3,7 +3,6 @@ import * as anchor from "@coral-xyz/anchor";
 import {
   Account,
   Mint,
-  TOKEN_2022_PROGRAM_ID,
   getAccount,
   getAssociatedTokenAddressSync,
   getMint,
@@ -16,10 +15,10 @@ import {
   VestingType,
 } from "program";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { FaCalendar, FaCheckCircle } from "react-icons/fa";
 import { displayTime, shortenAddress, shortenNumber } from "utils/formatters";
 
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import { FaCalendar } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -48,6 +47,8 @@ export default class BaseModel {
   tokenAccount: Account;
   totalVestingDuration: anchor.BN = new anchor.BN(0);
   vestingType: VestingType;
+  tokenProgramId: PublicKey;
+  numPaymentsMade: number;
 
   constructor(
     publicKey: PublicKey,
@@ -60,6 +61,7 @@ export default class BaseModel {
     this.name = anchor.utils.bytes.utf8.decode(new Uint8Array(obj.name));
     this.totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
     this.vestingType = obj.vestingType;
+    this.numPaymentsMade = 0;
 
     if (obj instanceof VestingSchedule || obj instanceof ScheduledPayment) {
       this.cancelAuthority = obj.cancelAuthority;
@@ -72,11 +74,27 @@ export default class BaseModel {
     }
 
     if (obj instanceof VestingSchedule) {
+      this.numPaymentsMade = new anchor.BN(obj.numberOfPaymentsMade).toNumber();
       this.lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);
       this.payoutInterval = new anchor.BN(obj.payoutInterval);
       this.startDate = new anchor.BN(obj.startDate);
       this.cliffPaymentAmount = new anchor.BN(obj.cliffPaymentAmount);
       this.isCliffPaymentDisbursed = obj.isCliffPaymentDisbursed;
+    }
+  }
+
+  get paymentsComplete(): boolean {
+    if (this.vestingType === VestingType.VestingSchedule) {
+      const totalPayments = this.totalVestingDuration.div(this.payoutInterval);
+      return this.numPaymentsMade >= totalPayments.toNumber();
+    }
+
+    if (this.vestingType === VestingType.ScheduledPayment) {
+      return this.numPaymentsMade > 0;
+    }
+
+    if (this.vestingType === VestingType.TokenLock) {
+      return this.tokenAccountBalance.toNumber() === 0;
     }
   }
 
@@ -93,6 +111,8 @@ export default class BaseModel {
   }
 
   get canDisburse(): boolean {
+    if (this.paymentsComplete) return false;
+
     const currentTime = Math.floor(Date.now() / 1000);
     const startDate = this.startDate.toNumber();
     if (startDate < currentTime) {
@@ -118,10 +138,12 @@ export default class BaseModel {
 
   get tokenAccountBalanceAsNumberPerDecimals(): number {
     return (
-      this.tokenAccountBalance &&
-      this.tokenAccountBalance
-        .div(new anchor.BN(Math.pow(10, this.decimals)))
-        .toNumber()
+      (this.tokenAccount &&
+        this.tokenAccountBalance &&
+        this.tokenAccountBalance
+          .div(new anchor.BN(Math.pow(10, this.decimals)))
+          .toNumber()) ||
+      0
     );
   }
 
@@ -382,10 +404,13 @@ export default class BaseModel {
   }
 
   get balanceDisplay(): ReactNode {
+    if (!this.tokenAccount) {
+      <div className="flex items-center gap-1">{shortenNumber(0, 4)} </div>;
+    }
+
     return (
       <div className="flex items-center gap-1">
         {shortenNumber(this.tokenAccountBalanceAsNumberPerDecimals, 4)}{" "}
-        <Image placeholder="blur" src={lp} width={14} height={14} alt="LP" />
       </div>
     );
   }
@@ -432,7 +457,15 @@ export default class BaseModel {
     }
   }
 
-  get nextPayoutDisplay(): string {
+  get nextPayoutDisplay(): ReactNode {
+    if (this.paymentsComplete) {
+      return (
+        <span className="flex items-center gap-1 text-success">
+          Payments complete <FaCheckCircle />{" "}
+        </span>
+      );
+    }
+
     return this.nextPayoutDate.toLocaleString();
   }
 
@@ -445,6 +478,8 @@ export default class BaseModel {
   }
 
   canChangeRecipient(user: PublicKey): boolean {
+    if (this.paymentsComplete) return false;
+
     switch (this.changeRecipientAuthority) {
       case Authority.Neither:
         return false;
@@ -471,77 +506,45 @@ export default class BaseModel {
   }
 
   async populate(connection: Connection, obj: BaseModel) {
-    if (obj.recipient) {
-      const pdas = getPDAs(obj.creator, obj.recipient, obj.mint);
-      this.mintInfo = await getMint(
-        connection,
+    const pdas = getPDAs(obj.creator, obj.recipient, obj.mint);
+    const accountInfo = await connection.getAccountInfo(obj.mint);
+    this.tokenProgramId = accountInfo?.owner;
+    this.mintInfo = await getMint(
+      connection,
+      obj.mint,
+      undefined,
+      this.tokenProgramId,
+    );
+
+    this.tokenAccount = await getAccount(
+      connection,
+      pdas.vestingScheduleTokenAccount,
+      undefined,
+      this.tokenProgramId,
+    );
+    this.creatorTokenAccount = await getAccount(
+      connection,
+      getAssociatedTokenAddressSync(
         obj.mint,
-        undefined,
-        TOKEN_2022_PROGRAM_ID,
-      );
+        obj.creator,
+        false,
+        this.tokenProgramId,
+      ),
+      undefined,
+      this.tokenProgramId,
+    );
 
-      this.tokenAccount = await getAccount(
-        connection,
-        pdas.vestingScheduleTokenAccount,
-        undefined,
-        TOKEN_2022_PROGRAM_ID,
-      );
-
+    if (obj.recipient) {
       this.recipientTokenAccount = await getAccount(
         connection,
         getAssociatedTokenAddressSync(
           obj.mint,
           obj.recipient,
           false,
-          TOKEN_2022_PROGRAM_ID,
+          this.tokenProgramId,
         ),
         undefined,
-        TOKEN_2022_PROGRAM_ID,
-      );
-
-      this.creatorTokenAccount = await getAccount(
-        connection,
-        getAssociatedTokenAddressSync(
-          obj.mint,
-          obj.creator,
-          false,
-          TOKEN_2022_PROGRAM_ID,
-        ),
-        undefined,
-        TOKEN_2022_PROGRAM_ID,
-      );
-    } else {
-      const pdas = getPDAs(obj.creator, null, obj.mint);
-      this.mintInfo = await getMint(
-        connection,
-        obj.mint,
-        undefined,
-        TOKEN_2022_PROGRAM_ID,
-      );
-
-      const destination =
-        this.vestingType === VestingType.VestingSchedule
-          ? pdas.vestingScheduleTokenAccount
-          : this.vestingType === VestingType.TokenLock
-            ? pdas.tokenLockTokenAccount
-            : pdas.scheduledPaymentTokenAccount;
-      this.tokenAccount = await getAccount(
-        connection,
-        destination,
-        undefined,
-        TOKEN_2022_PROGRAM_ID,
-      );
-
-      this.creatorTokenAccount = await getAccount(
-        connection,
-        getAssociatedTokenAddressSync(
-          obj.mint,
-          obj.creator,
-          false,
-          TOKEN_2022_PROGRAM_ID,
-        ),
-        undefined,
-        TOKEN_2022_PROGRAM_ID,
+        this.tokenProgramId,
       );
     }
   }

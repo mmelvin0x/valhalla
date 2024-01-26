@@ -62,7 +62,7 @@ export const cancelVestingScheduleInstructionDiscriminator = [
  */
 export function createCancelVestingScheduleInstruction(
   accounts: CancelVestingScheduleInstructionAccounts,
-  programId = new web3.PublicKey('4RjGEao2c8JSNvtbN48PnqzhRHB2iscC9MAN6JXmzypM')
+  programId = new web3.PublicKey('kY1w5a15ADvW28ZKnoSmbK53LnrBdwiUX5gg4fHq6nc')
 ) {
   const [data] = cancelVestingScheduleStruct.serialize({
     instructionDiscriminator: cancelVestingScheduleInstructionDiscriminator,

@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_2022::{self as token, TransferChecked},
-    token_interface::{Mint, Token2022, TokenAccount},
+    token_2022::{self as token},
+    token_interface::{CloseAccount, Mint, Token2022, TokenAccount, TransferChecked},
 };
 
 use crate::{constants, errors::ValhallaError, state::VestingSchedule};
@@ -59,7 +59,6 @@ pub struct DisburseVestingSchedule<'info> {
 
 pub fn disburse_vesting_schedule_ix(ctx: Context<DisburseVestingSchedule>) -> Result<()> {
     let vesting_schedule = &mut ctx.accounts.vesting_schedule;
-    let vesting_schedule_token_account = &mut ctx.accounts.vesting_schedule_token_account;
 
     let mut transfer_amount: u64 = 0;
     let mut num_payments_owed: u64 = 0;
@@ -118,7 +117,7 @@ pub fn disburse_vesting_schedule_ix(ctx: Context<DisburseVestingSchedule>) -> Re
             <= current_time
         {
             // Set the transfer amount to the amount in the vesting_schedule token account
-            transfer_amount = vesting_schedule_token_account.amount;
+            transfer_amount = ctx.accounts.vesting_schedule_token_account.amount;
 
             // Set the number of payments made to the total number of payments possible
             vesting_schedule.number_of_payments_made = vesting_schedule
@@ -163,6 +162,50 @@ pub fn disburse_vesting_schedule_ix(ctx: Context<DisburseVestingSchedule>) -> Re
         token::transfer_checked(cpi_ctx, transfer_amount, ctx.accounts.mint.decimals)?;
     } else {
         return Err(ValhallaError::NoPayout.into());
+    }
+
+    // Close the accounts if the vesting_schedule is complete
+    if ctx.accounts.vesting_schedule_token_account.amount == 0 {
+        // Close the vesting_schedule token account
+        let lock_key = vesting_schedule.key();
+        let bump = ctx.bumps.vesting_schedule_token_account;
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            lock_key.as_ref(),
+            constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
+            &[bump],
+        ]];
+        let cpi_accounts = CloseAccount {
+            account: ctx
+                .accounts
+                .vesting_schedule_token_account
+                .to_account_info(),
+            destination: ctx.accounts.creator.to_account_info(),
+            authority: ctx
+                .accounts
+                .vesting_schedule_token_account
+                .to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+
+        token::close_account(cpi_ctx)?;
+
+        // Close the PDA
+        let lamps = **ctx
+            .accounts
+            .vesting_schedule
+            .to_account_info()
+            .try_borrow_mut_lamports()?;
+        **ctx
+            .accounts
+            .vesting_schedule
+            .to_account_info()
+            .try_borrow_mut_lamports()? -= lamps;
+        **ctx
+            .accounts
+            .creator
+            .to_account_info()
+            .try_borrow_mut_lamports()? += lamps;
     }
 
     Ok(())

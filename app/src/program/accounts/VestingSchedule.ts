@@ -129,7 +129,7 @@ export class VestingSchedule implements VestingScheduleArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '4RjGEao2c8JSNvtbN48PnqzhRHB2iscC9MAN6JXmzypM'
+      'kY1w5a15ADvW28ZKnoSmbK53LnrBdwiUX5gg4fHq6nc'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, vestingScheduleBeet)

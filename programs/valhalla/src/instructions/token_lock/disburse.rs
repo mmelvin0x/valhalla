@@ -24,6 +24,7 @@ pub struct DisburseTokenLock<'info> {
 
     #[account(
         mut,
+        close = creator,
         seeds = [
             creator.key().as_ref(),
             mint.key().as_ref(),

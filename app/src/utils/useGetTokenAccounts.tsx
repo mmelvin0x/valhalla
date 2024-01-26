@@ -23,8 +23,6 @@ export function useGetTokenAccounts({ address }: { address: PublicKey }) {
         }),
       ]);
 
-      console.log("token2022Accounts:", token2022Accounts);
-      console.log("tokenAccounts:", tokenAccounts);
       return [...tokenAccounts.value, ...token2022Accounts.value];
     },
   });

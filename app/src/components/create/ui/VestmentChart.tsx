@@ -53,11 +53,8 @@ export default function VestmentChart({
   }, [totalVestingDuration, payoutInterval]);
 
   const labels = useMemo(() => {
-    console.log("wtf");
     const start = new Date(startDate);
     const endDate = new Date(vestingEndDate);
-    console.log(payoutInterval);
-    console.log(totalVestingDuration);
     const numberOfPayments = payoutInterval
       ? Math.ceil(totalVestingDuration / payoutInterval)
       : 1;
@@ -71,8 +68,8 @@ export default function VestmentChart({
       labels.push(date.toLocaleDateString());
     }
 
-    console.log(labels);
     return labels;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     payoutInterval,
     startDate,

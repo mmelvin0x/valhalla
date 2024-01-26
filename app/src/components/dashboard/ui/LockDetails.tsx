@@ -3,18 +3,24 @@ import * as anchor from "@coral-xyz/anchor";
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 import BaseModel from "models/models";
+import { shortenNumber } from "utils/formatters";
+import useProgram from "program/useProgram";
 
 export default function LockDetails({
   lock,
   disburse,
   changeRecipient,
   cancel,
+  close,
 }: {
   lock: BaseModel;
   disburse: (lock: BaseModel) => Promise<void>;
   changeRecipient: (lock: BaseModel) => Promise<void>;
   cancel: (lock: BaseModel) => Promise<void>;
+  close: (lock: BaseModel) => Promise<void>;
 }) {
+  const { wallet } = useProgram();
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-base-200 rounded">
       <div className="flex flex-wrap gap-2 col-span-2">
@@ -27,18 +33,22 @@ export default function LockDetails({
         </button>
         <button
           className="btn btn-sm btn-secondary"
-          disabled={!lock.canChangeRecipient}
+          disabled={!lock.canChangeRecipient(wallet.publicKey)}
           onClick={() => changeRecipient(lock)}
         >
           Update
         </button>
         <button
           className="btn btn-sm btn-error"
-          disabled={!lock.canCancel}
+          disabled={!lock.canCancel(wallet.publicKey)}
           onClick={() => cancel(lock)}
         >
           Cancel
         </button>
+      </div>
+      <div className="flex flex-col">
+        <span className="text-lg font-bold">Lock Balance</span>
+        <span>{lock.balanceDisplay}</span>
       </div>
       <div className="flex flex-col">
         <span className="text-lg font-bold">Creator</span>
@@ -51,10 +61,6 @@ export default function LockDetails({
       <div className="flex flex-col">
         <span className="text-lg font-bold">Token</span>
         <span>{lock.tokenMintDisplay}</span>
-      </div>
-      <div className="flex flex-col">
-        <span className="text-lg font-bold">Amount</span>
-        <span>{lock.balanceDisplay}</span>
       </div>
       <div className="flex flex-col">
         <span className="text-lg font-bold">Start Date</span>

@@ -119,7 +119,7 @@ export const createTokenLock = async (
 
     router.push(`/dashboard/${wallet.publicKey.toBase58()}`);
   } catch (error) {
-    console.log("-> ~ error", error);
+    console.log(error);
     notify({
       message: "Transaction Failed",
       description: `${error}`,

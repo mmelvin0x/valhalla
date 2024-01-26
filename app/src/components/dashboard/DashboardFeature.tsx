@@ -3,10 +3,29 @@ import BaseModel, {
   TokenLockAccount,
   VestingScheduleAccount,
 } from "models/models";
+import {
+  DisburseScheduledPaymentInstructionAccounts,
+  DisburseTokenLockInstructionAccounts,
+  DisburseVestingScheduleInstructionAccounts,
+  ScheduledPayment,
+  TokenLock,
+  VestingSchedule,
+  createCreateScheduledPaymentInstruction,
+  createDisburseScheduledPaymentInstruction,
+  createDisburseTokenLockInstruction,
+  createDisburseVestingScheduleInstruction,
+} from "program";
 import { FormikHelpers, useFormik } from "formik";
-import { ScheduledPayment, TokenLock, VestingSchedule } from "program";
+import {
+  SystemProgram,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
+import { getNameArg, shortenSignature } from "utils/formatters";
 import { useEffect, useMemo, useState } from "react";
 
+import { ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import AccountList from "./ui/AccountList";
 import DashboardStats from "./ui/DashboardStats";
 import Head from "next/head";
@@ -17,7 +36,6 @@ import { VestingType } from "program";
 import VestingTypeTabs from "./ui/VestingTypeTabs";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { dashboardSearchValidationSchema } from "./utils/validationSchema";
-import { getNameArg } from "utils/formatters";
 import { notify } from "utils/notifications";
 import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
@@ -224,11 +242,109 @@ export default function DashboardFeature() {
     onSubmit: onSearch,
   });
 
-  const disburse = async (lock: BaseModel) => {};
+  const disburse = async (lock: BaseModel) => {
+    let accounts:
+      | DisburseVestingScheduleInstructionAccounts
+      | DisburseTokenLockInstructionAccounts
+      | DisburseScheduledPaymentInstructionAccounts;
+    let disburseIx: TransactionInstruction;
+    switch (lock.vestingType) {
+      case VestingType.VestingSchedule:
+        accounts = {
+          signer: wallet.publicKey,
+          creator: lock.creator,
+          recipient: lock.recipient,
+          vestingSchedule: lock.id,
+          vestingScheduleTokenAccount: lock.tokenAccount.address,
+          recipientTokenAccount: lock.recipientTokenAccount.address,
+          mint: lock.tokenAccount.mint,
+          tokenProgram: lock.tokenProgramId,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+        };
+
+        disburseIx = createDisburseVestingScheduleInstruction(accounts);
+
+        break;
+
+      case VestingType.TokenLock:
+        accounts = {
+          creator: lock.creator,
+          creatorTokenAccount: lock.creatorTokenAccount.address,
+          tokenLock: lock.id,
+          tokenLockTokenAccount: lock.tokenAccount.address,
+          mint: lock.tokenAccount.mint,
+          tokenProgram: lock.tokenAccount.owner,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+        };
+
+        disburseIx = createDisburseTokenLockInstruction(accounts);
+
+        break;
+
+      case VestingType.ScheduledPayment:
+        accounts = {
+          signer: wallet.publicKey,
+          creator: lock.creator,
+          recipient: lock.recipient,
+          recipientTokenAccount: lock.recipientTokenAccount.address,
+          scheduledPayment: lock.id,
+          paymentTokenAccount: lock.tokenAccount.address,
+          mint: lock.tokenAccount.mint,
+          tokenProgram: lock.tokenAccount.owner,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+        };
+
+        disburseIx = createDisburseScheduledPaymentInstruction(accounts);
+
+        break;
+    }
+
+    const latestBlockhash = await connection.getLatestBlockhash();
+    const messageV0 = new TransactionMessage({
+      payerKey: wallet.publicKey,
+      recentBlockhash: latestBlockhash.blockhash,
+      instructions: [disburseIx],
+    }).compileToV0Message();
+
+    try {
+      const tx = new VersionedTransaction(messageV0);
+      const txid = await wallet.sendTransaction(tx, connection);
+      const confirmation = await connection.confirmTransaction({
+        signature: txid,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+      });
+
+      if (confirmation.value.err) {
+        notify({
+          message: "Transaction Failed",
+          description: `Transaction ${shortenSignature(txid)} failed (${
+            confirmation.value.err
+          })`,
+          type: "error",
+        });
+      }
+
+      notify({
+        message: "Transaction sent",
+        description: `Transaction ${shortenSignature(txid)} has been sent`,
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      notify({
+        message: "Transaction Failed",
+        description: `Transaction failed`,
+        type: "error",
+      });
+    }
+  };
 
   const changeRecipient = async (lock: BaseModel) => {};
 
   const cancel = async (lock: BaseModel) => {};
+
+  const close = async (lock: BaseModel) => {};
 
   return (
     <>
@@ -241,7 +357,7 @@ export default function DashboardFeature() {
       </Head>
 
       {wallet.connected ? (
-        <main className="grid gap-8">
+        <main className="grid grid-cols-1 gap-8 m-8">
           <DashboardStats />
 
           <div className="card">
@@ -276,6 +392,7 @@ export default function DashboardFeature() {
                 disburse={disburse}
                 changeRecipient={changeRecipient}
                 cancel={cancel}
+                close={close}
               />
             </div>
           </div>
@@ -283,7 +400,7 @@ export default function DashboardFeature() {
           {/* <AccountDetailsFeature /> */}
         </main>
       ) : (
-        <main className="flex flex-col items-center gap-4">
+        <main className="flex flex-col items-center gap-4 m-8">
           <p className="prose">Connect your wallet to get started</p>
           <WalletMultiButton />
         </main>

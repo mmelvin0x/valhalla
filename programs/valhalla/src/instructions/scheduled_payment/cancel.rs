@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_2022::{self as token, CloseAccount, TransferChecked},
-    token_interface::{Mint, Token2022, TokenAccount},
+    token_2022::{self as token},
+    token_interface::{CloseAccount, Mint, Token2022, TokenAccount, TransferChecked},
 };
 
 use crate::{constants, errors::ValhallaError, state::ScheduledPayment, Authority};

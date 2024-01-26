@@ -194,8 +194,6 @@ export default function CreateFeature() {
   }, [vestingType]);
 
   useEffect(() => {
-    console.log(new Date(formik.values.vestingEndDate).getTime());
-    console.log(new Date(formik.values.startDate).getTime());
     setVestingDuration(
       new Date(formik.values.vestingEndDate).getTime() -
         new Date(formik.values.startDate).getTime(),

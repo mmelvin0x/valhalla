@@ -13,10 +13,12 @@ export default function AccountListItem({
   disburse,
   changeRecipient,
   cancel,
+  close,
 }: {
   disburse: (lock: BaseModel) => Promise<void>;
   changeRecipient: (lock: BaseModel) => Promise<void>;
   cancel: (lock: BaseModel) => Promise<void>;
+  close: (lock: BaseModel) => Promise<void>;
   loading: boolean;
   vestingType: VestingType;
   subType: SubType;
@@ -39,6 +41,7 @@ export default function AccountListItem({
                 disburse={disburse}
                 changeRecipient={changeRecipient}
                 cancel={cancel}
+                close={close}
               />
             ))
           ) : (
@@ -72,6 +75,7 @@ export default function AccountListItem({
                 disburse={disburse}
                 changeRecipient={changeRecipient}
                 cancel={cancel}
+                close={close}
               />
             ))
           ) : (

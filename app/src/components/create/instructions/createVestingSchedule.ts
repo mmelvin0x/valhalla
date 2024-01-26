@@ -1,6 +1,5 @@
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import {
@@ -67,8 +66,6 @@ export const createVestingSchedule = async (
     return;
   }
 
-  console.log(values);
-
   const createLockInstructionArgs: CreateVestingScheduleInstructionArgs = {
     amountToBeVested: Number(values.amountToBeVested),
     totalVestingDuration: Math.round(Number(totalVestingDuration / 1000)),
@@ -81,19 +78,20 @@ export const createVestingSchedule = async (
   };
 
   const mint = new PublicKey(values.selectedToken.id);
+  const tokenProgramId = (await connection.getAccountInfo(mint))?.owner;
   const recipientKey = new PublicKey(values.recipient);
   const pdas = getPDAs(wallet.publicKey, recipientKey, mint);
   const creatorTokenAccount = getAssociatedTokenAddressSync(
     mint,
     new PublicKey(wallet.publicKey),
     false,
-    TOKEN_2022_PROGRAM_ID,
+    tokenProgramId,
   );
   const recipientTokenAccount = getAssociatedTokenAddressSync(
     mint,
     new PublicKey(values.recipient),
     false,
-    TOKEN_2022_PROGRAM_ID,
+    tokenProgramId,
   );
 
   const createLockInstructionAccounts: CreateVestingScheduleInstructionAccounts =
@@ -107,7 +105,7 @@ export const createVestingSchedule = async (
       creatorTokenAccount,
       recipientTokenAccount,
       mint,
-      tokenProgram: TOKEN_2022_PROGRAM_ID,
+      tokenProgram: tokenProgramId,
       associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
     };
 

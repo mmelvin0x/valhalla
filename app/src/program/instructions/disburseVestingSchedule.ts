@@ -62,7 +62,7 @@ export const disburseVestingScheduleInstructionDiscriminator = [
  */
 export function createDisburseVestingScheduleInstruction(
   accounts: DisburseVestingScheduleInstructionAccounts,
-  programId = new web3.PublicKey('4RjGEao2c8JSNvtbN48PnqzhRHB2iscC9MAN6JXmzypM')
+  programId = new web3.PublicKey('kY1w5a15ADvW28ZKnoSmbK53LnrBdwiUX5gg4fHq6nc')
 ) {
   const [data] = disburseVestingScheduleStruct.serialize({
     instructionDiscriminator: disburseVestingScheduleInstructionDiscriminator,
