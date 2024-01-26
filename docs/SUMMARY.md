@@ -9,16 +9,15 @@
 
 ## Product Guides
 
-* [📪 Making a post](product-guides/making-a-post.md)
-* [📎 Understanding Projects](product-guides/understanding-projects.md)
-
-## Fundamentals
-
-* [🛠 Getting set up](fundamentals/getting-set-up/README.md)
-  * [📝 Setting permissions](fundamentals/getting-set-up/setting-permissions.md)
-  * [🧑 Inviting Members](fundamentals/getting-set-up/inviting-members.md)
+* [📪 Creating a Vesting Schedule](product-guides/creating-a-vesting-schedule.md)
+* [📎 Creating a Token Lock](product-guides/creating-a-token-lock.md)
+* [😄 Creating a Scheduled Payment](product-guides/creating-a-scheduled-payment.md)
+* [😁 Disbursments](product-guides/disbursments.md)
+* [😁 Changing Recipient](product-guides/changing-recipient.md)
+* [😅 Cancelling](product-guides/cancelling.md)
 
 ## Use Cases
 
-* [🎨 For Designers](use-cases/for-designers.md)
-* [🖥 For Developers](use-cases/for-developers.md)
+* [💰 For Investors](use-cases/for-investors.md)
+* [🏗 For Founders](use-cases/for-founders.md)
+* [👨💻 For Degens](use-cases/for-degens.md)
