@@ -11,7 +11,17 @@ import Image from "next/image";
 import Link from "next/link";
 import SocialBar from "components/ui/SocialBar";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import dashboard from "../../assets/dashboard.png";
+import locks from "../../assets/locks.png";
+import logo128 from "../../assets/logo128.png";
+import logo512 from "../../assets/logo512.png";
+import payments from "../../assets/payments.png";
+import ship from "../../assets/ship.png";
+import team00 from "../../assets/team-00.png";
+import team01 from "../../assets/team-01.png";
+import team02 from "../../assets/team-02.png";
 import useProgram from "program/useProgram";
+import vesting from "../../assets/vesting.png";
 
 export default function HomeFeature() {
   const { connected, wallet } = useProgram();
@@ -77,10 +87,11 @@ export default function HomeFeature() {
           </div>
 
           <Image
+            placeholder="blur"
             className="hidden md:block mx-auto my-4"
             width={400}
             height={400}
-            src="/logo512.png"
+            src={logo512}
             alt="Valhalla Hero"
           />
         </div>
@@ -125,8 +136,9 @@ export default function HomeFeature() {
           </div>
 
           <Image
+            placeholder="blur"
             className="mx-auto rounded-lg rounded-b-none"
-            src="/dashboard.png"
+            src={dashboard}
             width={1440 / 2}
             height={945 / 2}
             alt="Dashboard image"
@@ -200,8 +212,9 @@ export default function HomeFeature() {
             </div>
 
             <Image
+              placeholder="blur"
               className="self-center"
-              src="/vesting.png"
+              src={vesting}
               width={1205 / 2}
               height={798 / 2}
               alt="Vesting Schedules"
@@ -212,8 +225,9 @@ export default function HomeFeature() {
         <section className="mt-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto">
             <Image
+              placeholder="blur"
               className="self-center"
-              src="/locks.png"
+              src={locks}
               width={1205 / 2}
               height={798 / 2}
               alt="Token Locks"
@@ -278,8 +292,9 @@ export default function HomeFeature() {
             </div>
 
             <Image
+              placeholder="blur"
               className="self-center"
-              src="/payments.png"
+              src={payments}
               width={1205 / 2}
               height={798 / 2}
               alt="Token Locks"
@@ -290,8 +305,9 @@ export default function HomeFeature() {
         <section className="mt-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Image
+              placeholder="blur"
               className="self-center rounded"
-              src="/dashboard.png"
+              src={dashboard}
               width={1440 / 2}
               height={945 / 2}
               alt="Dashboard image"
@@ -336,7 +352,8 @@ export default function HomeFeature() {
         <section className="my-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto items-center">
             <Image
-              src={"/ship.png"}
+              placeholder="blur"
+              src={ship}
               width={512}
               height={512}
               alt={"Viking Ship"}
@@ -389,7 +406,8 @@ export default function HomeFeature() {
 
             <div className="flex flex-col gap-4 items-center w-80">
               <Image
-                src={"/team-00.png"}
+                placeholder="blur"
+                src={team00}
                 width={200}
                 height={200}
                 alt={"Team Placeholder"}
@@ -410,7 +428,8 @@ export default function HomeFeature() {
             <div className="flex flex-wrap items-center justify-center gap-8 md:justify-between w-full">
               <div className="flex flex-col gap-4 items-center w-80">
                 <Image
-                  src={"/team-01.png"}
+                  placeholder="blur"
+                  src={team01}
                   width={200}
                   height={200}
                   alt={"Team Placeholder"}
@@ -430,7 +449,8 @@ export default function HomeFeature() {
 
               <div className="flex flex-col gap-4 items-center w-80">
                 <Image
-                  src={"/team-02.png"}
+                  placeholder="blur"
+                  src={team02}
                   width={200}
                   height={200}
                   alt={"Team Placeholder"}
@@ -457,7 +477,8 @@ export default function HomeFeature() {
             <div className="card-body">
               <div className="flex items-center justify-between gap-2">
                 <Image
-                  src={"/logo128.png"}
+                  placeholder="blur"
+                  src={logo128}
                   width={128}
                   height={128}
                   alt={"Valhalla Logo"}

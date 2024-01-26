@@ -13,6 +13,7 @@ import Link from "next/link";
 import SocialBar from "./SocialBar";
 import { VestingType } from "program";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import logo128 from "../../assets/logo128.png";
 import router from "next/router";
 import { useMemo } from "react";
 import useProgram from "program/useProgram";
@@ -76,7 +77,8 @@ export default function SideDrawer() {
       <ul className="menu p-2 w-60 gap-2 ">
         <div className="flex flex-col items-center justify-center gap-8 my-8">
           <Image
-            src="/logo128.png"
+            placeholder="blur"
+            src={logo128}
             width={128}
             height={128}
             alt="Valhalla Logo"

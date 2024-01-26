@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SocialBar from "./SocialBar";
 import { VestingType } from "program";
+import logo128 from "../../assets/logo128.png";
 import useProgram from "program/useProgram";
 import { useRouter } from "next/router";
 
@@ -74,7 +75,8 @@ export const Footer: FC = () => {
     <footer className="footer footer-center p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
       <div className="flex flex-col items-center gap-2">
         <Image
-          src={"/logo128.png"}
+          placeholder="blur"
+          src={logo128}
           width={128}
           height={128}
           alt="Valhalla Logo"

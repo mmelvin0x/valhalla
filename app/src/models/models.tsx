@@ -25,6 +25,8 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { getExplorerUrl } from "utils/explorer";
 import { getPDAs } from "utils/constants";
+import lp from "../assets/LP.png";
+import solscan from "../assets/solscan.png";
 
 export default class BaseModel {
   cancelAuthority: Authority;
@@ -131,7 +133,13 @@ export default class BaseModel {
         href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
       >
         {shortenAddress(this.creator)}{" "}
-        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+        <Image
+          placeholder="blur"
+          src={solscan}
+          width={14}
+          height={14}
+          alt="solscan"
+        />
       </Link>
     );
   }
@@ -144,7 +152,13 @@ export default class BaseModel {
         href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
       >
         {shortenAddress(this.recipient)}{" "}
-        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+        <Image
+          placeholder="blur"
+          src={solscan}
+          width={14}
+          height={14}
+          alt="solscan"
+        />
       </Link>
     ) : (
       <Link
@@ -153,7 +167,13 @@ export default class BaseModel {
         href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
       >
         {shortenAddress(this.creator)}{" "}
-        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+        <Image
+          placeholder="blur"
+          src={solscan}
+          width={14}
+          height={14}
+          alt="solscan"
+        />
       </Link>
     );
   }
@@ -200,7 +220,13 @@ export default class BaseModel {
             href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
           >
             {shortenAddress(this.creator)}{" "}
-            <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+            <Image
+              placeholder="blur"
+              src={solscan}
+              width={14}
+              height={14}
+              alt="solscan"
+            />
           </Link>
         );
       case Authority.Recipient:
@@ -211,7 +237,13 @@ export default class BaseModel {
             href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
           >
             {shortenAddress(this.recipient)}{" "}
-            <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+            <Image
+              placeholder="blur"
+              src={solscan}
+              width={14}
+              height={14}
+              alt="solscan"
+            />
           </Link>
         );
       case Authority.Both:
@@ -224,7 +256,8 @@ export default class BaseModel {
             >
               {shortenAddress(this.creator)}{" "}
               <Image
-                src={"/solscan.png"}
+                placeholder="blur"
+                src={solscan}
                 width={14}
                 height={14}
                 alt="solscan"
@@ -238,7 +271,8 @@ export default class BaseModel {
             >
               {shortenAddress(this.recipient)}{" "}
               <Image
-                src={"/solscan.png"}
+                placeholder="blur"
+                src={solscan}
                 width={14}
                 height={14}
                 alt="solscan"
@@ -262,7 +296,13 @@ export default class BaseModel {
             href={getExplorerUrl(this.connection.rpcEndpoint, this.creator)}
           >
             {shortenAddress(this.creator)}{" "}
-            <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+            <Image
+              placeholder="blur"
+              src={solscan}
+              width={14}
+              height={14}
+              alt="solscan"
+            />
           </Link>
         );
       case Authority.Recipient:
@@ -273,7 +313,13 @@ export default class BaseModel {
             href={getExplorerUrl(this.connection.rpcEndpoint, this.recipient)}
           >
             {shortenAddress(this.recipient)}{" "}
-            <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+            <Image
+              placeholder="blur"
+              src={solscan}
+              width={14}
+              height={14}
+              alt="solscan"
+            />
           </Link>
         );
       case Authority.Both:
@@ -286,7 +332,8 @@ export default class BaseModel {
             >
               {shortenAddress(this.creator)}{" "}
               <Image
-                src={"/solscan.png"}
+                placeholder="blur"
+                src={solscan}
                 width={14}
                 height={14}
                 alt="solscan"
@@ -300,7 +347,8 @@ export default class BaseModel {
             >
               {shortenAddress(this.recipient)}{" "}
               <Image
-                src={"/solscan.png"}
+                placeholder="blur"
+                src={solscan}
                 width={14}
                 height={14}
                 alt="solscan"
@@ -322,7 +370,13 @@ export default class BaseModel {
         href={getExplorerUrl(this.connection.rpcEndpoint, this.mint)}
       >
         {shortenAddress(this.mint)}{" "}
-        <Image src={"/solscan.png"} width={14} height={14} alt="solscan" />
+        <Image
+          placeholder="blur"
+          src={solscan}
+          width={14}
+          height={14}
+          alt="solscan"
+        />
       </Link>
     );
   }
@@ -331,7 +385,7 @@ export default class BaseModel {
     return (
       <div className="flex items-center gap-1">
         {shortenNumber(this.tokenAccountBalanceAsNumberPerDecimals, 4)}{" "}
-        <Image src={"/LP.png"} width={14} height={14} alt="LP" />
+        <Image placeholder="blur" src={lp} width={14} height={14} alt="LP" />
       </div>
     );
   }

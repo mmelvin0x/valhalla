@@ -10,6 +10,7 @@ import Image from "next/image";
 import Notifications from "../components/ui/notifications/Notification";
 import { QueryProvider } from "contexts/QueryProvider";
 import SideDrawer from "components/ui/SideDrawer";
+import logo64 from "../assets/logo64.png";
 
 const aclonica = Aclonica({
   subsets: ["latin"],
@@ -56,7 +57,8 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                       className="flex items-center gap-1 cursor-pointer drawer-button xl:hidden"
                     >
                       <Image
-                        src="/logo64.png"
+                        placeholder="blur"
+                        src={logo64}
                         alt="logo"
                         width={36}
                         height={36}
