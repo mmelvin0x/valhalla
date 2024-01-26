@@ -99,7 +99,7 @@ export default function HomeFeature() {
         </div>
       </section>
 
-      <section className="py-10 bg-gradient-to-t from-primary to-base-300">
+      <section className="py-10 bg-base-300">
         <SocialBar />
       </section>
 
@@ -186,7 +186,7 @@ export default function HomeFeature() {
           </div>
         </section>
 
-        <section className="my-20 px-8 py-20 flex flex-col items-center gap-4 bg-gradient-to-b from-primary to-base-300">
+        <section className="my-20 px-8 py-20 flex flex-col items-center gap-4 bg-gradient-to-b from-primary/95 to-base-300">
           <h3 className="text-center">Get started today</h3>
           {connected ? (
             <div className="flex gap-2">
@@ -351,8 +351,8 @@ export default function HomeFeature() {
           </section>
         </div>
 
-        <section className="mt-20 px-8 py-20 bg-gradient-to-b from-primary to-base-300">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto items-center">
+        <section className="my-20 px-8 py-20 bg-gradient-to-b from-primary/95 to-base-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto items-center max-w-screen-lg">
             <Image
               placeholder="blur"
               src={ship}
@@ -404,7 +404,40 @@ export default function HomeFeature() {
           </div>
         </section>
 
-        <section className="mb-20 px-8 py-20 bg-gradient-to-t from-primary to-base-300">
+        <section className="my-20 px-8">
+          <div className="card max-w-screen-md mx-auto">
+            <div className="card-body">
+              <div className="flex items-center justify-between gap-2">
+                <Image
+                  placeholder="blur"
+                  src={logo128}
+                  width={128}
+                  height={128}
+                  alt={"Valhalla Logo"}
+                />
+
+                <div className="flex flex-col items-center gap-4">
+                  <h4 className="text-primary">Find More in the Docs</h4>
+                  <p className="prose">
+                    Perfect for both beginners and seasoned Solana blockchain
+                    users, it guides you through all of our features. Quick,
+                    informative, and easy to navigate.
+                  </p>
+
+                  <Link
+                    href={"https://docs.valhalla.so"}
+                    target="_blank"
+                    className="btn btn-primary"
+                  >
+                    <FaClipboardList /> Read the Docs
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-20 px-8 py-20 bg-gradient-to-t from-primary/95 to-base-300/0">
           <h2 className="text-center mb-20">Meet the Team</h2>
           <div className="flex flex-wrap items-center justify-center gap-8">
             <div className="flex flex-col gap-4 items-center w-80">
@@ -473,40 +506,7 @@ export default function HomeFeature() {
           </div>
         </section>
 
-        <section className="my-40 px-8">
-          <div className="card max-w-screen-md mx-auto">
-            <div className="card-body">
-              <div className="flex items-center justify-between gap-2">
-                <Image
-                  placeholder="blur"
-                  src={logo128}
-                  width={128}
-                  height={128}
-                  alt={"Valhalla Logo"}
-                />
-
-                <div className="flex flex-col items-center gap-4">
-                  <h4 className="text-primary">Find More in the Docs</h4>
-                  <p className="prose">
-                    Perfect for both beginners and seasoned Solana blockchain
-                    users, it guides you through all of our features. Quick,
-                    informative, and easy to navigate.
-                  </p>
-
-                  <Link
-                    href={"https://docs.valhalla.so"}
-                    target="_blank"
-                    className="btn btn-primary"
-                  >
-                    <FaClipboardList /> Read the Docs
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-20 px-8 py-20 flex flex-col items-center gap-8 bg-gradient-to-b from-primary to-base-300">
+        <section className="px-8 py-20 flex flex-col items-center gap-8 bg-gradient-to-b from-primary/95 to-base-300">
           <h2>Valhalla Awaits</h2>
 
           <p className="prose max-w-screen-lg">

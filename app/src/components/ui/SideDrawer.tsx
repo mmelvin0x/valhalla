@@ -75,7 +75,7 @@ export default function SideDrawer() {
   return (
     <div className="min-h-full navlinks">
       <ul className="menu p-2 w-60 gap-1">
-        <div className="flex flex-col items-center justify-center gap-8 mt-12">
+        <div className="flex flex-col items-center justify-center gap-8 my-12">
           <Image
             placeholder="blur"
             src={logo128}
