@@ -469,7 +469,7 @@ export default function HomeFeature() {
                 height={200}
                 alt={"Team Placeholder"}
               />
-              <h4>Right Clickable</h4>
+              <h4>Ethan</h4>
               <p className="prose text-center">
                 Co-Founder | Marketing | Operations
               </p>
@@ -491,7 +491,7 @@ export default function HomeFeature() {
                 alt={"Team Placeholder"}
               />
 
-              <h4>Yat Sultan</h4>
+              <h4>Yat</h4>
               <p className="prose text-center">
                 Co-Founder | Legal | Operations
               </p>
