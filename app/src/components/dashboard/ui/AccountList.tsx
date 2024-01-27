@@ -13,7 +13,6 @@ export default function AccountList({
   disburse,
   changeRecipient,
   cancel,
-  close,
 }: {
   close: (lock: BaseModel) => Promise<void>;
   disburse: (lock: BaseModel) => Promise<void>;
@@ -37,7 +36,6 @@ export default function AccountList({
           disburse={disburse}
           changeRecipient={changeRecipient}
           cancel={cancel}
-          close={close}
         />
       )}
 
@@ -50,7 +48,6 @@ export default function AccountList({
           disburse={disburse}
           changeRecipient={changeRecipient}
           cancel={cancel}
-          close={close}
         />
       )}
 
@@ -63,7 +60,6 @@ export default function AccountList({
           disburse={disburse}
           changeRecipient={changeRecipient}
           cancel={cancel}
-          close={close}
         />
       )}
     </div>

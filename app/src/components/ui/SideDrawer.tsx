@@ -8,6 +8,7 @@ import {
   FaStopwatch,
 } from "react-icons/fa";
 
+import { AccountBalance } from "components/dashboard/ui/AccountBalance";
 import Image from "next/image";
 import Link from "next/link";
 import SocialBar from "./SocialBar";

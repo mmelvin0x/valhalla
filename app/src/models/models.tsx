@@ -93,7 +93,9 @@ export default class BaseModel {
     }
 
     if (this.vestingType === VestingType.TokenLock) {
-      return this.tokenAccountBalance.toNumber() === 0;
+      return this.tokenAccount
+        ? this.tokenAccountBalance.toNumber() === 0
+        : false;
     }
   }
 
@@ -417,7 +419,7 @@ export default class BaseModel {
   get startDateDisplay(): ReactNode {
     return (
       <div className="flex items-center gap-1">
-        {new Date(this.startDate.toNumber() * 1000).toLocaleDateString()}{" "}
+        {new Date(this.startDate.toNumber() * 1000).toLocaleString()}{" "}
         <FaCalendar />
       </div>
     );
@@ -437,7 +439,7 @@ export default class BaseModel {
     );
     return (
       <div className="flex items-center gap-1">
-        {endDate.toLocaleDateString()} <FaCalendar />
+        {endDate.toLocaleString()} <FaCalendar />
       </div>
     );
   }
@@ -517,7 +519,11 @@ export default class BaseModel {
 
     this.tokenAccount = await getAccount(
       connection,
-      pdas.vestingScheduleTokenAccount,
+      obj.vestingType === VestingType.VestingSchedule
+        ? pdas.vestingScheduleTokenAccount
+        : obj.vestingType === VestingType.TokenLock
+          ? pdas.tokenLockTokenAccount
+          : pdas.scheduledPaymentTokenAccount,
       undefined,
       this.tokenProgramId,
     );

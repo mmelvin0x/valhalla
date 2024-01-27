@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from '@solana/spl-token'
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as beet from "@metaplex-foundation/beet";
+import * as splToken from "@solana/spl-token";
+import * as web3 from "@solana/web3.js";
 
 /**
  * @category Instructions
@@ -15,11 +15,11 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export const updateScheduledPaymentStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */
+  instructionDiscriminator: number[] /* size: 8 */;
 }>(
-  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
-  'UpdateScheduledPaymentInstructionArgs'
-)
+  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
+  "UpdateScheduledPaymentInstructionArgs",
+);
 /**
  * Accounts required by the _updateScheduledPayment_ instruction
  *
@@ -35,20 +35,20 @@ export const updateScheduledPaymentStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type UpdateScheduledPaymentInstructionAccounts = {
-  signer: web3.PublicKey
-  creator: web3.PublicKey
-  recipient: web3.PublicKey
-  newRecipient: web3.PublicKey
-  scheduledPayment: web3.PublicKey
-  mint: web3.PublicKey
-  tokenProgram?: web3.PublicKey
-  associatedTokenProgram: web3.PublicKey
-  systemProgram?: web3.PublicKey
-}
+  signer: web3.PublicKey;
+  creator: web3.PublicKey;
+  recipient: web3.PublicKey;
+  newRecipient: web3.PublicKey;
+  scheduledPayment: web3.PublicKey;
+  mint: web3.PublicKey;
+  tokenProgram?: web3.PublicKey;
+  associatedTokenProgram: web3.PublicKey;
+  systemProgram?: web3.PublicKey;
+};
 
 export const updateScheduledPaymentInstructionDiscriminator = [
   243, 41, 111, 82, 97, 102, 66, 160,
-]
+];
 
 /**
  * Creates a _UpdateScheduledPayment_ instruction.
@@ -60,11 +60,13 @@ export const updateScheduledPaymentInstructionDiscriminator = [
  */
 export function createUpdateScheduledPaymentInstruction(
   accounts: UpdateScheduledPaymentInstructionAccounts,
-  programId = new web3.PublicKey('kY1w5a15ADvW28ZKnoSmbK53LnrBdwiUX5gg4fHq6nc')
+  programId = new web3.PublicKey(
+    "AGRjM1d3GyCGawuEKpQZo68bxkF4QY1nFwo3NUxsMvPN",
+  ),
 ) {
   const [data] = updateScheduledPaymentStruct.serialize({
     instructionDiscriminator: updateScheduledPaymentInstructionDiscriminator,
-  })
+  });
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.signer,
@@ -111,12 +113,12 @@ export function createUpdateScheduledPaymentInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ]
+  ];
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  })
-  return ix
+  });
+  return ix;
 }

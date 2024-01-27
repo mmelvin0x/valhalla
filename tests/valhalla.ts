@@ -1038,7 +1038,7 @@ describe("⚡️ Valhalla", () => {
     });
 
     it("should disburse the funds", async () => {
-      await sleep(1050);
+      await sleep(1500);
       const tx = await program.methods
         .disburseTokenLock()
         .accounts({

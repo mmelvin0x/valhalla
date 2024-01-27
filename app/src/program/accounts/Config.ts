@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from '@solana/web3.js'
-import * as beet from '@metaplex-foundation/beet'
-import * as beetSolana from '@metaplex-foundation/beet-solana'
+import * as web3 from "@solana/web3.js";
+import * as beet from "@metaplex-foundation/beet";
+import * as beetSolana from "@metaplex-foundation/beet-solana";
 
 /**
  * Arguments used to create {@link Config}
@@ -15,12 +15,12 @@ import * as beetSolana from '@metaplex-foundation/beet-solana'
  * @category generated
  */
 export type ConfigArgs = {
-  admin: web3.PublicKey
-  treasury: web3.PublicKey
-  fee: beet.bignum
-}
+  admin: web3.PublicKey;
+  treasury: web3.PublicKey;
+  fee: beet.bignum;
+};
 
-export const configDiscriminator = [155, 12, 170, 224, 30, 250, 204, 130]
+export const configDiscriminator = [155, 12, 170, 224, 30, 250, 204, 130];
 /**
  * Holds the data for the {@link Config} Account and provides de/serialization
  * functionality for that data
@@ -32,14 +32,14 @@ export class Config implements ConfigArgs {
   private constructor(
     readonly admin: web3.PublicKey,
     readonly treasury: web3.PublicKey,
-    readonly fee: beet.bignum
+    readonly fee: beet.bignum,
   ) {}
 
   /**
    * Creates a {@link Config} instance from the provided args.
    */
   static fromArgs(args: ConfigArgs) {
-    return new Config(args.admin, args.treasury, args.fee)
+    return new Config(args.admin, args.treasury, args.fee);
   }
 
   /**
@@ -48,9 +48,9 @@ export class Config implements ConfigArgs {
    */
   static fromAccountInfo(
     accountInfo: web3.AccountInfo<Buffer>,
-    offset = 0
+    offset = 0,
   ): [Config, number] {
-    return Config.deserialize(accountInfo.data, offset)
+    return Config.deserialize(accountInfo.data, offset);
   }
 
   /**
@@ -62,16 +62,16 @@ export class Config implements ConfigArgs {
   static async fromAccountAddress(
     connection: web3.Connection,
     address: web3.PublicKey,
-    commitmentOrConfig?: web3.Commitment | web3.GetAccountInfoConfig
+    commitmentOrConfig?: web3.Commitment | web3.GetAccountInfoConfig,
   ): Promise<Config> {
     const accountInfo = await connection.getAccountInfo(
       address,
-      commitmentOrConfig
-    )
+      commitmentOrConfig,
+    );
     if (accountInfo == null) {
-      throw new Error(`Unable to find Config account at ${address}`)
+      throw new Error(`Unable to find Config account at ${address}`);
     }
-    return Config.fromAccountInfo(accountInfo, 0)[0]
+    return Config.fromAccountInfo(accountInfo, 0)[0];
   }
 
   /**
@@ -82,10 +82,10 @@ export class Config implements ConfigArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'kY1w5a15ADvW28ZKnoSmbK53LnrBdwiUX5gg4fHq6nc'
-    )
+      "AGRjM1d3GyCGawuEKpQZo68bxkF4QY1nFwo3NUxsMvPN",
+    ),
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, configBeet)
+    return beetSolana.GpaBuilder.fromStruct(programId, configBeet);
   }
 
   /**
@@ -93,7 +93,7 @@ export class Config implements ConfigArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [Config, number] {
-    return configBeet.deserialize(buf, offset)
+    return configBeet.deserialize(buf, offset);
   }
 
   /**
@@ -104,7 +104,7 @@ export class Config implements ConfigArgs {
     return configBeet.serialize({
       accountDiscriminator: configDiscriminator,
       ...this,
-    })
+    });
   }
 
   /**
@@ -112,7 +112,7 @@ export class Config implements ConfigArgs {
    * {@link Config}
    */
   static get byteSize() {
-    return configBeet.byteSize
+    return configBeet.byteSize;
   }
 
   /**
@@ -123,12 +123,12 @@ export class Config implements ConfigArgs {
    */
   static async getMinimumBalanceForRentExemption(
     connection: web3.Connection,
-    commitment?: web3.Commitment
+    commitment?: web3.Commitment,
   ): Promise<number> {
     return connection.getMinimumBalanceForRentExemption(
       Config.byteSize,
-      commitment
-    )
+      commitment,
+    );
   }
 
   /**
@@ -136,7 +136,7 @@ export class Config implements ConfigArgs {
    * hold {@link Config} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === Config.byteSize
+    return buf.byteLength - offset === Config.byteSize;
   }
 
   /**
@@ -148,17 +148,17 @@ export class Config implements ConfigArgs {
       admin: this.admin.toBase58(),
       treasury: this.treasury.toBase58(),
       fee: (() => {
-        const x = <{ toNumber: () => number }>this.fee
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.fee;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
-    }
+    };
   }
 }
 
@@ -169,15 +169,15 @@ export class Config implements ConfigArgs {
 export const configBeet = new beet.BeetStruct<
   Config,
   ConfigArgs & {
-    accountDiscriminator: number[] /* size: 8 */
+    accountDiscriminator: number[] /* size: 8 */;
   }
 >(
   [
-    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['admin', beetSolana.publicKey],
-    ['treasury', beetSolana.publicKey],
-    ['fee', beet.u64],
+    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["admin", beetSolana.publicKey],
+    ["treasury", beetSolana.publicKey],
+    ["fee", beet.u64],
   ],
   Config.fromArgs,
-  'Config'
-)
+  "Config",
+);

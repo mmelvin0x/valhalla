@@ -13,6 +13,7 @@
     "deploy:mainnet": "anchor deploy --provider.cluster mainnet-beta",
     "deploy:devnet:init": "anchor deploy --provider.cluster devnet && yarn init-locker:devnet && yarn solita && yarn copy:idl && yarn copy:types",
     "deploy:mainnet:init": "anchor deploy --provider.cluster mainnet-beta && yarn init-locker:mainnet && yarn solita && yarn copy:idl && yarn copy:types",
+    "deploy:devnet:init:data": "anchor deploy --provider.cluster devnet && yarn init-locker:devnet && yarn solita && yarn copy:idl && yarn copy:types && anchor run create-devnet-data --provider.cluster devnet",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
   },

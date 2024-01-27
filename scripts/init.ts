@@ -6,7 +6,7 @@ import { LAMPORTS_PER_SOL, clusterApiUrl } from "@solana/web3.js";
 import { getPDAs } from "../tests/utils/constants";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "kY1w5a15ADvW28ZKnoSmbK53LnrBdwiUX5gg4fHq6nc"
+  "AGRjM1d3GyCGawuEKpQZo68bxkF4QY1nFwo3NUxsMvPN"
 );
 
 const FEE = 0.25;

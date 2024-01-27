@@ -5,8 +5,8 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as beet from "@metaplex-foundation/beet";
+import * as web3 from "@solana/web3.js";
 
 /**
  * @category Instructions
@@ -14,8 +14,8 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export type AdminInitializeInstructionArgs = {
-  fee: beet.bignum
-}
+  fee: beet.bignum;
+};
 /**
  * @category Instructions
  * @category AdminInitialize
@@ -23,15 +23,15 @@ export type AdminInitializeInstructionArgs = {
  */
 export const adminInitializeStruct = new beet.BeetArgsStruct<
   AdminInitializeInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */
+    instructionDiscriminator: number[] /* size: 8 */;
   }
 >(
   [
-    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['fee', beet.u64],
+    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["fee", beet.u64],
   ],
-  'AdminInitializeInstructionArgs'
-)
+  "AdminInitializeInstructionArgs",
+);
 /**
  * Accounts required by the _adminInitialize_ instruction
  *
@@ -43,15 +43,15 @@ export const adminInitializeStruct = new beet.BeetArgsStruct<
  * @category generated
  */
 export type AdminInitializeInstructionAccounts = {
-  admin: web3.PublicKey
-  config: web3.PublicKey
-  treasury: web3.PublicKey
-  systemProgram?: web3.PublicKey
-}
+  admin: web3.PublicKey;
+  config: web3.PublicKey;
+  treasury: web3.PublicKey;
+  systemProgram?: web3.PublicKey;
+};
 
 export const adminInitializeInstructionDiscriminator = [
   231, 170, 149, 43, 131, 117, 86, 5,
-]
+];
 
 /**
  * Creates a _AdminInitialize_ instruction.
@@ -66,12 +66,14 @@ export const adminInitializeInstructionDiscriminator = [
 export function createAdminInitializeInstruction(
   accounts: AdminInitializeInstructionAccounts,
   args: AdminInitializeInstructionArgs,
-  programId = new web3.PublicKey('kY1w5a15ADvW28ZKnoSmbK53LnrBdwiUX5gg4fHq6nc')
+  programId = new web3.PublicKey(
+    "AGRjM1d3GyCGawuEKpQZo68bxkF4QY1nFwo3NUxsMvPN",
+  ),
 ) {
   const [data] = adminInitializeStruct.serialize({
     instructionDiscriminator: adminInitializeInstructionDiscriminator,
     ...args,
-  })
+  });
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -93,12 +95,12 @@ export function createAdminInitializeInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ]
+  ];
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  })
-  return ix
+  });
+  return ix;
 }
