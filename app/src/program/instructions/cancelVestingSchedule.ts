@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as splToken from "@solana/spl-token";
-import * as web3 from "@solana/web3.js";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -15,11 +15,11 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export const cancelVestingScheduleStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */;
+  instructionDiscriminator: number[] /* size: 8 */
 }>(
-  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
-  "CancelVestingScheduleInstructionArgs",
-);
+  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
+  'CancelVestingScheduleInstructionArgs'
+)
 /**
  * Accounts required by the _cancelVestingSchedule_ instruction
  *
@@ -36,21 +36,21 @@ export const cancelVestingScheduleStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type CancelVestingScheduleInstructionAccounts = {
-  signer: web3.PublicKey;
-  creator: web3.PublicKey;
-  recipient: web3.PublicKey;
-  vestingSchedule: web3.PublicKey;
-  vestingScheduleTokenAccount: web3.PublicKey;
-  creatorTokenAccount: web3.PublicKey;
-  mint: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  associatedTokenProgram: web3.PublicKey;
-  systemProgram?: web3.PublicKey;
-};
+  signer: web3.PublicKey
+  creator: web3.PublicKey
+  recipient: web3.PublicKey
+  vestingSchedule: web3.PublicKey
+  vestingScheduleTokenAccount: web3.PublicKey
+  creatorTokenAccount: web3.PublicKey
+  mint: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+  associatedTokenProgram: web3.PublicKey
+  systemProgram?: web3.PublicKey
+}
 
 export const cancelVestingScheduleInstructionDiscriminator = [
   236, 89, 41, 252, 91, 26, 88, 3,
-];
+]
 
 /**
  * Creates a _CancelVestingSchedule_ instruction.
@@ -62,13 +62,11 @@ export const cancelVestingScheduleInstructionDiscriminator = [
  */
 export function createCancelVestingScheduleInstruction(
   accounts: CancelVestingScheduleInstructionAccounts,
-  programId = new web3.PublicKey(
-    "AGRjM1d3GyCGawuEKpQZo68bxkF4QY1nFwo3NUxsMvPN",
-  ),
+  programId = new web3.PublicKey('AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p')
 ) {
   const [data] = cancelVestingScheduleStruct.serialize({
     instructionDiscriminator: cancelVestingScheduleInstructionDiscriminator,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.signer,
@@ -120,12 +118,12 @@ export function createCancelVestingScheduleInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

@@ -5,8 +5,8 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -14,8 +14,8 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export type AdminUpdateInstructionArgs = {
-  newFee: beet.bignum;
-};
+  newFee: beet.bignum
+}
 /**
  * @category Instructions
  * @category AdminUpdate
@@ -23,15 +23,15 @@ export type AdminUpdateInstructionArgs = {
  */
 export const adminUpdateStruct = new beet.BeetArgsStruct<
   AdminUpdateInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */;
+    instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["newFee", beet.u64],
+    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['newFee', beet.u64],
   ],
-  "AdminUpdateInstructionArgs",
-);
+  'AdminUpdateInstructionArgs'
+)
 /**
  * Accounts required by the _adminUpdate_ instruction
  *
@@ -45,16 +45,16 @@ export const adminUpdateStruct = new beet.BeetArgsStruct<
  * @category generated
  */
 export type AdminUpdateInstructionAccounts = {
-  admin: web3.PublicKey;
-  newAdmin: web3.PublicKey;
-  newTreasury: web3.PublicKey;
-  config: web3.PublicKey;
-  treasury: web3.PublicKey;
-};
+  admin: web3.PublicKey
+  newAdmin: web3.PublicKey
+  newTreasury: web3.PublicKey
+  config: web3.PublicKey
+  treasury: web3.PublicKey
+}
 
 export const adminUpdateInstructionDiscriminator = [
   123, 245, 240, 247, 4, 240, 221, 217,
-];
+]
 
 /**
  * Creates a _AdminUpdate_ instruction.
@@ -69,14 +69,12 @@ export const adminUpdateInstructionDiscriminator = [
 export function createAdminUpdateInstruction(
   accounts: AdminUpdateInstructionAccounts,
   args: AdminUpdateInstructionArgs,
-  programId = new web3.PublicKey(
-    "AGRjM1d3GyCGawuEKpQZo68bxkF4QY1nFwo3NUxsMvPN",
-  ),
+  programId = new web3.PublicKey('AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p')
 ) {
   const [data] = adminUpdateStruct.serialize({
     instructionDiscriminator: adminUpdateInstructionDiscriminator,
     ...args,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -103,12 +101,12 @@ export function createAdminUpdateInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }
