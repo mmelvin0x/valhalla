@@ -208,7 +208,7 @@ export default function CreateFeature() {
   }, [onPageLoad, wallet?.publicKey, wallet?.signTransaction]);
 
   return (
-    <>
+    <div className="m-8">
       <Head>
         <title>Valhalla | Token Vesting Solutions</title>
         <meta
@@ -217,8 +217,8 @@ export default function CreateFeature() {
         />
       </Head>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="card">
+      <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <section className="card">
           <div className="card-body">
             <div className="card-title">Configure an account</div>
             <SelectTypeTabs
@@ -229,9 +229,9 @@ export default function CreateFeature() {
 
             <CreateForm formik={formik} vestingType={vestingType} />
           </div>
-        </div>
+        </section>
 
-        <div className="flex flex-col gap-8">
+        <section className="flex flex-col gap-8">
           {vestingType === VestingType.VestingSchedule && (
             <VestmentChart
               formik={formik}
@@ -261,10 +261,10 @@ export default function CreateFeature() {
             changeRecipientAuthority={formik.values.changeRecipientAuthority}
             vestingType={vestingType}
           />
-        </div>
-      </div>
+        </section>
+      </main>
 
       <SelectTokenDialog assets={assets} formik={formik} />
-    </>
+    </div>
   );
 }

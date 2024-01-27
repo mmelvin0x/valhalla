@@ -89,11 +89,19 @@ export default function SelectTokenInput({
               <div className="flex items-center gap-8">
                 <div className="rounded-full w-4 h-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="rounded-full"
-                    src={selectedToken?.content.links?.["image"] || "/LP.png"}
-                    alt={""}
-                  />
+                  {selectedToken?.content.links?.["image"] ? (
+                    <img
+                      className="rounded-full avatar"
+                      src={selectedToken?.content.links?.["image"]}
+                      alt={""}
+                    />
+                  ) : (
+                    <img
+                      className="rounded-full avatar"
+                      src={"/LP.png"}
+                      alt={""}
+                    />
+                  )}
                 </div>
 
                 <div>

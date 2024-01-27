@@ -24,7 +24,6 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { getExplorerUrl } from "utils/explorer";
 import { getPDAs } from "utils/constants";
-import lp from "../assets/LP.png";
 import solscan from "../assets/solscan.png";
 
 export default class BaseModel {

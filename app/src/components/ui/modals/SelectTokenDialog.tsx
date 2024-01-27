@@ -1,7 +1,8 @@
-import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import AddressBadge from "components/ui/AddressBadge";
 import { useMemo, useState } from "react";
+
+import AddressBadge from "components/ui/AddressBadge";
 import { AiOutlineCloseCircle } from "react-icons/ai";
+import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 
 interface SelectTokenDialogProps {
   assets: DasApiAsset[];
@@ -104,11 +105,19 @@ export default function SelectTokenDialog({
                       <div className="avatar mx-auto">
                         <div className="rounded-full w-8 h-8">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            className="rounded-full avatar"
-                            src={asset.content.links?.["image"] || "/LP.png"}
-                            alt={""}
-                          />
+                          {asset.content.links?.["image"] ? (
+                            <img
+                              className="rounded-full avatar"
+                              src={asset.content.links?.["image"]}
+                              alt={""}
+                            />
+                          ) : (
+                            <img
+                              className="rounded-full avatar"
+                              src={"/LP.png"}
+                              alt={""}
+                            />
+                          )}
                         </div>
                       </div>
                       <div className="flex flex-col w-full p-2 col-span-3">

@@ -136,11 +136,19 @@ export default function ReviewLockCard({
                 className="rounded-full w-12 h-12 link"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="rounded-full avatar"
-                  src={selectedToken?.content.links?.["image"] || "/LP.png"}
-                  alt={""}
-                />{" "}
+                {selectedToken?.content.links?.["image"] ? (
+                  <img
+                    className="rounded-full avatar"
+                    src={selectedToken?.content.links?.["image"]}
+                    alt={""}
+                  />
+                ) : (
+                  <img
+                    className="rounded-full avatar"
+                    src={"/LP.png"}
+                    alt={""}
+                  />
+                )}
               </Link>
             </div>
             <div className="text-xl font-bold">
