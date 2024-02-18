@@ -99,6 +99,7 @@ export default function LockDetails({
           <div className="flex flex-col">
             <span className="text-lg font-bold">Cliff Amount</span>
             <CliffPaymentAmountDisplay
+              mintInfo={lock.mintInfo}
               cliffPaymentAmount={lock.cliffPaymentAmount}
             />
           </div>

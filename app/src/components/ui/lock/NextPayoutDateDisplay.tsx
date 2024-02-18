@@ -15,5 +15,9 @@ export default function NextPayoutDateDisplay({
     );
   }
 
+  if (nextPayoutDate < new Date()) {
+    return <span className="text-error font-bold">Payout overdue</span>;
+  }
+
   return <span>{nextPayoutDate.toLocaleString()}</span>;
 }

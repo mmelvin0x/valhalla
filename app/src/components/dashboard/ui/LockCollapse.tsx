@@ -5,7 +5,9 @@ import CreatorDisplay from "components/ui/lock/CreatorDisplay";
 import LoadingSpinner from "../../ui/LoadingSpinner";
 import LockDetails from "./LockDetails";
 import NameDisplay from "components/ui/lock/NameDisplay";
+import NextPayoutDateDisplay from "components/ui/lock/NextPayoutDateDisplay";
 import RecipientDisplay from "components/ui/lock/RecipientDisplay";
+import TokenMintDisplay from "components/ui/lock/TokenMintDisplay";
 import useProgram from "program/useProgram";
 import { useState } from "react";
 
@@ -45,7 +47,7 @@ export default function LockCollapse({
 
         <div className="flex flex-wrap gap-4">
           <div className="font-bold flex items-center gap-1 text-xs">
-            Mint: {lock.tokenMintDisplay}
+            Mint: <TokenMintDisplay connection={connection} mint={lock.mint} />
           </div>
 
           <div className="font-bold flex items-center gap-1 text-xs">
@@ -63,7 +65,11 @@ export default function LockCollapse({
           </div>
 
           <div className="font-bold flex items-center gap-1 text-xs">
-            Next Payout: {lock.nextPayoutDisplay}
+            Next Payout:{" "}
+            <NextPayoutDateDisplay
+              paymentsComplete={lock.paymentsComplete}
+              nextPayoutDate={lock.nextPayoutDate}
+            />
           </div>
 
           <button className="btn btn-xs btn-ghost">
