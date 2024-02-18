@@ -1,10 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import {
-  FaArrowAltCircleDown,
-  FaArrowAltCircleUp,
-  FaPlusCircle,
-  FaUserPlus,
-} from "react-icons/fa";
+import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
 
 import BaseModel from "models/models";
 import { SubType } from "utils/constants";

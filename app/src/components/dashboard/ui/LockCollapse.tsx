@@ -1,8 +1,11 @@
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 
 import BaseModel from "models/models";
+import CreatorDisplay from "components/ui/lock/CreatorDisplay";
 import LoadingSpinner from "../../ui/LoadingSpinner";
 import LockDetails from "./LockDetails";
+import NameDisplay from "components/ui/lock/NameDisplay";
+import RecipientDisplay from "components/ui/lock/RecipientDisplay";
 import useProgram from "program/useProgram";
 import { useState } from "react";
 
@@ -36,7 +39,9 @@ export default function LockCollapse({
           setShowDetails(!showDetails);
         }}
       >
-        <div className="font-bold">{lock.nameDisplay}</div>
+        <div className="font-bold">
+          <NameDisplay id={lock.id} name={lock.name} />
+        </div>
 
         <div className="flex flex-wrap gap-4">
           <div className="font-bold flex items-center gap-1 text-xs">
@@ -44,11 +49,17 @@ export default function LockCollapse({
           </div>
 
           <div className="font-bold flex items-center gap-1 text-xs">
-            Creator: {lock.creatorDisplay}
+            Creator:{" "}
+            <CreatorDisplay connection={connection} creator={lock.creator} />
           </div>
 
           <div className="font-bold flex items-center gap-1 text-xs">
-            Recipient: {lock.recipientDisplay}
+            Recipient:{" "}
+            <RecipientDisplay
+              recipient={lock.recipient}
+              creator={lock.creator}
+              connection={connection}
+            />
           </div>
 
           <div className="font-bold flex items-center gap-1 text-xs">

@@ -1,42 +1,31 @@
-import BaseModel, {
-  ScheduledPaymentAccount,
-  TokenLockAccount,
-  VestingScheduleAccount,
-} from "models/models";
-import {
-  DisburseScheduledPaymentInstructionAccounts,
-  DisburseTokenLockInstructionAccounts,
-  DisburseVestingScheduleInstructionAccounts,
-  ScheduledPayment,
-  TokenLock,
-  VestingSchedule,
-  createCreateScheduledPaymentInstruction,
-  createDisburseScheduledPaymentInstruction,
-  createDisburseTokenLockInstruction,
-  createDisburseVestingScheduleInstruction,
-} from "program";
 import { FormikHelpers, useFormik } from "formik";
 import {
-  SystemProgram,
-  TransactionInstruction,
-  TransactionMessage,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import { getNameArg, shortenSignature } from "utils/formatters";
+  disburseScheduledPaymentInstruction,
+  disburseTokenLockInstruction,
+  disburseVestingScheduleInstruction,
+} from "components/dashboard/instructions/disburse";
+import {
+  searchScheduledPayments,
+  searchTokenLocks,
+  searchVestingSchedules,
+} from "utils/search";
 import { useEffect, useMemo, useState } from "react";
 
-import { ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import AccountList from "./ui/AccountList";
+import BaseModel from "models/models";
 import DashboardStats from "./ui/DashboardStats";
 import Head from "next/head";
 import SearchInput from "./ui/SearchInput";
 import { SubType } from "utils/constants";
 import SubTypeTabs from "./ui/SubTypeTabs";
+import { TransactionInstruction } from "@solana/web3.js";
 import { VestingType } from "program";
 import VestingTypeTabs from "./ui/VestingTypeTabs";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { dashboardSearchValidationSchema } from "./utils/validationSchema";
 import { notify } from "utils/notifications";
+import { sendTransaction } from "utils/sendTransaction";
+import { shortenSignature } from "utils/formatters";
 import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
 
@@ -66,31 +55,17 @@ export default function DashboardFeature() {
   }, [vestingSchedules.created, vestingSchedules.recipient]);
   const getVestingSchedules = async (search = "") => {
     setLoading(true);
+
     try {
-      const created = await VestingSchedule.gpaBuilder()
-        .addFilter("vestingType", VestingType.VestingSchedule)
-        .addFilter("creator", wallet.publicKey);
-      const recipient = await VestingSchedule.gpaBuilder()
-        .addFilter("vestingType", VestingType.VestingSchedule)
-        .addFilter("recipient", wallet.publicKey);
-
-      if (search) {
-        created.addFilter("name", getNameArg(search));
-        recipient.addFilter("name", getNameArg(search));
-      }
-
-      const fMapped = (await created.run(connection)).map((v) => {
-        const [vs] = VestingSchedule.fromAccountInfo(v.account);
-        return new VestingScheduleAccount(v.pubkey, vs, connection);
-      });
-      const rMapped = (await recipient.run(connection)).map((v) => {
-        const [vs] = VestingSchedule.fromAccountInfo(v.account);
-        return new VestingScheduleAccount(v.pubkey, vs, connection);
-      });
+      const { created, recipient } = await searchVestingSchedules(
+        connection,
+        wallet.publicKey,
+        search,
+      );
 
       setVestingSchedules({
-        created: fMapped,
-        recipient: rMapped,
+        created,
+        recipient,
       });
     } catch (e) {
       console.error(e);
@@ -109,20 +84,13 @@ export default function DashboardFeature() {
   }, [tokenLocks.created]);
   const getTokenLocks = async (search = "") => {
     try {
-      const created = await TokenLock.gpaBuilder()
-        .addFilter("vestingType", VestingType.TokenLock)
-        .addFilter("creator", wallet.publicKey);
+      const { created } = await searchTokenLocks(
+        connection,
+        wallet.publicKey,
+        search,
+      );
 
-      if (search) {
-        created.addFilter("name", getNameArg(search));
-      }
-
-      const fMapped = (await created.run(connection)).map((v) => {
-        const [vs] = TokenLock.fromAccountInfo(v.account);
-        return new TokenLockAccount(v.pubkey, vs, connection);
-      });
-
-      setTokenLocks({ created: fMapped });
+      setTokenLocks({ created });
     } catch (e) {
       console.error(e);
       notify({
@@ -142,27 +110,8 @@ export default function DashboardFeature() {
   }, [scheduledPayments.created, scheduledPayments.recipient]);
   const getScheduledPayments = async (search = "") => {
     try {
-      const created = await VestingSchedule.gpaBuilder()
-        .addFilter("vestingType", VestingType.ScheduledPayment)
-        .addFilter("creator", wallet.publicKey);
-      const recipient = await VestingSchedule.gpaBuilder()
-        .addFilter("vestingType", VestingType.ScheduledPayment)
-        .addFilter("recipient", wallet.publicKey);
-
-      if (search) {
-        created.addFilter("name", getNameArg(search));
-        recipient.addFilter("name", getNameArg(search));
-      }
-
-      const fMapped = (await created.run(connection)).map((v) => {
-        const [vs] = ScheduledPayment.fromAccountInfo(v.account);
-        return new ScheduledPaymentAccount(v.pubkey, vs, connection);
-      });
-
-      const rMapped = (await created.run(connection)).map((v) => {
-        const [vs] = ScheduledPayment.fromAccountInfo(v.account);
-        return new ScheduledPaymentAccount(v.pubkey, vs, connection);
-      });
+      const { created: fMapped, recipient: rMapped } =
+        await searchScheduledPayments(connection, wallet.publicKey, search);
 
       setScheduledPayments({ created: fMapped, recipient: rMapped });
     } catch (e) {
@@ -243,88 +192,32 @@ export default function DashboardFeature() {
   });
 
   const disburse = async (lock: BaseModel) => {
-    let accounts:
-      | DisburseVestingScheduleInstructionAccounts
-      | DisburseTokenLockInstructionAccounts
-      | DisburseScheduledPaymentInstructionAccounts;
-    let disburseIx: TransactionInstruction;
+    let instruction: TransactionInstruction;
     switch (lock.vestingType) {
       case VestingType.VestingSchedule:
-        accounts = {
-          signer: wallet.publicKey,
-          creator: lock.creator,
-          recipient: lock.recipient,
-          vestingSchedule: lock.id,
-          vestingScheduleTokenAccount: lock.tokenAccount.address,
-          recipientTokenAccount: lock.recipientTokenAccount.address,
-          mint: lock.tokenAccount.mint,
-          tokenProgram: lock.tokenProgramId,
-          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        };
-
-        disburseIx = createDisburseVestingScheduleInstruction(accounts);
+        instruction = disburseVestingScheduleInstruction(
+          wallet.publicKey,
+          lock,
+        );
 
         break;
 
       case VestingType.TokenLock:
-        accounts = {
-          creator: lock.creator,
-          creatorTokenAccount: lock.creatorTokenAccount.address,
-          tokenLock: lock.id,
-          tokenLockTokenAccount: lock.tokenAccount.address,
-          mint: lock.tokenAccount.mint,
-          tokenProgram: lock.tokenAccount.owner,
-          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        };
-
-        disburseIx = createDisburseTokenLockInstruction(accounts);
+        instruction = disburseTokenLockInstruction(lock);
 
         break;
 
       case VestingType.ScheduledPayment:
-        accounts = {
-          signer: wallet.publicKey,
-          creator: lock.creator,
-          recipient: lock.recipient,
-          recipientTokenAccount: lock.recipientTokenAccount.address,
-          scheduledPayment: lock.id,
-          paymentTokenAccount: lock.tokenAccount.address,
-          mint: lock.tokenAccount.mint,
-          tokenProgram: lock.tokenAccount.owner,
-          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        };
-
-        disburseIx = createDisburseScheduledPaymentInstruction(accounts);
+        instruction = disburseScheduledPaymentInstruction(
+          wallet.publicKey,
+          lock,
+        );
 
         break;
     }
 
-    const latestBlockhash = await connection.getLatestBlockhash();
-    const messageV0 = new TransactionMessage({
-      payerKey: wallet.publicKey,
-      recentBlockhash: latestBlockhash.blockhash,
-      instructions: [disburseIx],
-    }).compileToV0Message();
-
     try {
-      const tx = new VersionedTransaction(messageV0);
-      const txid = await wallet.sendTransaction(tx, connection);
-      const confirmation = await connection.confirmTransaction({
-        signature: txid,
-        blockhash: latestBlockhash.blockhash,
-        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-      });
-
-      if (confirmation.value.err) {
-        notify({
-          message: "Transaction Failed",
-          description: `Transaction ${shortenSignature(txid)} failed (${
-            confirmation.value.err
-          })`,
-          type: "error",
-        });
-      }
-
+      const txid = await sendTransaction(connection, wallet, [instruction]);
       notify({
         message: "Transaction sent",
         description: `Transaction ${shortenSignature(txid)} has been sent`,
@@ -334,7 +227,7 @@ export default function DashboardFeature() {
       console.error(error);
       notify({
         message: "Transaction Failed",
-        description: `Transaction failed`,
+        description: error.message,
         type: "error",
       });
     }
@@ -396,8 +289,6 @@ export default function DashboardFeature() {
               />
             </div>
           </div>
-
-          {/* <AccountDetailsFeature /> */}
         </main>
       ) : (
         <main className="flex flex-col items-center gap-4 m-8">

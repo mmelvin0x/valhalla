@@ -11,7 +11,7 @@ export default function DashboardStats() {
     const next = vestingSchedules.recipient
       .map((v) => ({
         time: v.nextPayoutDate.getTime(),
-        display: v.nextPayoutDisplayShort,
+        display: v.nextPayoutShortDate,
       }))
       .sort((a, b) => a.time - b.time);
     return next[0]?.display || "None";
@@ -21,7 +21,7 @@ export default function DashboardStats() {
     const next = tokenLocks.created
       .map((v) => ({
         time: v.nextPayoutDate.getTime(),
-        display: v.nextPayoutDisplayShort,
+        display: v.nextPayoutShortDate,
       }))
       .sort((a, b) => a.time - b.time);
     return next[0]?.display || "None";
@@ -31,7 +31,7 @@ export default function DashboardStats() {
     const next = scheduledPayments.recipient
       .map((v) => ({
         time: v.nextPayoutDate.getTime(),
-        display: v.nextPayoutDisplayShort,
+        display: v.nextPayoutShortDate,
       }))
       .sort((a, b) => a.time - b.time);
     return next[0]?.display || "None";

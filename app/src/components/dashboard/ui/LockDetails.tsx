@@ -2,8 +2,19 @@ import * as anchor from "@coral-xyz/anchor";
 
 import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
+import ActionButtons from "components/ui/lock/ActionButtons";
+import BalanceDisplay from "components/ui/lock/BalanceDisplay";
 import BaseModel from "models/models";
-import { shortenNumber } from "utils/formatters";
+import CancelAuthorityDisplay from "components/ui/lock/CancelAuthorityDisplay";
+import ChangeRecipientAuthorityDisplay from "components/ui/lock/ChangeRecipientAuthorityDisplay";
+import CliffPaymentAmountDisplay from "components/ui/lock/CliffPaymentAmountDisplay";
+import CreatorDisplay from "components/ui/lock/CreatorDisplay";
+import EndDateDisplay from "components/ui/lock/EndDateDisplay";
+import NextPayoutDateDisplay from "components/ui/lock/NextPayoutDateDisplay";
+import PayoutIntervalDisplay from "components/ui/lock/PayoutIntervalDisplay";
+import RecipientDisplay from "components/ui/lock/RecipientDisplay";
+import StartDateDisplay from "components/ui/lock/StartDateDisplay";
+import TokenMintDisplay from "components/ui/lock/TokenMintDisplay";
 import useProgram from "program/useProgram";
 
 export default function LockDetails({
@@ -17,70 +28,79 @@ export default function LockDetails({
   changeRecipient: (lock: BaseModel) => Promise<void>;
   cancel: (lock: BaseModel) => Promise<void>;
 }) {
-  const { wallet } = useProgram();
+  const { wallet, connection } = useProgram();
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-base-200 rounded">
-      <div className="flex flex-wrap gap-2 col-span-2">
-        <button
-          className="btn btn-sm btn-accent"
-          disabled={!lock.canDisburse}
-          onClick={() => disburse(lock)}
-        >
-          Disburse
-        </button>
-        <button
-          className="btn btn-sm btn-secondary"
-          disabled={!lock.canChangeRecipient(wallet.publicKey)}
-          onClick={() => changeRecipient(lock)}
-        >
-          Update
-        </button>
-        <button
-          className="btn btn-sm btn-error"
-          disabled={!lock.canCancel(wallet.publicKey)}
-          onClick={() => cancel(lock)}
-        >
-          Cancel
-        </button>
-      </div>
+      <ActionButtons
+        lock={lock}
+        disburse={disburse}
+        userKey={wallet.publicKey}
+        changeRecipient={changeRecipient}
+        cancel={cancel}
+      />
       <div className="flex flex-col">
         <span className="text-lg font-bold">Lock Balance</span>
-        <span>{lock.balanceDisplay}</span>
+        <BalanceDisplay
+          tokenAccount={lock.tokenAccount}
+          tokenAccountBalanceAsNumberPerDecimals={
+            lock.tokenAccountBalanceAsNumberPerDecimals
+          }
+        />
       </div>
+
       <div className="flex flex-col">
         <span className="text-lg font-bold">Creator</span>
-        <span>{lock.creatorDisplay}</span>
+        <CreatorDisplay connection={connection} creator={lock.creator} />
       </div>
+
       <div className="flex flex-col">
         <span className="text-lg font-bold">Recipient</span>
-        <span>{lock.recipientDisplay}</span>
+        <RecipientDisplay
+          recipient={lock.recipient}
+          creator={lock.creator}
+          connection={connection}
+        />
       </div>
+
       <div className="flex flex-col">
         <span className="text-lg font-bold">Token</span>
-        <span>{lock.tokenMintDisplay}</span>
+        <TokenMintDisplay connection={connection} mint={lock.mint} />
       </div>
+
       <div className="flex flex-col">
         <span className="text-lg font-bold">Start Date</span>
-        <span>{lock.startDateDisplay}</span>
+        <StartDateDisplay startDate={lock.startDate} />
       </div>
+
       <div className="flex flex-col">
         <span className="text-lg font-bold">End Date</span>
-        <span>{lock.endDateDisplay}</span>
+        <EndDateDisplay
+          startDate={lock.startDate}
+          totalVestingDuration={lock.totalVestingDuration}
+        />
       </div>
+
       <div className="flex flex-col">
         <span className="text-lg font-bold">Next Payout</span>
-        <span>{lock.nextPayoutDisplay}</span>
+        <NextPayoutDateDisplay
+          paymentsComplete={lock.paymentsComplete}
+          nextPayoutDate={lock.nextPayoutDate}
+        />
       </div>
+
       <div className="flex flex-col">
         <span className="text-lg font-bold">Payout Interval</span>
-        <span>{lock.payoutIntervalDisplay}</span>
+        <PayoutIntervalDisplay payoutInterval={lock.payoutInterval} />
       </div>
+
       {lock.cliffPaymentAmount.gt(new anchor.BN(0)) && (
         <>
           <div className="flex flex-col">
             <span className="text-lg font-bold">Cliff Amount</span>
-            <span>{lock.cliffPaymentAmountDisplay}</span>
+            <CliffPaymentAmountDisplay
+              cliffPaymentAmount={lock.cliffPaymentAmount}
+            />
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-bold">Cliff Paid</span>
@@ -100,11 +120,22 @@ export default function LockDetails({
       )}
       <div className="flex flex-col">
         <span className="text-lg font-bold">Cancel</span>
-        <span>{lock.cancelAuthorityDisplay}</span>
+        <CancelAuthorityDisplay
+          connection={connection}
+          authority={lock.cancelAuthority}
+          creator={lock.creator}
+          recipient={lock.recipient}
+        />
       </div>
+
       <div className="flex flex-col">
         <span className="text-lg font-bold">Change Recipient</span>
-        <span>{lock.changeRecipientAuthorityDisplay}</span>
+        <ChangeRecipientAuthorityDisplay
+          connection={connection}
+          authority={lock.changeRecipientAuthority}
+          creator={lock.creator}
+          recipient={lock.recipient}
+        />
       </div>
     </div>
   );
