@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getExplorerUrl } from "utils/explorer";
 import { shortenAddress } from "utils/formatters";
-import solscan from "../assets/solscan.png";
+import solscan from "../../../assets/solscan.png";
 
 export default function ChangeRecipientAuthorityDisplay({
   connection,

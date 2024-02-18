@@ -91,8 +91,8 @@ export default function HomeFeature() {
           <Image
             placeholder="blur"
             className="hidden md:block mx-auto my-4"
-            width={400}
-            height={400}
+            width={512}
+            height={512}
             src={logo512}
             alt="Valhalla Hero"
           />

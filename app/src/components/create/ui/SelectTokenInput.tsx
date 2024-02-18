@@ -90,12 +90,14 @@ export default function SelectTokenInput({
                 <div className="rounded-full w-4 h-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {selectedToken?.content.links?.["image"] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       className="rounded-full avatar"
                       src={selectedToken?.content.links?.["image"]}
                       alt={""}
                     />
                   ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       className="rounded-full avatar"
                       src={"/LP.png"}

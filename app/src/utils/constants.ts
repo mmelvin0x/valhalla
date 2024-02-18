@@ -6,6 +6,10 @@ export enum SubType {
   Receivable,
 }
 
+export const WRAPPED_SOL_MINT_KEY = new PublicKey(
+  "So11111111111111111111111111111111111111112",
+);
+
 export const TREASURY = new PublicKey(
   "5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb",
 );
