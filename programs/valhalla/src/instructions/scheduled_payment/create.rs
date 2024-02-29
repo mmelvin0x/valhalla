@@ -20,7 +20,7 @@ pub struct CreateScheduledPayment<'info> {
 
     /// The account of the recipient who will receive the locked tokens.
     /// CHECK: This account is only read from and stored as a Pubkey on the Config.
-    pub recipient: AccountInfo<'info>,
+    pub recipient: UncheckedAccount<'info>,
 
     #[account(seeds = [constants::CONFIG_SEED], bump, has_one = treasury)]
     pub config: Box<Account<'info, Config>>,
@@ -28,7 +28,7 @@ pub struct CreateScheduledPayment<'info> {
     #[account(mut, constraint = config.treasury == treasury.key())]
     /// The treasury where the fee will be sent too.
     /// CHECK: This account is only read from and stored as a Pubkey on the Config.
-    pub treasury: AccountInfo<'info>,
+    pub treasury: UncheckedAccount<'info>,
 
     #[account(
         init,
@@ -39,7 +39,7 @@ pub struct CreateScheduledPayment<'info> {
             mint.key().as_ref(),
             constants::SCHEDULED_PAYMENT_SEED,
         ],
-        space = ScheduledPayment::size_of(),
+        space = ScheduledPayment::INIT_SPACE,
         bump
     )]
     /// The scheduled_payment PDA that will be created.

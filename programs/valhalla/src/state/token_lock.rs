@@ -12,14 +12,12 @@ pub struct TokenLock {
     pub vesting_type: VestingType,
 }
 
-impl TokenLock {
-    pub fn size_of() -> usize {
-        8 + // discriminator
+impl Space for TokenLock {
+    const INIT_SPACE: usize = 8 + // discriminator
             32 + // creator
             32 + // mint
             32 + // name
             8 + // total_vesting_duration
             8 + // created_timestamp
-            1 // vesting_type
-    }
+            1; // vesting_type
 }

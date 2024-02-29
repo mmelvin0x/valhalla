@@ -15,13 +15,13 @@ pub struct AdminInitialize<'info> {
         seeds = [constants::CONFIG_SEED],
         bump,
         payer = admin,
-        space = Config::size_of()
+        space = Config::INIT_SPACE
     )]
     pub config: Account<'info, Config>,
 
     /// The treasury account that receives the fee.
     /// CHECK: This account is only read from and stored as a Pubkey on the Config.
-    pub treasury: AccountInfo<'info>,
+    pub treasury: UncheckedAccount<'info>,
 
     /// The system program account.
     pub system_program: Program<'info, System>,

@@ -22,9 +22,8 @@ pub struct VestingSchedule {
     pub vesting_type: VestingType,
 }
 
-impl VestingSchedule {
-    pub fn size_of() -> usize {
-        8 + // discriminator
+impl Space for VestingSchedule {
+    const INIT_SPACE: usize = 8 + // discriminator
             32 + // creator
             32 + // recipient
             32 + // mint
@@ -40,6 +39,5 @@ impl VestingSchedule {
             1 + // is_cliff_payment_disbursed
             1 + // cancel_authority
             1 + // change_recipient_authority
-            1 // vesting_type
-    }
+            1; // vesting_type
 }

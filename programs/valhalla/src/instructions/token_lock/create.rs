@@ -24,7 +24,7 @@ pub struct CreateTokenLock<'info> {
     #[account(mut, constraint = config.treasury == treasury.key())]
     /// The treasury where the fee will be sent too.
     /// CHECK: This account is only read from and stored as a Pubkey on the Config.
-    pub treasury: AccountInfo<'info>,
+    pub treasury: UncheckedAccount<'info>,
 
     #[account(
         init,
@@ -34,7 +34,7 @@ pub struct CreateTokenLock<'info> {
             mint.key().as_ref(),
             constants::TOKEN_LOCK_SEED,
         ],
-        space = TokenLock::size_of(),
+        space = TokenLock::INIT_SPACE,
         bump
     )]
     /// The token_lock PDA that will be created.

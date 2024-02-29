@@ -15,9 +15,8 @@ pub struct ScheduledPayment {
     pub vesting_type: VestingType,
 }
 
-impl ScheduledPayment {
-    pub fn size_of() -> usize {
-        8 + // discriminator
+impl Space for ScheduledPayment {
+    const INIT_SPACE: usize = 8 + // discriminator
             32 + // creator
             32 + // recipient
             32 + // mint
@@ -26,6 +25,5 @@ impl ScheduledPayment {
             8 + // created_timestamp
             1 + // cancel_authority
             1 + // change_recipient_authority
-            1 // vesting_type
-    }
+            1; // vesting_type
 }

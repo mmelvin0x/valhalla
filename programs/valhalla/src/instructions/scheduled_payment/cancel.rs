@@ -14,11 +14,11 @@ pub struct CancelScheduledPayment<'info> {
 
     #[account(mut, constraint = scheduled_payment.creator == creator.key())]
     /// CHECK: Checked in contstraints
-    pub creator: AccountInfo<'info>,
+    pub creator: UncheckedAccount<'info>,
 
     #[account(mut, constraint = scheduled_payment.recipient == recipient.key())]
     /// CHECK: Checked in constraints
-    pub recipient: AccountInfo<'info>,
+    pub recipient: UncheckedAccount<'info>,
 
     #[account(
         mut,

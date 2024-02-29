@@ -14,11 +14,11 @@ pub struct CancelVestingSchedule<'info> {
 
     #[account(mut, constraint = vesting_schedule.creator == creator.key())]
     /// CHECK: Checked in contstraints
-    pub creator: AccountInfo<'info>,
+    pub creator: UncheckedAccount<'info>,
 
     #[account(mut, constraint = vesting_schedule.recipient == recipient.key())]
     /// CHECK: Checked in constraints
-    pub recipient: AccountInfo<'info>,
+    pub recipient: UncheckedAccount<'info>,
 
     #[account(
         mut,

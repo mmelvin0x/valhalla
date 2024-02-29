@@ -11,11 +11,11 @@ pub struct AdminUpdate<'info> {
 
     /// The new admin account.
     /// CHECK: Used in constraints and stored on the Config account
-    pub new_admin: AccountInfo<'info>,
+    pub new_admin: UncheckedAccount<'info>,
 
     /// The new treasury account.
     /// CHECK: Used in constraints and stored on the Config account
-    pub new_treasury: AccountInfo<'info>,
+    pub new_treasury: UncheckedAccount<'info>,
 
     #[account(
         mut,
@@ -30,7 +30,7 @@ pub struct AdminUpdate<'info> {
     #[account(constraint = config.treasury == treasury.key())]
     /// CHECK: Only receives the fee
     /// The current treasury account that receives the fee.
-    pub treasury: AccountInfo<'info>,
+    pub treasury: UncheckedAccount<'info>,
 }
 
 pub fn admin_update_ix(ctx: Context<AdminUpdate>, new_fee: u64) -> Result<()> {

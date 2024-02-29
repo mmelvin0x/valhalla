@@ -13,10 +13,10 @@ pub struct DisburseVestingSchedule<'info> {
     pub signer: Signer<'info>,
 
     /// CHECK: Used for seeds
-    pub creator: AccountInfo<'info>,
+    pub creator: UncheckedAccount<'info>,
 
     /// CHECK: Used in constraints
-    pub recipient: AccountInfo<'info>,
+    pub recipient: UncheckedAccount<'info>,
 
     #[account(
         mut,

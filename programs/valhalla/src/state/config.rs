@@ -7,8 +7,6 @@ pub struct Config {
     pub fee: u64,
 }
 
-impl Config {
-    pub fn size_of() -> usize {
-        8 + 32 + 32 + 8
-    }
+impl Space for Config {
+    const INIT_SPACE: usize = 8 + 32 + 32 + 8;
 }
