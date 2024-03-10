@@ -36,7 +36,7 @@ pub struct CreateScheduledPayment<'info> {
         space = ScheduledPayment::INIT_SPACE,
         bump
     )]
-    pub scheduled_payment: Box<Account<'info, ScheduledPayment>>,
+    pub scheduled_payment: Account<'info, ScheduledPayment>,
 
     #[account(
         init,

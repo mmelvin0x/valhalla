@@ -16,8 +16,10 @@ pub struct CreateTokenLock<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
 
+    pub recipient: SystemAccount<'info>,
+
     #[account(seeds = [constants::CONFIG_SEED], bump, has_one = treasury)]
-    pub config: Box<Account<'info, Config>>,
+    pub config: Account<'info, Config>,
 
     #[account(mut, constraint = config.treasury == treasury.key())]
     pub treasury: SystemAccount<'info>,
@@ -27,13 +29,14 @@ pub struct CreateTokenLock<'info> {
         payer = creator,
         seeds = [
             creator.key().as_ref(),
+            recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::TOKEN_LOCK_SEED,
         ],
         space = TokenLock::INIT_SPACE,
         bump
     )]
-    pub token_lock: Box<Account<'info, TokenLock>>,
+    pub token_lock: Account<'info, TokenLock>,
 
     #[account(
         init,
