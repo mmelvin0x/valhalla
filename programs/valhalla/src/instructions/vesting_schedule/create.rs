@@ -79,15 +79,25 @@ pub struct CreateVestingSchedule<'info> {
 impl<'info> CreateVestingSchedule<'info> {
     pub fn create(
         &mut self,
+        name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
-        payout_interval: u64,
-        cliff_payment_amount: u64,
-        start_date: u64,
-        cancel_authority: Authority,
-        change_recipient_authority: Authority,
-        name: [u8; 32],
+        cancel_authority: Option<Authority>,
+        change_recipient_authority: Option<Authority>,
+        payout_interval: Option<u64>,
+        cliff_payment_amount: Option<u64>,
+        start_date: Option<u64>,
     ) -> Result<()> {
+        if payout_interval.is_none() {
+            return Err(ValhallaError::MissingOrInvalidPayoutInterval.into());
+        }
+
+        let payout_interval = payout_interval.unwrap();
+        let cliff_payment_amount = cliff_payment_amount.unwrap_or(0);
+        let start_date = start_date.unwrap_or(Clock::get()?.unix_timestamp as u64);
+        let cancel_authority = cancel_authority.unwrap_or(Authority::Neither);
+        let change_recipient_authority = change_recipient_authority.unwrap_or(Authority::Neither);
+
         let (mut amount, amount_per_payout, balance) =
             self.validate_deposit(amount_to_be_vested, total_vesting_duration, payout_interval)?;
 

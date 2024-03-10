@@ -77,11 +77,11 @@ pub struct CreateScheduledPayment<'info> {
 impl<'info> CreateScheduledPayment<'info> {
     pub fn create(
         &mut self,
+        name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
         cancel_authority: Authority,
         change_recipient_authority: Authority,
-        name: [u8; 32],
     ) -> Result<()> {
         let amount = self.validate_deposit(amount_to_be_vested)?;
 

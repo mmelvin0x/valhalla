@@ -315,11 +315,9 @@ describe("⚡️ Valhalla", () => {
         try {
           const tx = await program.methods
             .createVestingSchedule(
+              nameArg,
               amountToBeVested,
               vestingDuration,
-              payoutInterval,
-              cliffPaymentAmount,
-              startDate,
               program.coder.types.decode(
                 "Authority",
                 cancelAuthority.toBuffer()
@@ -328,7 +326,9 @@ describe("⚡️ Valhalla", () => {
                 "Authority",
                 changeRecipientAuthority.toBuffer()
               ),
-              nameArg
+              payoutInterval,
+              cliffPaymentAmount,
+              startDate
             )
             .accounts({
               creator: creator.publicKey,
@@ -615,11 +615,9 @@ describe("⚡️ Valhalla", () => {
         try {
           const tx = await program.methods
             .createVestingSchedule(
+              nameArg,
               amountToBeVested,
               vestingDuration,
-              payoutInterval,
-              cliffPaymentAmount,
-              startDate,
               program.coder.types.decode(
                 "Authority",
                 cancelAuthority.toBuffer()
@@ -628,7 +626,9 @@ describe("⚡️ Valhalla", () => {
                 "Authority",
                 changeRecipientAuthority.toBuffer()
               ),
-              nameArg
+              payoutInterval,
+              cliffPaymentAmount,
+              startDate
             )
             .accounts({
               creator: creator.publicKey,
@@ -963,7 +963,7 @@ describe("⚡️ Valhalla", () => {
 
       const createdTimestamp = new anchor.BN(Date.now() / 1000);
       const tx = await program.methods
-        .createTokenLock(amountToBeVested, vestingDuration, nameArg)
+        .createTokenLock(nameArg, amountToBeVested, vestingDuration)
         .accounts({
           creator: creator.publicKey,
           config: pdas.config,
@@ -1093,14 +1093,14 @@ describe("⚡️ Valhalla", () => {
       }
       const tx = await program.methods
         .createScheduledPayment(
+          nameArg,
           amountToBeVested,
           vestingDuration,
           program.coder.types.decode("Authority", cancelAuthority.toBuffer()),
           program.coder.types.decode(
             "Authority",
             changeRecipientAuthority.toBuffer()
-          ),
-          nameArg
+          )
         )
         .accounts({
           creator: creator.publicKey,

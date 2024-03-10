@@ -25,4 +25,8 @@ pub enum ValhallaError {
     /// 0x1775- 6005
     #[msg("Config account is already initialized!")]
     AlreadyInitialized,
+
+    /// 0x1776- 6006
+    #[msg("Payout interval is missing or invalid!")]
+    MissingOrInvalidPayoutInterval,
 }

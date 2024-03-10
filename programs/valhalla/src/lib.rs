@@ -27,24 +27,24 @@ pub mod valhalla {
 
     pub fn create_vesting_schedule(
         ctx: Context<CreateVestingSchedule>,
+        name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
-        payout_interval: u64,
-        cliff_payment_amount: u64,
-        start_date: u64,
-        cancel_authority: Authority,
-        change_recipient_authority: Authority,
-        name: [u8; 32],
+        cancel_authority: Option<Authority>,
+        change_recipient_authority: Option<Authority>,
+        payout_interval: Option<u64>,
+        cliff_payment_amount: Option<u64>,
+        start_date: Option<u64>,
     ) -> Result<()> {
         ctx.accounts.create(
+            name,
             amount_to_be_vested,
             total_vesting_duration,
+            cancel_authority,
+            change_recipient_authority,
             payout_interval,
             cliff_payment_amount,
             start_date,
-            cancel_authority,
-            change_recipient_authority,
-            name,
         )
     }
 
@@ -68,12 +68,12 @@ pub mod valhalla {
 
     pub fn create_token_lock(
         ctx: Context<CreateTokenLock>,
+        name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
-        name: [u8; 32],
     ) -> Result<()> {
         ctx.accounts
-            .create(amount_to_be_vested, total_vesting_duration, name)
+            .create(name, amount_to_be_vested, total_vesting_duration)
     }
 
     pub fn disburse_token_lock(ctx: Context<DisburseTokenLock>) -> Result<()> {
@@ -86,18 +86,18 @@ pub mod valhalla {
 
     pub fn create_scheduled_payment(
         ctx: Context<CreateScheduledPayment>,
+        name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
         cancel_authority: Authority,
         change_recipient_authority: Authority,
-        name: [u8; 32],
     ) -> Result<()> {
         ctx.accounts.create(
+            name,
             amount_to_be_vested,
             total_vesting_duration,
             cancel_authority,
             change_recipient_authority,
-            name,
         )
     }
 

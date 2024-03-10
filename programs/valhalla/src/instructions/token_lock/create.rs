@@ -67,9 +67,9 @@ pub struct CreateTokenLock<'info> {
 impl<'info> CreateTokenLock<'info> {
     pub fn create(
         &mut self,
+        name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
-        name: [u8; 32],
     ) -> Result<()> {
         let transfer_amount = self.validate_deposit(amount_to_be_vested)?;
         self.set_state(total_vesting_duration, name)?;
