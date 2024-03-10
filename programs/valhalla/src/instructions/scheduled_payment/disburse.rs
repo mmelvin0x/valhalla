@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_2022 as token,
     token_interface::{
         close_account, transfer_checked, CloseAccount, Mint, TokenAccount, TokenInterface,
         TransferChecked,
@@ -15,11 +14,9 @@ pub struct DisburseScheduledPayment<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
 
-    /// CHECK: Used in constraints
-    pub creator: UncheckedAccount<'info>,
+    pub creator: SystemAccount<'info>,
 
-    /// CHECK: Used in constraints
-    pub recipient: UncheckedAccount<'info>,
+    pub recipient: SystemAccount<'info>,
 
     #[account(
         init_if_needed,
@@ -38,8 +35,6 @@ pub struct DisburseScheduledPayment<'info> {
             constants::SCHEDULED_PAYMENT_SEED
         ],
         bump,
-        has_one = mint,
-        has_one = creator,
     )]
     pub scheduled_payment: Account<'info, ScheduledPayment>,
 

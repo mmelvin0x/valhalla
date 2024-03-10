@@ -93,6 +93,7 @@ impl<'info> CreateTokenLock<'info> {
     fn set_state(&mut self, total_vesting_duration: u64, name: [u8; 32]) -> Result<()> {
         self.token_lock.set_inner(TokenLock {
             creator: self.creator.key(),
+            recipient: self.creator.key(),
             mint: self.mint.key(),
             total_vesting_duration,
             name,

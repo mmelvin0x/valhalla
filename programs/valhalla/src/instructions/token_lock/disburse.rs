@@ -21,7 +21,6 @@ pub struct DisburseTokenLock<'info> {
         associated_token::authority = creator,
         associated_token::token_program = token_program
     )]
-    /// The creator's token account.
     pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
 
     #[account(

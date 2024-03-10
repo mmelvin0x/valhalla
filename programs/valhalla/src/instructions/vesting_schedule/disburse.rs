@@ -27,7 +27,6 @@ pub struct DisburseVestingSchedule<'info> {
             constants::VESTING_SCHEDULE_SEED
         ],
         bump,
-        has_one = recipient
     )]
     pub vesting_schedule: Account<'info, VestingSchedule>,
 
