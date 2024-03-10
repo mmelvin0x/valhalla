@@ -1,10 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{
-        close_account, transfer_checked, CloseAccount, Mint, TokenAccount, TokenInterface,
-        TransferChecked,
-    },
+    token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked},
 };
 
 use crate::{constants, errors::ValhallaError, state::TokenLock};
@@ -32,8 +29,6 @@ pub struct DisburseTokenLock<'info> {
             constants::TOKEN_LOCK_SEED
         ],
         bump,
-        has_one = mint,
-        has_one = creator,
     )]
     pub token_lock: Account<'info, TokenLock>,
 
@@ -58,8 +53,7 @@ impl<'info> DisburseTokenLock<'info> {
         let current_time = Clock::get()?.unix_timestamp as u64;
 
         if self.can_disburse(current_time) {
-            self.transfer_to_recipient(bump)?;
-            self.close_token_account(bump)
+            self.transfer(bump)
         } else {
             return Err(ValhallaError::Locked.into());
         }
@@ -72,7 +66,7 @@ impl<'info> DisburseTokenLock<'info> {
             >= self.token_lock.total_vesting_duration
     }
 
-    fn transfer_to_recipient(&mut self, bump: u8) -> Result<()> {
+    fn transfer(&mut self, bump: u8) -> Result<()> {
         let lock_key = self.token_lock.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
@@ -93,23 +87,5 @@ impl<'info> DisburseTokenLock<'info> {
             self.token_lock_token_account.amount,
             self.mint.decimals,
         )
-    }
-
-    fn close_token_account(&mut self, bump: u8) -> Result<()> {
-        let lock_key = self.token_lock.key();
-        let signer_seeds: &[&[&[u8]]] = &[&[
-            lock_key.as_ref(),
-            constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED,
-            &[bump],
-        ]];
-        let cpi_accounts = CloseAccount {
-            account: self.token_lock_token_account.to_account_info(),
-            destination: self.creator.to_account_info(),
-            authority: self.token_lock_token_account.to_account_info(),
-        };
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
-
-        close_account(cpi_ctx)
     }
 }

@@ -25,8 +25,9 @@ impl<'info> AdminInitialize<'info> {
     pub fn initialize(&mut self, fee: u64) -> Result<()> {
         let config = &mut self.config;
 
-        if self.admin.key() != Pubkey::default() {
-            return Err(ValhallaError::Unauthorized.into());
+        // If the config account is already initialized, return an error.
+        if config.admin.key() != Pubkey::default() {
+            return Err(ValhallaError::AlreadyInitialized.into());
         }
 
         config.set_inner(Config {

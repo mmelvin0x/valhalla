@@ -58,6 +58,10 @@ pub mod valhalla {
             .cancel(ctx.bumps.vesting_schedule_token_account)
     }
 
+    pub fn close_vesting_schedule(ctx: Context<CloseVestingSchedule>) -> Result<()> {
+        ctx.accounts.close(ctx.bumps.vesting_schedule_token_account)
+    }
+
     pub fn update_vesting_schedule(ctx: Context<UpdateVestingSchedule>) -> Result<()> {
         ctx.accounts.update()
     }
@@ -74,6 +78,10 @@ pub mod valhalla {
 
     pub fn disburse_token_lock(ctx: Context<DisburseTokenLock>) -> Result<()> {
         ctx.accounts.disburse(ctx.bumps.token_lock_token_account)
+    }
+
+    pub fn close_token_lock(ctx: Context<CloseTokenLock>) -> Result<()> {
+        ctx.accounts.close(ctx.bumps.token_lock_token_account)
     }
 
     pub fn create_scheduled_payment(
@@ -103,5 +111,9 @@ pub mod valhalla {
 
     pub fn update_scheduled_payment(ctx: Context<UpdateScheduledPayment>) -> Result<()> {
         ctx.accounts.update()
+    }
+
+    pub fn close_scheduled_payment(ctx: Context<CloseScheduledPayment>) -> Result<()> {
+        ctx.accounts.close(ctx.bumps.payment_token_account)
     }
 }

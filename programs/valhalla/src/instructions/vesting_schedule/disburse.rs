@@ -1,10 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{
-        close_account, transfer_checked, CloseAccount, Mint, TokenAccount, TokenInterface,
-        TransferChecked,
-    },
+    token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked},
 };
 
 use crate::{constants, errors::ValhallaError, state::VestingSchedule};
@@ -72,17 +69,10 @@ impl<'info> DisburseVestingSchedule<'info> {
                 transfer_amount = self.vesting_schedule_token_account.amount;
             }
 
-            self.transfer(transfer_amount, bump)?;
+            self.transfer(transfer_amount, bump)
         } else {
             return Err(ValhallaError::NoPayout.into());
         }
-
-        if self.vesting_schedule_token_account.amount == 0 {
-            self.close(bump)?;
-            self.close_pdas()?;
-        }
-
-        Ok(())
     }
 
     fn can_disburse(&self) -> Result<bool> {
@@ -178,37 +168,5 @@ impl<'info> DisburseVestingSchedule<'info> {
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
         transfer_checked(cpi_ctx, transfer_amount, self.mint.decimals)
-    }
-
-    fn close(&mut self, bump: u8) -> Result<()> {
-        let lock_key = self.vesting_schedule.key();
-        let signer_seeds: &[&[&[u8]]] = &[&[
-            lock_key.as_ref(),
-            constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
-            &[bump],
-        ]];
-        let cpi_accounts = CloseAccount {
-            account: self.vesting_schedule_token_account.to_account_info(),
-            destination: self.creator.to_account_info(),
-            authority: self.vesting_schedule_token_account.to_account_info(),
-        };
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
-
-        close_account(cpi_ctx)
-    }
-
-    fn close_pdas(&mut self) -> Result<()> {
-        let lamps = **self
-            .vesting_schedule
-            .to_account_info()
-            .try_borrow_mut_lamports()?;
-        **self
-            .vesting_schedule
-            .to_account_info()
-            .try_borrow_mut_lamports()? -= lamps;
-        **self.creator.to_account_info().try_borrow_mut_lamports()? += lamps;
-
-        Ok(())
     }
 }

@@ -1,10 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{
-        close_account, transfer_checked, CloseAccount, Mint, TokenAccount, TokenInterface,
-        TransferChecked,
-    },
+    token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked},
 };
 
 use crate::{constants, errors::ValhallaError, state::ScheduledPayment};
@@ -57,12 +54,10 @@ pub struct DisburseScheduledPayment<'info> {
 impl<'info> DisburseScheduledPayment<'info> {
     pub fn disburse(&mut self, bump: u8) -> Result<()> {
         if self.can_disburse()? {
-            self.transfer(bump)?
+            self.transfer(bump)
         } else {
             return Err(ValhallaError::Locked.into());
         }
-
-        self.close(bump)
     }
 
     fn transfer(&mut self, bump: u8) -> Result<()> {
@@ -87,25 +82,6 @@ impl<'info> DisburseScheduledPayment<'info> {
             self.payment_token_account.amount,
             self.mint.decimals,
         )
-    }
-
-    fn close(&mut self, bump: u8) -> Result<()> {
-        let lock_key = self.scheduled_payment.key();
-        let signer_seeds: &[&[&[u8]]] = &[&[
-            lock_key.as_ref(),
-            constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
-            &[bump],
-        ]];
-
-        let cpi_accounts = CloseAccount {
-            account: self.payment_token_account.to_account_info(),
-            destination: self.creator.to_account_info(),
-            authority: self.payment_token_account.to_account_info(),
-        };
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
-
-        close_account(cpi_ctx)
     }
 
     fn can_disburse(&mut self) -> Result<bool> {

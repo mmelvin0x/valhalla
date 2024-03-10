@@ -21,4 +21,8 @@ pub enum ValhallaError {
     /// 0x1774 - 6004
     #[msg("Name is too long!")]
     NameTooLong,
+
+    /// 0x1775- 6005
+    #[msg("Config account is already initialized!")]
+    AlreadyInitialized,
 }
