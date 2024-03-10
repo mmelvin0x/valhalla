@@ -12,15 +12,12 @@ pub struct UpdateVestingSchedule<'info> {
     pub signer: Signer<'info>,
 
     #[account(mut, constraint = vesting_schedule.creator == creator.key())]
-    /// CHECK: Checked in contstraints
-    pub creator: UncheckedAccount<'info>,
+    pub creator: SystemAccount<'info>,
 
     #[account(mut, constraint = vesting_schedule.recipient == recipient.key())]
-    /// CHECK: Checked in constraints
-    pub recipient: UncheckedAccount<'info>,
+    pub recipient: SystemAccount<'info>,
 
-    /// CHECK: Checked in constraints
-    pub new_recipient: UncheckedAccount<'info>,
+    pub new_recipient: SystemAccount<'info>,
 
     #[account(
         mut,
@@ -45,34 +42,36 @@ pub struct UpdateVestingSchedule<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn update_vesting_schedule_ix(ctx: Context<UpdateVestingSchedule>) -> Result<()> {
-    let vesting_schedule = &mut ctx.accounts.vesting_schedule;
+impl<'info> UpdateVestingSchedule<'info> {
+    pub fn update(&mut self) -> Result<()> {
+        let vesting_schedule = &mut self.vesting_schedule;
 
-    // Check the change recipient authority
-    match vesting_schedule.change_recipient_authority {
-        Authority::Neither => {
-            return Err(ValhallaError::Unauthorized.into());
-        }
-        Authority::Creator => {
-            if ctx.accounts.creator.key() != ctx.accounts.signer.key() {
+        // Check the change recipient authority
+        match vesting_schedule.change_recipient_authority {
+            Authority::Neither => {
                 return Err(ValhallaError::Unauthorized.into());
             }
-        }
-        Authority::Recipient => {
-            if ctx.accounts.recipient.key() != ctx.accounts.signer.key() {
-                return Err(ValhallaError::Unauthorized.into());
+            Authority::Creator => {
+                if self.creator.key() != self.signer.key() {
+                    return Err(ValhallaError::Unauthorized.into());
+                }
+            }
+            Authority::Recipient => {
+                if self.recipient.key() != self.signer.key() {
+                    return Err(ValhallaError::Unauthorized.into());
+                }
+            }
+            Authority::Both => {
+                if self.creator.key() != self.signer.key()
+                    || self.recipient.key() != self.signer.key()
+                {
+                    return Err(ValhallaError::Unauthorized.into());
+                }
             }
         }
-        Authority::Both => {
-            if ctx.accounts.creator.key() != ctx.accounts.signer.key()
-                || ctx.accounts.recipient.key() != ctx.accounts.signer.key()
-            {
-                return Err(ValhallaError::Unauthorized.into());
-            }
-        }
+
+        vesting_schedule.recipient = self.new_recipient.key();
+
+        Ok(())
     }
-
-    vesting_schedule.recipient = ctx.accounts.new_recipient.key();
-
-    Ok(())
 }

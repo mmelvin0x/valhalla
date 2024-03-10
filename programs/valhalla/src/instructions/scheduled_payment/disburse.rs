@@ -1,8 +1,11 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_2022::{self as token},
-    token_interface::{CloseAccount, Mint, Token2022, TokenAccount, TransferChecked},
+    token_2022 as token,
+    token_interface::{
+        close_account, transfer_checked, CloseAccount, Mint, TokenAccount, TokenInterface,
+        TransferChecked,
+    },
 };
 
 use crate::{constants, errors::ValhallaError, state::ScheduledPayment};
@@ -51,56 +54,71 @@ pub struct DisburseScheduledPayment<'info> {
 
     pub mint: InterfaceAccount<'info, Mint>,
 
-    pub token_program: Program<'info, Token2022>,
+    pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
 
-pub fn disburse_scheduled_payment_ix(ctx: Context<DisburseScheduledPayment>) -> Result<()> {
-    let scheduled_payment = &mut ctx.accounts.scheduled_payment;
+impl<'info> DisburseScheduledPayment<'info> {
+    pub fn disburse(&mut self, bump: u8) -> Result<()> {
+        if self.can_disburse()? {
+            self.transfer(bump)?
+        } else {
+            return Err(ValhallaError::Locked.into());
+        }
 
-    let current_time = Clock::get()?.unix_timestamp as u64;
-    let is_locked = current_time
-        .checked_sub(scheduled_payment.created_timestamp)
-        .unwrap_or_default()
-        < scheduled_payment.total_vesting_duration;
-
-    if !is_locked {
-        let lock_key = scheduled_payment.key();
-        let bump = ctx.bumps.payment_token_account;
-        let signer: &[&[&[u8]]] = &[&[
-            lock_key.as_ref(),
-            constants::SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED,
-            &[bump],
-        ]];
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_accounts = TransferChecked {
-            from: ctx.accounts.payment_token_account.to_account_info(),
-            mint: ctx.accounts.mint.to_account_info(),
-            to: ctx.accounts.recipient_token_account.to_account_info(),
-            authority: ctx.accounts.payment_token_account.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-
-        token::transfer_checked(
-            cpi_ctx,
-            ctx.accounts.payment_token_account.amount,
-            ctx.accounts.mint.decimals,
-        )?;
-
-        // Close the token account
-        let cpi_accounts = CloseAccount {
-            account: ctx.accounts.payment_token_account.to_account_info(),
-            destination: ctx.accounts.creator.to_account_info(),
-            authority: ctx.accounts.payment_token_account.to_account_info(),
-        };
-        let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
-
-        token::close_account(cpi_ctx)?;
-    } else {
-        return Err(ValhallaError::Locked.into());
+        self.close(bump)
     }
 
-    Ok(())
+    fn transfer(&mut self, bump: u8) -> Result<()> {
+        let lock_key = self.scheduled_payment.key();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            lock_key.as_ref(),
+            constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
+            &[bump],
+        ]];
+
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = TransferChecked {
+            from: self.payment_token_account.to_account_info(),
+            mint: self.mint.to_account_info(),
+            to: self.recipient_token_account.to_account_info(),
+            authority: self.payment_token_account.to_account_info(),
+        };
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+
+        transfer_checked(
+            cpi_ctx,
+            self.payment_token_account.amount,
+            self.mint.decimals,
+        )
+    }
+
+    fn close(&mut self, bump: u8) -> Result<()> {
+        let lock_key = self.scheduled_payment.key();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            lock_key.as_ref(),
+            constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
+            &[bump],
+        ]];
+
+        let cpi_accounts = CloseAccount {
+            account: self.payment_token_account.to_account_info(),
+            destination: self.creator.to_account_info(),
+            authority: self.payment_token_account.to_account_info(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+
+        close_account(cpi_ctx)
+    }
+
+    fn can_disburse(&mut self) -> Result<bool> {
+        let current_time = Clock::get()?.unix_timestamp as u64;
+
+        Ok(current_time
+            .checked_sub(self.scheduled_payment.created_timestamp)
+            .unwrap_or_default()
+            >= self.scheduled_payment.total_vesting_duration)
+    }
 }

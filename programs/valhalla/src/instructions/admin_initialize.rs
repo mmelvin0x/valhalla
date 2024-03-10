@@ -1,15 +1,12 @@
 use anchor_lang::prelude::*;
 
-use crate::{constants, state::Config};
+use crate::{constants, errors::ValhallaError, state::Config};
 
 #[derive(Accounts)]
-/// Represents the initialization parameters for the admin account.
 pub struct AdminInitialize<'info> {
-    /// The admin account that will sign the transaction.
     #[account(mut)]
     pub admin: Signer<'info>,
 
-    /// The config account that will be initialized.
     #[account(
         init,
         seeds = [constants::CONFIG_SEED],
@@ -19,30 +16,25 @@ pub struct AdminInitialize<'info> {
     )]
     pub config: Account<'info, Config>,
 
-    /// The treasury account that receives the fee.
-    /// CHECK: This account is only read from and stored as a Pubkey on the Config.
-    pub treasury: UncheckedAccount<'info>,
+    pub treasury: SystemAccount<'info>,
 
-    /// The system program account.
     pub system_program: Program<'info, System>,
 }
 
-/// Initializes the Valhalla program with the given context and fee.
-///
-/// # Arguments
-///
-/// * `ctx` - The context for the initialization.
-/// * `fee` - The fee to be charged for the initialization.
-///
-/// # Errors
-///
-/// Returns an error if the initialization fails.
-pub fn admin_initialize_ix(ctx: Context<AdminInitialize>, fee: u64) -> Result<()> {
-    let config = &mut ctx.accounts.config;
+impl<'info> AdminInitialize<'info> {
+    pub fn initialize(&mut self, fee: u64) -> Result<()> {
+        let config = &mut self.config;
 
-    config.fee = fee;
-    config.admin = ctx.accounts.admin.key();
-    config.treasury = ctx.accounts.treasury.key();
+        if self.admin.key() != Pubkey::default() {
+            return Err(ValhallaError::Unauthorized.into());
+        }
 
-    Ok(())
+        config.set_inner(Config {
+            admin: self.admin.key(),
+            treasury: self.treasury.key(),
+            fee,
+        });
+
+        Ok(())
+    }
 }

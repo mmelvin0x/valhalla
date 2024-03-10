@@ -45,34 +45,36 @@ pub struct UpdateScheduledPayment<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn update_scheduled_payment_ix(ctx: Context<UpdateScheduledPayment>) -> Result<()> {
-    let scheduled_payment = &mut ctx.accounts.scheduled_payment;
+impl<'info> UpdateScheduledPayment<'info> {
+    pub fn update(&mut self) -> Result<()> {
+        let scheduled_payment = &mut self.scheduled_payment;
 
-    // Check the change recipient authority
-    match scheduled_payment.change_recipient_authority {
-        Authority::Neither => {
-            return Err(ValhallaError::Unauthorized.into());
-        }
-        Authority::Creator => {
-            if ctx.accounts.creator.key() != ctx.accounts.signer.key() {
+        // Check the change recipient authority
+        match scheduled_payment.change_recipient_authority {
+            Authority::Neither => {
                 return Err(ValhallaError::Unauthorized.into());
             }
-        }
-        Authority::Recipient => {
-            if ctx.accounts.recipient.key() != ctx.accounts.signer.key() {
-                return Err(ValhallaError::Unauthorized.into());
+            Authority::Creator => {
+                if self.creator.key() != self.signer.key() {
+                    return Err(ValhallaError::Unauthorized.into());
+                }
+            }
+            Authority::Recipient => {
+                if self.recipient.key() != self.signer.key() {
+                    return Err(ValhallaError::Unauthorized.into());
+                }
+            }
+            Authority::Both => {
+                if self.creator.key() != self.signer.key()
+                    || self.recipient.key() != self.signer.key()
+                {
+                    return Err(ValhallaError::Unauthorized.into());
+                }
             }
         }
-        Authority::Both => {
-            if ctx.accounts.creator.key() != ctx.accounts.signer.key()
-                || ctx.accounts.recipient.key() != ctx.accounts.signer.key()
-            {
-                return Err(ValhallaError::Unauthorized.into());
-            }
-        }
+
+        scheduled_payment.recipient = self.new_recipient.key();
+
+        Ok(())
     }
-
-    scheduled_payment.recipient = ctx.accounts.new_recipient.key();
-
-    Ok(())
 }

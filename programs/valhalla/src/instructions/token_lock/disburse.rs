@@ -1,8 +1,10 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_2022::{self as token, TransferChecked},
-    token_interface::{Mint, Token2022, TokenAccount},
+    token_interface::{
+        close_account, transfer_checked, CloseAccount, Mint, TokenAccount, TokenInterface,
+        TransferChecked,
+    },
 };
 
 use crate::{constants, errors::ValhallaError, state::TokenLock};
@@ -47,45 +49,68 @@ pub struct DisburseTokenLock<'info> {
 
     pub mint: InterfaceAccount<'info, Mint>,
 
-    pub token_program: Program<'info, Token2022>,
+    pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
 
-pub fn disburse_token_lock_ix(ctx: Context<DisburseTokenLock>) -> Result<()> {
-    let token_lock = &mut ctx.accounts.token_lock;
+impl<'info> DisburseTokenLock<'info> {
+    pub fn disburse(&mut self, bump: u8) -> Result<()> {
+        let current_time = Clock::get()?.unix_timestamp as u64;
 
-    let current_time = Clock::get()?.unix_timestamp as u64;
-    let is_locked = current_time
-        .checked_sub(token_lock.created_timestamp)
-        .unwrap_or_default()
-        < token_lock.total_vesting_duration;
+        if self.can_disburse(current_time) {
+            self.transfer_to_recipient(bump)?;
+            self.close_token_account(bump)
+        } else {
+            return Err(ValhallaError::Locked.into());
+        }
+    }
 
-    if !is_locked {
-        let lock_key = token_lock.key();
-        let bump = ctx.bumps.token_lock_token_account;
+    fn can_disburse(&self, current_time: u64) -> bool {
+        current_time
+            .checked_sub(self.token_lock.created_timestamp)
+            .unwrap_or_default()
+            >= self.token_lock.total_vesting_duration
+    }
+
+    fn transfer_to_recipient(&mut self, bump: u8) -> Result<()> {
+        let lock_key = self.token_lock.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
             constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED,
             &[bump],
         ]];
-        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_program = self.token_program.to_account_info();
         let cpi_accounts = TransferChecked {
-            from: ctx.accounts.token_lock_token_account.to_account_info(),
-            mint: ctx.accounts.mint.to_account_info(),
-            to: ctx.accounts.creator_token_account.to_account_info(),
-            authority: ctx.accounts.token_lock_token_account.to_account_info(),
+            from: self.token_lock_token_account.to_account_info(),
+            mint: self.mint.to_account_info(),
+            to: self.creator_token_account.to_account_info(),
+            authority: self.token_lock_token_account.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-        token::transfer_checked(
+        transfer_checked(
             cpi_ctx,
-            ctx.accounts.token_lock_token_account.amount,
-            ctx.accounts.mint.decimals,
-        )?;
-    } else {
-        return Err(ValhallaError::Locked.into());
+            self.token_lock_token_account.amount,
+            self.mint.decimals,
+        )
     }
 
-    Ok(())
+    fn close_token_account(&mut self, bump: u8) -> Result<()> {
+        let lock_key = self.token_lock.key();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            lock_key.as_ref(),
+            constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED,
+            &[bump],
+        ]];
+        let cpi_accounts = CloseAccount {
+            account: self.token_lock_token_account.to_account_info(),
+            destination: self.creator.to_account_info(),
+            authority: self.token_lock_token_account.to_account_info(),
+        };
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+
+        close_account(cpi_ctx)
+    }
 }
