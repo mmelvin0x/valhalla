@@ -13,27 +13,27 @@
       "value": "[118, 101, 115, 116, 105, 110, 103, 95, 115, 99, 104, 101, 100, 117, 108, 101]"
     },
     {
-      "name": "VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED",
+      "name": "VAULT_ATA_SEED",
       "type": "bytes",
       "value": "[118, 101, 115, 116, 105, 110, 103, 95, 115, 99, 104, 101, 100, 117, 108, 101, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
     },
     {
-      "name": "TOKEN_LOCK_SEED",
+      "name": "VAULT_SEED",
       "type": "bytes",
       "value": "[116, 111, 107, 101, 110, 95, 108, 111, 99, 107]"
     },
     {
-      "name": "TOKEN_LOCK_TOKEN_ACCOUNT_SEED",
+      "name": "VAULT_ATA_SEED",
       "type": "bytes",
       "value": "[116, 111, 107, 101, 110, 95, 108, 111, 99, 107, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
     },
     {
-      "name": "SCHEDULED_PAYMENT_SEED",
+      "name": "VAULT_SEED",
       "type": "bytes",
       "value": "[115, 99, 104, 101, 100, 117, 108, 101, 100, 95, 112, 97, 121, 109, 101, 110, 116]"
     },
     {
-      "name": "SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED",
+      "name": "VAULT_ATA_SEED",
       "type": "bytes",
       "value": "[115, 99, 104, 101, 100, 117, 108, 101, 100, 95, 112, 97, 121, 109, 101, 110, 116, 95, 116, 111, 107, 101, 110, 95, 97, 99, 99, 111, 117, 110, 116]"
     }
@@ -46,33 +46,25 @@
           "name": "admin",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "The admin account that will sign the transaction."
-          ]
+          "docs": ["The admin account that will sign the transaction."]
         },
         {
           "name": "config",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The config account that will be initialized."
-          ]
+          "docs": ["The config account that will be initialized."]
         },
         {
           "name": "treasury",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The treasury account that receives the fee."
-          ]
+          "docs": ["The treasury account that receives the fee."]
         },
         {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The system program account."
-          ]
+          "docs": ["The system program account."]
         }
       ],
       "args": [
@@ -89,41 +81,31 @@
           "name": "admin",
           "isMut": true,
           "isSigner": true,
-          "docs": [
-            "The current admin account."
-          ]
+          "docs": ["The current admin account."]
         },
         {
           "name": "newAdmin",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The new admin account."
-          ]
+          "docs": ["The new admin account."]
         },
         {
           "name": "newTreasury",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The new treasury account."
-          ]
+          "docs": ["The new treasury account."]
         },
         {
           "name": "config",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The Config account to be updated."
-          ]
+          "docs": ["The Config account to be updated."]
         },
         {
           "name": "treasury",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The current treasury account that receives the fee."
-          ]
+          "docs": ["The current treasury account that receives the fee."]
         }
       ],
       "args": [
@@ -158,49 +140,37 @@
           "name": "treasury",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The treasury where the fee will be sent too."
-          ]
+          "docs": ["The treasury where the fee will be sent too."]
         },
         {
           "name": "vestingSchedule",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The vesting_schedule PDA that will be created."
-          ]
+          "docs": ["The vault PDA that will be created."]
         },
         {
           "name": "vestingScheduleTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The token account for the vesting_schedule PDA"
-          ]
+          "docs": ["The token account for the vault PDA"]
         },
         {
           "name": "creatorTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The creator's token account."
-          ]
+          "docs": ["The creator's token account."]
         },
         {
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The recipient's token account."
-          ]
+          "docs": ["The recipient's token account."]
         },
         {
           "name": "mint",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The mint account for the tokens."
-          ]
+          "docs": ["The mint account for the tokens."]
         },
         {
           "name": "tokenProgram",
@@ -254,10 +224,7 @@
         {
           "name": "name",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
@@ -442,41 +409,31 @@
           "name": "treasury",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The treasury where the fee will be sent too."
-          ]
+          "docs": ["The treasury where the fee will be sent too."]
         },
         {
           "name": "tokenLock",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The token_lock PDA that will be created."
-          ]
+          "docs": ["The token_lock PDA that will be created."]
         },
         {
           "name": "tokenLockTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The token account for the token_lock PDA"
-          ]
+          "docs": ["The token account for the token_lock PDA"]
         },
         {
           "name": "creatorTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The creator's token account."
-          ]
+          "docs": ["The creator's token account."]
         },
         {
           "name": "mint",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The mint account for the tokens."
-          ]
+          "docs": ["The mint account for the tokens."]
         },
         {
           "name": "tokenProgram",
@@ -506,10 +463,7 @@
         {
           "name": "name",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
@@ -526,9 +480,7 @@
           "name": "creatorTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The creator's token account."
-          ]
+          "docs": ["The creator's token account."]
         },
         {
           "name": "tokenLock",
@@ -588,49 +540,37 @@
           "name": "treasury",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The treasury where the fee will be sent too."
-          ]
+          "docs": ["The treasury where the fee will be sent too."]
         },
         {
           "name": "scheduledPayment",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The scheduled_payment PDA that will be created."
-          ]
+          "docs": ["The vault PDA that will be created."]
         },
         {
           "name": "scheduledPaymentTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The token account for the scheduled_payment PDA"
-          ]
+          "docs": ["The token account for the vault PDA"]
         },
         {
           "name": "creatorTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The creator's token account."
-          ]
+          "docs": ["The creator's token account."]
         },
         {
           "name": "recipientTokenAccount",
           "isMut": true,
           "isSigner": false,
-          "docs": [
-            "The recipient's token account."
-          ]
+          "docs": ["The recipient's token account."]
         },
         {
           "name": "mint",
           "isMut": false,
           "isSigner": false,
-          "docs": [
-            "The mint account for the tokens."
-          ]
+          "docs": ["The mint account for the tokens."]
         },
         {
           "name": "tokenProgram",
@@ -672,10 +612,7 @@
         {
           "name": "name",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
@@ -885,10 +822,7 @@
           {
             "name": "name",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -936,10 +870,7 @@
           {
             "name": "name",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -979,10 +910,7 @@
           {
             "name": "name",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -1086,7 +1014,7 @@
     {
       "code": 6000,
       "name": "Locked",
-      "msg": "The vesting_schedule has not expired yet!"
+      "msg": "The vault has not expired yet!"
     },
     {
       "code": 6001,

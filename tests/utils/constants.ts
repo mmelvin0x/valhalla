@@ -20,20 +20,8 @@ export const amountMinted = 10_000_000_000;
 
 export const CONFIG_SEED = Buffer.from("config");
 
-export const VESTING_SCHEDULT_SEED = Buffer.from("vesting_schedule");
-export const VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED = Buffer.from(
-  "vesting_schedule_token_account"
-);
-
-export const TOKEN_LOCK_SEED = Buffer.from("token_lock");
-export const TOKEN_LOCK_TOKEN_ACCOUNT_SEED = Buffer.from(
-  "token_lock_token_account"
-);
-
-export const SCHEDULED_PAYMENT_SEED = Buffer.from("scheduled_payment");
-export const SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED = Buffer.from(
-  "scheduled_payment_token_account"
-);
+export const VAULT_SEED = Buffer.from("vault");
+export const VAULT_ATA_SEED = Buffer.from("vault_ata");
 
 export interface ValhallaPDAs {
   config: PublicKey;
@@ -60,14 +48,14 @@ export function getPDAs(
             creator.toBuffer(),
             recipient.toBuffer(),
             mint.toBuffer(),
-            VESTING_SCHEDULT_SEED,
+            VAULT_SEED,
           ],
           programId
         )
       : [null];
   const [vestingScheduleTokenAccount] = vestingSchedule
     ? PublicKey.findProgramAddressSync(
-        [vestingSchedule.toBuffer(), VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED],
+        [vestingSchedule.toBuffer(), VAULT_ATA_SEED],
         programId
       )
     : [null];
@@ -75,13 +63,13 @@ export function getPDAs(
   const [tokenLock] =
     creator && mint
       ? PublicKey.findProgramAddressSync(
-          [creator.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
+          [creator.toBuffer(), mint.toBuffer(), VAULT_SEED],
           programId
         )
       : [null];
   const [tokenLockTokenAccount] = tokenLock
     ? PublicKey.findProgramAddressSync(
-        [tokenLock.toBuffer(), TOKEN_LOCK_TOKEN_ACCOUNT_SEED],
+        [tokenLock.toBuffer(), VAULT_ATA_SEED],
         programId
       )
     : [null];
@@ -93,14 +81,14 @@ export function getPDAs(
             creator.toBuffer(),
             recipient.toBuffer(),
             mint.toBuffer(),
-            SCHEDULED_PAYMENT_SEED,
+            VAULT_SEED,
           ],
           programId
         )
       : [null];
   const [scheduledPaymentTokenAccount] = scheduledPayment
     ? PublicKey.findProgramAddressSync(
-        [scheduledPayment.toBuffer(), SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED],
+        [scheduledPayment.toBuffer(), VAULT_ATA_SEED],
         programId
       )
     : [null];
@@ -122,7 +110,7 @@ export const setupTestAccounts = async (
   creator: Keypair,
   recipient: Keypair,
   program: Program<Valhalla>
-): Promise<[PublicKey, Account, Account, ValhallaPDAs]> => {
+): Promise<[PublicKey, Account, Account]> => {
   await airdrop(provider.connection, payer.publicKey);
   await airdrop(provider.connection, creator.publicKey);
   await airdrop(provider.connection, recipient.publicKey);
@@ -139,12 +127,5 @@ export const setupTestAccounts = async (
       amountMinted
     );
 
-  const pdas = getPDAs(
-    program.programId,
-    creator.publicKey,
-    recipient.publicKey,
-    mint
-  );
-
-  return [mint, creatorTokenAccount, recipientTokenAccount, pdas];
+  return [mint, creatorTokenAccount, recipientTokenAccount];
 };

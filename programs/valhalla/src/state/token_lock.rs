@@ -4,6 +4,7 @@ use crate::VestingType;
 
 #[account]
 pub struct TokenLock {
+    pub identifier: u64,
     pub name: [u8; 32],
     pub creator: Pubkey,
     pub recipient: Pubkey,
@@ -16,6 +17,7 @@ pub struct TokenLock {
 
 impl Space for TokenLock {
     const INIT_SPACE: usize = 8 + // discriminator
+            8 + // identifier
             32 + // name
             32 + // creator
             32 + // recipient

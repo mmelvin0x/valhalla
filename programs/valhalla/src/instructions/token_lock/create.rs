@@ -12,6 +12,7 @@ use crate::{
 };
 
 #[derive(Accounts)]
+#[instruction(identifier: u64)]
 pub struct CreateTokenLock<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
@@ -28,26 +29,31 @@ pub struct CreateTokenLock<'info> {
         init,
         payer = creator,
         seeds = [
+            identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::TOKEN_LOCK_SEED,
+            constants::VAULT_SEED,
         ],
         space = TokenLock::INIT_SPACE,
         bump
     )]
-    pub token_lock: Account<'info, TokenLock>,
+    pub vault: Account<'info, TokenLock>,
 
     #[account(
         init,
-        seeds = [token_lock.key().as_ref(), constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED],
+        seeds = [
+            identifier.to_le_bytes().as_ref(),
+            vault.key().as_ref(),
+            constants::VAULT_ATA_SEED
+        ],
         bump,
         payer = creator,
         token::mint = mint,
-        token::authority = token_lock_token_account,
+        token::authority = vault_ata,
         token::token_program = token_program
     )]
-    pub token_lock_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub vault_ata: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         init_if_needed,
@@ -70,18 +76,19 @@ pub struct CreateTokenLock<'info> {
 impl<'info> CreateTokenLock<'info> {
     pub fn create(
         &mut self,
+        identifier: u64,
         name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
         bump: u8,
     ) -> Result<()> {
         let transfer_amount = self.validate_deposit(amount_to_be_vested)?;
-        self.set_state(total_vesting_duration, name, bump)?;
+        self.set_state(identifier, name, total_vesting_duration, bump)?;
         self.transfer(transfer_amount)?;
         self.take_fee()
     }
 
-    fn validate_deposit(&mut self, amount_to_be_vested: u64) -> Result<u64> {
+    fn validate_deposit(&self, amount_to_be_vested: u64) -> Result<u64> {
         let balance = self.creator_token_account.amount;
         let amount = amount_to_be_vested
             .checked_mul((10u64).pow(self.mint.decimals as u32))
@@ -94,13 +101,31 @@ impl<'info> CreateTokenLock<'info> {
         Ok(amount)
     }
 
-    fn set_state(&mut self, total_vesting_duration: u64, name: [u8; 32], bump: u8) -> Result<()> {
-        self.token_lock.set_inner(TokenLock {
+    fn take_fee(&self) -> Result<()> {
+        let cpi_program = self.system_program.to_account_info();
+        let cpi_accounts = system_program::Transfer {
+            from: self.creator.to_account_info(),
+            to: self.treasury.to_account_info(),
+        };
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+        system_program::transfer(cpi_ctx, self.config.fee)
+    }
+
+    fn set_state(
+        &mut self,
+        identifier: u64,
+        name: [u8; 32],
+        total_vesting_duration: u64,
+        bump: u8,
+    ) -> Result<()> {
+        self.vault.set_inner(TokenLock {
+            identifier,
+            name,
             creator: self.creator.key(),
             recipient: self.creator.key(),
             mint: self.mint.key(),
             total_vesting_duration,
-            name,
             created_timestamp: Clock::get()?.unix_timestamp as u64,
             vesting_type: VestingType::TokenLock,
             token_account_bump: bump,
@@ -114,22 +139,11 @@ impl<'info> CreateTokenLock<'info> {
         let cpi_accounts = TransferChecked {
             from: self.creator_token_account.to_account_info(),
             mint: self.mint.to_account_info(),
-            to: self.token_lock_token_account.to_account_info(),
+            to: self.vault_ata.to_account_info(),
             authority: self.creator.to_account_info(),
         };
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
         transfer_checked(cpi_ctx, amount, self.mint.decimals)
-    }
-
-    fn take_fee(&mut self) -> Result<()> {
-        let cpi_program = self.system_program.to_account_info();
-        let cpi_accounts = system_program::Transfer {
-            from: self.creator.to_account_info(),
-            to: self.treasury.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-
-        system_program::transfer(cpi_ctx, self.config.fee)
     }
 }

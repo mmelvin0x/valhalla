@@ -12,6 +12,7 @@ use crate::{
 };
 
 #[derive(Accounts)]
+#[instruction(identifier: u64)]
 pub struct CreateVestingSchedule<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
@@ -28,26 +29,31 @@ pub struct CreateVestingSchedule<'info> {
         init,
         payer = creator,
         seeds = [
+            identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::VESTING_SCHEDULE_SEED,
+            constants::VAULT_SEED,
         ],
         space = VestingSchedule::INIT_SPACE,
         bump
     )]
-    pub vesting_schedule: Account<'info, VestingSchedule>,
+    pub vault: Account<'info, VestingSchedule>,
 
     #[account(
         init,
-        seeds = [vesting_schedule.key().as_ref(), constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED],
+        seeds = [
+            identifier.to_le_bytes().as_ref(),
+            vault.key().as_ref(),
+            constants::VAULT_ATA_SEED
+        ],
         bump,
         payer = creator,
         token::mint = mint,
-        token::authority = vesting_schedule_token_account,
+        token::authority = vault_ata,
         token::token_program = token_program
     )]
-    pub vesting_schedule_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub vault_ata: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         init_if_needed,
@@ -79,6 +85,7 @@ pub struct CreateVestingSchedule<'info> {
 impl<'info> CreateVestingSchedule<'info> {
     pub fn create(
         &mut self,
+        identifier: u64,
         name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
@@ -89,12 +96,17 @@ impl<'info> CreateVestingSchedule<'info> {
         start_date: u64,
         bump: u8,
     ) -> Result<()> {
-        let (mut amount, amount_per_payout, balance) =
+        let (mut amount, amount_per_payout) =
             self.validate_deposit(amount_to_be_vested, total_vesting_duration, payout_interval)?;
 
-        let cliff_payment = self.get_cliff_payment(cliff_payment_amount, amount, balance)?;
+        let cliff_payment = self.get_cliff_payment(
+            cliff_payment_amount,
+            amount,
+            self.creator_token_account.amount,
+        )?;
 
         self.set_state(
+            identifier,
             name,
             total_vesting_duration,
             payout_interval,
@@ -139,7 +151,31 @@ impl<'info> CreateVestingSchedule<'info> {
         }
     }
 
-    fn take_fee(&mut self) -> Result<()> {
+    fn validate_deposit(
+        &self,
+        amount_to_be_vested: u64,
+        total_vesting_duration: u64,
+        payout_interval: u64,
+    ) -> Result<(u64, u64)> {
+        let amount = amount_to_be_vested
+            .checked_mul((10u64).pow(self.mint.decimals as u32))
+            .unwrap();
+
+        if amount > self.creator_token_account.amount {
+            return Err(ValhallaError::InsufficientFundsForDeposit.into());
+        }
+
+        let total_payouts = total_vesting_duration.checked_div(payout_interval).unwrap();
+        let amount_per_payout = amount.checked_div(total_payouts).unwrap();
+        let total_payout_amount = amount_per_payout.checked_mul(total_payouts).unwrap();
+        if total_payout_amount > amount {
+            return Err(ValhallaError::InsufficientFundsForDeposit.into());
+        }
+
+        Ok((amount, amount_per_payout))
+    }
+
+    fn take_fee(&self) -> Result<()> {
         let cpi_program = self.system_program.to_account_info();
         let cpi_accounts = system_program::Transfer {
             from: self.creator.to_account_info(),
@@ -150,57 +186,9 @@ impl<'info> CreateVestingSchedule<'info> {
         system_program::transfer(cpi_ctx, self.config.fee)
     }
 
-    fn transfer(&mut self, amount: u64) -> Result<()> {
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = TransferChecked {
-            from: self.creator_token_account.to_account_info(),
-            mint: self.mint.to_account_info(),
-            to: self.vesting_schedule_token_account.to_account_info(),
-            authority: self.creator.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-
-        transfer_checked(cpi_ctx, amount, self.mint.decimals)
-    }
-
-    fn handle_cliff_payment(
-        &mut self,
-        amount: u64,
-        cliff_payment: u64,
-        start_date: u64,
-    ) -> Result<u64> {
-        match start_date {
-            0 => {
-                self.vesting_schedule.cliff_payment_amount = cliff_payment;
-                self.vesting_schedule.is_cliff_payment_disbursed = true;
-                self.vesting_schedule.start_date = Clock::get()?.unix_timestamp as u64;
-                self.disburse_cliff_payment(cliff_payment)?;
-
-                Ok(amount)
-            }
-            _ => {
-                self.vesting_schedule.cliff_payment_amount = cliff_payment;
-
-                Ok(amount.checked_add(cliff_payment).unwrap())
-            }
-        }
-    }
-
-    fn disburse_cliff_payment(&mut self, cliff_payment: u64) -> Result<()> {
-        let cpi_program = self.token_program.to_account_info();
-        let cpi_accounts = TransferChecked {
-            from: self.creator_token_account.to_account_info(),
-            mint: self.mint.to_account_info(),
-            to: self.recipient_token_account.to_account_info(),
-            authority: self.creator.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
-
-        transfer_checked(cpi_ctx, cliff_payment, self.mint.decimals)
-    }
-
     fn set_state(
         &mut self,
+        identifier: u64,
         name: [u8; 32],
         total_vesting_duration: u64,
         payout_interval: u64,
@@ -213,12 +201,13 @@ impl<'info> CreateVestingSchedule<'info> {
         change_recipient_authority: Authority,
         bump: u8,
     ) -> Result<()> {
-        self.vesting_schedule.set_inner(VestingSchedule {
+        self.vault.set_inner(VestingSchedule {
             name,
             creator: self.creator.key(),
             recipient: self.recipient.key(),
             mint: self.mint.key(),
             total_vesting_duration,
+            identifier,
             created_timestamp: Clock::get()?.unix_timestamp as u64,
             vesting_type: VestingType::VestingSchedule,
             token_account_bump: bump,
@@ -236,28 +225,52 @@ impl<'info> CreateVestingSchedule<'info> {
         Ok(())
     }
 
-    fn validate_deposit(
+    fn transfer(&self, amount: u64) -> Result<()> {
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = TransferChecked {
+            from: self.creator_token_account.to_account_info(),
+            mint: self.mint.to_account_info(),
+            to: self.vault_ata.to_account_info(),
+            authority: self.creator.to_account_info(),
+        };
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+        transfer_checked(cpi_ctx, amount, self.mint.decimals)
+    }
+
+    fn handle_cliff_payment(
         &mut self,
-        amount_to_be_vested: u64,
-        total_vesting_duration: u64,
-        payout_interval: u64,
-    ) -> Result<(u64, u64, u64)> {
-        let balance = self.creator_token_account.amount;
-        let amount = amount_to_be_vested
-            .checked_mul((10u64).pow(self.mint.decimals as u32))
-            .unwrap();
+        amount: u64,
+        cliff_payment: u64,
+        start_date: u64,
+    ) -> Result<u64> {
+        match start_date {
+            0 => {
+                self.vault.cliff_payment_amount = cliff_payment;
+                self.vault.is_cliff_payment_disbursed = true;
+                self.vault.start_date = Clock::get()?.unix_timestamp as u64;
+                self.disburse_cliff_payment(cliff_payment)?;
 
-        if amount > balance {
-            return Err(ValhallaError::InsufficientFundsForDeposit.into());
+                Ok(amount)
+            }
+            _ => {
+                self.vault.cliff_payment_amount = cliff_payment;
+
+                Ok(amount.checked_add(cliff_payment).unwrap())
+            }
         }
+    }
 
-        let total_payouts = total_vesting_duration.checked_div(payout_interval).unwrap();
-        let amount_per_payout = amount.checked_div(total_payouts).unwrap();
-        let total_payout_amount = amount_per_payout.checked_mul(total_payouts).unwrap();
-        if total_payout_amount > amount {
-            return Err(ValhallaError::InsufficientFundsForDeposit.into());
-        }
+    fn disburse_cliff_payment(&self, cliff_payment: u64) -> Result<()> {
+        let cpi_program = self.token_program.to_account_info();
+        let cpi_accounts = TransferChecked {
+            from: self.creator_token_account.to_account_info(),
+            mint: self.mint.to_account_info(),
+            to: self.recipient_token_account.to_account_info(),
+            authority: self.creator.to_account_info(),
+        };
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-        Ok((amount, amount_per_payout, balance))
+        transfer_checked(cpi_ctx, cliff_payment, self.mint.decimals)
     }
 }

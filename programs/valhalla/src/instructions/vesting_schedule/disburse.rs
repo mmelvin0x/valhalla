@@ -18,23 +18,28 @@ pub struct DisburseVestingSchedule<'info> {
     #[account(
         mut,
         seeds = [
+            vault.identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::VESTING_SCHEDULE_SEED
+            constants::VAULT_SEED
         ],
         bump,
     )]
-    pub vesting_schedule: Account<'info, VestingSchedule>,
+    pub vault: Account<'info, VestingSchedule>,
 
     #[account(
         mut,
-        seeds = [vesting_schedule.key().as_ref(), constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED],
+        seeds = [
+            vault.identifier.to_le_bytes().as_ref(),
+            vault.key().as_ref(),
+            constants::VAULT_ATA_SEED
+        ],
         bump,
         token::mint = mint,
-        token::authority = vesting_schedule_token_account,
+        token::authority = vault_ata,
     )]
-    pub vesting_schedule_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub vault_ata: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         init_if_needed,
@@ -65,8 +70,8 @@ impl<'info> DisburseVestingSchedule<'info> {
         }
 
         if transfer_amount > 0 {
-            if transfer_amount > self.vesting_schedule_token_account.amount {
-                transfer_amount = self.vesting_schedule_token_account.amount;
+            if transfer_amount > self.vault_ata.amount {
+                transfer_amount = self.vault_ata.amount;
             }
 
             self.transfer(transfer_amount)
@@ -77,36 +82,35 @@ impl<'info> DisburseVestingSchedule<'info> {
 
     fn can_disburse(&self) -> Result<bool> {
         let current_time = Clock::get()?.unix_timestamp as u64;
-        Ok(self.vesting_schedule.start_date <= current_time)
+        Ok(self.vault.start_date <= current_time)
     }
 
     fn has_cliff_payment(&self) -> bool {
-        self.vesting_schedule.cliff_payment_amount > 0
-            && !self.vesting_schedule.is_cliff_payment_disbursed
+        self.vault.cliff_payment_amount > 0 && !self.vault.is_cliff_payment_disbursed
     }
 
     fn is_end_date_reached(&self, current_time: u64) -> bool {
-        self.vesting_schedule
+        self.vault
             .start_date
-            .checked_add(self.vesting_schedule.total_vesting_duration)
+            .checked_add(self.vault.total_vesting_duration)
             .unwrap_or_default()
             <= current_time
     }
 
     fn get_num_payments_owed(&self, current_time: u64) -> u64 {
         current_time
-            .checked_sub(self.vesting_schedule.start_date)
+            .checked_sub(self.vault.start_date)
             .unwrap()
-            .checked_div(self.vesting_schedule.payout_interval)
+            .checked_div(self.vault.payout_interval)
             .unwrap()
-            .checked_sub(self.vesting_schedule.number_of_payments_made)
+            .checked_sub(self.vault.number_of_payments_made)
             .unwrap()
             .checked_add(1)
             .unwrap()
     }
 
     fn get_num_payments_made(&self, num_payments_owed: u64) -> u64 {
-        self.vesting_schedule
+        self.vault
             .number_of_payments_made
             .checked_add(num_payments_owed)
             .unwrap()
@@ -117,34 +121,33 @@ impl<'info> DisburseVestingSchedule<'info> {
 
         // Add the amount per payout multiplied by the number of payments owed to the recipient
         let mut transfer_amount = self
-            .vesting_schedule
+            .vault
             .amount_per_payout
             .checked_mul(num_payments_owed)
             .unwrap();
 
         // Update the number of payments made
-        self.vesting_schedule.number_of_payments_made =
-            self.get_num_payments_made(num_payments_owed);
+        self.vault.number_of_payments_made = self.get_num_payments_made(num_payments_owed);
 
-        // If the vesting_schedule has a cliff payment, we need to check if it has been disbursed and if not,
+        // If the vault has a cliff payment, we need to check if it has been disbursed and if not,
         // add it to the transfer amount and mark it as disbursed
         if self.has_cliff_payment() {
             transfer_amount = transfer_amount
-                .checked_add(self.vesting_schedule.cliff_payment_amount)
+                .checked_add(self.vault.cliff_payment_amount)
                 .unwrap();
-            self.vesting_schedule.is_cliff_payment_disbursed = true;
+            self.vault.is_cliff_payment_disbursed = true;
         }
 
         // If the vesting end date is reached, release all of the tokens
         if self.is_end_date_reached(current_time) {
-            // Set the transfer amount to the amount in the vesting_schedule token account
-            transfer_amount = self.vesting_schedule_token_account.amount;
+            // Set the transfer amount to the amount in the vault token account
+            transfer_amount = self.vault_ata.amount;
 
             // Set the number of payments made to the total number of payments possible
-            self.vesting_schedule.number_of_payments_made = self
-                .vesting_schedule
+            self.vault.number_of_payments_made = self
+                .vault
                 .total_vesting_duration
-                .checked_div(self.vesting_schedule.payout_interval)
+                .checked_div(self.vault.payout_interval)
                 .unwrap_or_default();
         }
 
@@ -152,18 +155,21 @@ impl<'info> DisburseVestingSchedule<'info> {
     }
 
     fn transfer(&mut self, transfer_amount: u64) -> Result<()> {
-        let lock_key = self.vesting_schedule.key();
+        let lock_key = self.vault.key();
+        let id = self.vault.identifier.to_le_bytes();
         let signer_seeds: &[&[&[u8]]] = &[&[
+            id.as_ref(),
             lock_key.as_ref(),
-            constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
-            &[self.vesting_schedule.token_account_bump],
+            constants::VAULT_ATA_SEED,
+            &[self.vault.token_account_bump],
         ]];
+
         let cpi_program = self.token_program.to_account_info();
         let cpi_accounts = TransferChecked {
-            from: self.vesting_schedule_token_account.to_account_info(),
+            from: self.vault_ata.to_account_info(),
             mint: self.mint.to_account_info(),
             to: self.recipient_token_account.to_account_info(),
-            authority: self.vesting_schedule_token_account.to_account_info(),
+            authority: self.vault_ata.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 

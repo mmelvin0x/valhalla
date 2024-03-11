@@ -26,23 +26,28 @@ pub struct DisburseTokenLock<'info> {
         mut,
         close = creator,
         seeds = [
+            vault.identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::TOKEN_LOCK_SEED
+            constants::VAULT_SEED
         ],
         bump,
     )]
-    pub token_lock: Account<'info, TokenLock>,
+    pub vault: Account<'info, TokenLock>,
 
     #[account(
         mut,
-        seeds = [token_lock.key().as_ref(), constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED],
+        seeds = [
+            vault.identifier.to_le_bytes().as_ref(),
+            vault.key().as_ref(),
+            constants::VAULT_ATA_SEED
+        ],
         bump,
         token::mint = mint,
-        token::authority = token_lock_token_account,
+        token::authority = vault_ata,
     )]
-    pub token_lock_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub vault_ata: InterfaceAccount<'info, TokenAccount>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -64,31 +69,30 @@ impl<'info> DisburseTokenLock<'info> {
 
     fn can_disburse(&self, current_time: u64) -> bool {
         current_time
-            .checked_sub(self.token_lock.created_timestamp)
+            .checked_sub(self.vault.created_timestamp)
             .unwrap_or_default()
-            >= self.token_lock.total_vesting_duration
+            >= self.vault.total_vesting_duration
     }
 
     fn transfer(&mut self) -> Result<()> {
-        let lock_key = self.token_lock.key();
+        let lock_key = self.vault.key();
+        let id = self.vault.identifier.to_le_bytes();
         let signer_seeds: &[&[&[u8]]] = &[&[
+            id.as_ref(),
             lock_key.as_ref(),
-            constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED,
-            &[self.token_lock.token_account_bump],
+            constants::VAULT_ATA_SEED,
+            &[self.vault.token_account_bump],
         ]];
+
         let cpi_program = self.token_program.to_account_info();
         let cpi_accounts = TransferChecked {
-            from: self.token_lock_token_account.to_account_info(),
+            from: self.vault_ata.to_account_info(),
             mint: self.mint.to_account_info(),
             to: self.recipient_token_account.to_account_info(),
-            authority: self.token_lock_token_account.to_account_info(),
+            authority: self.vault_ata.to_account_info(),
         };
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-        transfer_checked(
-            cpi_ctx,
-            self.token_lock_token_account.amount,
-            self.mint.decimals,
-        )
+        transfer_checked(cpi_ctx, self.vault_ata.amount, self.mint.decimals)
     }
 }

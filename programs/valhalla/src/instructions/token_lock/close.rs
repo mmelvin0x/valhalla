@@ -16,23 +16,28 @@ pub struct CloseTokenLock<'info> {
         mut,
         close = creator,
         seeds = [
+            vault.identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::TOKEN_LOCK_SEED
+            constants::VAULT_SEED
         ],
         bump,
     )]
-    pub token_lock: Account<'info, TokenLock>,
+    pub vault: Account<'info, TokenLock>,
 
     #[account(
         mut,
-        seeds = [token_lock.key().as_ref(), constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED],
+        seeds = [
+            vault.identifier.to_le_bytes().as_ref(),
+            vault.key().as_ref(),
+            constants::VAULT_ATA_SEED
+        ],
         bump,
         token::mint = mint,
-        token::authority = token_lock_token_account,
+        token::authority = vault_ata,
     )]
-    pub token_lock_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub vault_ata: InterfaceAccount<'info, TokenAccount>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -41,17 +46,19 @@ pub struct CloseTokenLock<'info> {
 
 impl<'info> CloseTokenLock<'info> {
     pub fn close(&mut self) -> Result<()> {
-        let lock_key = self.token_lock.key();
+        let lock_key = self.vault.key();
+        let id = self.vault.identifier.to_le_bytes();
         let signer_seeds: &[&[&[u8]]] = &[&[
+            id.as_ref(),
             lock_key.as_ref(),
-            constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED,
-            &[self.token_lock.token_account_bump],
+            constants::VAULT_ATA_SEED,
+            &[self.vault.token_account_bump],
         ]];
 
         let cpi_accounts = CloseAccount {
-            account: self.token_lock_token_account.to_account_info(),
+            account: self.vault_ata.to_account_info(),
             destination: self.creator.to_account_info(),
-            authority: self.token_lock_token_account.to_account_info(),
+            authority: self.vault_ata.to_account_info(),
         };
         let cpi_program = self.token_program.to_account_info();
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);

@@ -16,20 +16,14 @@ export const TREASURY = new PublicKey(
 
 export const CONFIG_SEED = Buffer.from("config");
 
-export const VESTING_SCHEDULT_SEED = Buffer.from("vesting_schedule");
-export const VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED = Buffer.from(
-  "vesting_schedule_token_account",
-);
+export const VAULT_SEED = Buffer.from("vault");
+export const VAULT_ATA_SEED = Buffer.from("vault_ata");
 
-export const TOKEN_LOCK_SEED = Buffer.from("token_lock");
-export const TOKEN_LOCK_TOKEN_ACCOUNT_SEED = Buffer.from(
-  "token_lock_token_account",
-);
+export const VAULT_SEED = Buffer.from("token_lock");
+export const VAULT_ATA_SEED = Buffer.from("vault_ata");
 
-export const SCHEDULED_PAYMENT_SEED = Buffer.from("scheduled_payment");
-export const SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED = Buffer.from(
-  "scheduled_payment_token_account",
-);
+export const VAULT_SEED = Buffer.from("vault");
+export const VAULT_ATA_SEED = Buffer.from("vault_ata");
 
 export const getTreasuryKey = (): PublicKey => {
   return TREASURY;
@@ -59,40 +53,30 @@ export function getPDAs(
 
   if (recipient) {
     [vestingSchedule] = PublicKey.findProgramAddressSync(
-      [
-        creator.toBuffer(),
-        recipient.toBuffer(),
-        mint.toBuffer(),
-        VESTING_SCHEDULT_SEED,
-      ],
+      [creator.toBuffer(), recipient.toBuffer(), mint.toBuffer(), VAULT_SEED],
       PROGRAM_ID,
     );
     [vestingScheduleTokenAccount] = PublicKey.findProgramAddressSync(
-      [vestingSchedule.toBuffer(), VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED],
+      [vestingSchedule.toBuffer(), VAULT_ATA_SEED],
       PROGRAM_ID,
     );
 
     [scheduledPayment] = PublicKey.findProgramAddressSync(
-      [
-        creator.toBuffer(),
-        recipient.toBuffer(),
-        mint.toBuffer(),
-        SCHEDULED_PAYMENT_SEED,
-      ],
+      [creator.toBuffer(), recipient.toBuffer(), mint.toBuffer(), VAULT_SEED],
       PROGRAM_ID,
     );
     [scheduledPaymentTokenAccount] = PublicKey.findProgramAddressSync(
-      [scheduledPayment.toBuffer(), SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED],
+      [scheduledPayment.toBuffer(), VAULT_ATA_SEED],
       PROGRAM_ID,
     );
   }
 
   const [tokenLock] = PublicKey.findProgramAddressSync(
-    [creator.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
+    [creator.toBuffer(), mint.toBuffer(), VAULT_SEED],
     PROGRAM_ID,
   );
   const [tokenLockTokenAccount] = PublicKey.findProgramAddressSync(
-    [tokenLock.toBuffer(), TOKEN_LOCK_TOKEN_ACCOUNT_SEED],
+    [tokenLock.toBuffer(), VAULT_ATA_SEED],
     PROGRAM_ID,
   );
 

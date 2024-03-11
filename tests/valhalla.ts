@@ -21,6 +21,7 @@ import { assert, expect } from "chai";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { Valhalla } from "../target/types/valhalla";
 import { mintTransferFeeTokens } from "./utils/mintTransferFeeTokens";
+import { randomBytes } from "crypto";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -42,8 +43,16 @@ describe("⚡️ Valhalla", () => {
   let pdas: ValhallaPDAs;
 
   before(async () => {
-    [mint, creatorTokenAccount, recipientTokenAccount, pdas] =
+    [mint, creatorTokenAccount, recipientTokenAccount] =
       await setupTestAccounts(provider, payer, creator, recipient, program);
+    const identifier = new anchor.BN(randomBytes(8));
+    pdas = getPDAs(
+      program.programId,
+      identifier,
+      creator.publicKey,
+      recipient.publicKey,
+      mint
+    );
 
     const tx = await program.methods
       .adminInitialize(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
@@ -277,16 +286,17 @@ describe("⚡️ Valhalla", () => {
             recipient,
             amountMinted
           );
+      });
 
+      it("should create the lock with the right properties", async () => {
+        const identifier = new anchor.BN(randomBytes(8));
         pdas = getPDAs(
           program.programId,
+          identifier,
           creator.publicKey,
           recipient.publicKey,
           mint
         );
-      });
-
-      it("should create the lock with the right properties", async () => {
         const amountToBeVested = new anchor.BN(1_000_000_000);
         const vestingDuration = new anchor.BN(5); // 5 seconds for sake of testing time
         const payoutInterval = new anchor.BN(1); // 1 second
@@ -315,6 +325,7 @@ describe("⚡️ Valhalla", () => {
         try {
           const tx = await program.methods
             .createVestingSchedule(
+              identifier,
               nameArg,
               amountToBeVested,
               vestingDuration,
@@ -335,8 +346,8 @@ describe("⚡️ Valhalla", () => {
               recipient: recipient.publicKey,
               config: pdas.config,
               treasury: wallet.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
-              vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+              vault: pdas.vault,
+              vaultAta: pdas.vaultAta,
               creatorTokenAccount: creatorTokenAccount.address,
               recipientTokenAccount: recipientTokenAccount.address,
               mint,
@@ -351,47 +362,46 @@ describe("⚡️ Valhalla", () => {
           assert.ok(false);
         }
 
-        const vestingScheduleAccount =
-          await program.account.vestingSchedule.fetch(pdas.vestingSchedule);
-        expect(vestingScheduleAccount.creator.toBase58()).equals(
+        const vaultAccount = await program.account.vestingSchedule.fetch(
+          pdas.vault
+        );
+        expect(vaultAccount.creator.toBase58()).equals(
           creator.publicKey.toBase58(),
           "creator"
         );
-        expect(vestingScheduleAccount.recipient.toBase58()).equals(
+        expect(vaultAccount.recipient.toBase58()).equals(
           recipient.publicKey.toBase58(),
           "recipient"
         );
-        expect(vestingScheduleAccount.mint.toBase58()).equals(
-          mint.toBase58(),
-          "mint"
-        );
-        expect(vestingScheduleAccount.cancelAuthority.neither).to.not.be
+        expect(vaultAccount.mint.toBase58()).equals(mint.toBase58(), "mint");
+        expect(vaultAccount.cancelAuthority.neither).to.not.be.undefined;
+        expect(vaultAccount.changeRecipientAuthority.neither).to.not.be
           .undefined;
-        expect(vestingScheduleAccount.changeRecipientAuthority.neither).to.not
-          .be.undefined;
-        expect(vestingScheduleAccount.totalVestingDuration.toString()).equals(
+        expect(vaultAccount.totalVestingDuration.toString()).equals(
           vestingDuration.toString(),
           "vestingDuration"
         );
-        expect(vestingScheduleAccount.payoutInterval.toString()).equals(
+        expect(vaultAccount.payoutInterval.toString()).equals(
           payoutInterval.toString(),
           "payoutInterval"
         );
-        expect(vestingScheduleAccount.amountPerPayout.toString()).equals(
+        expect(vaultAccount.amountPerPayout.toString()).equals(
           amountPerPayout.mul(new anchor.BN(LAMPORTS_PER_SOL)).toString(),
           "amountPerPayout"
         );
-        expect(vestingScheduleAccount.startDate.toString()).equals(
+        expect(vaultAccount.startDate.toString()).equals(
           startDate.toString(),
           "startDate"
         );
-        expect(vestingScheduleAccount.cliffPaymentAmount.toString()).equals(
+        expect(vaultAccount.cliffPaymentAmount.toString()).equals(
           cliffPaymentAmount.toString(),
           "cliffPaymentAmount"
         );
-        expect(
-          vestingScheduleAccount.lastPaymentTimestamp.toNumber()
-        ).to.be.closeTo(startDate.toNumber(), 2, "lastPaymentTimestamp");
+        expect(vaultAccount.lastPaymentTimestamp.toNumber()).to.be.closeTo(
+          startDate.toNumber(),
+          2,
+          "lastPaymentTimestamp"
+        );
       });
 
       it("should not allow the creator to cancel", async () => {
@@ -402,8 +412,8 @@ describe("⚡️ Valhalla", () => {
               signer: creator.publicKey,
               creator: creator.publicKey,
               recipient: recipient.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
-              vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+              vault: pdas.vault,
+              vaultAta: pdas.vaultAta,
               creatorTokenAccount: creatorTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -429,8 +439,8 @@ describe("⚡️ Valhalla", () => {
               signer: recipient.publicKey,
               creator: creator.publicKey,
               recipient: recipient.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
-              vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+              vault: pdas.vault,
+              vaultAta: pdas.vaultAta,
               creatorTokenAccount: creatorTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -458,7 +468,7 @@ describe("⚡️ Valhalla", () => {
               creator: creator.publicKey,
               recipient: recipient.publicKey,
               newRecipient: creator.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
+              vault: pdas.vault,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -485,7 +495,7 @@ describe("⚡️ Valhalla", () => {
               creator: creator.publicKey,
               recipient: recipient.publicKey,
               newRecipient: creator.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
+              vault: pdas.vault,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -512,7 +522,7 @@ describe("⚡️ Valhalla", () => {
         for (let i = 0; i < 5; i++) {
           const startingVestingScheduleAccountInfo = await getAccount(
             provider.connection,
-            pdas.vestingScheduleTokenAccount,
+            pdas.vaultAta,
             undefined,
             TOKEN_2022_PROGRAM_ID
           );
@@ -523,8 +533,8 @@ describe("⚡️ Valhalla", () => {
               signer: recipient.publicKey,
               creator: creator.publicKey,
               recipient: recipient.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
-              vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+              vault: pdas.vault,
+              vaultAta: pdas.vaultAta,
               recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -534,30 +544,28 @@ describe("⚡️ Valhalla", () => {
 
           await provider.sendAndConfirm(tx, [recipient]);
 
-          const vestingScheduleAccount =
-            await program.account.vestingSchedule.fetch(pdas.vestingSchedule);
-          const vestingScheduleTokenAccount = await getAccount(
+          const vaultAccount = await program.account.vestingSchedule.fetch(
+            pdas.vault
+          );
+          const vaultAta = await getAccount(
             provider.connection,
-            pdas.vestingScheduleTokenAccount,
+            pdas.vaultAta,
             undefined,
             TOKEN_2022_PROGRAM_ID
           );
           const lockBalance = Number(
-            vestingScheduleTokenAccount.amount / BigInt(LAMPORTS_PER_SOL)
+            vaultAta.amount / BigInt(LAMPORTS_PER_SOL)
           );
           const expectedAmount = Math.max(
             Number(
               (startingVestingScheduleAccountInfo.amount -
-                BigInt(vestingScheduleAccount.amountPerPayout.toString())) /
+                BigInt(vaultAccount.amountPerPayout.toString())) /
                 BigInt(LAMPORTS_PER_SOL)
             ),
             0
           );
 
-          expect(lockBalance).equals(
-            expectedAmount,
-            "vestingScheduleTokenAccount.amount"
-          );
+          expect(lockBalance).equals(expectedAmount, "vaultAta.amount");
 
           await sleep(1050);
         }
@@ -577,16 +585,17 @@ describe("⚡️ Valhalla", () => {
             recipient,
             amountMinted
           );
+      });
 
+      it("should create the lock with the right properties", async () => {
+        const identifier = new anchor.BN(randomBytes(8));
         pdas = getPDAs(
           program.programId,
+          identifier,
           creator.publicKey,
           recipient.publicKey,
           mint
         );
-      });
-
-      it("should create the lock with the right properties", async () => {
         const amountToBeVested = new anchor.BN(1_000_000_000);
         const vestingDuration = new anchor.BN(5); // 5 seconds for sake of testing time
         const payoutInterval = new anchor.BN(1); // 1 second
@@ -615,6 +624,7 @@ describe("⚡️ Valhalla", () => {
         try {
           const tx = await program.methods
             .createVestingSchedule(
+              identifier,
               nameArg,
               amountToBeVested,
               vestingDuration,
@@ -635,8 +645,8 @@ describe("⚡️ Valhalla", () => {
               recipient: recipient.publicKey,
               config: pdas.config,
               treasury: wallet.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
-              vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+              vault: pdas.vault,
+              vaultAta: pdas.vaultAta,
               creatorTokenAccount: creatorTokenAccount.address,
               recipientTokenAccount: recipientTokenAccount.address,
               mint,
@@ -651,51 +661,50 @@ describe("⚡️ Valhalla", () => {
           assert.ok(false);
         }
 
-        const vestingScheduleAccount =
-          await program.account.vestingSchedule.fetch(pdas.vestingSchedule);
-        expect(vestingScheduleAccount.creator.toBase58()).equals(
+        const vaultAccount = await program.account.vestingSchedule.fetch(
+          pdas.vault
+        );
+        expect(vaultAccount.creator.toBase58()).equals(
           creator.publicKey.toBase58(),
           "creator"
         );
-        expect(vestingScheduleAccount.recipient.toBase58()).equals(
+        expect(vaultAccount.recipient.toBase58()).equals(
           recipient.publicKey.toBase58(),
           "recipient"
         );
-        expect(vestingScheduleAccount.mint.toBase58()).equals(
-          mint.toBase58(),
-          "mint"
-        );
-        expect(vestingScheduleAccount.cancelAuthority.neither).to.not.be
+        expect(vaultAccount.mint.toBase58()).equals(mint.toBase58(), "mint");
+        expect(vaultAccount.cancelAuthority.neither).to.not.be.undefined;
+        expect(vaultAccount.changeRecipientAuthority.neither).to.not.be
           .undefined;
-        expect(vestingScheduleAccount.changeRecipientAuthority.neither).to.not
-          .be.undefined;
-        expect(vestingScheduleAccount.totalVestingDuration.toString()).equals(
+        expect(vaultAccount.totalVestingDuration.toString()).equals(
           vestingDuration.toString(),
           "vestingDuration"
         );
-        expect(vestingScheduleAccount.payoutInterval.toString()).equals(
+        expect(vaultAccount.payoutInterval.toString()).equals(
           payoutInterval.toString(),
           "payoutInterval"
         );
-        expect(vestingScheduleAccount.amountPerPayout.toString()).equals(
+        expect(vaultAccount.amountPerPayout.toString()).equals(
           amountPerPayout.mul(new anchor.BN(LAMPORTS_PER_SOL)).toString(),
           "amountPerPayout"
         );
-        expect(vestingScheduleAccount.startDate.toString()).equals(
+        expect(vaultAccount.startDate.toString()).equals(
           startDate.toString(),
           "startDate"
         );
-        expect(vestingScheduleAccount.cliffPaymentAmount.toString()).equals(
+        expect(vaultAccount.cliffPaymentAmount.toString()).equals(
           cliffPaymentAmount.mul(new anchor.BN(LAMPORTS_PER_SOL)).toString(),
           "cliffPaymentAmount"
         );
-        expect(
-          vestingScheduleAccount.lastPaymentTimestamp.toNumber()
-        ).to.be.closeTo(startDate.toNumber(), 1, "lastPaymentTimestamp");
+        expect(vaultAccount.lastPaymentTimestamp.toNumber()).to.be.closeTo(
+          startDate.toNumber(),
+          1,
+          "lastPaymentTimestamp"
+        );
 
-        const vestingScheduleTokenAccount = await getAccount(
+        const vaultAta = await getAccount(
           provider.connection,
-          pdas.vestingScheduleTokenAccount,
+          pdas.vaultAta,
           undefined,
           TOKEN_2022_PROGRAM_ID
         );
@@ -704,9 +713,9 @@ describe("⚡️ Valhalla", () => {
           .mul(new anchor.BN(LAMPORTS_PER_SOL))
           .add(cliffPaymentAmount.mul(new anchor.BN(LAMPORTS_PER_SOL)))
           .sub(new anchor.BN(maxFee.toString()));
-        expect(vestingScheduleTokenAccount.amount.toString()).equals(
+        expect(vaultAta.amount.toString()).equals(
           expectedAmount.toString(),
-          "vestingScheduleTokenAccount.amount"
+          "vaultAta.amount"
         );
       });
 
@@ -718,8 +727,8 @@ describe("⚡️ Valhalla", () => {
               signer: creator.publicKey,
               creator: creator.publicKey,
               recipient: recipient.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
-              vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+              vault: pdas.vault,
+              vaultAta: pdas.vaultAta,
               creatorTokenAccount: creatorTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -745,8 +754,8 @@ describe("⚡️ Valhalla", () => {
               signer: recipient.publicKey,
               creator: creator.publicKey,
               recipient: recipient.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
-              vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+              vault: pdas.vault,
+              vaultAta: pdas.vaultAta,
               creatorTokenAccount: creatorTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -774,7 +783,7 @@ describe("⚡️ Valhalla", () => {
               creator: creator.publicKey,
               recipient: recipient.publicKey,
               newRecipient: creator.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
+              vault: pdas.vault,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -801,7 +810,7 @@ describe("⚡️ Valhalla", () => {
               creator: creator.publicKey,
               recipient: recipient.publicKey,
               newRecipient: creator.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
+              vault: pdas.vault,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -827,11 +836,11 @@ describe("⚡️ Valhalla", () => {
         // First disbursement w/ Cliff
         ///////////////////////////////
         let startingLockAccount = await program.account.vestingSchedule.fetch(
-          pdas.vestingSchedule
+          pdas.vault
         );
         let startingVestingScheduleAccountInfo = await getAccount(
           provider.connection,
-          pdas.vestingScheduleTokenAccount,
+          pdas.vaultAta,
           undefined,
           TOKEN_2022_PROGRAM_ID
         );
@@ -843,8 +852,8 @@ describe("⚡️ Valhalla", () => {
             signer: recipient.publicKey,
             creator: creator.publicKey,
             recipient: recipient.publicKey,
-            vestingSchedule: pdas.vestingSchedule,
-            vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+            vault: pdas.vault,
+            vaultAta: pdas.vaultAta,
             recipientTokenAccount: recipientTokenAccount.address,
             mint,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -854,32 +863,28 @@ describe("⚡️ Valhalla", () => {
 
         await provider.sendAndConfirm(tx, [recipient]);
 
-        let vestingScheduleAccount =
-          await program.account.vestingSchedule.fetch(pdas.vestingSchedule);
-        let vestingScheduleTokenAccount = await getAccount(
+        let vaultAccount = await program.account.vestingSchedule.fetch(
+          pdas.vault
+        );
+        let vaultAta = await getAccount(
           provider.connection,
-          pdas.vestingScheduleTokenAccount,
+          pdas.vaultAta,
           undefined,
           TOKEN_2022_PROGRAM_ID
         );
 
-        let lockBalance = Number(
-          vestingScheduleTokenAccount.amount / BigInt(LAMPORTS_PER_SOL)
-        );
+        let lockBalance = Number(vaultAta.amount / BigInt(LAMPORTS_PER_SOL));
         let expectedAmount = Math.max(
           Number(
             (startingVestingScheduleAccountInfo.amount -
               BigInt(startingLockAccount.cliffPaymentAmount.toString()) -
-              BigInt(vestingScheduleAccount.amountPerPayout.toString())) /
+              BigInt(vaultAccount.amountPerPayout.toString())) /
               BigInt(LAMPORTS_PER_SOL)
           ),
           0
         );
 
-        expect(lockBalance).equals(
-          expectedAmount,
-          "vestingScheduleTokenAccount.amount"
-        );
+        expect(lockBalance).equals(expectedAmount, "vaultAta.amount");
 
         ///////////////////////////////
         // Other disbursements w/o Cliff
@@ -889,7 +894,7 @@ describe("⚡️ Valhalla", () => {
 
           startingVestingScheduleAccountInfo = await getAccount(
             provider.connection,
-            pdas.vestingScheduleTokenAccount,
+            pdas.vaultAta,
             undefined,
             TOKEN_2022_PROGRAM_ID
           );
@@ -900,8 +905,8 @@ describe("⚡️ Valhalla", () => {
               signer: recipient.publicKey,
               creator: creator.publicKey,
               recipient: recipient.publicKey,
-              vestingSchedule: pdas.vestingSchedule,
-              vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
+              vault: pdas.vault,
+              vaultAta: pdas.vaultAta,
               recipientTokenAccount: recipientTokenAccount.address,
               mint,
               tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -911,31 +916,26 @@ describe("⚡️ Valhalla", () => {
 
           await provider.sendAndConfirm(tx, [recipient]);
 
-          vestingScheduleAccount = await program.account.vestingSchedule.fetch(
-            pdas.vestingSchedule
+          vaultAccount = await program.account.vestingSchedule.fetch(
+            pdas.vault
           );
-          vestingScheduleTokenAccount = await getAccount(
+          vaultAta = await getAccount(
             provider.connection,
-            pdas.vestingScheduleTokenAccount,
+            pdas.vaultAta,
             undefined,
             TOKEN_2022_PROGRAM_ID
           );
-          lockBalance = Number(
-            vestingScheduleTokenAccount.amount / BigInt(LAMPORTS_PER_SOL)
-          );
+          lockBalance = Number(vaultAta.amount / BigInt(LAMPORTS_PER_SOL));
           expectedAmount = Math.max(
             Number(
               (startingVestingScheduleAccountInfo.amount -
-                BigInt(vestingScheduleAccount.amountPerPayout.toString())) /
+                BigInt(vaultAccount.amountPerPayout.toString())) /
                 BigInt(LAMPORTS_PER_SOL)
             ),
             0
           );
 
-          expect(lockBalance).equals(
-            expectedAmount,
-            "vestingScheduleTokenAccount.amount"
-          );
+          expect(lockBalance).equals(expectedAmount, "vaultAta.amount");
         }
       });
     });
@@ -943,6 +943,14 @@ describe("⚡️ Valhalla", () => {
 
   describe("🔒 Token Locks", () => {
     it("should create the lock with the right properties", async () => {
+      const identifier = new anchor.BN(randomBytes(8));
+      pdas = getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        recipient.publicKey,
+        mint
+      );
       const amountToBeVested = new anchor.BN(1_000_000_000);
       const vestingDuration = new anchor.BN(1); // 1 seconds for sake of testing time
       const nameArg = [];
@@ -963,14 +971,14 @@ describe("⚡️ Valhalla", () => {
 
       const createdTimestamp = new anchor.BN(Date.now() / 1000);
       const tx = await program.methods
-        .createTokenLock(nameArg, amountToBeVested, vestingDuration)
+        .createTokenLock(identifier, nameArg, amountToBeVested, vestingDuration)
         .accounts({
           creator: creator.publicKey,
           recipient: recipient.publicKey,
           config: pdas.config,
           treasury: wallet.publicKey,
-          tokenLock: pdas.tokenLock,
-          tokenLockTokenAccount: pdas.tokenLockTokenAccount,
+          vault: pdas.vault,
+          vaultAta: pdas.vaultAta,
           creatorTokenAccount: creatorTokenAccount.address,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -981,7 +989,7 @@ describe("⚡️ Valhalla", () => {
       await provider.sendAndConfirm(tx, [creator]);
 
       const tokenLockAccount = await program.account.tokenLock.fetch(
-        pdas.tokenLock
+        pdas.vault
       );
       expect(tokenLockAccount.creator.toBase58()).equals(
         creator.publicKey.toBase58(),
@@ -1000,7 +1008,7 @@ describe("⚡️ Valhalla", () => {
 
       const tokenLockTokenAccount = await getAccount(
         provider.connection,
-        pdas.tokenLockTokenAccount,
+        pdas.vaultAta,
         undefined,
         TOKEN_2022_PROGRAM_ID
       );
@@ -1022,8 +1030,8 @@ describe("⚡️ Valhalla", () => {
             creator: creator.publicKey,
             recipient: recipient.publicKey,
             recipientTokenAccount: recipientTokenAccount.address,
-            tokenLock: pdas.tokenLock,
-            tokenLockTokenAccount: pdas.tokenLockTokenAccount,
+            vault: pdas.vault,
+            vaultAta: pdas.vaultAta,
             mint,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -1049,8 +1057,8 @@ describe("⚡️ Valhalla", () => {
             creator: creator.publicKey,
             recipient: recipient.publicKey,
             recipientTokenAccount: recipientTokenAccount.address,
-            tokenLock: pdas.tokenLock,
-            tokenLockTokenAccount: pdas.tokenLockTokenAccount,
+            vault: pdas.vault,
+            vaultAta: pdas.vaultAta,
             mint,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -1061,7 +1069,7 @@ describe("⚡️ Valhalla", () => {
 
         const tokenLockTokenAccount = await getAccount(
           provider.connection,
-          pdas.tokenLockTokenAccount,
+          pdas.vaultAta,
           undefined,
           TOKEN_2022_PROGRAM_ID
         );
@@ -1075,6 +1083,14 @@ describe("⚡️ Valhalla", () => {
 
   describe("🔒 Scheduled Payment", () => {
     it("should create the scheduled payment with the right properties", async () => {
+      const identifier = new anchor.BN(randomBytes(8));
+      pdas = getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        recipient.publicKey,
+        mint
+      );
       const amountToBeVested = new anchor.BN(1_000_000_000);
       const vestingDuration = new anchor.BN(1); // 1 seconds for sake of testing time
       const cancelAuthority = new anchor.BN(Authority.Neither);
@@ -1096,6 +1112,7 @@ describe("⚡️ Valhalla", () => {
       }
       const tx = await program.methods
         .createScheduledPayment(
+          identifier,
           nameArg,
           amountToBeVested,
           vestingDuration,
@@ -1110,8 +1127,8 @@ describe("⚡️ Valhalla", () => {
           recipient: recipient.publicKey,
           config: pdas.config,
           treasury: wallet.publicKey,
-          scheduledPayment: pdas.scheduledPayment,
-          scheduledPaymentTokenAccount: pdas.scheduledPaymentTokenAccount,
+          vault: pdas.vault,
+          vaultAta: pdas.vaultAta,
           creatorTokenAccount: creatorTokenAccount.address,
           recipientTokenAccount: recipientTokenAccount.address,
           mint,
@@ -1123,7 +1140,7 @@ describe("⚡️ Valhalla", () => {
       await provider.sendAndConfirm(tx, [creator]);
 
       const scheduledPaymentAccount =
-        await program.account.scheduledPayment.fetch(pdas.scheduledPayment);
+        await program.account.scheduledPayment.fetch(pdas.vault);
 
       expect(scheduledPaymentAccount.creator.toBase58()).equals(
         creator.publicKey.toBase58(),

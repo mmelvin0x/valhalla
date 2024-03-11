@@ -11,10 +11,10 @@ pub struct UpdateVestingSchedule<'info> {
     #[account(mut, constraint = creator.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
-    #[account(mut, constraint = vesting_schedule.creator == creator.key())]
+    #[account(mut, constraint = vault.creator == creator.key())]
     pub creator: SystemAccount<'info>,
 
-    #[account(mut, constraint = vesting_schedule.recipient == recipient.key())]
+    #[account(mut, constraint = vault.recipient == recipient.key())]
     pub recipient: SystemAccount<'info>,
 
     pub new_recipient: SystemAccount<'info>,
@@ -23,17 +23,15 @@ pub struct UpdateVestingSchedule<'info> {
         mut,
         close = creator,
         seeds = [
+            vault.identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::VESTING_SCHEDULE_SEED,
+            constants::VAULT_SEED,
         ],
         bump,
-        has_one = recipient,
-        has_one = creator,
-        has_one = mint,
     )]
-    pub vesting_schedule: Account<'info, VestingSchedule>,
+    pub vault: Account<'info, VestingSchedule>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -44,10 +42,10 @@ pub struct UpdateVestingSchedule<'info> {
 
 impl<'info> UpdateVestingSchedule<'info> {
     pub fn update(&mut self) -> Result<()> {
-        let vesting_schedule = &mut self.vesting_schedule;
+        let vault = &mut self.vault;
 
         // Check the change recipient authority
-        match vesting_schedule.change_recipient_authority {
+        match vault.change_recipient_authority {
             Authority::Neither => {
                 return Err(ValhallaError::Unauthorized.into());
             }
@@ -70,7 +68,7 @@ impl<'info> UpdateVestingSchedule<'info> {
             }
         }
 
-        vesting_schedule.recipient = self.new_recipient.key();
+        vault.recipient = self.new_recipient.key();
 
         Ok(())
     }

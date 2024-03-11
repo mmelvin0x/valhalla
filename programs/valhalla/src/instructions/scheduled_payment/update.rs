@@ -11,10 +11,10 @@ pub struct UpdateScheduledPayment<'info> {
     #[account(mut, constraint = creator.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
-    #[account(mut, constraint = scheduled_payment.creator == creator.key())]
+    #[account(mut, constraint = vault.creator == creator.key())]
     pub creator: SystemAccount<'info>,
 
-    #[account(mut, constraint = scheduled_payment.recipient == recipient.key())]
+    #[account(mut, constraint = vault.recipient == recipient.key())]
     pub recipient: SystemAccount<'info>,
 
     pub new_recipient: SystemAccount<'info>,
@@ -23,17 +23,15 @@ pub struct UpdateScheduledPayment<'info> {
         mut,
         close = creator,
         seeds = [
+            vault.identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::SCHEDULED_PAYMENT_SEED,
+            constants::VAULT_SEED,
         ],
         bump,
-        has_one = recipient,
-        has_one = creator,
-        has_one = mint,
     )]
-    pub scheduled_payment: Account<'info, ScheduledPayment>,
+    pub vault: Account<'info, ScheduledPayment>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
@@ -44,9 +42,9 @@ pub struct UpdateScheduledPayment<'info> {
 
 impl<'info> UpdateScheduledPayment<'info> {
     pub fn update(&mut self) -> Result<()> {
-        let scheduled_payment = &mut self.scheduled_payment;
+        let vault = &mut self.vault;
 
-        match scheduled_payment.change_recipient_authority {
+        match vault.change_recipient_authority {
             Authority::Neither => {
                 return Err(ValhallaError::Unauthorized.into());
             }
@@ -69,7 +67,7 @@ impl<'info> UpdateScheduledPayment<'info> {
             }
         }
 
-        scheduled_payment.recipient = self.new_recipient.key();
+        vault.recipient = self.new_recipient.key();
 
         Ok(())
     }

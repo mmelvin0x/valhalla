@@ -5,31 +5,31 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-type ErrorWithCode = Error & { code: number }
-type MaybeErrorWithCode = ErrorWithCode | null | undefined
+type ErrorWithCode = Error & { code: number };
+type MaybeErrorWithCode = ErrorWithCode | null | undefined;
 
-const createErrorFromCodeLookup: Map<number, () => ErrorWithCode> = new Map()
-const createErrorFromNameLookup: Map<string, () => ErrorWithCode> = new Map()
+const createErrorFromCodeLookup: Map<number, () => ErrorWithCode> = new Map();
+const createErrorFromNameLookup: Map<string, () => ErrorWithCode> = new Map();
 
 /**
- * Locked: 'The vesting_schedule has not expired yet!'
+ * Locked: 'The vault has not expired yet!'
  *
  * @category Errors
  * @category generated
  */
 export class LockedError extends Error {
-  readonly code: number = 0x1770
-  readonly name: string = 'Locked'
+  readonly code: number = 0x1770;
+  readonly name: string = "Locked";
   constructor() {
-    super('The vesting_schedule has not expired yet!')
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, LockedError)
+    super("The vault has not expired yet!");
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, LockedError);
     }
   }
 }
 
-createErrorFromCodeLookup.set(0x1770, () => new LockedError())
-createErrorFromNameLookup.set('Locked', () => new LockedError())
+createErrorFromCodeLookup.set(0x1770, () => new LockedError());
+createErrorFromNameLookup.set("Locked", () => new LockedError());
 
 /**
  * Unauthorized: 'Not authorized to perform this action!'
@@ -38,18 +38,18 @@ createErrorFromNameLookup.set('Locked', () => new LockedError())
  * @category generated
  */
 export class UnauthorizedError extends Error {
-  readonly code: number = 0x1771
-  readonly name: string = 'Unauthorized'
+  readonly code: number = 0x1771;
+  readonly name: string = "Unauthorized";
   constructor() {
-    super('Not authorized to perform this action!')
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, UnauthorizedError)
+    super("Not authorized to perform this action!");
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, UnauthorizedError);
     }
   }
 }
 
-createErrorFromCodeLookup.set(0x1771, () => new UnauthorizedError())
-createErrorFromNameLookup.set('Unauthorized', () => new UnauthorizedError())
+createErrorFromCodeLookup.set(0x1771, () => new UnauthorizedError());
+createErrorFromNameLookup.set("Unauthorized", () => new UnauthorizedError());
 
 /**
  * InsufficientFundsForDeposit: 'You do not have enough tokens to perform this action!'
@@ -58,24 +58,24 @@ createErrorFromNameLookup.set('Unauthorized', () => new UnauthorizedError())
  * @category generated
  */
 export class InsufficientFundsForDepositError extends Error {
-  readonly code: number = 0x1772
-  readonly name: string = 'InsufficientFundsForDeposit'
+  readonly code: number = 0x1772;
+  readonly name: string = "InsufficientFundsForDeposit";
   constructor() {
-    super('You do not have enough tokens to perform this action!')
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, InsufficientFundsForDepositError)
+    super("You do not have enough tokens to perform this action!");
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, InsufficientFundsForDepositError);
     }
   }
 }
 
 createErrorFromCodeLookup.set(
   0x1772,
-  () => new InsufficientFundsForDepositError()
-)
+  () => new InsufficientFundsForDepositError(),
+);
 createErrorFromNameLookup.set(
-  'InsufficientFundsForDeposit',
-  () => new InsufficientFundsForDepositError()
-)
+  "InsufficientFundsForDeposit",
+  () => new InsufficientFundsForDepositError(),
+);
 
 /**
  * NoPayout: 'No payout!'
@@ -84,18 +84,18 @@ createErrorFromNameLookup.set(
  * @category generated
  */
 export class NoPayoutError extends Error {
-  readonly code: number = 0x1773
-  readonly name: string = 'NoPayout'
+  readonly code: number = 0x1773;
+  readonly name: string = "NoPayout";
   constructor() {
-    super('No payout!')
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, NoPayoutError)
+    super("No payout!");
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, NoPayoutError);
     }
   }
 }
 
-createErrorFromCodeLookup.set(0x1773, () => new NoPayoutError())
-createErrorFromNameLookup.set('NoPayout', () => new NoPayoutError())
+createErrorFromCodeLookup.set(0x1773, () => new NoPayoutError());
+createErrorFromNameLookup.set("NoPayout", () => new NoPayoutError());
 
 /**
  * NameTooLong: 'Name is too long!'
@@ -104,18 +104,18 @@ createErrorFromNameLookup.set('NoPayout', () => new NoPayoutError())
  * @category generated
  */
 export class NameTooLongError extends Error {
-  readonly code: number = 0x1774
-  readonly name: string = 'NameTooLong'
+  readonly code: number = 0x1774;
+  readonly name: string = "NameTooLong";
   constructor() {
-    super('Name is too long!')
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, NameTooLongError)
+    super("Name is too long!");
+    if (typeof Error.captureStackTrace === "function") {
+      Error.captureStackTrace(this, NameTooLongError);
     }
   }
 }
 
-createErrorFromCodeLookup.set(0x1774, () => new NameTooLongError())
-createErrorFromNameLookup.set('NameTooLong', () => new NameTooLongError())
+createErrorFromCodeLookup.set(0x1774, () => new NameTooLongError());
+createErrorFromNameLookup.set("NameTooLong", () => new NameTooLongError());
 
 /**
  * Attempts to resolve a custom program error from the provided error code.
@@ -123,8 +123,8 @@ createErrorFromNameLookup.set('NameTooLong', () => new NameTooLongError())
  * @category generated
  */
 export function errorFromCode(code: number): MaybeErrorWithCode {
-  const createError = createErrorFromCodeLookup.get(code)
-  return createError != null ? createError() : null
+  const createError = createErrorFromCodeLookup.get(code);
+  return createError != null ? createError() : null;
 }
 
 /**
@@ -133,6 +133,6 @@ export function errorFromCode(code: number): MaybeErrorWithCode {
  * @category generated
  */
 export function errorFromName(name: string): MaybeErrorWithCode {
-  const createError = createErrorFromNameLookup.get(name)
-  return createError != null ? createError() : null
+  const createError = createErrorFromNameLookup.get(name);
+  return createError != null ? createError() : null;
 }

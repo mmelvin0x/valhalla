@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 #[error_code]
 pub enum ValhallaError {
     /// 0x1770 - 6000
-    #[msg("The vesting_schedule has not expired yet!")]
+    #[msg("The vault has not expired yet!")]
     Locked,
 
     /// 0x1771 - 6001

@@ -4,6 +4,7 @@ use crate::{types::Authority, VestingType};
 
 #[account]
 pub struct ScheduledPayment {
+    pub identifier: u64,
     pub name: [u8; 32],
     pub creator: Pubkey,
     pub recipient: Pubkey,
@@ -19,6 +20,7 @@ pub struct ScheduledPayment {
 
 impl Space for ScheduledPayment {
     const INIT_SPACE: usize = 8 + // discriminator
+            8 + // identifier
             32 + // name
             32 + // creator
             32 + // recipient
