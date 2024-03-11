@@ -52,20 +52,20 @@ pub struct DisburseScheduledPayment<'info> {
 }
 
 impl<'info> DisburseScheduledPayment<'info> {
-    pub fn disburse(&mut self, bump: u8) -> Result<()> {
+    pub fn disburse(&mut self) -> Result<()> {
         if self.can_disburse()? {
-            self.transfer(bump)
+            self.transfer()
         } else {
             return Err(ValhallaError::Locked.into());
         }
     }
 
-    fn transfer(&mut self, bump: u8) -> Result<()> {
+    fn transfer(&mut self) -> Result<()> {
         let lock_key = self.scheduled_payment.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
-            constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
-            &[bump],
+            constants::SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED,
+            &[self.scheduled_payment.token_account_bump],
         ]];
 
         let cpi_program = self.token_program.to_account_info();

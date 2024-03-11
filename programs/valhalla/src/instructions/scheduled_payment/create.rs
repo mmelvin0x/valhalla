@@ -82,6 +82,7 @@ impl<'info> CreateScheduledPayment<'info> {
         total_vesting_duration: u64,
         cancel_authority: Authority,
         change_recipient_authority: Authority,
+        bump: u8,
     ) -> Result<()> {
         let amount = self.validate_deposit(amount_to_be_vested)?;
 
@@ -90,6 +91,7 @@ impl<'info> CreateScheduledPayment<'info> {
             total_vesting_duration,
             cancel_authority,
             change_recipient_authority,
+            bump,
         )?;
 
         self.transfer(amount)?;
@@ -127,17 +129,19 @@ impl<'info> CreateScheduledPayment<'info> {
         total_vesting_duration: u64,
         cancel_authority: Authority,
         change_recipient_authority: Authority,
+        bump: u8,
     ) -> Result<()> {
         self.scheduled_payment.set_inner(ScheduledPayment {
+            name,
             creator: self.creator.key(),
             recipient: self.recipient.key(),
             mint: self.mint.key(),
-            name,
             total_vesting_duration,
             created_timestamp: Clock::get()?.unix_timestamp as u64,
+            vesting_type: VestingType::ScheduledPayment,
             cancel_authority,
             change_recipient_authority,
-            vesting_type: VestingType::ScheduledPayment,
+            token_account_bump: bump,
         });
 
         Ok(())

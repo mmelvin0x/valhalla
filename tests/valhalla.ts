@@ -966,6 +966,7 @@ describe("⚡️ Valhalla", () => {
         .createTokenLock(nameArg, amountToBeVested, vestingDuration)
         .accounts({
           creator: creator.publicKey,
+          recipient: recipient.publicKey,
           config: pdas.config,
           treasury: wallet.publicKey,
           tokenLock: pdas.tokenLock,
@@ -1019,7 +1020,8 @@ describe("⚡️ Valhalla", () => {
           .disburseTokenLock()
           .accounts({
             creator: creator.publicKey,
-            creatorTokenAccount: creatorTokenAccount.address,
+            recipient: recipient.publicKey,
+            recipientTokenAccount: recipientTokenAccount.address,
             tokenLock: pdas.tokenLock,
             tokenLockTokenAccount: pdas.tokenLockTokenAccount,
             mint,
@@ -1045,7 +1047,8 @@ describe("⚡️ Valhalla", () => {
           .disburseTokenLock()
           .accounts({
             creator: creator.publicKey,
-            creatorTokenAccount: creatorTokenAccount.address,
+            recipient: recipient.publicKey,
+            recipientTokenAccount: recipientTokenAccount.address,
             tokenLock: pdas.tokenLock,
             tokenLockTokenAccount: pdas.tokenLockTokenAccount,
             mint,

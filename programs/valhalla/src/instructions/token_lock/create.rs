@@ -73,9 +73,10 @@ impl<'info> CreateTokenLock<'info> {
         name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
+        bump: u8,
     ) -> Result<()> {
         let transfer_amount = self.validate_deposit(amount_to_be_vested)?;
-        self.set_state(total_vesting_duration, name)?;
+        self.set_state(total_vesting_duration, name, bump)?;
         self.transfer(transfer_amount)?;
         self.take_fee()
     }
@@ -93,7 +94,7 @@ impl<'info> CreateTokenLock<'info> {
         Ok(amount)
     }
 
-    fn set_state(&mut self, total_vesting_duration: u64, name: [u8; 32]) -> Result<()> {
+    fn set_state(&mut self, total_vesting_duration: u64, name: [u8; 32], bump: u8) -> Result<()> {
         self.token_lock.set_inner(TokenLock {
             creator: self.creator.key(),
             recipient: self.creator.key(),
@@ -102,6 +103,7 @@ impl<'info> CreateTokenLock<'info> {
             name,
             created_timestamp: Clock::get()?.unix_timestamp as u64,
             vesting_type: VestingType::TokenLock,
+            token_account_bump: bump,
         });
 
         Ok(())

@@ -82,22 +82,13 @@ impl<'info> CreateVestingSchedule<'info> {
         name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
-        cancel_authority: Option<Authority>,
-        change_recipient_authority: Option<Authority>,
-        payout_interval: Option<u64>,
-        cliff_payment_amount: Option<u64>,
-        start_date: Option<u64>,
+        cancel_authority: Authority,
+        change_recipient_authority: Authority,
+        payout_interval: u64,
+        cliff_payment_amount: u64,
+        start_date: u64,
+        bump: u8,
     ) -> Result<()> {
-        if payout_interval.is_none() {
-            return Err(ValhallaError::MissingOrInvalidPayoutInterval.into());
-        }
-
-        let payout_interval = payout_interval.unwrap();
-        let cliff_payment_amount = cliff_payment_amount.unwrap_or(0);
-        let start_date = start_date.unwrap_or(Clock::get()?.unix_timestamp as u64);
-        let cancel_authority = cancel_authority.unwrap_or(Authority::Neither);
-        let change_recipient_authority = change_recipient_authority.unwrap_or(Authority::Neither);
-
         let (mut amount, amount_per_payout, balance) =
             self.validate_deposit(amount_to_be_vested, total_vesting_duration, payout_interval)?;
 
@@ -114,6 +105,7 @@ impl<'info> CreateVestingSchedule<'info> {
             false,
             cancel_authority,
             change_recipient_authority,
+            bump,
         )?;
 
         if cliff_payment > 0 {
@@ -219,24 +211,26 @@ impl<'info> CreateVestingSchedule<'info> {
         is_cliff_payment_disbursed: bool,
         cancel_authority: Authority,
         change_recipient_authority: Authority,
+        bump: u8,
     ) -> Result<()> {
         self.vesting_schedule.set_inner(VestingSchedule {
+            name,
             creator: self.creator.key(),
             recipient: self.recipient.key(),
             mint: self.mint.key(),
-            name,
             total_vesting_duration,
+            created_timestamp: Clock::get()?.unix_timestamp as u64,
+            vesting_type: VestingType::VestingSchedule,
+            token_account_bump: bump,
+            cancel_authority,
+            change_recipient_authority,
+            start_date,
             payout_interval,
             amount_per_payout,
-            start_date,
             cliff_payment_amount,
-            created_timestamp: Clock::get()?.unix_timestamp as u64,
             last_payment_timestamp: Clock::get()?.unix_timestamp as u64,
             number_of_payments_made,
             is_cliff_payment_disbursed,
-            cancel_authority,
-            change_recipient_authority,
-            vesting_type: VestingType::VestingSchedule,
         });
 
         Ok(())

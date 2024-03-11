@@ -61,22 +61,22 @@ pub struct CancelScheduledPayment<'info> {
 }
 
 impl<'info> CancelScheduledPayment<'info> {
-    pub fn cancel(&mut self, bump: u8) -> Result<()> {
+    pub fn cancel(&mut self) -> Result<()> {
         self.validate_authority()?;
 
         if self.payment_token_account.amount > 0 {
-            self.transfer(bump)?;
+            self.transfer()?;
         }
 
-        self.close(bump)
+        self.close()
     }
 
-    fn close(&mut self, bump: u8) -> Result<()> {
+    fn close(&mut self) -> Result<()> {
         let lock_key = self.scheduled_payment.to_account_info().key();
         let signer: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
             constants::SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED,
-            &[bump],
+            &[self.scheduled_payment.token_account_bump],
         ]];
 
         let cpi_accounts = CloseAccount {
@@ -90,12 +90,12 @@ impl<'info> CancelScheduledPayment<'info> {
         close_account(cpi_ctx)
     }
 
-    fn transfer(&mut self, bump: u8) -> Result<()> {
+    fn transfer(&mut self) -> Result<()> {
         let lock_key = self.scheduled_payment.to_account_info().key();
         let signer: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
             constants::SCHEDULED_PAYMENT_TOKEN_ACCOUNT_SEED,
-            &[bump],
+            &[self.scheduled_payment.token_account_bump],
         ]];
 
         let payment_token_account = &self.payment_token_account;

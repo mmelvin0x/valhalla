@@ -37,12 +37,12 @@ pub struct CloseVestingSchedule<'info> {
 }
 
 impl<'info> CloseVestingSchedule<'info> {
-    pub fn close(&mut self, bump: u8) -> Result<()> {
+    pub fn close(&mut self) -> Result<()> {
         let lock_key = self.vesting_schedule.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
             constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
-            &[bump],
+            &[self.vesting_schedule.token_account_bump],
         ]];
 
         let cpi_accounts = CloseAccount {

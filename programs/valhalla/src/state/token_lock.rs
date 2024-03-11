@@ -11,6 +11,7 @@ pub struct TokenLock {
     pub total_vesting_duration: u64,
     pub created_timestamp: u64,
     pub vesting_type: VestingType,
+    pub token_account_bump: u8,
 }
 
 impl Space for TokenLock {
@@ -21,5 +22,6 @@ impl Space for TokenLock {
             32 + // mint
             8 + // total_vesting_duration
             8 + // created_timestamp
-            1; // vesting_type
+            1 + // vesting_type
+            1; // token_account_bump
 }

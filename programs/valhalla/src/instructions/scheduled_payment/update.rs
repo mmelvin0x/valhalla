@@ -12,15 +12,12 @@ pub struct UpdateScheduledPayment<'info> {
     pub signer: Signer<'info>,
 
     #[account(mut, constraint = scheduled_payment.creator == creator.key())]
-    /// CHECK: Checked in contstraints
-    pub creator: UncheckedAccount<'info>,
+    pub creator: SystemAccount<'info>,
 
     #[account(mut, constraint = scheduled_payment.recipient == recipient.key())]
-    /// CHECK: Checked in constraints
-    pub recipient: UncheckedAccount<'info>,
+    pub recipient: SystemAccount<'info>,
 
-    /// CHECK: Checked in constraints
-    pub new_recipient: UncheckedAccount<'info>,
+    pub new_recipient: SystemAccount<'info>,
 
     #[account(
         mut,
@@ -49,7 +46,6 @@ impl<'info> UpdateScheduledPayment<'info> {
     pub fn update(&mut self) -> Result<()> {
         let scheduled_payment = &mut self.scheduled_payment;
 
-        // Check the change recipient authority
         match scheduled_payment.change_recipient_authority {
             Authority::Neither => {
                 return Err(ValhallaError::Unauthorized.into());

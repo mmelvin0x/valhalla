@@ -10,11 +10,14 @@ pub struct CloseTokenLock<'info> {
     #[account(mut)]
     pub creator: Signer<'info>,
 
+    pub recipient: SystemAccount<'info>,
+
     #[account(
         mut,
         close = creator,
         seeds = [
             creator.key().as_ref(),
+            recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::TOKEN_LOCK_SEED
         ],
@@ -37,12 +40,12 @@ pub struct CloseTokenLock<'info> {
 }
 
 impl<'info> CloseTokenLock<'info> {
-    pub fn close(&mut self, bump: u8) -> Result<()> {
+    pub fn close(&mut self) -> Result<()> {
         let lock_key = self.token_lock.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
-            constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
-            &[bump],
+            constants::TOKEN_LOCK_TOKEN_ACCOUNT_SEED,
+            &[self.token_lock.token_account_bump],
         ]];
 
         let cpi_accounts = CloseAccount {

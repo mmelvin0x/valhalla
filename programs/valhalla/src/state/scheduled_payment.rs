@@ -11,6 +11,7 @@ pub struct ScheduledPayment {
     pub total_vesting_duration: u64,
     pub created_timestamp: u64,
     pub vesting_type: VestingType,
+    pub token_account_bump: u8,
 
     pub cancel_authority: Authority,
     pub change_recipient_authority: Authority,
@@ -25,6 +26,7 @@ impl Space for ScheduledPayment {
             8 + // total_vesting_duration
             8 + // created_timestamp
             1 + // vesting_type
+            1 + // token_account_bump
 
             1 + // cancel_authority
             1; // change_recipient_authority

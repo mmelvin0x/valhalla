@@ -30,11 +30,11 @@ pub mod valhalla {
         name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
-        cancel_authority: Option<Authority>,
-        change_recipient_authority: Option<Authority>,
-        payout_interval: Option<u64>,
-        cliff_payment_amount: Option<u64>,
-        start_date: Option<u64>,
+        cancel_authority: Authority,
+        change_recipient_authority: Authority,
+        payout_interval: u64,
+        cliff_payment_amount: u64,
+        start_date: u64,
     ) -> Result<()> {
         ctx.accounts.create(
             name,
@@ -45,21 +45,20 @@ pub mod valhalla {
             payout_interval,
             cliff_payment_amount,
             start_date,
+            ctx.bumps.vesting_schedule_token_account,
         )
     }
 
     pub fn disburse_vesting_schedule(ctx: Context<DisburseVestingSchedule>) -> Result<()> {
-        ctx.accounts
-            .disburse(ctx.bumps.vesting_schedule_token_account)
+        ctx.accounts.disburse()
     }
 
     pub fn cancel_vesting_schedule(ctx: Context<CancelVestingSchedule>) -> Result<()> {
-        ctx.accounts
-            .cancel(ctx.bumps.vesting_schedule_token_account)
+        ctx.accounts.cancel()
     }
 
     pub fn close_vesting_schedule(ctx: Context<CloseVestingSchedule>) -> Result<()> {
-        ctx.accounts.close(ctx.bumps.vesting_schedule_token_account)
+        ctx.accounts.close()
     }
 
     pub fn update_vesting_schedule(ctx: Context<UpdateVestingSchedule>) -> Result<()> {
@@ -72,16 +71,20 @@ pub mod valhalla {
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
     ) -> Result<()> {
-        ctx.accounts
-            .create(name, amount_to_be_vested, total_vesting_duration)
+        ctx.accounts.create(
+            name,
+            amount_to_be_vested,
+            total_vesting_duration,
+            ctx.bumps.token_lock_token_account,
+        )
     }
 
     pub fn disburse_token_lock(ctx: Context<DisburseTokenLock>) -> Result<()> {
-        ctx.accounts.disburse(ctx.bumps.token_lock_token_account)
+        ctx.accounts.disburse()
     }
 
     pub fn close_token_lock(ctx: Context<CloseTokenLock>) -> Result<()> {
-        ctx.accounts.close(ctx.bumps.token_lock_token_account)
+        ctx.accounts.close()
     }
 
     pub fn create_scheduled_payment(
@@ -98,15 +101,16 @@ pub mod valhalla {
             total_vesting_duration,
             cancel_authority,
             change_recipient_authority,
+            ctx.bumps.scheduled_payment_token_account,
         )
     }
 
     pub fn disburse_scheduled_payment(ctx: Context<DisburseScheduledPayment>) -> Result<()> {
-        ctx.accounts.disburse(ctx.bumps.payment_token_account)
+        ctx.accounts.disburse()
     }
 
     pub fn cancel_scheduled_payment(ctx: Context<CancelScheduledPayment>) -> Result<()> {
-        ctx.accounts.cancel(ctx.bumps.payment_token_account)
+        ctx.accounts.cancel()
     }
 
     pub fn update_scheduled_payment(ctx: Context<UpdateScheduledPayment>) -> Result<()> {
@@ -114,6 +118,6 @@ pub mod valhalla {
     }
 
     pub fn close_scheduled_payment(ctx: Context<CloseScheduledPayment>) -> Result<()> {
-        ctx.accounts.close(ctx.bumps.payment_token_account)
+        ctx.accounts.close()
     }
 }

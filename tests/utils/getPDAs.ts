@@ -50,7 +50,12 @@ export function getPDAs(
   );
 
   const [tokenLock] = PublicKey.findProgramAddressSync(
-    [creator.toBuffer(), mint.toBuffer(), TOKEN_LOCK_SEED],
+    [
+      creator.toBuffer(),
+      recipient.toBuffer(),
+      mint.toBuffer(),
+      TOKEN_LOCK_SEED,
+    ],
     programId
   );
   const [tokenLockTokenAccount] = PublicKey.findProgramAddressSync(

@@ -54,7 +54,7 @@ pub struct DisburseVestingSchedule<'info> {
 }
 
 impl<'info> DisburseVestingSchedule<'info> {
-    pub fn disburse(&mut self, bump: u8) -> Result<()> {
+    pub fn disburse(&mut self) -> Result<()> {
         let mut transfer_amount;
         let current_time = Clock::get()?.unix_timestamp as u64;
 
@@ -69,7 +69,7 @@ impl<'info> DisburseVestingSchedule<'info> {
                 transfer_amount = self.vesting_schedule_token_account.amount;
             }
 
-            self.transfer(transfer_amount, bump)
+            self.transfer(transfer_amount)
         } else {
             return Err(ValhallaError::NoPayout.into());
         }
@@ -151,12 +151,12 @@ impl<'info> DisburseVestingSchedule<'info> {
         transfer_amount
     }
 
-    fn transfer(&mut self, transfer_amount: u64, bump: u8) -> Result<()> {
+    fn transfer(&mut self, transfer_amount: u64) -> Result<()> {
         let lock_key = self.vesting_schedule.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
             lock_key.as_ref(),
             constants::VESTING_SCHEDULE_TOKEN_ACCOUNT_SEED,
-            &[bump],
+            &[self.vesting_schedule.token_account_bump],
         ]];
         let cpi_program = self.token_program.to_account_info();
         let cpi_accounts = TransferChecked {
