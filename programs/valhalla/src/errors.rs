@@ -14,15 +14,11 @@ pub enum ValhallaError {
     #[msg("You do not have enough tokens to perform this action!")]
     InsufficientFundsForDeposit,
 
-    /// 0x1773 - 6003
+    /// 0x1774 - 6004
     #[msg("No payout!")]
     NoPayout,
 
-    /// 0x1774 - 6004
-    #[msg("Name is too long!")]
-    NameTooLong,
-
-    /// 0x1775- 6005
+    /// 0x1776 - 6006
     #[msg("Config account is already initialized!")]
-    AlreadyInitialized,
+    AlreadyCreateConfig,
 }

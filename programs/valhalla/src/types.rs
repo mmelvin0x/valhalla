@@ -7,10 +7,3 @@ pub enum Authority {
     Recipient,
     Both,
 }
-
-#[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq)]
-pub enum VestingType {
-    VestingSchedule,
-    TokenLock,
-    ScheduledPayment,
-}

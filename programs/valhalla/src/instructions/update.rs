@@ -4,19 +4,24 @@ use anchor_spl::{
     token_interface::{Mint, Token2022},
 };
 
-use crate::{constants, errors::ValhallaError, Authority, ScheduledPayment};
+use crate::{constants, errors::ValhallaError, Authority, Vault};
 
 #[derive(Accounts)]
-pub struct UpdateScheduledPayment<'info> {
+/// Represents an update to a vault.
+pub struct UpdateVault<'info> {
+    /// The signer of the transaction, must be either the creator or the recipient of the vault.
     #[account(mut, constraint = creator.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
+    /// The creator of the vault.
     #[account(mut, constraint = vault.creator == creator.key())]
     pub creator: SystemAccount<'info>,
 
+    /// The recipient of the vault.
     #[account(mut, constraint = vault.recipient == recipient.key())]
     pub recipient: SystemAccount<'info>,
 
+    /// The new recipient of the vault.
     pub new_recipient: SystemAccount<'info>,
 
     #[account(
@@ -27,24 +32,52 @@ pub struct UpdateScheduledPayment<'info> {
             creator.key().as_ref(),
             recipient.key().as_ref(),
             mint.key().as_ref(),
-            constants::VAULT_SEED,
+            constants::VAULT_SEED,    
         ],
         bump,
     )]
-    pub vault: Account<'info, ScheduledPayment>,
+    /// The vault account to update.
+    pub vault: Account<'info, Vault>,
 
+    /// The mint account associated with the vault.
     pub mint: InterfaceAccount<'info, Mint>,
 
+    /// The token program.
     pub token_program: Program<'info, Token2022>,
+
+    /// The associated token program.
     pub associated_token_program: Program<'info, AssociatedToken>,
+
+    /// The system program.
     pub system_program: Program<'info, System>,
 }
 
-impl<'info> UpdateScheduledPayment<'info> {
+/// Implements the logic for updating a vault.
+impl<'info> UpdateVault<'info> {
+    /// Updates the vault with a new recipient.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the change recipient authority is unauthorized.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if the vault is successfully updated.
     pub fn update(&mut self) -> Result<()> {
-        let vault = &mut self.vault;
+        self.validate_change_recipient_authority()?;
 
-        match vault.change_recipient_authority {
+        self.vault.recipient = self.new_recipient.key();
+
+        Ok(())
+    }
+
+    /// Validates the authority to change the recipient of the vault.
+    /// 
+    /// # Errors
+    /// 
+    /// Returns an error if the authority is unauthorized.
+    fn validate_change_recipient_authority(&self) -> Result<()> {
+        match self.vault.change_recipient_authority {
             Authority::Neither => {
                 return Err(ValhallaError::Unauthorized.into());
             }
@@ -66,8 +99,6 @@ impl<'info> UpdateScheduledPayment<'info> {
                 }
             }
         }
-
-        vault.recipient = self.new_recipient.key();
 
         Ok(())
     }
