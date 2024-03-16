@@ -16,7 +16,7 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import { FormikHelpers, FormikValues } from "formik";
-import { TREASURY, getPDAs } from "utils/constants";
+import { SOL_TREASURY, getPDAs } from "utils/constants";
 import { getNameArg, shortenSignature } from "utils/formatters";
 
 import { ICreateForm } from "utils/interfaces";
@@ -71,7 +71,7 @@ export const createTokenLock = async (
   const createLockInstructionAccounts: CreateTokenLockInstructionAccounts = {
     creator: wallet.publicKey,
     config: pdas.config,
-    treasury: TREASURY,
+    treasury: SOL_TREASURY,
     tokenLock: pdas.tokenLock,
     tokenLockTokenAccount: pdas.tokenLockTokenAccount,
     creatorTokenAccount,

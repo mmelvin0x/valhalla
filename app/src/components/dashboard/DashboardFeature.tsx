@@ -7,7 +7,7 @@ import {
 import {
   searchScheduledPayments,
   searchTokenLocks,
-  searchVestingSchedules,
+  searchVaults,
 } from "utils/search";
 import { useEffect, useMemo, useState } from "react";
 
@@ -57,7 +57,7 @@ export default function DashboardFeature() {
     setLoading(true);
 
     try {
-      const { created, recipient } = await searchVestingSchedules(
+      const { created, recipient } = await searchVaults(
         connection,
         wallet.publicKey,
         search,

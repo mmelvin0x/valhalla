@@ -14,7 +14,7 @@ import {
   createCreateVestingScheduleInstruction,
 } from "program";
 import { FormikHelpers, FormikValues } from "formik";
-import { TREASURY, getPDAs } from "utils/constants";
+import { SOL_TREASURY, getPDAs } from "utils/constants";
 import { getNameArg, shortenSignature } from "utils/formatters";
 
 import { ICreateForm } from "utils/interfaces";
@@ -99,7 +99,7 @@ export const createVestingSchedule = async (
       creator: wallet.publicKey,
       recipient: new PublicKey(values.recipient),
       config: pdas.config,
-      treasury: TREASURY,
+      treasury: SOL_TREASURY,
       vestingSchedule: pdas.vestingSchedule,
       vestingScheduleTokenAccount: pdas.vestingScheduleTokenAccount,
       creatorTokenAccount,

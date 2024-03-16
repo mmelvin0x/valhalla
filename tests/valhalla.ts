@@ -1286,7 +1286,7 @@ describe("⚡️ Valhalla", () => {
   });
 
   describe("Vault w/ Disburse and Close", () => {
-    it("should not close a vault that is not empty", async () => {
+    it("should not close a vault that is not expired", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
       const amountToBeVested = new anchor.BN(100);
@@ -1350,9 +1350,9 @@ describe("⚡️ Valhalla", () => {
 
         await confirm(provider.connection, tx);
       } catch (e) {
-        expect(e.error.errorCode.code).equals("CloseVaultFailed");
-        expect(e.error.errorCode.number).equals(6004);
-        expect(e.error.errorMessage).equals("Closing the vault failed!");
+        expect(e.error.errorCode.code).equals("Locked");
+        expect(e.error.errorCode.number).equals(6000);
+        expect(e.error.errorMessage).equals("The vault is locked!");
       }
     });
 

@@ -54,9 +54,9 @@ impl<'info> CloseVault<'info> {
     ///
     /// Returns an error if the close account CPI (Cross-Program Invocation) fails.
     pub fn close(&mut self) -> Result<()> {
-        match self.vault.is_locked(Clock::get()?.unix_timestamp as u64)? {
-            true => Err(ValhallaError::Locked.into()),
-            false => match self.vault_ata.amount {
+        match self.vault.is_expired(Clock::get()?.unix_timestamp as u64)? {
+            false => Err(ValhallaError::Locked.into()),
+            true => match self.vault_ata.amount {
                 0 => self.close_vault_ata(),
                 _ => Err(ValhallaError::CloseVaultFailed.into()),
             },

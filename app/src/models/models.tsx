@@ -27,6 +27,7 @@ export default class BaseModel {
   lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
   initialDepositAmount: anchor.BN = new anchor.BN(0);
   totalNumberOfPayouts: anchor.BN = new anchor.BN(0);
+  payoutInterval: anchor.BN = new anchor.BN(0);
   numberOfPaymentsMade: anchor.BN = new anchor.BN(0);
   cancelAuthority: Authority;
 
@@ -54,6 +55,7 @@ export default class BaseModel {
     this.startDate = new anchor.BN(obj.startDate);
     this.lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);
     this.initialDepositAmount = new anchor.BN(obj.initialDepositAmount);
+    this.payoutInterval = new anchor.BN(obj.payoutInterval);
     this.totalNumberOfPayouts = new anchor.BN(obj.totalNumberOfPayouts);
     this.numberOfPaymentsMade = new anchor.BN(obj.numberOfPaymentsMade);
     this.cancelAuthority = obj.cancelAuthority;
@@ -81,19 +83,24 @@ export default class BaseModel {
     const currentTime = Math.floor(Date.now() / 1000);
     const startDate = this.startDate.toNumber();
     if (currentTime < startDate) return false;
+    if (
+      this.lastPaymentTimestamp.add(this.payoutInterval).toNumber() >
+      currentTime
+    )
+      return false;
 
     return false;
   }
 
-  get tokenAccountBalance(): anchor.BN {
-    return new anchor.BN(this.tokenAccount?.amount.toString());
+  get vaultAtaBalance(): anchor.BN {
+    return new anchor.BN(this.vaultAta?.amount.toString());
   }
 
-  get tokenAccountBalanceAsNumberPerDecimals(): number {
+  get vaultAtaBalanceAsNumberPerDecimals(): number {
     return (
-      (this.tokenAccount &&
-        this.tokenAccountBalance &&
-        this.tokenAccountBalance
+      (this.vaultAta &&
+        this.vaultAtaBalance &&
+        this.vaultAtaBalance
           .div(new anchor.BN(Math.pow(10, this.decimals)))
           .toNumber()) ||
       0
@@ -108,17 +115,10 @@ export default class BaseModel {
   }
 
   get nextPayoutDate(): Date {
-    switch (this.vestingType) {
-      case VestingType.VestingSchedule:
-        return new Date(
-          this.lastPaymentTimestamp.toNumber() * 1000 +
-            this.payoutInterval.toNumber() * 1000,
-        );
-
-      case VestingType.ScheduledPayment:
-      case VestingType.TokenLock:
-        return this.endDate;
-    }
+    return new Date(
+      this.lastPaymentTimestamp.toNumber() * 1000 +
+        this.payoutInterval.toNumber() * 1000,
+    );
   }
 
   get nextPayoutShortDate(): string {
@@ -127,21 +127,6 @@ export default class BaseModel {
 
   displayTime(seconds: number): string {
     return displayTime(seconds);
-  }
-
-  canChangeRecipient(user: PublicKey): boolean {
-    if (this.paymentsComplete) return false;
-
-    switch (this.changeRecipientAuthority) {
-      case Authority.Neither:
-        return false;
-      case Authority.Creator:
-        return user.equals(this.creator);
-      case Authority.Recipient:
-        return user.equals(this.recipient);
-      case Authority.Both:
-        return user.equals(this.creator) || user.equals(this.recipient);
-    }
   }
 
   canCancel(user: PublicKey): boolean {
@@ -168,17 +153,14 @@ export default class BaseModel {
       this.tokenProgramId,
     );
 
-    this.tokenAccount = await getAccount(
+    this.vaultAta = await getAccount(
       connection,
-      obj.vestingType === VestingType.VestingSchedule
-        ? pdas.vestingScheduleTokenAccount
-        : obj.vestingType === VestingType.TokenLock
-          ? pdas.tokenLockTokenAccount
-          : pdas.scheduledPaymentTokenAccount,
+      pdas.vaultAta,
       undefined,
       this.tokenProgramId,
     );
-    this.creatorTokenAccount = await getAccount(
+
+    this.creatorAta = await getAccount(
       connection,
       getAssociatedTokenAddressSync(
         obj.mint,
@@ -190,46 +172,24 @@ export default class BaseModel {
       this.tokenProgramId,
     );
 
-    if (obj.recipient) {
-      this.recipientTokenAccount = await getAccount(
-        connection,
-        getAssociatedTokenAddressSync(
-          obj.mint,
-          obj.recipient,
-          false,
-          this.tokenProgramId,
-        ),
-        undefined,
+    this.recipientAta = await getAccount(
+      connection,
+      getAssociatedTokenAddressSync(
+        obj.mint,
+        obj.recipient,
+        false,
         this.tokenProgramId,
-      );
-    }
+      ),
+      undefined,
+      this.tokenProgramId,
+    );
   }
 }
 
-export class VestingScheduleAccount extends BaseModel {
+export class ValhallaVault extends BaseModel {
   constructor(
     publicKey: PublicKey,
-    scheduledPayment: VestingSchedule,
-    public connection: Connection,
-  ) {
-    super(publicKey, scheduledPayment, connection);
-  }
-}
-
-export class TokenLockAccount extends BaseModel {
-  constructor(
-    publicKey: PublicKey,
-    scheduledPayment: TokenLock,
-    public connection: Connection,
-  ) {
-    super(publicKey, scheduledPayment, connection);
-  }
-}
-
-export class ScheduledPaymentAccount extends BaseModel {
-  constructor(
-    publicKey: PublicKey,
-    scheduledPayment: ScheduledPayment,
+    scheduledPayment: Vault,
     public connection: Connection,
   ) {
     super(publicKey, scheduledPayment, connection);

@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import { PROGRAM_ID } from "program";
 import { PublicKey } from "@solana/web3.js";
 
@@ -10,83 +12,57 @@ export const WRAPPED_SOL_MINT_KEY = new PublicKey(
   "So11111111111111111111111111111111111111112",
 );
 
-export const TREASURY = new PublicKey(
-  "5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb",
+export const SOL_TREASURY = new PublicKey(
+  "AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA",
 );
 
 export const CONFIG_SEED = Buffer.from("config");
-
-export const VAULT_SEED = Buffer.from("vault");
-export const VAULT_ATA_SEED = Buffer.from("vault_ata");
-
-export const VAULT_SEED = Buffer.from("token_lock");
-export const VAULT_ATA_SEED = Buffer.from("vault_ata");
-
 export const VAULT_SEED = Buffer.from("vault");
 export const VAULT_ATA_SEED = Buffer.from("vault_ata");
 
 export const getTreasuryKey = (): PublicKey => {
-  return TREASURY;
+  return SOL_TREASURY;
 };
 
 interface ValhallaPDAs {
   config: PublicKey;
-  vestingSchedule?: PublicKey;
-  vestingScheduleTokenAccount?: PublicKey;
-  tokenLock: PublicKey;
-  tokenLockTokenAccount: PublicKey;
-  scheduledPayment?: PublicKey;
-  scheduledPaymentTokenAccount?: PublicKey;
+  vault?: PublicKey;
+  vaultAta?: PublicKey;
 }
 
 export function getPDAs(
+  identifier: anchor.BN,
   creator: PublicKey,
-  recipient: PublicKey | null,
   mint: PublicKey,
 ): ValhallaPDAs {
-  let vestingSchedule: PublicKey | undefined;
-  let vestingScheduleTokenAccount: PublicKey | undefined;
-  let scheduledPayment: PublicKey | undefined;
-  let scheduledPaymentTokenAccount: PublicKey | undefined;
-
   const [config] = PublicKey.findProgramAddressSync([CONFIG_SEED], PROGRAM_ID);
 
-  if (recipient) {
-    [vestingSchedule] = PublicKey.findProgramAddressSync(
-      [creator.toBuffer(), recipient.toBuffer(), mint.toBuffer(), VAULT_SEED],
-      PROGRAM_ID,
-    );
-    [vestingScheduleTokenAccount] = PublicKey.findProgramAddressSync(
-      [vestingSchedule.toBuffer(), VAULT_ATA_SEED],
-      PROGRAM_ID,
-    );
-
-    [scheduledPayment] = PublicKey.findProgramAddressSync(
-      [creator.toBuffer(), recipient.toBuffer(), mint.toBuffer(), VAULT_SEED],
-      PROGRAM_ID,
-    );
-    [scheduledPaymentTokenAccount] = PublicKey.findProgramAddressSync(
-      [scheduledPayment.toBuffer(), VAULT_ATA_SEED],
-      PROGRAM_ID,
-    );
+  if (!identifier || !creator || !mint) {
+    return {
+      config,
+      vault: new PublicKey(0),
+      vaultAta: new PublicKey(0),
+    };
   }
 
-  const [tokenLock] = PublicKey.findProgramAddressSync(
-    [creator.toBuffer(), mint.toBuffer(), VAULT_SEED],
+  const [vault] = PublicKey.findProgramAddressSync(
+    [
+      identifier.toArrayLike(Buffer, "le", 8),
+      creator.toBuffer(),
+      mint.toBuffer(),
+      VAULT_SEED,
+    ],
     PROGRAM_ID,
   );
-  const [tokenLockTokenAccount] = PublicKey.findProgramAddressSync(
-    [tokenLock.toBuffer(), VAULT_ATA_SEED],
+
+  const [vaultAta] = PublicKey.findProgramAddressSync(
+    [vault.toBuffer(), VAULT_ATA_SEED],
     PROGRAM_ID,
   );
 
   return {
     config,
-    vestingSchedule,
-    vestingScheduleTokenAccount,
-    tokenLock,
-    tokenLockTokenAccount,
-    scheduledPayment,
-    scheduledPaymentTokenAccount,
+    vault,
+    vaultAta,
   };
 }
