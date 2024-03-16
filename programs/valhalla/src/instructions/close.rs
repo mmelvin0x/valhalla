@@ -3,7 +3,7 @@ use anchor_spl::token_interface::{
     close_account, CloseAccount, Mint, TokenAccount, TokenInterface,
 };
 
-use crate::{constants, Vault};
+use crate::{constants, errors::ValhallaError, Vault};
 
 #[derive(Accounts)]
 /// Represents the instruction to close a vault.
@@ -12,16 +12,12 @@ pub struct CloseVault<'info> {
     /// The creator of the vault.
     pub creator: Signer<'info>,
 
-    /// The recipient of the closed vault.
-    pub recipient: SystemAccount<'info>,
-
     #[account(
         mut,
         close = creator,
         seeds = [
             vault.identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
-            recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::VAULT_SEED
         ],
@@ -33,11 +29,10 @@ pub struct CloseVault<'info> {
     #[account(
         mut,
         seeds = [
-            vault.identifier.to_le_bytes().as_ref(),
             vault.key().as_ref(),
             constants::VAULT_ATA_SEED
         ],
-        bump,
+        bump = vault.token_account_bump,
         token::mint = mint,
         token::authority = vault_ata,
     )]
@@ -59,7 +54,13 @@ impl<'info> CloseVault<'info> {
     ///
     /// Returns an error if the close account CPI (Cross-Program Invocation) fails.
     pub fn close(&mut self) -> Result<()> {
-        self.close_vault_token_account()
+        match self.vault.is_locked(Clock::get()?.unix_timestamp as u64)? {
+            true => Err(ValhallaError::Locked.into()),
+            false => match self.vault_ata.amount {
+                0 => self.close_vault_ata(),
+                _ => Err(ValhallaError::CloseVaultFailed.into()),
+            },
+        }
     }
 
     /// Closes the vault token account.
@@ -67,11 +68,9 @@ impl<'info> CloseVault<'info> {
     /// # Errors
     ///
     /// Returns an error if the close account CPI (Cross-Program Invocation) fails.
-    fn close_vault_token_account(&self) -> Result<()> {
+    fn close_vault_ata(&mut self) -> Result<()> {
         let lock_key = self.vault.key();
-        let id = self.vault.identifier.to_le_bytes();
         let signer_seeds: &[&[&[u8]]] = &[&[
-            id.as_ref(),
             lock_key.as_ref(),
             constants::VAULT_ATA_SEED,
             &[self.vault.token_account_bump],

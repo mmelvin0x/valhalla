@@ -10,24 +10,21 @@ export interface ValhallaPDAs {
   config: PublicKey;
   vault: PublicKey;
   vaultAta: PublicKey;
-  tokenAccountBump: number;
 }
 
 export function getPDAs(
   programId: PublicKey,
   identifier?: anchor.BN,
   creator?: PublicKey,
-  recipient?: PublicKey,
   mint?: PublicKey
 ): ValhallaPDAs {
   const [config] = PublicKey.findProgramAddressSync([CONFIG_SEED], programId);
 
-  if (!identifier || !creator || !recipient || !mint) {
+  if (!identifier || !creator || !mint) {
     return {
       config,
       vault: new PublicKey(0),
       vaultAta: new PublicKey(0),
-      tokenAccountBump: 0,
     };
   }
 
@@ -35,15 +32,14 @@ export function getPDAs(
     [
       identifier.toArrayLike(Buffer, "le", 8),
       creator.toBuffer(),
-      recipient.toBuffer(),
       mint.toBuffer(),
       VAULT_SEED,
     ],
     programId
   );
 
-  const [vaultAta, tokenAccountBump] = PublicKey.findProgramAddressSync(
-    [identifier.toArrayLike(Buffer, "le", 8), vault.toBuffer(), VAULT_ATA_SEED],
+  const [vaultAta] = PublicKey.findProgramAddressSync(
+    [vault.toBuffer(), VAULT_ATA_SEED],
     programId
   );
 
@@ -51,6 +47,5 @@ export function getPDAs(
     config,
     vault,
     vaultAta,
-    tokenAccountBump,
   };
 }

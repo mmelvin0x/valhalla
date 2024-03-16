@@ -12,7 +12,7 @@ import {
   getOrCreateAssociatedTokenAccount,
   mintTo,
 } from "@solana/spl-token";
-import { Authority, getPDAs } from "../tests/utils/constants";
+import { Authority, getPDAs } from "../tests/utils/utils";
 import { Keypair, LAMPORTS_PER_SOL, SystemProgram } from "@solana/web3.js";
 
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";

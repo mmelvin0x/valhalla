@@ -4,60 +4,33 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   Account,
   TOKEN_2022_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  createMint,
   getAccount,
+  getMint,
+  getOrCreateAssociatedTokenAccount,
+  harvestWithheldTokensToMint,
 } from "@solana/spl-token";
 import {
   Authority,
-  amountMinted,
-  decimals,
+  calcExpectedAmount,
+  confirm,
   feeBasisPoints,
+  getAuthority,
+  getName,
+  getNowInSeconds,
   maxFee,
   setupTestAccounts,
-} from "./utils/constants";
-import { Connection, Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { ValhallaPDAs, getPDAs } from "./utils/getPDAs";
+  sleep,
+} from "./utils/utils";
+import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { assert, expect } from "chai";
 
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
+import { PublicKey } from "@metaplex-foundation/js";
 import { Valhalla } from "../target/types/valhalla";
-import { VestingType } from "../app/src/program";
-import { mintTransferFeeTokens } from "./utils/mintTransferFeeTokens";
+import { getPDAs } from "./utils/getPDAs";
 import { randomBytes } from "crypto";
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-const confirm = async (
-  connection: Connection,
-  signature: string
-): Promise<string> => {
-  const block = await connection.getLatestBlockhash();
-  await connection.confirmTransaction({
-    signature,
-    ...block,
-  });
-
-  return signature;
-};
-
-const getName = (name: string) => {
-  const nameArg = [];
-  const name_ = anchor.utils.bytes.utf8.encode(name);
-  name_.forEach((byte, i) => {
-    if (i < 32) {
-      nameArg.push(byte);
-    }
-  });
-
-  return nameArg;
-};
-
-const getNowInSeconds = () => new anchor.BN(Date.now() / 1000);
-
-const getAuthority = (
-  authority: Authority,
-  program: anchor.Program<Valhalla>
-) =>
-  program.coder.types.decode("Authority", new anchor.BN(authority).toBuffer());
 
 describe("⚡️ Valhalla", () => {
   const provider = anchor.AnchorProvider.env();
@@ -69,302 +42,656 @@ describe("⚡️ Valhalla", () => {
 
   const creator = anchor.web3.Keypair.generate();
   const recipient = anchor.web3.Keypair.generate();
+  const randomUser = anchor.web3.Keypair.generate();
+  const tokenTreasury = anchor.web3.Keypair.generate();
 
   let identifier: anchor.BN;
   let mint: anchor.web3.PublicKey;
   let creatorTokenAccount: Account;
   let recipientTokenAccount: Account;
+  let treasuryTokenAccount: Account;
+  let creatorRewardAta: Account;
+  let userRewardAta: Account;
+  let rewardTokenMint: anchor.web3.PublicKey;
 
   before(async () => {
-    [mint, creatorTokenAccount, recipientTokenAccount] =
-      await setupTestAccounts(provider, payer, creator, recipient);
+    rewardTokenMint = PublicKey.findProgramAddressSync(
+      [Buffer.from("reward_token_mint")],
+      program.programId
+    )[0];
+
+    [mint, creatorTokenAccount, recipientTokenAccount, treasuryTokenAccount] =
+      await setupTestAccounts(
+        provider,
+        payer,
+        creator,
+        recipient,
+        randomUser,
+        tokenTreasury
+      );
   });
 
   describe("Create Config", () => {
+    it("should fail if the token fee basis points are greater than 10000", async () => {
+      try {
+        const { config } = await getPDAs(program.programId);
+        const tx = await program.methods
+          .createConfig(
+            new anchor.BN(0.025 * LAMPORTS_PER_SOL),
+            new anchor.BN(10001),
+            new anchor.BN(10 * LAMPORTS_PER_SOL)
+          )
+          .accounts({
+            admin: payer.publicKey,
+            config,
+            solTreasury: payer.publicKey,
+            tokenTreasury: tokenTreasury.publicKey,
+            rewardTokenMint,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([])
+          .rpc();
+
+        await confirm(provider.connection, tx);
+        assert.fail("Expected an error");
+      } catch (e) {
+        expect(e.error.errorCode.code).equals("InvalidTokenFeeBasisPoints");
+        expect(e.error.errorCode.number).equals(6005);
+        expect(e.error.errorMessage).equals(
+          "Token fee basis points are invalid!"
+        );
+      }
+    });
+
     it("should create a config", async () => {
-      const { config } = getPDAs(program.programId);
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(10);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       const tx = await program.methods
-        .createConfig(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+        .createConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
         .accounts({
-          admin: wallet.publicKey,
+          admin: payer.publicKey,
           config,
-          treasury: wallet.publicKey,
+          solTreasury: payer.publicKey,
+          tokenTreasury: tokenTreasury.publicKey,
+          rewardTokenMint,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
         })
-        .signers([payer])
+        .signers([])
         .rpc();
 
       await confirm(provider.connection, tx);
 
-      const lockerAccount = await program.account.config.fetch(config);
-      expect(lockerAccount.fee.toNumber()).equals(0.1 * LAMPORTS_PER_SOL);
+      const configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.admin.toString()).equals(payer.publicKey.toString());
+      expect(configAccount.solTreasury.toString()).equals(
+        payer.publicKey.toString()
+      );
+      expect(configAccount.tokenTreasury.toString()).equals(
+        tokenTreasury.publicKey.toString()
+      );
+      expect(configAccount.solFee.toString()).equals(solFee.toString());
+      expect(configAccount.tokenFeeBasisPoints.toString()).equals(
+        tokenFeeBasisPoints.toString()
+      );
+      expect(configAccount.rewardTokenAmount.toString()).equals(
+        rewardTokenAmount.toString()
+      );
+      expect(configAccount.rewardTokenMintKey.toString()).equals(
+        rewardTokenMint.toString()
+      );
+
+      // Define these now that the reward token mint is created
+      creatorRewardAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator,
+        rewardTokenMint,
+        creator.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
+      userRewardAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        randomUser,
+        rewardTokenMint,
+        randomUser.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+    });
+
+    it("should fail if the config account is already initialized", async () => {
+      try {
+        const { config } = await getPDAs(program.programId);
+        const tx = await program.methods
+          .createConfig(
+            new anchor.BN(0.025 * LAMPORTS_PER_SOL),
+            new anchor.BN(10),
+            new anchor.BN(10 * LAMPORTS_PER_SOL)
+          )
+          .accounts({
+            admin: payer.publicKey,
+            config,
+            solTreasury: payer.publicKey,
+            tokenTreasury: tokenTreasury.publicKey,
+            rewardTokenMint,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([])
+          .rpc();
+
+        await confirm(provider.connection, tx);
+        assert.fail("Expected an error");
+      } catch (e) {
+        expect(e.logs[3].includes("already in use")).equals(true);
+      }
     });
   });
 
   describe("Update Config", () => {
-    it("should update the config fee", async () => {
-      const { config } = getPDAs(program.programId);
+    it("should update to a new admin", async () => {
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(10);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       let tx = await program.methods
-        .updateConfig(new anchor.BN(0.2 * LAMPORTS_PER_SOL))
+        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
         .accounts({
-          admin: wallet.publicKey,
-          newAdmin: wallet.publicKey,
+          admin: payer.publicKey,
+          newAdmin: creator.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
           config,
-          treasury: wallet.publicKey,
-          newTreasury: wallet.publicKey,
         })
         .signers([payer])
         .rpc();
 
       await confirm(provider.connection, tx);
 
-      const lockerAccount = await program.account.config.fetch(config);
-      expect(lockerAccount.fee.toNumber()).equals(0.2 * LAMPORTS_PER_SOL);
+      let configAccount = await program.account.config.fetch(config);
 
+      expect(configAccount.admin.toString()).equals(
+        creator.publicKey.toString()
+      );
+
+      // set it back to original
       tx = await program.methods
-        .updateConfig(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
         .accounts({
-          admin: wallet.publicKey,
-          newAdmin: wallet.publicKey,
-          config: config,
-          treasury: wallet.publicKey,
-          newTreasury: wallet.publicKey,
+          admin: creator.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
+          config,
         })
-        .signers([payer])
+        .signers([creator])
         .rpc();
 
       await confirm(provider.connection, tx);
 
-      const lockerAccount_ = await program.account.config.fetch(config);
-      expect(lockerAccount_.fee.toNumber()).equals(0.1 * LAMPORTS_PER_SOL);
+      configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.admin.toString()).equals(payer.publicKey.toString());
+
+      // check the rest are unchanged
+      expect(configAccount.solTreasury.toString()).equals(
+        payer.publicKey.toString()
+      );
+      expect(configAccount.tokenTreasury.toString()).equals(
+        tokenTreasury.publicKey.toString()
+      );
+      expect(configAccount.solFee.toString()).equals(solFee.toString());
+      expect(configAccount.tokenFeeBasisPoints.toString()).equals(
+        tokenFeeBasisPoints.toString()
+      );
+      expect(configAccount.rewardTokenAmount.toString()).equals(
+        rewardTokenAmount.toString()
+      );
+      expect(configAccount.rewardTokenMintKey.toString()).equals(
+        rewardTokenMint.toString()
+      );
     });
 
-    it("should not allow a non-admin to update the config fee", async () => {
-      try {
-        const { config } = getPDAs(program.programId);
-
-        await program.methods
-          .updateConfig(new anchor.BN(0.2 * LAMPORTS_PER_SOL))
-          .accounts({
-            admin: wallet.publicKey,
-            newAdmin: wallet.publicKey,
-            config,
-            treasury: wallet.publicKey,
-            newTreasury: wallet.publicKey,
-          })
-          .signers([recipient]).rpc;
-      } catch (e) {
-        expect(e.message).equals(
-          `unknown signer: ${recipient.publicKey.toBase58()}`
-        );
-      }
-    });
-
-    it("should update the config treasury", async () => {
-      let lockerAccount;
-      const newTreasury = Keypair.generate().publicKey;
-      const { config } = getPDAs(program.programId);
+    it("should update the new token treasury", async () => {
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(10);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const newTokenTreasury = anchor.web3.Keypair.generate();
 
       let tx = await program.methods
-        .updateConfig(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
         .accounts({
-          admin: wallet.publicKey,
-          newAdmin: wallet.publicKey,
+          admin: payer.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: newTokenTreasury.publicKey,
           config,
-          treasury: wallet.publicKey,
-          newTreasury,
         })
         .signers([payer])
         .rpc();
 
       await confirm(provider.connection, tx);
 
-      lockerAccount = await program.account.config.fetch(config);
-      expect(lockerAccount.treasury.toBase58()).equals(newTreasury.toBase58());
+      let configAccount = await program.account.config.fetch(config);
 
+      expect(configAccount.tokenTreasury.toString()).equals(
+        newTokenTreasury.publicKey.toString()
+      );
+
+      // set it back to original
       tx = await program.methods
-        .updateConfig(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
         .accounts({
-          admin: wallet.publicKey,
-          newAdmin: wallet.publicKey,
+          admin: payer.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
           config,
-          treasury: newTreasury,
-          newTreasury: wallet.publicKey,
         })
         .signers([payer])
         .rpc();
 
       await confirm(provider.connection, tx);
 
-      lockerAccount = await program.account.config.fetch(config);
-      expect(lockerAccount.treasury.toBase58()).equals(
-        wallet.publicKey.toBase58()
+      configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.tokenTreasury.toString()).equals(
+        tokenTreasury.publicKey.toString()
       );
     });
 
-    it("should not allow a non-admin to update the config treasury", async () => {
-      try {
-        const newTreasury = Keypair.generate().publicKey;
-        const { config } = getPDAs(program.programId);
-
-        await provider.connection,
-          program.methods
-            .updateConfig(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
-            .accounts({
-              admin: wallet.publicKey,
-              newAdmin: wallet.publicKey,
-              config,
-              treasury: wallet.publicKey,
-              newTreasury,
-            })
-            .signers([creator]).rpc;
-      } catch (e) {
-        expect(e.message).equals(
-          `unknown signer: ${creator.publicKey.toBase58()}`
-        );
-      }
-    });
-
-    it("should update the config admin", async () => {
-      const { config } = getPDAs(program.programId);
-      let lockerAccount = await program.account.config.fetch(config);
-      const newAdmin = Keypair.generate();
+    it("should update the new token fee basis points", async () => {
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(10);
+      const newTokenFeeBasisPoints = new anchor.BN(15);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       let tx = await program.methods
-        .updateConfig(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+        .updateConfig(solFee, newTokenFeeBasisPoints, rewardTokenAmount)
         .accounts({
-          admin: wallet.publicKey,
-          newAdmin: newAdmin.publicKey,
+          admin: payer.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
           config,
-          treasury: wallet.publicKey,
-          newTreasury: wallet.publicKey,
         })
         .signers([payer])
         .rpc();
 
       await confirm(provider.connection, tx);
 
-      lockerAccount = await program.account.config.fetch(config);
-      expect(lockerAccount.admin.toBase58()).equals(
-        newAdmin.publicKey.toBase58()
+      let configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.tokenFeeBasisPoints.toString()).equals(
+        newTokenFeeBasisPoints.toString()
       );
 
-      await provider.connection.confirmTransaction(
-        await provider.connection.requestAirdrop(
-          newAdmin.publicKey,
-          LAMPORTS_PER_SOL
-        ),
-        "confirmed"
-      );
-
+      // set it back to original
       tx = await program.methods
-        .updateConfig(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
+        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
         .accounts({
-          admin: newAdmin.publicKey,
-          newAdmin: wallet.publicKey,
+          admin: payer.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
           config,
-          treasury: wallet.publicKey,
-          newTreasury: wallet.publicKey,
         })
-        .signers([newAdmin])
+        .signers([payer])
         .rpc();
 
       await confirm(provider.connection, tx);
 
-      lockerAccount = await program.account.config.fetch(config);
-      expect(lockerAccount.treasury.toBase58()).equals(
-        wallet.publicKey.toBase58()
+      configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.tokenTreasury.toString()).equals(
+        tokenTreasury.publicKey.toString()
       );
     });
 
-    it("should not allow a non-admin to update the config admin", async () => {
-      try {
-        const newAdmin = Keypair.generate();
-        const { config } = getPDAs(program.programId);
+    it("should update the new sol fee", async () => {
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const newSolFee = new anchor.BN(0.03 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(10);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
-        await program.methods
-          .updateConfig(new anchor.BN(0.1 * LAMPORTS_PER_SOL))
-          .accounts({
-            admin: wallet.publicKey,
-            newAdmin: newAdmin.publicKey,
-            config,
-            treasury: wallet.publicKey,
-            newTreasury: wallet.publicKey,
-          })
-          .signers([creator]).rpc;
-      } catch (e) {
-        expect(e.message).equals(
-          `unknown signer: ${creator.publicKey.toBase58()}`
-        );
-      }
-    });
-  });
+      let tx = await program.methods
+        .updateConfig(newSolFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .accounts({
+          admin: payer.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
 
-  describe("Simple Vault - No schedule, no cancel, no update", () => {
-    it("should create a vault", async () => {
-      identifier = new anchor.BN(randomBytes(8));
-      const name = getName("Simple Vault");
-      const amountToBeVested = new anchor.BN(1000);
-      const totalVestingDuration = new anchor.BN(10);
-      const cancelAuthority = getAuthority(Authority.Neither, program);
-      const changeRecipientAuthority = getAuthority(Authority.Neither, program);
-      const payoutInterval = new anchor.BN(0);
-      const startDate = getNowInSeconds();
-      const { config, vault, vaultAta, tokenAccountBump } = getPDAs(
-        program.programId,
-        identifier,
-        creator.publicKey,
-        recipient.publicKey,
-        mint
+      await confirm(provider.connection, tx);
+
+      let configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.solFee.toString()).equals(newSolFee.toString());
+
+      // set it back to original
+      tx = await program.methods
+        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .accounts({
+          admin: payer.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.rewardTokenMintKey.toString()).equals(
+        rewardTokenMint.toString()
       );
+    });
+
+    it("should update the new reward token amount", async () => {
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const newSolFee = new anchor.BN(0.03 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(10);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const newRewardTokenAmount = new anchor.BN(15 * LAMPORTS_PER_SOL);
+
+      let tx = await program.methods
+        .updateConfig(newSolFee, tokenFeeBasisPoints, newRewardTokenAmount)
+        .accounts({
+          admin: payer.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      let configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.rewardTokenAmount.toString()).equals(
+        newRewardTokenAmount.toString()
+      );
+
+      // set it back to original
+      tx = await program.methods
+        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .accounts({
+          admin: payer.publicKey,
+          newAdmin: payer.publicKey,
+          newTokenTreasury: tokenTreasury.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      configAccount = await program.account.config.fetch(config);
+
+      expect(configAccount.rewardTokenMintKey.toString()).equals(
+        rewardTokenMint.toString()
+      );
+    });
+
+    it("should fail if the signer is not the admin", async () => {
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(10);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       try {
         const tx = await program.methods
-          .create(
-            identifier,
-            name,
-            amountToBeVested,
-            totalVestingDuration,
-            cancelAuthority,
-            changeRecipientAuthority,
-            payoutInterval,
-            startDate
-          )
+          .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
           .accounts({
-            creator: creator.publicKey,
-            recipient: recipient.publicKey,
+            admin: payer.publicKey,
+            newAdmin: payer.publicKey,
+            newTokenTreasury: tokenTreasury.publicKey,
             config,
-            treasury: wallet.publicKey,
-            vault,
-            vaultAta,
-            creatorTokenAccount: creatorTokenAccount.address,
-            recipientTokenAccount: recipientTokenAccount.address,
-            mint,
-            tokenProgram: TOKEN_2022_PROGRAM_ID,
-            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-            systemProgram: anchor.web3.SystemProgram.programId,
           })
           .signers([creator])
           .rpc();
 
         await confirm(provider.connection, tx);
+        assert.fail("Expected an error");
       } catch (e) {
-        console.error(e);
-        throw e;
+        expect(e.message.includes("unknown signer")).equals(true);
       }
     });
 
-    it("should not allow cancel", async () => {
-      const { vault, vaultAta } = getPDAs(
+    it("should fail if the new sol fee is less than the minimum sol fee", async () => {
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.000001 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(10);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+
+      try {
+        const tx = await program.methods
+          .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+          .accounts({
+            admin: payer.publicKey,
+            newAdmin: payer.publicKey,
+            newTokenTreasury: tokenTreasury.publicKey,
+            config,
+          })
+          .signers([payer])
+          .rpc();
+
+        await confirm(provider.connection, tx);
+        assert.fail("Expected an error");
+      } catch (e) {
+        expect(e.error.errorCode.code).equals("InvalidSolFee");
+        expect(e.error.errorCode.number).equals(6006);
+        expect(e.error.errorMessage).equals("SOL fee is invalid!");
+      }
+    });
+
+    it('should fail if the new token fee basis points is greater than "500"', async () => {
+      const { config } = await getPDAs(program.programId);
+      const solFee = new anchor.BN(0.015 * LAMPORTS_PER_SOL);
+      const tokenFeeBasisPoints = new anchor.BN(501);
+      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+
+      try {
+        const tx = await program.methods
+          .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+          .accounts({
+            admin: payer.publicKey,
+            newAdmin: payer.publicKey,
+            newTokenTreasury: tokenTreasury.publicKey,
+            config,
+          })
+          .signers([payer])
+          .rpc();
+
+        await confirm(provider.connection, tx);
+        assert.fail("Expected an error");
+      } catch (e) {
+        expect(e.error.errorCode.code).equals("InvalidTokenFeeBasisPoints");
+        expect(e.error.errorCode.number).equals(6005);
+        expect(e.error.errorMessage).equals(
+          "Token fee basis points are invalid!"
+        );
+      }
+    });
+  });
+
+  describe("Vault w/ Neither Cancel Authority", () => {
+    it("should create a vault", async () => {
+      identifier = new anchor.BN(randomBytes(8));
+      const name = getName("Vault");
+      const amountToBeVested = new anchor.BN(100);
+      const totalVestingDuration = new anchor.BN(10);
+      const startDate = new anchor.BN(new Date().getTime() / 1000);
+      const totalNumberOfPayouts = new anchor.BN(5);
+      const cancelAuthority = await getAuthority(Authority.Neither, program);
+      const { config, vault, vaultAta } = await getPDAs(
         program.programId,
         identifier,
         creator.publicKey,
-        recipient.publicKey,
         mint
       );
 
+      const solTreasuryBalanceBefore = await provider.connection.getBalance(
+        payer.publicKey
+      );
+
+      const treasuryAtaBefore = await getAccount(
+        provider.connection,
+        treasuryTokenAccount.address,
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      expect(treasuryAtaBefore.amount).equals(
+        0n,
+        "Token treasury amount failed - 1"
+      );
+
+      const creatorRewardAccountBefore = await getAccount(
+        provider.connection,
+        creatorRewardAta.address,
+        undefined,
+        TOKEN_PROGRAM_ID
+      );
+
+      expect(creatorRewardAccountBefore.amount).equals(
+        0n,
+        "Creator reward amount failed - 1"
+      );
+
+      const tx = await program.methods
+        .create(
+          identifier,
+          name,
+          amountToBeVested,
+          totalVestingDuration,
+          startDate,
+          totalNumberOfPayouts,
+          cancelAuthority
+        )
+        .accounts({
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          tokenTreasury: tokenTreasury.publicKey,
+          config,
+          vault,
+          vaultAta,
+          tokenTreasuryAta: treasuryTokenAccount.address,
+          creatorAta: creatorTokenAccount.address,
+          creatorRewardAta: creatorRewardAta.address,
+          rewardTokenMint,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      const configAccount = await program.account.config.fetch(config);
+      const vaultAccount = await program.account.vault.fetch(vault);
+
+      expect(vaultAccount.identifier.toString()).equals(
+        identifier.toString(),
+        "Identifier failed"
+      );
+      expect(vaultAccount.creator.toString()).equals(
+        creator.publicKey.toString(),
+        "Creator failed"
+      );
+      expect(vaultAccount.recipient.toString()).equals(
+        recipient.publicKey.toString(),
+        "Recipient failed"
+      );
+      expect(vaultAccount.mint.toString()).equals(
+        mint.toString(),
+        "Mint failed"
+      );
+      expect(vaultAccount.totalVestingDuration.toString()).equals(
+        totalVestingDuration.toString(),
+        "Total vesting duration failed"
+      );
+      expect(vaultAccount.startDate.toString()).equals(
+        startDate.toString(),
+        "Start date failed"
+      );
+      expect(vaultAccount.totalNumberOfPayouts.toString()).equals(
+        totalNumberOfPayouts.toString(),
+        "Total number of payouts failed"
+      );
+      expect(vaultAccount.numberOfPaymentsMade.toString()).equals(
+        Number(0).toString(),
+        "Number of payments made failed"
+      );
+      expect(vaultAccount.cancelAuthority.toString()).equals(
+        cancelAuthority.toString(),
+        "Cancel authority failed"
+      );
+
+      const solTreasuryBalanceAfter = await provider.connection.getBalance(
+        payer.publicKey
+      );
+
+      const treasuryAtaAfter = await getAccount(
+        provider.connection,
+        treasuryTokenAccount.address,
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      const creatorRewardAccountAfter = await getAccount(
+        provider.connection,
+        creatorRewardAta.address,
+        undefined,
+        TOKEN_PROGRAM_ID
+      );
+
+      expect(solTreasuryBalanceAfter).gt(
+        solTreasuryBalanceBefore,
+        "Sol treasury balance failed"
+      );
+
+      expect(Number(treasuryAtaAfter.amount)).gt(
+        Number(treasuryAtaBefore.amount),
+        "Token treasury amount failed - 2"
+      );
+
+      expect(creatorRewardAccountAfter.amount.toString()).equals(
+        configAccount.rewardTokenAmount.toString(),
+        "Creator reward amount failed - 2"
+      );
+    });
+
+    it("should not allow cancellation", async () => {
       try {
+        const { vault, vaultAta } = await getPDAs(
+          program.programId,
+          identifier,
+          creator.publicKey,
+          mint
+        );
         const tx = await program.methods
           .cancel()
           .accounts({
@@ -373,7 +700,7 @@ describe("⚡️ Valhalla", () => {
             recipient: recipient.publicKey,
             vault,
             vaultAta,
-            creatorTokenAccount: creatorTokenAccount.address,
+            creatorAta: creatorTokenAccount.address,
             mint,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -383,42 +710,7 @@ describe("⚡️ Valhalla", () => {
           .rpc();
 
         await confirm(provider.connection, tx);
-      } catch (e) {
-        expect(e.error.errorCode.code).equals("Unauthorized");
-        expect(e.error.errorCode.number).equals(6001);
-        expect(e.error.errorMessage).equals(
-          "Not authorized to perform this action!"
-        );
-      }
-    });
-
-    it("should not allow change recipient", async () => {
-      const { vault } = getPDAs(
-        program.programId,
-        identifier,
-        creator.publicKey,
-        recipient.publicKey,
-        mint
-      );
-
-      try {
-        const tx = await program.methods
-          .update()
-          .accounts({
-            signer: creator.publicKey,
-            creator: creator.publicKey,
-            recipient: recipient.publicKey,
-            newRecipient: creator.publicKey,
-            vault,
-            mint,
-            tokenProgram: TOKEN_2022_PROGRAM_ID,
-            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-            systemProgram: anchor.web3.SystemProgram.programId,
-          })
-          .signers([creator])
-          .rpc();
-
-        await confirm(provider.connection, tx);
+        assert.fail();
       } catch (e) {
         expect(e.error.errorCode.code).equals("Unauthorized");
         expect(e.error.errorCode.number).equals(6001);
@@ -429,24 +721,174 @@ describe("⚡️ Valhalla", () => {
     });
 
     it("should not disburse if vault is locked", async () => {
-      const { vault, vaultAta } = getPDAs(
-        program.programId,
-        identifier,
-        creator.publicKey,
-        recipient.publicKey,
-        mint
-      );
-
       try {
+        const { config, vault, vaultAta } = await getPDAs(
+          program.programId,
+          identifier,
+          creator.publicKey,
+          mint
+        );
+
         const tx = await program.methods
           .disburse()
           .accounts({
             signer: creator.publicKey,
             creator: creator.publicKey,
             recipient: recipient.publicKey,
+            solTreasury: payer.publicKey,
+            config,
             vault,
             vaultAta,
-            recipientTokenAccount: recipientTokenAccount.address,
+            signerRewardAta: creatorRewardAta.address,
+            recipientAta: recipientTokenAccount.address,
+            mint,
+            rewardTokenMint,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+            rewardTokenProgram: TOKEN_PROGRAM_ID,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([creator])
+          .rpc();
+
+        await confirm(provider.connection, tx);
+      } catch (e) {
+        expect(e.error.errorCode.code).equals("Locked");
+        expect(e.error.errorCode.number).equals(6000);
+        expect(e.error.errorMessage).equals("The vault is locked!");
+      }
+    });
+
+    it("should let any user disburse", async () => {
+      const { config, vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      await sleep(1000);
+      const tx = await program.methods
+        .disburse()
+        .accounts({
+          signer: randomUser.publicKey,
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          config,
+          vault,
+          vaultAta,
+          signerRewardAta: userRewardAta.address,
+          recipientAta: recipientTokenAccount.address,
+          mint,
+          rewardTokenMint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        // tests the disburse function with random user as signer
+        .signers([randomUser])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      const vaultAccount = await program.account.vault.fetch(vault);
+      const userRewardAccount = await getAccount(
+        provider.connection,
+        userRewardAta.address,
+        undefined,
+        TOKEN_PROGRAM_ID
+      );
+      const recipientAccount = await getAccount(
+        provider.connection,
+        recipientTokenAccount.address,
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      expect(vaultAccount.numberOfPaymentsMade.toNumber()).gt(
+        0,
+        "Number of payments made failed"
+      );
+
+      expect(Number(userRewardAccount.amount) / LAMPORTS_PER_SOL).eq(
+        10,
+        "Creator reward amount failed - 3"
+      );
+
+      expect(Number(recipientAccount.amount)).gt(0, "Recipient amount failed");
+    });
+  });
+
+  describe("Vault w/ Recipient Cancel Authority", () => {
+    it("should create a vault with a recipient cancel authority", async () => {
+      identifier = new anchor.BN(randomBytes(8));
+      const name = getName("Vault");
+      const amountToBeVested = new anchor.BN(100);
+      const totalVestingDuration = new anchor.BN(10);
+      const startDate = new anchor.BN(new Date().getTime() / 1000);
+      const totalNumberOfPayouts = new anchor.BN(5);
+      const cancelAuthority = await getAuthority(Authority.Recipient, program);
+      const { config, vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      const tx = await program.methods
+        .create(
+          identifier,
+          name,
+          amountToBeVested,
+          totalVestingDuration,
+          startDate,
+          totalNumberOfPayouts,
+          cancelAuthority
+        )
+        .accounts({
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          tokenTreasury: tokenTreasury.publicKey,
+          config,
+          vault,
+          vaultAta,
+          tokenTreasuryAta: treasuryTokenAccount.address,
+          creatorAta: creatorTokenAccount.address,
+          creatorRewardAta: creatorRewardAta.address,
+          rewardTokenMint,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+    });
+
+    it("should not allow the creator to cancel", async () => {
+      try {
+        const { vault, vaultAta } = await getPDAs(
+          program.programId,
+          identifier,
+          creator.publicKey,
+          mint
+        );
+
+        const tx = await program.methods
+          .cancel()
+          .accounts({
+            signer: creator.publicKey,
+            creator: creator.publicKey,
+            recipient: recipient.publicKey,
+            vault,
+            vaultAta,
+            creatorAta: creatorTokenAccount.address,
             mint,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -457,871 +899,575 @@ describe("⚡️ Valhalla", () => {
 
         await confirm(provider.connection, tx);
       } catch (e) {
-        if (e.error?.errorCode) {
-          expect(e.error.errorCode.code).equals("Locked");
-          expect(e.error.errorCode.number).equals(6000);
-          expect(e.error.errorMessage).equals("The vault has not expired yet!");
-        } else {
-          console.log(e);
-          assert.fail(e);
-        }
+        expect(e.error.errorCode.code).equals("Unauthorized");
+        expect(e.error.errorCode.number).equals(6001);
+        expect(e.error.errorMessage).equals(
+          "Not authorized to perform this action!"
+        );
       }
     });
 
-    it("should disburse", async () => {
-      const { vault, vaultAta } = getPDAs(
+    it("should allow the recipient to cancel", async () => {
+      const { vault, vaultAta } = await getPDAs(
         program.programId,
         identifier,
         creator.publicKey,
-        recipient.publicKey,
         mint
       );
 
-      const vaultBefore = await getAccount(
+      await harvestWithheldTokensToMint(
         provider.connection,
-        vaultAta,
+        recipient,
+        mint,
+        [vaultAta],
         undefined,
         TOKEN_2022_PROGRAM_ID
       );
 
+      const tx = await program.methods
+        .cancel()
+        .accounts({
+          signer: recipient.publicKey,
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          vault,
+          vaultAta,
+          creatorAta: creatorTokenAccount.address,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([recipient])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
       try {
-        await sleep(10000);
-        const tx = await program.methods
-          .disburse()
-          .accounts({
-            signer: creator.publicKey,
-            creator: creator.publicKey,
-            recipient: recipient.publicKey,
-            vault,
-            vaultAta,
-            recipientTokenAccount: recipientTokenAccount.address,
-            mint,
-            tokenProgram: TOKEN_2022_PROGRAM_ID,
-            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-            systemProgram: anchor.web3.SystemProgram.programId,
-          })
-          .signers([creator])
-          .rpc();
-
-        await confirm(provider.connection, tx);
-
-        const vaultAfter = await getAccount(
+        await getAccount(
           provider.connection,
           vaultAta,
           undefined,
           TOKEN_2022_PROGRAM_ID
         );
-        expect(vaultAfter.amount.toString()).equals("0");
+        assert.fail("Expected an error");
       } catch (e) {
-        console.error(e);
-        throw e;
+        assert.typeOf(e, "Error");
       }
     });
   });
 
-  xdescribe("Vault - No schedule, has cancel, has update", () => {
-    describe("recipient update authority", () => {
-      it("should create a vault with recipient update authorites", async () => {
-        identifier = new anchor.BN(randomBytes(8));
-        const name = getName("Simple Vault");
-        const amountToBeVested = new anchor.BN(1000);
-        const totalVestingDuration = new anchor.BN(5);
-        const cancelAuthority = getAuthority(Authority.Recipient, program);
-        const changeRecipientAuthority = getAuthority(
-          Authority.Recipient,
-          program
-        );
-        const payoutInterval = new anchor.BN(0);
-        const startDate = getNowInSeconds();
-        const { config, vault, vaultAta, tokenAccountBump } = getPDAs(
-          program.programId,
+  describe("Vault w/ Creator Cancel Authority", () => {
+    it("should create a vault with a creator cancel authority", async () => {
+      identifier = new anchor.BN(randomBytes(8));
+      const name = getName("Vault");
+      const amountToBeVested = new anchor.BN(100);
+      const totalVestingDuration = new anchor.BN(10);
+      const startDate = new anchor.BN(new Date().getTime() / 1000);
+      const totalNumberOfPayouts = new anchor.BN(5);
+      const cancelAuthority = await getAuthority(Authority.Creator, program);
+      const { config, vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      const tx = await program.methods
+        .create(
           identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
-        );
+          name,
+          amountToBeVested,
+          totalVestingDuration,
+          startDate,
+          totalNumberOfPayouts,
+          cancelAuthority
+        )
+        .accounts({
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          tokenTreasury: tokenTreasury.publicKey,
+          config,
+          vault,
+          vaultAta,
+          tokenTreasuryAta: treasuryTokenAccount.address,
+          creatorAta: creatorTokenAccount.address,
+          creatorRewardAta: creatorRewardAta.address,
+          rewardTokenMint,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
 
-        try {
-          const tx = await program.methods
-            .create(
-              identifier,
-              name,
-              amountToBeVested,
-              totalVestingDuration,
-              cancelAuthority,
-              changeRecipientAuthority,
-              payoutInterval,
-              startDate
-            )
-            .accounts({
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              config,
-              treasury: wallet.publicKey,
-              vault,
-              vaultAta,
-              creatorTokenAccount: creatorTokenAccount.address,
-              recipientTokenAccount: recipientTokenAccount.address,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([creator])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          console.error(e);
-          throw e;
-        }
-      });
-
-      it("should not allow cancel if not recipient", async () => {
-        const { vault, vaultAta } = getPDAs(
-          program.programId,
-          identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
-        );
-
-        try {
-          const tx = await program.methods
-            .cancel()
-            .accounts({
-              signer: creator.publicKey,
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              vault,
-              vaultAta,
-              creatorTokenAccount: creatorTokenAccount.address,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([creator])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          expect(e.error.errorCode.code).equals("Unauthorized");
-          expect(e.error.errorCode.number).equals(6001);
-          expect(e.error.errorMessage).equals(
-            "Not authorized to perform this action!"
-          );
-        }
-      });
-
-      it("should allow cancel if recipient", async () => {
-        const { vault, vaultAta } = getPDAs(
-          program.programId,
-          identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
-        );
-
-        try {
-          const tx = await program.methods
-            .cancel()
-            .accounts({
-              signer: creator.publicKey,
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              vault,
-              vaultAta,
-              creatorTokenAccount: creatorTokenAccount.address,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([recipient])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          console.error(e);
-          throw e;
-        }
-      });
-
-      it("should not allow change recipient if not recipient", async () => {
-        const { vault } = getPDAs(
-          program.programId,
-          identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
-        );
-
-        try {
-          const tx = await program.methods
-            .update()
-            .accounts({
-              signer: creator.publicKey,
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              newRecipient: creator.publicKey,
-              vault,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([creator])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          expect(e.error.errorCode.code).equals("Unauthorized");
-          expect(e.error.errorCode.number).equals(6001);
-          expect(e.error.errorMessage).equals(
-            "Not authorized to perform this action!"
-          );
-        }
-      });
-
-      it("should allow change recipient if recipient", async () => {
-        const { vault } = getPDAs(
-          program.programId,
-          identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
-        );
-
-        try {
-          const tx = await program.methods
-            .update()
-            .accounts({
-              signer: creator.publicKey,
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              newRecipient: creator.publicKey,
-              vault,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([recipient])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          console.error(e);
-          throw e;
-        }
-      });
-
-      it("should not disburse if vault is locked", async () => {});
-
-      it("should disburse", async () => {});
+      await confirm(provider.connection, tx);
     });
 
-    describe("creator update authority", () => {
-      it("should create a vault with creator update authorites", async () => {
-        identifier = new anchor.BN(randomBytes(8));
-        const name = getName("Simple Vault");
-        const amountToBeVested = new anchor.BN(1000);
-        const totalVestingDuration = new anchor.BN(5);
-        const cancelAuthority = getAuthority(Authority.Recipient, program);
-        const changeRecipientAuthority = getAuthority(
-          Authority.Recipient,
-          program
-        );
-        const payoutInterval = new anchor.BN(0);
-        const startDate = getNowInSeconds();
-        const { config, vault, vaultAta, tokenAccountBump } = getPDAs(
+    it("should not allow the recipient to cancel", async () => {
+      try {
+        const { vault, vaultAta } = await getPDAs(
           program.programId,
           identifier,
           creator.publicKey,
-          recipient.publicKey,
           mint
         );
 
-        try {
-          const tx = await program.methods
-            .create(
-              identifier,
-              name,
-              amountToBeVested,
-              totalVestingDuration,
-              cancelAuthority,
-              changeRecipientAuthority,
-              payoutInterval,
-              startDate
-            )
-            .accounts({
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              config,
-              treasury: wallet.publicKey,
-              vault,
-              vaultAta,
-              creatorTokenAccount: creatorTokenAccount.address,
-              recipientTokenAccount: recipientTokenAccount.address,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([creator])
-            .rpc();
+        const tx = await program.methods
+          .cancel()
+          .accounts({
+            signer: recipient.publicKey,
+            creator: creator.publicKey,
+            recipient: recipient.publicKey,
+            vault,
+            vaultAta,
+            creatorAta: creatorTokenAccount.address,
+            mint,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([recipient])
+          .rpc();
 
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          console.error(e);
-          throw e;
-        }
-      });
-
-      it("should not allow cancel if not creator", async () => {
-        const { vault, vaultAta } = getPDAs(
-          program.programId,
-          identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
+        await confirm(provider.connection, tx);
+      } catch (e) {
+        expect(e.error.errorCode.code).equals("Unauthorized");
+        expect(e.error.errorCode.number).equals(6001);
+        expect(e.error.errorMessage).equals(
+          "Not authorized to perform this action!"
         );
-
-        try {
-          const tx = await program.methods
-            .cancel()
-            .accounts({
-              signer: recipient.publicKey,
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              vault,
-              vaultAta,
-              creatorTokenAccount: creatorTokenAccount.address,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([recipient])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          expect(e.error.errorCode.code).equals("Unauthorized");
-          expect(e.error.errorCode.number).equals(6001);
-          expect(e.error.errorMessage).equals(
-            "Not authorized to perform this action!"
-          );
-        }
-      });
-
-      it("should allow cancel if creator", async () => {
-        const { vault, vaultAta } = getPDAs(
-          program.programId,
-          identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
-        );
-
-        try {
-          const tx = await program.methods
-            .cancel()
-            .accounts({
-              signer: creator.publicKey,
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              vault,
-              vaultAta,
-              creatorTokenAccount: creatorTokenAccount.address,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([creator])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          console.error(e);
-          throw e;
-        }
-      });
-
-      it("should not allow change recipient if not creator", async () => {
-        const { vault } = getPDAs(
-          program.programId,
-          identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
-        );
-
-        try {
-          const tx = await program.methods
-            .update()
-            .accounts({
-              signer: recipient.publicKey,
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              newRecipient: creator.publicKey,
-              vault,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([recipient])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          expect(e.error.errorCode.code).equals("Unauthorized");
-          expect(e.error.errorCode.number).equals(6001);
-          expect(e.error.errorMessage).equals(
-            "Not authorized to perform this action!"
-          );
-        }
-      });
-
-      it("should allow change recipient if creator", async () => {
-        const { vault } = getPDAs(
-          program.programId,
-          identifier,
-          creator.publicKey,
-          recipient.publicKey,
-          mint
-        );
-
-        try {
-          const tx = await program.methods
-            .update()
-            .accounts({
-              signer: creator.publicKey,
-              creator: creator.publicKey,
-              recipient: recipient.publicKey,
-              newRecipient: creator.publicKey,
-              vault,
-              mint,
-              tokenProgram: TOKEN_2022_PROGRAM_ID,
-              associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-              systemProgram: anchor.web3.SystemProgram.programId,
-            })
-            .signers([creator])
-            .rpc();
-
-          await confirm(provider.connection, tx);
-        } catch (e) {
-          console.error(e);
-          throw e;
-        }
-      });
-
-      it("should not disburse if vault is locked", async () => {});
-
-      it("should disburse", async () => {});
+      }
     });
 
-    describe("both update authorities", () => {
-      describe("recipient", () => {
-        it("should create a vault with recipient update authorites", async () => {
-          identifier = new anchor.BN(randomBytes(8));
-          const name = getName("Simple Vault");
-          const amountToBeVested = new anchor.BN(1000);
-          const totalVestingDuration = new anchor.BN(5);
-          const cancelAuthority = getAuthority(Authority.Recipient, program);
-          const changeRecipientAuthority = getAuthority(
-            Authority.Recipient,
-            program
-          );
-          const payoutInterval = new anchor.BN(0);
-          const startDate = getNowInSeconds();
-          const { config, vault, vaultAta, tokenAccountBump } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
+    it("should allow the creator to cancel", async () => {
+      const { vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
 
-          try {
-            const tx = await program.methods
-              .create(
-                identifier,
-                name,
-                amountToBeVested,
-                totalVestingDuration,
-                cancelAuthority,
-                changeRecipientAuthority,
-                payoutInterval,
-                startDate
-              )
-              .accounts({
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                config,
-                treasury: wallet.publicKey,
-                vault,
-                vaultAta,
-                creatorTokenAccount: creatorTokenAccount.address,
-                recipientTokenAccount: recipientTokenAccount.address,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([creator])
-              .rpc();
+      await harvestWithheldTokensToMint(
+        provider.connection,
+        creator,
+        mint,
+        [vaultAta],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
 
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-        });
+      const tx = await program.methods
+        .cancel()
+        .accounts({
+          signer: creator.publicKey,
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          vault,
+          vaultAta,
+          creatorAta: creatorTokenAccount.address,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
 
-        it("should not allow cancel if not recipient", async () => {
-          const { vault, vaultAta } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
+      await confirm(provider.connection, tx);
 
-          try {
-            const tx = await program.methods
-              .cancel()
-              .accounts({
-                signer: creator.publicKey,
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                vault,
-                vaultAta,
-                creatorTokenAccount: creatorTokenAccount.address,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([creator])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            expect(e.error.errorCode.code).equals("Unauthorized");
-            expect(e.error.errorCode.number).equals(6001);
-            expect(e.error.errorMessage).equals(
-              "Not authorized to perform this action!"
-            );
-          }
-        });
-
-        it("should allow cancel if recipient", async () => {
-          const { vault, vaultAta } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
-
-          try {
-            const tx = await program.methods
-              .cancel()
-              .accounts({
-                signer: creator.publicKey,
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                vault,
-                vaultAta,
-                creatorTokenAccount: creatorTokenAccount.address,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([recipient])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-        });
-
-        it("should not allow change recipient if not recipient", async () => {
-          const { vault } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
-
-          try {
-            const tx = await program.methods
-              .update()
-              .accounts({
-                signer: creator.publicKey,
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                newRecipient: creator.publicKey,
-                vault,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([creator])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            expect(e.error.errorCode.code).equals("Unauthorized");
-            expect(e.error.errorCode.number).equals(6001);
-            expect(e.error.errorMessage).equals(
-              "Not authorized to perform this action!"
-            );
-          }
-        });
-
-        it("should allow change recipient if recipient", async () => {
-          const { vault } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
-
-          try {
-            const tx = await program.methods
-              .update()
-              .accounts({
-                signer: creator.publicKey,
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                newRecipient: creator.publicKey,
-                vault,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([recipient])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-        });
-      });
-
-      describe("creator", () => {
-        it("should create a vault with creator update authorites", async () => {
-          identifier = new anchor.BN(randomBytes(8));
-          const name = getName("Simple Vault");
-          const amountToBeVested = new anchor.BN(1000);
-          const totalVestingDuration = new anchor.BN(5);
-          const cancelAuthority = getAuthority(Authority.Recipient, program);
-          const changeRecipientAuthority = getAuthority(
-            Authority.Recipient,
-            program
-          );
-          const payoutInterval = new anchor.BN(0);
-          const startDate = getNowInSeconds();
-          const { config, vault, vaultAta, tokenAccountBump } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
-
-          try {
-            const tx = await program.methods
-              .create(
-                identifier,
-                name,
-                amountToBeVested,
-                totalVestingDuration,
-                cancelAuthority,
-                changeRecipientAuthority,
-                payoutInterval,
-                startDate
-              )
-              .accounts({
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                config,
-                treasury: wallet.publicKey,
-                vault,
-                vaultAta,
-                creatorTokenAccount: creatorTokenAccount.address,
-                recipientTokenAccount: recipientTokenAccount.address,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([creator])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-        });
-
-        it("should not allow cancel if not creator", async () => {
-          const { vault, vaultAta } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
-
-          try {
-            const tx = await program.methods
-              .cancel()
-              .accounts({
-                signer: recipient.publicKey,
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                vault,
-                vaultAta,
-                creatorTokenAccount: creatorTokenAccount.address,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([recipient])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            expect(e.error.errorCode.code).equals("Unauthorized");
-            expect(e.error.errorCode.number).equals(6001);
-            expect(e.error.errorMessage).equals(
-              "Not authorized to perform this action!"
-            );
-          }
-        });
-
-        it("should allow cancel if creator", async () => {
-          const { vault, vaultAta } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
-
-          try {
-            const tx = await program.methods
-              .cancel()
-              .accounts({
-                signer: creator.publicKey,
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                vault,
-                vaultAta,
-                creatorTokenAccount: creatorTokenAccount.address,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([creator])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-        });
-
-        it("should not allow change recipient if not creator", async () => {
-          const { vault } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
-
-          try {
-            const tx = await program.methods
-              .update()
-              .accounts({
-                signer: recipient.publicKey,
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                newRecipient: creator.publicKey,
-                vault,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([recipient])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            expect(e.error.errorCode.code).equals("Unauthorized");
-            expect(e.error.errorCode.number).equals(6001);
-            expect(e.error.errorMessage).equals(
-              "Not authorized to perform this action!"
-            );
-          }
-        });
-
-        it("should allow change recipient if creator", async () => {
-          const { vault } = getPDAs(
-            program.programId,
-            identifier,
-            creator.publicKey,
-            recipient.publicKey,
-            mint
-          );
-
-          try {
-            const tx = await program.methods
-              .update()
-              .accounts({
-                signer: creator.publicKey,
-                creator: creator.publicKey,
-                recipient: recipient.publicKey,
-                newRecipient: creator.publicKey,
-                vault,
-                mint,
-                tokenProgram: TOKEN_2022_PROGRAM_ID,
-                associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-                systemProgram: anchor.web3.SystemProgram.programId,
-              })
-              .signers([creator])
-              .rpc();
-
-            await confirm(provider.connection, tx);
-          } catch (e) {
-            console.error(e);
-            throw e;
-          }
-        });
-      });
+      try {
+        await getAccount(
+          provider.connection,
+          vaultAta,
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        );
+        assert.fail("Expected an error");
+      } catch (e) {
+        assert.typeOf(e, "Error");
+      }
     });
   });
 
-  // describe("Vault - Schedule, has cancel, has update", () => {});
+  describe("Vault w/ Both Cancel Authority", () => {
+    it("should create a vault with both update authorites", async () => {
+      identifier = new anchor.BN(randomBytes(8));
+      const name = getName("Vault");
+      const amountToBeVested = new anchor.BN(100);
+      const totalVestingDuration = new anchor.BN(10);
+      const startDate = new anchor.BN(new Date().getTime() / 1000);
+      const totalNumberOfPayouts = new anchor.BN(5);
+      const cancelAuthority = await getAuthority(Authority.Both, program);
+      const { config, vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      const tx = await program.methods
+        .create(
+          identifier,
+          name,
+          amountToBeVested,
+          totalVestingDuration,
+          startDate,
+          totalNumberOfPayouts,
+          cancelAuthority
+        )
+        .accounts({
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          tokenTreasury: tokenTreasury.publicKey,
+          config,
+          vault,
+          vaultAta,
+          tokenTreasuryAta: treasuryTokenAccount.address,
+          creatorAta: creatorTokenAccount.address,
+          creatorRewardAta: creatorRewardAta.address,
+          rewardTokenMint,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+    });
+
+    it("should allow the recipient to cancel", async () => {
+      const { vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      await harvestWithheldTokensToMint(
+        provider.connection,
+        recipient,
+        mint,
+        [vaultAta],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      const tx = await program.methods
+        .cancel()
+        .accounts({
+          signer: recipient.publicKey,
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          vault,
+          vaultAta,
+          creatorAta: creatorTokenAccount.address,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([recipient])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      try {
+        await getAccount(
+          provider.connection,
+          vaultAta,
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        );
+        assert.fail("Expected an error");
+      } catch (e) {
+        assert.typeOf(e, "Error");
+      }
+    });
+
+    it("should create another vault with both update authorites", async () => {
+      identifier = new anchor.BN(randomBytes(8));
+      const name = getName("Vault");
+      const amountToBeVested = new anchor.BN(100);
+      const totalVestingDuration = new anchor.BN(10);
+      const startDate = new anchor.BN(new Date().getTime() / 1000);
+      const totalNumberOfPayouts = new anchor.BN(5);
+      const cancelAuthority = await getAuthority(Authority.Both, program);
+      const { config, vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      const tx = await program.methods
+        .create(
+          identifier,
+          name,
+          amountToBeVested,
+          totalVestingDuration,
+          startDate,
+          totalNumberOfPayouts,
+          cancelAuthority
+        )
+        .accounts({
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          tokenTreasury: tokenTreasury.publicKey,
+          config,
+          vault,
+          vaultAta,
+          tokenTreasuryAta: treasuryTokenAccount.address,
+          creatorAta: creatorTokenAccount.address,
+          creatorRewardAta: creatorRewardAta.address,
+          rewardTokenMint,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+    });
+
+    it("should allow cancel if creator", async () => {
+      const { vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      await harvestWithheldTokensToMint(
+        provider.connection,
+        creator,
+        mint,
+        [vaultAta],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      const tx = await program.methods
+        .cancel()
+        .accounts({
+          signer: creator.publicKey,
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          vault,
+          vaultAta,
+          creatorAta: creatorTokenAccount.address,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      try {
+        await getAccount(
+          provider.connection,
+          vaultAta,
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        );
+        assert.fail("Expected an error");
+      } catch (e) {
+        assert.typeOf(e, "Error");
+      }
+    });
+  });
+
+  describe("Vault w/ Disburse and Close", () => {
+    it("should not close a vault that is not empty", async () => {
+      identifier = new anchor.BN(randomBytes(8));
+      const name = getName("Vault");
+      const amountToBeVested = new anchor.BN(100);
+      const totalVestingDuration = new anchor.BN(10);
+      const startDate = new anchor.BN(new Date().getTime() / 1000);
+      const totalNumberOfPayouts = new anchor.BN(5);
+      const cancelAuthority = await getAuthority(Authority.Both, program);
+      const { config, vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      let tx = await program.methods
+        .create(
+          identifier,
+          name,
+          amountToBeVested,
+          totalVestingDuration,
+          startDate,
+          totalNumberOfPayouts,
+          cancelAuthority
+        )
+        .accounts({
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          tokenTreasury: tokenTreasury.publicKey,
+          config,
+          vault,
+          vaultAta,
+          tokenTreasuryAta: treasuryTokenAccount.address,
+          creatorAta: creatorTokenAccount.address,
+          creatorRewardAta: creatorRewardAta.address,
+          rewardTokenMint,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      try {
+        tx = await program.methods
+          .close()
+          .accounts({
+            creator: creator.publicKey,
+            vault,
+            vaultAta,
+            mint,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+          })
+          .signers([creator])
+          .rpc();
+
+        await confirm(provider.connection, tx);
+      } catch (e) {
+        expect(e.error.errorCode.code).equals("CloseVaultFailed");
+        expect(e.error.errorCode.number).equals(6004);
+        expect(e.error.errorMessage).equals("Closing the vault failed!");
+      }
+    });
+
+    it("should close a vault that is empty", async () => {
+      identifier = new anchor.BN(randomBytes(8));
+      const name = getName("Vault");
+      const amountToBeVested = new anchor.BN(100);
+      const totalVestingDuration = new anchor.BN(1);
+      const startDate = new anchor.BN(new Date().getTime() / 1000);
+      const totalNumberOfPayouts = new anchor.BN(1);
+      const cancelAuthority = await getAuthority(Authority.Both, program);
+      const { config, vault, vaultAta } = await getPDAs(
+        program.programId,
+        identifier,
+        creator.publicKey,
+        mint
+      );
+
+      let tx = await program.methods
+        .create(
+          identifier,
+          name,
+          amountToBeVested,
+          totalVestingDuration,
+          startDate,
+          totalNumberOfPayouts,
+          cancelAuthority
+        )
+        .accounts({
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          tokenTreasury: tokenTreasury.publicKey,
+          config,
+          vault,
+          vaultAta,
+          tokenTreasuryAta: treasuryTokenAccount.address,
+          creatorAta: creatorTokenAccount.address,
+          creatorRewardAta: creatorRewardAta.address,
+          rewardTokenMint,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      await sleep(1000);
+      tx = await program.methods
+        .disburse()
+        .accounts({
+          signer: creator.publicKey,
+          creator: creator.publicKey,
+          recipient: recipient.publicKey,
+          solTreasury: payer.publicKey,
+          config,
+          vault,
+          vaultAta,
+          signerRewardAta: creatorRewardAta.address,
+          recipientAta: recipientTokenAccount.address,
+          mint,
+          rewardTokenMint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      await harvestWithheldTokensToMint(
+        provider.connection,
+        creator,
+        mint,
+        [vaultAta],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      tx = await program.methods
+        .close()
+        .accounts({
+          creator: creator.publicKey,
+          vault,
+          vaultAta,
+          mint,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([creator])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      try {
+        await getAccount(
+          provider.connection,
+          vaultAta,
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        );
+        assert.fail("Expected an error");
+      } catch (e) {
+        assert.typeOf(e, "Error");
+      }
+    });
+  });
 });

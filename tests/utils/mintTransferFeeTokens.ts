@@ -1,4 +1,3 @@
-import { PublicKey } from "@metaplex-foundation/js";
 import {
   Account,
   ExtensionType,
@@ -15,6 +14,8 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
+
+import { PublicKey } from "@metaplex-foundation/js";
 import { getTestTokenAccounts } from "./getTestTokenAccounts";
 
 export async function mintTransferFeeTokens(

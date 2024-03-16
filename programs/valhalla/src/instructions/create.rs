@@ -1,12 +1,14 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked},
+    token_interface::{
+        mint_to, transfer_checked, Mint, MintTo, TokenAccount, TokenInterface, TransferChecked,
+    },
 };
+use solana_program::system_instruction;
 
 use crate::{
     constants,
-    errors::ValhallaError,
     state::{Config, Vault},
     Authority,
 };
@@ -15,42 +17,45 @@ use crate::{
 #[instruction(identifier: u64)]
 /// Represents the instruction to create a vault.
 pub struct CreateVault<'info> {
-    #[account(mut)]
     /// The creator of the vault.
+    #[account(mut)]
     pub creator: Signer<'info>,
 
-    #[account(mut)]
     /// The recipient of the vault tokens.
+    #[account(mut)]
     pub recipient: SystemAccount<'info>,
 
-    #[account(seeds = [constants::CONFIG_SEED], bump, has_one = treasury)]
+    /// The sol treasury account.
+    #[account(mut)]
+    pub sol_treasury: SystemAccount<'info>,
+
+    /// The token treasury account.
+    #[account(mut)]
+    pub token_treasury: SystemAccount<'info>,
+
     /// The configuration account.
+    #[account(seeds = [constants::CONFIG_SEED], bump, has_one = sol_treasury)]
     pub config: Box<Account<'info, Config>>,
 
-    #[account(mut)]
-    /// The treasury account.
-    pub treasury: SystemAccount<'info>,
-
+    /// The vault account.
     #[account(
         init,
         payer = creator,
         seeds = [
             identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
-            recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::VAULT_SEED,
         ],
         space = Vault::INIT_SPACE,
         bump
     )]
-    /// The vault account.
     pub vault: Box<Account<'info, Vault>>,
 
+    /// The vault token account.
     #[account(
-        init,
+        init_if_needed,
         seeds = [
-            identifier.to_le_bytes().as_ref(),
             vault.key().as_ref(),
             constants::VAULT_ATA_SEED
         ],
@@ -58,34 +63,58 @@ pub struct CreateVault<'info> {
         payer = creator,
         token::mint = mint,
         token::authority = vault_ata,
-        token::token_program = token_program
+        token::token_program = token_program,
     )]
-    /// The vault token account.
-    pub vault_ata: InterfaceAccount<'info, TokenAccount>,
+    pub vault_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
+    #[account(
+        init_if_needed,
+        payer = creator,
+        associated_token::mint = mint,
+        associated_token::authority = token_treasury,
+        associated_token::token_program = token_program,
+    )]
+    pub token_treasury_ata: Box<InterfaceAccount<'info, TokenAccount>>,
+
+    /// The creator's token account.
     #[account(
         init_if_needed,
         payer = creator,
         associated_token::mint = mint,
         associated_token::authority = creator,
+        associated_token::token_program = token_program,
     )]
-    /// The creator's token account.
-    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub creator_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
+    /// The creator's reward token account
     #[account(
         init_if_needed,
         payer = creator,
-        associated_token::mint = mint,
-        associated_token::authority = recipient,
+        associated_token::mint = reward_token_mint,
+        associated_token::authority = creator,
+        associated_token::token_program = reward_token_program,
     )]
-    /// The recipient's token account.
-    pub recipient_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub creator_reward_ata: Box<InterfaceAccount<'info, TokenAccount>>,
+
+    /// The reward token mint account.
+    #[account(
+        mut,
+        mint::decimals = 6,
+        mint::authority = reward_token_mint,
+        mint::token_program = reward_token_program,
+        seeds = [constants::REWARD_TOKEN_MINT_SEED],
+        bump,
+    )]
+    pub reward_token_mint: InterfaceAccount<'info, Mint>,
 
     /// The mint of the token.
     pub mint: InterfaceAccount<'info, Mint>,
 
-    /// The token program.
+    /// The token program for the mint.
     pub token_program: Interface<'info, TokenInterface>,
+
+    /// The token program for the reward token.
+    pub reward_token_program: Interface<'info, TokenInterface>,
 
     /// The associated token program.
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -100,15 +129,14 @@ impl<'info> CreateVault<'info> {
     ///
     /// # Arguments
     ///
-    /// * `identifier` - The identifier for the vault.
+    /// * `identifier` - The identifier of the vault.
     /// * `name` - The name of the vault.
     /// * `amount_to_be_vested` - The amount to be vested in the vault.
     /// * `total_vesting_duration` - The total duration of the vesting period.
-    /// * `bump` - The bump value for the vault associated token account pda.
-    /// * `cancel_authority` - The authority to cancel the vault, optional, defaults to Neither.
-    /// * `change_recipient_authority` - The authority to change the recipient of the vault, optional, defaults to Neither.
-    /// * `payout_interval` - The interval at which payouts will be made, optional, defaults to `total_vesting_duration`.
-    /// * `start_date` - The start date of the vesting period, optional, defaults to `0`.
+    /// * `start_date` - The start date of the vesting period.
+    /// * `total_number_of_payouts` - The total number of payouts to be made from the vault.
+    /// * `cancel_authority` - The authority to cancel the vault.
+    /// * `bump` - The bump value for the vault associated token account pda associated with the vault.
     ///
     /// # Errors
     ///
@@ -123,23 +151,22 @@ impl<'info> CreateVault<'info> {
         name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
-        bump: u8,
-        cancel_authority: Option<Authority>,
-        change_recipient_authority: Option<Authority>,
-        payout_interval: Option<u64>,
-        start_date: Option<u64>,
+        start_date: u64,
+        total_number_of_payouts: u64,
+        cancel_authority: Authority,
+        bumps: &CreateVaultBumps,
     ) -> Result<()> {
-        // Get default values for optional parameters.
-        let (cancel, change, payout, start) = self.ok_or_defaults(
-            total_vesting_duration,
-            cancel_authority,
-            change_recipient_authority,
-            payout_interval,
-            start_date,
-        )?;
+        let mut deposit_amount = amount_to_be_vested
+            .checked_mul((10u64).pow(self.mint.decimals as u32))
+            .unwrap();
 
-        let (amount, amount_per_payout) =
-            self.make_deposit_amounts(amount_to_be_vested, total_vesting_duration, payout)?;
+        let token_fee_amount = deposit_amount
+            .checked_mul(self.config.token_fee_basis_points)
+            .unwrap()
+            .checked_div(constants::MAX_BASIS_POINTS)
+            .unwrap();
+
+        deposit_amount = deposit_amount.checked_sub(token_fee_amount).unwrap();
 
         // Set the vault state.
         let now = Clock::get()?.unix_timestamp as u64;
@@ -151,101 +178,63 @@ impl<'info> CreateVault<'info> {
             mint: self.mint.key(),
             total_vesting_duration,
             created_timestamp: now,
-            token_account_bump: bump,
-            cancel_authority: cancel,
-            change_recipient_authority: change,
-            start_date: start,
-            payout_interval: payout,
-            amount_per_payout,
+            start_date,
             last_payment_timestamp: now,
+            initial_deposit_amount: deposit_amount,
+            total_number_of_payouts,
             number_of_payments_made: 0,
+            cancel_authority,
+            token_account_bump: bumps.vault_ata,
         });
 
         // Transfer the amount to the vault token account
-        self.transfer_from_creator_to_vault(amount)
+        self.transfer(
+            deposit_amount,
+            self.creator_ata.to_account_info(),
+            self.vault_ata.to_account_info(),
+            self.creator.to_account_info(),
+            self.mint.to_account_info(),
+        )?;
+
+        // Transfer the token fee to the treasury
+        self.transfer(
+            token_fee_amount,
+            self.creator_ata.to_account_info(),
+            self.token_treasury_ata.to_account_info(),
+            self.creator.to_account_info(),
+            self.mint.to_account_info(),
+        )?;
+
+        // Mint governance tokens to the creator
+        self.mint_governance_tokens(bumps)?;
+
+        // Transfer sol fee to the sol treasury
+        self.transfer_sol()
     }
 
-    /// Returns the specified parameters or their default values.
-    ///
-    /// # Arguments
-    ///
-    /// * `total_vesting_duration` - The total duration of the vesting period.
-    /// * `cancel_authority` - The authority to cancel the vault, optional, defaults to Neither.
-    /// * `change_recipient_authority` - The authority to change the recipient of the vault, optional, defaults to Neither.
-    /// * `payout_interval` - The interval at which payouts will be made, optional, defaults to `total_vesting_duration`.
-    /// * `start_date` - The start date of the vesting period, optional, defaults to `0`.
-    ///
-    /// # Returns
-    ///
-    /// This method returns a tuple containing the specified parameters or their default values.
-    fn ok_or_defaults(
-        &self,
-        total_vesting_duration: u64,
-        cancel_authority: Option<Authority>,
-        change_recipient_authority: Option<Authority>,
-        payout_interval: Option<u64>,
-        start_date: Option<u64>,
-    ) -> Result<(Authority, Authority, u64, u64)> {
-        let cancel = cancel_authority.unwrap_or(Authority::Neither);
-        let change = change_recipient_authority.unwrap_or(Authority::Neither);
-        let start = start_date.unwrap_or(0);
-
-        let payout = if let Some(0) = payout_interval {
-            total_vesting_duration
-        } else {
-            0
-        };
-
-        Ok((cancel, change, payout, start))
-    }
-
-    /// Returns the amount and the amount per payout per the specified parameters.
-    ///
-    /// # Arguments
-    ///
-    /// * `amount_to_be_vested` - The amount to be vested in the vault.
-    /// * `total_vesting_duration` - The total duration of the vesting period.
-    /// * `payout_interval` - The interval at which payouts will be made.
+    /// Transfers the sol fee to the treasury.
     ///
     /// # Errors
     ///
-    /// This method returns an error if there are insufficient funds for the deposit.
-    ///
-    /// # Returns
-    ///
-    /// This method returns a tuple containing the amount and the amount per payout.
-    fn make_deposit_amounts(
-        &mut self,
-        amount_to_be_vested: u64,
-        total_vesting_duration: u64,
-        payout_interval: u64,
-    ) -> Result<(u64, u64)> {
-        let amount = amount_to_be_vested
-            .checked_mul((10u64).pow(self.mint.decimals as u32))
-            .unwrap();
+    /// This method returns an error if there is an error during the CPI (Cross-Program Invocation) call.
+    fn transfer_sol(&mut self) -> Result<()> {
+        let from = self.creator.to_account_info();
+        let to = self.sol_treasury.to_account_info();
 
-        // The total number of payouts to be made from the vault is
-        // the total vesting duration divided by the payout interval,
-        // or 1 if the total vesting duration is less than the payout interval.
-        let total_payouts = total_vesting_duration
-            .checked_div(payout_interval)
-            .unwrap_or(1);
+        let transfer_ix = system_instruction::transfer(from.key, to.key, self.config.sol_fee);
 
-        // The amount per payout is the amount to be vested divided by the total
-        // number of payouts, or the amount to be vested if the total number of payouts is 1.
-        let amount_per_payout = amount
-            .checked_div(total_payouts)
-            .unwrap_or(amount_to_be_vested);
+        solana_program::program::invoke_signed(
+            &transfer_ix,
+            &[
+                from,
+                to,
+                self.creator.to_account_info(),
+                self.system_program.to_account_info(),
+            ],
+            &[],
+        )?;
 
-        // The total payout amount is the amount per payout multiplied by the total number of payouts.
-        let total_payout_amount = amount_per_payout.checked_mul(total_payouts).unwrap();
-
-        // Check if the creator has enough balance for the total payout amount
-        if total_payout_amount > amount {
-            return Err(ValhallaError::InsufficientFundsForDeposit.into());
-        }
-
-        Ok((amount, amount_per_payout))
+        Ok(())
     }
 
     /// Transfers SPL tokens from the creator's token account to the vault token account.
@@ -253,6 +242,10 @@ impl<'info> CreateVault<'info> {
     /// # Arguments
     ///
     /// * `amount` - The amount to be transferred to the vault token account.
+    /// * `from` - The senders's token account.
+    /// * `to` - The receivers's token account.
+    /// * `authority` - The authority of the token account.
+    /// * `mint` - The mint of the token.
     ///
     /// # Errors
     ///
@@ -261,32 +254,55 @@ impl<'info> CreateVault<'info> {
     /// # Returns
     ///
     /// This method returns `Ok(())` if the transfer is successful.
-    fn transfer_from_creator_to_vault(&self, amount: u64) -> Result<()> {
+    fn transfer(
+        &self,
+        amount: u64,
+        from: AccountInfo<'info>,
+        to: AccountInfo<'info>,
+        authority: AccountInfo<'info>,
+        mint: AccountInfo<'info>,
+    ) -> Result<()> {
         let cpi_program = self.token_program.to_account_info();
         let cpi_accounts = TransferChecked {
-            from: self.creator_token_account.to_account_info(),
-            to: self.vault_ata.to_account_info(),
-            authority: self.creator.to_account_info(),
-            mint: self.mint.to_account_info(),
+            from,
+            to,
+            authority,
+            mint,
         };
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
-        msg!(
-            "DEBUG: Transferring {} tokens to the vault token account",
-            amount
-        );
-        msg!(
-            "DEBUG: Creator Balance Before: {}",
-            self.creator_token_account.amount
-        );
+        transfer_checked(cpi_ctx, amount, self.mint.decimals)
+    }
 
-        transfer_checked(cpi_ctx, amount, self.mint.decimals)?;
+    /// Mints governance tokens to the creator.
+    ///
+    /// # Arguments
+    ///
+    /// * `bumps` - The bump values for the accounts.
+    ///
+    /// # Errors
+    ///
+    /// This method returns an error if there is an error during the CPI (Cross-Program Invocation) call.
+    fn mint_governance_tokens(&self, bumps: &CreateVaultBumps) -> Result<()> {
+        match self.vault.cancel_authority {
+            Authority::Neither => {
+                let signer_seeds: &[&[&[u8]]] = &[&[
+                    constants::REWARD_TOKEN_MINT_SEED,
+                    &[bumps.reward_token_mint],
+                ]];
 
-        msg!(
-            "DEBUG: Creator Balance After: {}",
-            self.creator_token_account.amount
-        );
+                let cpi_program = self.reward_token_program.to_account_info();
+                let cpi_accounts = MintTo {
+                    mint: self.reward_token_mint.to_account_info(),
+                    to: self.creator_reward_ata.to_account_info(),
+                    authority: self.reward_token_mint.to_account_info(),
+                };
+                let cpi_context =
+                    CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-        Ok(())
+                mint_to(cpi_context, self.config.reward_token_amount)
+            }
+            _ => Ok(()),
+        }
     }
 }

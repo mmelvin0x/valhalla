@@ -13,6 +13,9 @@ pub use types::*;
 
 pub use id::ID;
 
+// TODO: Add taking a % of deposit as fee
+// TODO: Add reward token distribution for disbursing funds
+
 #[program]
 /// The `valhalla` module contains functions for creating, updating, and managing vaults.
 pub mod valhalla {
@@ -23,13 +26,21 @@ pub mod valhalla {
     /// # Arguments
     ///
     /// * `ctx` - The context for the transaction.
-    /// * `fee` - The fee to be set for the configuration.
+    /// * `sol_fee` - The fee value for the configuration.
+    /// * `token_fee_basis_points` - The basis points of the token fee.
+    /// * `reward_token_amount` - The amount of reward tokens to be minted.
     ///
     /// # Errors
     ///
     /// Returns an error if the configuration creation fails.
-    pub fn create_config(ctx: Context<CreateConfig>, fee: u64) -> Result<()> {
-        ctx.accounts.create(fee)
+    pub fn create_config(
+        ctx: Context<CreateConfig>,
+        sol_fee: u64,
+        token_fee_basis_points: u64,
+        reward_token_amount: u64,
+    ) -> Result<()> {
+        ctx.accounts
+            .create(sol_fee, token_fee_basis_points, reward_token_amount)
     }
 
     /// Updates the configuration with a new fee.
@@ -37,13 +48,23 @@ pub mod valhalla {
     /// # Arguments
     ///
     /// * `ctx` - The context for the transaction.
-    /// * `new_fee` - The new fee to be set for the configuration.
+    /// * `new_sol_fee` - The new fee to be set in the configuration.
+    /// * `new_token_fee_basis_points` - The new basis points of the token fee.
     ///
     /// # Errors
     ///
     /// Returns an error if the configuration update fails.
-    pub fn update_config(ctx: Context<UpdateConfig>, new_fee: u64) -> Result<()> {
-        ctx.accounts.update(new_fee)
+    pub fn update_config(
+        ctx: Context<UpdateConfig>,
+        new_sol_fee: u64,
+        new_token_fee_basis_points: u64,
+        new_reward_token_amount: u64,
+    ) -> Result<()> {
+        ctx.accounts.update(
+            new_sol_fee,
+            new_token_fee_basis_points,
+            new_reward_token_amount,
+        )
     }
 
     /// Creates a new vault with the specified parameters.
@@ -51,14 +72,13 @@ pub mod valhalla {
     /// # Arguments
     ///
     /// * `ctx` - The context for the transaction.
-    /// * `identifier` - The identifier for the vault.
+    /// * `identifier` - The identifier of the vault.
     /// * `name` - The name of the vault.
     /// * `amount_to_be_vested` - The amount to be vested in the vault.
     /// * `total_vesting_duration` - The total duration of the vesting period.
-    /// * `cancel_authority` - The authority to cancel the vault, optional, defaults to Neither.
-    /// * `change_recipient_authority` - The authority to change the recipient of the vesting amount, optional, defaults to Neither.
-    /// * `payout_interval` - The interval at which the vesting amount is paid out, optional, defaults to `total_vesting_duration`.
-    /// * `start_date` - The start date of the vesting period, optional, defaults to `0`.
+    /// * `start_date` - The start date of the vesting period.
+    /// * `total_number_of_payouts` - The total number of payouts to be made from the vault.
+    /// * `cancel_authority` - The authority to cancel the vault.
     ///
     /// # Errors
     ///
@@ -69,21 +89,19 @@ pub mod valhalla {
         name: [u8; 32],
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
-        cancel_authority: Option<Authority>,
-        change_recipient_authority: Option<Authority>,
-        payout_interval: Option<u64>,
-        start_date: Option<u64>,
+        start_date: u64,
+        total_number_of_payouts: u64,
+        cancel_authority: Authority,
     ) -> Result<()> {
         ctx.accounts.create(
             identifier,
             name,
             amount_to_be_vested,
             total_vesting_duration,
-            ctx.bumps.vault_ata,
-            cancel_authority,
-            change_recipient_authority,
-            payout_interval,
             start_date,
+            total_number_of_payouts,
+            cancel_authority,
+            &ctx.bumps,
         )
     }
 
@@ -97,7 +115,7 @@ pub mod valhalla {
     ///
     /// Returns an error if the disbursement fails.
     pub fn disburse(ctx: Context<DisburseVault>) -> Result<()> {
-        ctx.accounts.disburse()
+        ctx.accounts.disburse(&ctx.bumps)
     }
 
     /// Closes the vault, preventing further vesting and disbursements.
@@ -111,19 +129,6 @@ pub mod valhalla {
     /// Returns an error if the vault closure fails.
     pub fn close(ctx: Context<CloseVault>) -> Result<()> {
         ctx.accounts.close()
-    }
-
-    /// Updates the vault with any changes to the parameters.
-    ///
-    /// # Arguments
-    ///
-    /// * `ctx` - The context for the transaction.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the vault update fails.
-    pub fn update(ctx: Context<UpdateVault>) -> Result<()> {
-        ctx.accounts.update()
     }
 
     /// Cancels the vault, preventing further vesting and disbursements and returning the remaining funds to the cancel authority.

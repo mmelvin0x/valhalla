@@ -32,7 +32,6 @@ pub struct CancelVault<'info> {
         seeds = [
             vault.identifier.to_le_bytes().as_ref(),
             creator.key().as_ref(),
-            recipient.key().as_ref(),
             mint.key().as_ref(),
             constants::VAULT_SEED
         ],
@@ -44,11 +43,10 @@ pub struct CancelVault<'info> {
     #[account(
         mut,
         seeds = [
-            vault.identifier.to_le_bytes().as_ref(),
             vault.key().as_ref(),
             constants::VAULT_ATA_SEED
         ],
-        bump,
+        bump = vault.token_account_bump,
         token::mint = mint,
         token::authority = vault_ata,
     )]
@@ -61,7 +59,7 @@ pub struct CancelVault<'info> {
         associated_token::mint = mint,
         associated_token::authority = creator
     )]
-    pub creator_token_account: InterfaceAccount<'info, TokenAccount>,
+    pub creator_ata: InterfaceAccount<'info, TokenAccount>,
 
     /// The mint account for the token.
     pub mint: InterfaceAccount<'info, Mint>,
@@ -87,10 +85,10 @@ impl<'info> CancelVault<'info> {
         self.validate_cancel_authority()?;
 
         match self.vault_ata.amount {
-            0 => self.close_vault_token_account(),
+            0 => self.close_vault_ata(),
             _ => {
-                self.transfer_from_vault_to_creator()?;
-                self.close_vault_token_account()
+                self.transfer()?;
+                self.close_vault_ata()
             }
         }
     }
@@ -117,7 +115,7 @@ impl<'info> CancelVault<'info> {
             }
             Authority::Both => {
                 if self.creator.key() != self.signer.key()
-                    || self.recipient.key() != self.signer.key()
+                    && self.recipient.key() != self.signer.key()
                 {
                     return Err(ValhallaError::Unauthorized.into());
                 }
@@ -132,23 +130,18 @@ impl<'info> CancelVault<'info> {
     /// # Errors
     ///
     /// Returns an error if there is an error during the CPI (Cross-Program Invocation) call.
-    fn transfer_from_vault_to_creator(&mut self) -> Result<()> {
-        let vault_ata = &self.vault_ata;
-        let creator_token_account = &self.creator_token_account;
-
+    fn transfer(&mut self) -> Result<()> {
         let lock_key = self.vault.to_account_info().key();
-        let id = self.vault.identifier.to_le_bytes();
         let signer: &[&[&[u8]]] = &[&[
-            id.as_ref(),
             lock_key.as_ref(),
             constants::VAULT_ATA_SEED,
             &[self.vault.token_account_bump],
         ]];
 
         let cpi_accounts = TransferChecked {
-            from: vault_ata.to_account_info(),
+            from: self.vault_ata.to_account_info(),
             mint: self.mint.to_account_info(),
-            to: creator_token_account.to_account_info(),
+            to: self.creator_ata.to_account_info(),
             authority: self.vault_ata.to_account_info(),
         };
         let cpi_program = self.token_program.to_account_info();
@@ -162,11 +155,9 @@ impl<'info> CancelVault<'info> {
     /// # Errors
     ///
     /// Returns an error if there is an error during the CPI (Cross-Program Invocation) call.
-    fn close_vault_token_account(&self) -> Result<()> {
+    fn close_vault_ata(&self) -> Result<()> {
         let lock_key = self.vault.to_account_info().key();
-        let id = self.vault.identifier.to_le_bytes();
         let signer: &[&[&[u8]]] = &[&[
-            id.as_ref(),
             lock_key.as_ref(),
             constants::VAULT_ATA_SEED,
             &[self.vault.token_account_bump],

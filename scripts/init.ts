@@ -3,7 +3,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { IDL, Valhalla } from "../target/types/valhalla";
 import { LAMPORTS_PER_SOL, clusterApiUrl } from "@solana/web3.js";
 
-import { getPDAs } from "../tests/utils/constants";
+import { getPDAs } from "../tests/utils/utils";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
   "AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p"

@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token_interface::{Mint, TokenInterface};
 
 use crate::{constants, errors::ValhallaError, state::Config};
 
@@ -19,8 +20,25 @@ pub struct CreateConfig<'info> {
     /// The configuration account to be created.
     pub config: Account<'info, Config>,
 
-    /// The treasury account.
-    pub treasury: SystemAccount<'info>,
+    /// The sol treasury account.
+    pub sol_treasury: SystemAccount<'info>,
+
+    /// The token treasury account.
+    pub token_treasury: SystemAccount<'info>,
+
+    /// The reward token mint account.
+    #[account(
+        init,
+        payer = admin,
+        mint::decimals = 6,
+        mint::authority = reward_token_mint,
+        seeds = [constants::REWARD_TOKEN_MINT_SEED],
+        bump,
+    )]
+    pub reward_token_mint: InterfaceAccount<'info, Mint>,
+
+    /// The token program account.
+    pub token_program: Interface<'info, TokenInterface>,
 
     /// The system program account.
     pub system_program: Program<'info, System>,
@@ -31,23 +49,38 @@ impl<'info> CreateConfig<'info> {
     ///
     /// # Arguments
     ///
-    /// * `fee` - The fee value for the configuration.
+    /// * `sol_fee` - The fee value for the configuration.
+    /// * `token_fee_basis_points` - The basis points of the token fee.
     ///
     /// # Errors
     ///
     /// Returns an error if the configuration account is already initialized.
-    pub fn create(&mut self, fee: u64) -> Result<()> {
-        let config = &mut self.config;
-
+    pub fn create(
+        &mut self,
+        sol_fee: u64,
+        token_fee_basis_points: u64,
+        reward_token_amount: u64,
+    ) -> Result<()> {
         // If the config account is already initialized, return an error.
-        if config.admin.key() != Pubkey::default() {
-            return Err(ValhallaError::AlreadyCreateConfig.into());
-        }
+        require!(
+            self.config.admin == Pubkey::default(),
+            ValhallaError::AlreadyInitialized
+        );
 
-        config.set_inner(Config {
-            admin: self.admin.key(),
-            treasury: self.treasury.key(),
-            fee,
+        // If the basis points are greater than 10000, return an error.
+        require!(
+            token_fee_basis_points <= 10000,
+            ValhallaError::InvalidTokenFeeBasisPoints
+        );
+
+        self.config.set_inner(Config {
+            admin: self.admin.to_account_info().key(),
+            sol_treasury: self.sol_treasury.to_account_info().key(),
+            token_treasury: self.token_treasury.to_account_info().key(),
+            reward_token_mint_key: self.reward_token_mint.to_account_info().key(),
+            sol_fee,
+            token_fee_basis_points,
+            reward_token_amount,
         });
 
         Ok(())

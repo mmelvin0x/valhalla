@@ -5,14 +5,28 @@ use anchor_lang::prelude::*;
 pub struct Config {
     /// The public key of the admin account.
     pub admin: Pubkey,
-    /// The public key of the treasury account.
-    pub treasury: Pubkey,
-    /// The fee amount in u64.
-    pub fee: u64,
+
+    /// The public key of the sol treasury account.
+    pub sol_treasury: Pubkey,
+
+    /// The public key of the token treasury account.
+    pub token_treasury: Pubkey,
+
+    /// The public key of the token mint used for rewards.
+    pub reward_token_mint_key: Pubkey,
+
+    /// The amount of sol taken as a flat fee to the sol treasury.
+    pub sol_fee: u64,
+
+    /// The basis points of the token fee.
+    pub token_fee_basis_points: u64,
+
+    /// The reward token amount
+    pub reward_token_amount: u64,
 }
 
 /// Implementation of the `Space` trait for the `Vault` struct.
 impl Space for Config {
     /// The space required to store the configuration account.
-    const INIT_SPACE: usize = 8 + 32 + 32 + 8;
+    const INIT_SPACE: usize = 8 + 32 + 32 + 32 + 32 + 8 + 8 + 8;
 }

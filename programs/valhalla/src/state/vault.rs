@@ -26,29 +26,26 @@ pub struct Vault {
     /// The timestamp when the vault was created.
     pub created_timestamp: u64,
 
-    /// The bump value for the vault associated token account pda associated with the vault.
-    pub token_account_bump: u8,
-
-    /// The authority to cancel the vault.
-    pub cancel_authority: Authority,
-
-    /// The authority to change the recipient of the vault.
-    pub change_recipient_authority: Authority,
-
     /// The start date of the vault.
     pub start_date: u64,
-
-    /// The interval between each payout from the vault.
-    pub payout_interval: u64,
-
-    /// The amount to be paid out per interval from the vault.
-    pub amount_per_payout: u64,
 
     /// The timestamp of the last payment made from the vault.
     pub last_payment_timestamp: u64,
 
+    /// Initial deposit amount.
+    pub initial_deposit_amount: u64,
+
+    /// The number of payments to be made by the vault.
+    pub total_number_of_payouts: u64,
+
     /// The number of payments made from the vault.
     pub number_of_payments_made: u64,
+
+    /// The authority to cancel the vault.
+    pub cancel_authority: Authority,
+
+    /// The bump value for the vault associated token account pda associated with the vault.
+    pub token_account_bump: u8,
 }
 
 /// Implementation of the `Space` trait for the `Vault` struct.
@@ -62,12 +59,50 @@ impl Space for Vault {
             32 + // mint
             8 + // total_vesting_duration
             8 + // created_timestamp
-            1 + // token_account_bump
-            1 + // cancel_authority
-            1 + // change_recipient_authority
             8 + // start_date
-            8 + // payout_interval
-            8 + // amount_per_payout
             8 + // last_payment_timestamp
-            8; // number_of_payments_made
+            8 + // initial_deposit_amount
+            8 + // total_number_of_payouts
+            8 + // number_of_payments_made
+            1 + // cancel_authority
+            1; // token_account_bump
+}
+
+impl<'info> Vault {
+    /// Checks if the vault is locked.
+    ///
+    /// # Arguments
+    ///
+    /// * `current_time` - The current time.
+    ///
+    /// # Returns
+    ///
+    /// This method returns `Ok(true)` if the vault is locked, `Ok(false)` otherwise.
+    pub fn is_locked(&self, current_time: u64) -> Result<bool> {
+        Ok(self.start_date > current_time)
+    }
+
+    /// Checks if the vault has reached it's total vesting duration.
+    ///
+    /// # Arguments
+    ///
+    /// * `current_time` - The current time.
+    ///
+    /// # Returns
+    ///
+    /// This method returns `Ok(true)` if the vault has reached it's total vesting duration, `Ok(false)` otherwise.
+    pub fn is_expired(&self, current_time: u64) -> Result<bool> {
+        Ok(self
+            .start_date
+            .checked_add(self.total_vesting_duration)
+            .unwrap()
+            <= current_time)
+    }
+
+    pub fn get_amount_per_payout(&self) -> Result<u64> {
+        Ok(self
+            .initial_deposit_amount
+            .checked_div(self.total_number_of_payouts)
+            .unwrap())
+    }
 }
