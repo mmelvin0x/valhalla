@@ -16,8 +16,12 @@ import * as beetSolana from '@metaplex-foundation/beet-solana'
  */
 export type ConfigArgs = {
   admin: web3.PublicKey
-  treasury: web3.PublicKey
-  fee: beet.bignum
+  solTreasury: web3.PublicKey
+  tokenTreasury: web3.PublicKey
+  governanceTokenMintKey: web3.PublicKey
+  solFee: beet.bignum
+  tokenFeeBasisPoints: beet.bignum
+  governanceTokenAmount: beet.bignum
 }
 
 export const configDiscriminator = [155, 12, 170, 224, 30, 250, 204, 130]
@@ -31,15 +35,27 @@ export const configDiscriminator = [155, 12, 170, 224, 30, 250, 204, 130]
 export class Config implements ConfigArgs {
   private constructor(
     readonly admin: web3.PublicKey,
-    readonly treasury: web3.PublicKey,
-    readonly fee: beet.bignum
+    readonly solTreasury: web3.PublicKey,
+    readonly tokenTreasury: web3.PublicKey,
+    readonly governanceTokenMintKey: web3.PublicKey,
+    readonly solFee: beet.bignum,
+    readonly tokenFeeBasisPoints: beet.bignum,
+    readonly governanceTokenAmount: beet.bignum
   ) {}
 
   /**
    * Creates a {@link Config} instance from the provided args.
    */
   static fromArgs(args: ConfigArgs) {
-    return new Config(args.admin, args.treasury, args.fee)
+    return new Config(
+      args.admin,
+      args.solTreasury,
+      args.tokenTreasury,
+      args.governanceTokenMintKey,
+      args.solFee,
+      args.tokenFeeBasisPoints,
+      args.governanceTokenAmount
+    )
   }
 
   /**
@@ -82,7 +98,7 @@ export class Config implements ConfigArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p'
+      '124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, configBeet)
@@ -146,9 +162,33 @@ export class Config implements ConfigArgs {
   pretty() {
     return {
       admin: this.admin.toBase58(),
-      treasury: this.treasury.toBase58(),
-      fee: (() => {
-        const x = <{ toNumber: () => number }>this.fee
+      solTreasury: this.solTreasury.toBase58(),
+      tokenTreasury: this.tokenTreasury.toBase58(),
+      governanceTokenMintKey: this.governanceTokenMintKey.toBase58(),
+      solFee: (() => {
+        const x = <{ toNumber: () => number }>this.solFee
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
+      tokenFeeBasisPoints: (() => {
+        const x = <{ toNumber: () => number }>this.tokenFeeBasisPoints
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
+      governanceTokenAmount: (() => {
+        const x = <{ toNumber: () => number }>this.governanceTokenAmount
         if (typeof x.toNumber === 'function') {
           try {
             return x.toNumber()
@@ -175,8 +215,12 @@ export const configBeet = new beet.BeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['admin', beetSolana.publicKey],
-    ['treasury', beetSolana.publicKey],
-    ['fee', beet.u64],
+    ['solTreasury', beetSolana.publicKey],
+    ['tokenTreasury', beetSolana.publicKey],
+    ['governanceTokenMintKey', beetSolana.publicKey],
+    ['solFee', beet.u64],
+    ['tokenFeeBasisPoints', beet.u64],
+    ['governanceTokenAmount', beet.u64],
   ],
   Config.fromArgs,
   'Config'

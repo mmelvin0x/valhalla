@@ -34,7 +34,7 @@ impl<'info> UpdateConfig<'info> {
     ///
     /// * `new_sol_fee` - The new fee to be set in the configuration.
     /// * `new_token_fee_basis_points` - The new basis points of the token fee to be set in the configuration.
-    /// * `new_reward_token_amount` - The new amount of reward tokens to be minted.
+    /// * `new_governance_token_amount` - The new amount of reward tokens to be minted.
     ///
     /// # Errors
     ///
@@ -43,7 +43,7 @@ impl<'info> UpdateConfig<'info> {
         &mut self,
         new_sol_fee: u64,
         new_token_fee_basis_points: u64,
-        new_reward_token_amount: u64,
+        new_governance_token_amount: u64,
     ) -> Result<()> {
         // Ensure that the caller is authorized to update the configuration.
         require!(
@@ -71,8 +71,8 @@ impl<'info> UpdateConfig<'info> {
         }
 
         // Update the configuration with the new reward token amount.
-        if self.config.reward_token_amount != new_reward_token_amount {
-            self.config.reward_token_amount = new_reward_token_amount;
+        if self.config.governance_token_amount != new_governance_token_amount {
+            self.config.governance_token_amount = new_governance_token_amount;
         }
 
         // Update the configuration with the new admin account if it is different.

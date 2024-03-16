@@ -17,4 +17,4 @@ pub const VAULT_SEED: &[u8] = b"vault";
 pub const VAULT_ATA_SEED: &[u8] = b"vault_ata";
 
 #[constant]
-pub const REWARD_TOKEN_MINT_SEED: &[u8] = b"reward_token_mint";
+pub const REWARD_TOKEN_MINT_SEED: &[u8] = b"governance_token_mint";

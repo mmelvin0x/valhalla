@@ -90,22 +90,22 @@ pub struct CreateVault<'info> {
     #[account(
         init_if_needed,
         payer = creator,
-        associated_token::mint = reward_token_mint,
+        associated_token::mint = governance_token_mint,
         associated_token::authority = creator,
-        associated_token::token_program = reward_token_program,
+        associated_token::token_program = governance_token_program,
     )]
     pub creator_reward_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     /// The reward token mint account.
     #[account(
         mut,
-        mint::decimals = 6,
-        mint::authority = reward_token_mint,
-        mint::token_program = reward_token_program,
+        mint::decimals = 9,
+        mint::authority = governance_token_mint,
+        mint::token_program = governance_token_program,
         seeds = [constants::REWARD_TOKEN_MINT_SEED],
         bump,
     )]
-    pub reward_token_mint: InterfaceAccount<'info, Mint>,
+    pub governance_token_mint: InterfaceAccount<'info, Mint>,
 
     /// The mint of the token.
     pub mint: InterfaceAccount<'info, Mint>,
@@ -114,7 +114,7 @@ pub struct CreateVault<'info> {
     pub token_program: Interface<'info, TokenInterface>,
 
     /// The token program for the reward token.
-    pub reward_token_program: Interface<'info, TokenInterface>,
+    pub governance_token_program: Interface<'info, TokenInterface>,
 
     /// The associated token program.
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -123,7 +123,6 @@ pub struct CreateVault<'info> {
     pub system_program: Program<'info, System>,
 }
 
-/// Implements the CreateVault instruction.
 impl<'info> CreateVault<'info> {
     /// Creates a new vault with the specified parameters.
     ///
@@ -289,19 +288,19 @@ impl<'info> CreateVault<'info> {
             Authority::Neither => {
                 let signer_seeds: &[&[&[u8]]] = &[&[
                     constants::REWARD_TOKEN_MINT_SEED,
-                    &[bumps.reward_token_mint],
+                    &[bumps.governance_token_mint],
                 ]];
 
-                let cpi_program = self.reward_token_program.to_account_info();
+                let cpi_program = self.governance_token_program.to_account_info();
                 let cpi_accounts = MintTo {
-                    mint: self.reward_token_mint.to_account_info(),
+                    mint: self.governance_token_mint.to_account_info(),
                     to: self.creator_reward_ata.to_account_info(),
-                    authority: self.reward_token_mint.to_account_info(),
+                    authority: self.governance_token_mint.to_account_info(),
                 };
                 let cpi_context =
                     CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-                mint_to(cpi_context, self.config.reward_token_amount)
+                mint_to(cpi_context, self.config.governance_token_amount)
             }
             _ => Ok(()),
         }

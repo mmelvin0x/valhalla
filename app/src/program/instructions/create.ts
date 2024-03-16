@@ -12,95 +12,99 @@ import { Authority, authorityBeet } from '../types/Authority'
 
 /**
  * @category Instructions
- * @category CreateVestingSchedule
+ * @category Create
  * @category generated
  */
-export type CreateVestingScheduleInstructionArgs = {
+export type CreateInstructionArgs = {
+  identifier: beet.bignum
+  name: number[] /* size: 32 */
   amountToBeVested: beet.bignum
   totalVestingDuration: beet.bignum
-  payoutInterval: beet.bignum
-  cliffPaymentAmount: beet.bignum
   startDate: beet.bignum
+  payoutInterval: beet.bignum
   cancelAuthority: Authority
-  changeRecipientAuthority: Authority
-  name: number[] /* size: 32 */
 }
 /**
  * @category Instructions
- * @category CreateVestingSchedule
+ * @category Create
  * @category generated
  */
-export const createVestingScheduleStruct = new beet.BeetArgsStruct<
-  CreateVestingScheduleInstructionArgs & {
+export const createStruct = new beet.BeetArgsStruct<
+  CreateInstructionArgs & {
     instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['identifier', beet.u64],
+    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
     ['amountToBeVested', beet.u64],
     ['totalVestingDuration', beet.u64],
-    ['payoutInterval', beet.u64],
-    ['cliffPaymentAmount', beet.u64],
     ['startDate', beet.u64],
+    ['payoutInterval', beet.u64],
     ['cancelAuthority', authorityBeet],
-    ['changeRecipientAuthority', authorityBeet],
-    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
   ],
-  'CreateVestingScheduleInstructionArgs'
+  'CreateInstructionArgs'
 )
 /**
- * Accounts required by the _createVestingSchedule_ instruction
+ * Accounts required by the _create_ instruction
  *
  * @property [_writable_, **signer**] creator
- * @property [] recipient
+ * @property [_writable_] recipient
+ * @property [_writable_] solTreasury
+ * @property [_writable_] tokenTreasury
  * @property [] config
- * @property [_writable_] treasury
- * @property [_writable_] vestingSchedule
- * @property [_writable_] vestingScheduleTokenAccount
- * @property [_writable_] creatorTokenAccount
- * @property [_writable_] recipientTokenAccount
+ * @property [_writable_] vault
+ * @property [_writable_] vaultAta
+ * @property [_writable_] tokenTreasuryAta
+ * @property [_writable_] creatorAta
+ * @property [_writable_] creatorRewardAta
+ * @property [_writable_] governanceTokenMint
  * @property [] mint
+ * @property [] governanceTokenProgram
  * @property [] associatedTokenProgram
  * @category Instructions
- * @category CreateVestingSchedule
+ * @category Create
  * @category generated
  */
-export type CreateVestingScheduleInstructionAccounts = {
+export type CreateInstructionAccounts = {
   creator: web3.PublicKey
   recipient: web3.PublicKey
+  solTreasury: web3.PublicKey
+  tokenTreasury: web3.PublicKey
   config: web3.PublicKey
-  treasury: web3.PublicKey
-  vestingSchedule: web3.PublicKey
-  vestingScheduleTokenAccount: web3.PublicKey
-  creatorTokenAccount: web3.PublicKey
-  recipientTokenAccount: web3.PublicKey
+  vault: web3.PublicKey
+  vaultAta: web3.PublicKey
+  tokenTreasuryAta: web3.PublicKey
+  creatorAta: web3.PublicKey
+  creatorRewardAta: web3.PublicKey
+  governanceTokenMint: web3.PublicKey
   mint: web3.PublicKey
   tokenProgram?: web3.PublicKey
+  governanceTokenProgram: web3.PublicKey
   associatedTokenProgram: web3.PublicKey
   systemProgram?: web3.PublicKey
 }
 
-export const createVestingScheduleInstructionDiscriminator = [
-  195, 30, 184, 253, 77, 154, 187, 66,
-]
+export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
 
 /**
- * Creates a _CreateVestingSchedule_ instruction.
+ * Creates a _Create_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
  *
  * @category Instructions
- * @category CreateVestingSchedule
+ * @category Create
  * @category generated
  */
-export function createCreateVestingScheduleInstruction(
-  accounts: CreateVestingScheduleInstructionAccounts,
-  args: CreateVestingScheduleInstructionArgs,
-  programId = new web3.PublicKey('AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p')
+export function createCreateInstruction(
+  accounts: CreateInstructionAccounts,
+  args: CreateInstructionArgs,
+  programId = new web3.PublicKey('124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E')
 ) {
-  const [data] = createVestingScheduleStruct.serialize({
-    instructionDiscriminator: createVestingScheduleInstructionDiscriminator,
+  const [data] = createStruct.serialize({
+    instructionDiscriminator: createInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [
@@ -111,7 +115,17 @@ export function createCreateVestingScheduleInstruction(
     },
     {
       pubkey: accounts.recipient,
-      isWritable: false,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.solTreasury,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.tokenTreasury,
+      isWritable: true,
       isSigner: false,
     },
     {
@@ -120,27 +134,32 @@ export function createCreateVestingScheduleInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.treasury,
+      pubkey: accounts.vault,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.vestingSchedule,
+      pubkey: accounts.vaultAta,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.vestingScheduleTokenAccount,
+      pubkey: accounts.tokenTreasuryAta,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.creatorTokenAccount,
+      pubkey: accounts.creatorAta,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.recipientTokenAccount,
+      pubkey: accounts.creatorRewardAta,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.governanceTokenMint,
       isWritable: true,
       isSigner: false,
     },
@@ -151,6 +170,11 @@ export function createCreateVestingScheduleInstruction(
     },
     {
       pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.governanceTokenProgram,
       isWritable: false,
       isSigner: false,
     },

@@ -13,7 +13,7 @@ pub struct Config {
     pub token_treasury: Pubkey,
 
     /// The public key of the token mint used for rewards.
-    pub reward_token_mint_key: Pubkey,
+    pub governance_token_mint_key: Pubkey,
 
     /// The amount of sol taken as a flat fee to the sol treasury.
     pub sol_fee: u64,
@@ -21,8 +21,8 @@ pub struct Config {
     /// The basis points of the token fee.
     pub token_fee_basis_points: u64,
 
-    /// The reward token amount
-    pub reward_token_amount: u64,
+    /// The governance token reward amount
+    pub governance_token_amount: u64,
 }
 
 /// Implementation of the `Space` trait for the `Vault` struct.

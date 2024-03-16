@@ -46,7 +46,6 @@ pub struct CloseVault<'info> {
     pub token_program: Interface<'info, TokenInterface>,
 }
 
-/// Implements the CloseVault instruction.
 impl<'info> CloseVault<'info> {
     /// Closes the vault by transferring its funds to the creator's account.
     ///

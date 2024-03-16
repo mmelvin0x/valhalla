@@ -74,7 +74,6 @@ pub struct CancelVault<'info> {
     pub system_program: Program<'info, System>,
 }
 
-/// Implements the `CancelVault` struct.
 impl<'info> CancelVault<'info> {
     /// Cancels the vault.
     ///

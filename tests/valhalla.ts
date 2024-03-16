@@ -46,11 +46,11 @@ describe("⚡️ Valhalla", () => {
   let treasuryTokenAccount: Account;
   let creatorRewardAta: Account;
   let userRewardAta: Account;
-  let rewardTokenMint: PublicKey;
+  let governanceTokenMint: PublicKey;
 
   before(async () => {
-    rewardTokenMint = PublicKey.findProgramAddressSync(
-      [Buffer.from("reward_token_mint")],
+    governanceTokenMint = PublicKey.findProgramAddressSync(
+      [Buffer.from("governance_token_mint")],
       program.programId
     )[0];
 
@@ -80,7 +80,7 @@ describe("⚡️ Valhalla", () => {
             config,
             solTreasury: payer.publicKey,
             tokenTreasury: tokenTreasury.publicKey,
-            rewardTokenMint,
+            governanceTokenMint,
             tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
           })
@@ -102,16 +102,16 @@ describe("⚡️ Valhalla", () => {
       const { config } = await getPDAs(program.programId);
       const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       const tx = await program.methods
-        .createConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .createConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           config,
           solTreasury: payer.publicKey,
           tokenTreasury: tokenTreasury.publicKey,
-          rewardTokenMint,
+          governanceTokenMint,
           tokenProgram: TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -133,18 +133,18 @@ describe("⚡️ Valhalla", () => {
       expect(configAccount.tokenFeeBasisPoints.toString()).equals(
         tokenFeeBasisPoints.toString()
       );
-      expect(configAccount.rewardTokenAmount.toString()).equals(
-        rewardTokenAmount.toString()
+      expect(configAccount.governanceTokenAmount.toString()).equals(
+        governanceTokenAmount.toString()
       );
-      expect(configAccount.rewardTokenMintKey.toString()).equals(
-        rewardTokenMint.toString()
+      expect(configAccount.governanceTokenMintKey.toString()).equals(
+        governanceTokenMint.toString()
       );
 
       // Define these now that the reward token mint is created
       creatorRewardAta = await getOrCreateAssociatedTokenAccount(
         provider.connection,
         creator,
-        rewardTokenMint,
+        governanceTokenMint,
         creator.publicKey,
         false,
         undefined,
@@ -156,7 +156,7 @@ describe("⚡️ Valhalla", () => {
       userRewardAta = await getOrCreateAssociatedTokenAccount(
         provider.connection,
         randomUser,
-        rewardTokenMint,
+        governanceTokenMint,
         randomUser.publicKey,
         false,
         undefined,
@@ -180,7 +180,7 @@ describe("⚡️ Valhalla", () => {
             config,
             solTreasury: payer.publicKey,
             tokenTreasury: tokenTreasury.publicKey,
-            rewardTokenMint,
+            governanceTokenMint,
             tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
           })
@@ -193,6 +193,90 @@ describe("⚡️ Valhalla", () => {
         expect(e.logs[3].includes("already in use")).equals(true);
       }
     });
+
+    it("should let the admin mint governance tokens", async () => {
+      const receiverTokenAccount = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        payer,
+        governanceTokenMint,
+        payer.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
+      const { config } = await getPDAs(program.programId);
+      const tx = await program.methods
+        .mintGovernanceTokens(new anchor.BN(10 * LAMPORTS_PER_SOL))
+        .accounts({
+          admin: payer.publicKey,
+          receiver: payer.publicKey,
+          config,
+          governanceTokenMint,
+          receiverTokenAccount: receiverTokenAccount.address,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      const receiverAccount = await getAccount(
+        provider.connection,
+        receiverTokenAccount.address,
+        undefined,
+        TOKEN_PROGRAM_ID
+      );
+
+      expect(receiverAccount.amount.toString()).equals(
+        (10 * LAMPORTS_PER_SOL).toString()
+      );
+    });
+
+    it("should not let a non-admin mint governance tokens", async () => {
+      try {
+        const receiverTokenAccount = await getOrCreateAssociatedTokenAccount(
+          provider.connection,
+          payer,
+          governanceTokenMint,
+          payer.publicKey,
+          false,
+          undefined,
+          undefined,
+          TOKEN_PROGRAM_ID,
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        );
+
+        const { config } = await getPDAs(program.programId);
+        const tx = await program.methods
+          .mintGovernanceTokens(new anchor.BN(10 * LAMPORTS_PER_SOL))
+          .accounts({
+            admin: creator.publicKey,
+            receiver: payer.publicKey,
+            config,
+            governanceTokenMint,
+            receiverTokenAccount: receiverTokenAccount.address,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([creator])
+          .rpc();
+
+        await confirm(provider.connection, tx);
+        assert.fail("Expected an error");
+      } catch (e) {
+        expect(e.error.errorCode.code).equals("ConstraintHasOne");
+        expect(e.error.errorCode.number).equals(2001);
+        expect(e.error.errorMessage).equals(
+          "A has one constraint was violated"
+        );
+      }
+    });
   });
 
   describe("Update Config", () => {
@@ -200,10 +284,10 @@ describe("⚡️ Valhalla", () => {
       const { config } = await getPDAs(program.programId);
       const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       let tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: creator.publicKey,
@@ -223,7 +307,7 @@ describe("⚡️ Valhalla", () => {
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: creator.publicKey,
           newAdmin: payer.publicKey,
@@ -250,11 +334,11 @@ describe("⚡️ Valhalla", () => {
       expect(configAccount.tokenFeeBasisPoints.toString()).equals(
         tokenFeeBasisPoints.toString()
       );
-      expect(configAccount.rewardTokenAmount.toString()).equals(
-        rewardTokenAmount.toString()
+      expect(configAccount.governanceTokenAmount.toString()).equals(
+        governanceTokenAmount.toString()
       );
-      expect(configAccount.rewardTokenMintKey.toString()).equals(
-        rewardTokenMint.toString()
+      expect(configAccount.governanceTokenMintKey.toString()).equals(
+        governanceTokenMint.toString()
       );
     });
 
@@ -262,11 +346,11 @@ describe("⚡️ Valhalla", () => {
       const { config } = await getPDAs(program.programId);
       const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
       const newTokenTreasury = Keypair.generate();
 
       let tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
@@ -286,7 +370,7 @@ describe("⚡️ Valhalla", () => {
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
@@ -310,10 +394,10 @@ describe("⚡️ Valhalla", () => {
       const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const newTokenFeeBasisPoints = new anchor.BN(15);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       let tx = await program.methods
-        .updateConfig(solFee, newTokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(solFee, newTokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
@@ -333,7 +417,7 @@ describe("⚡️ Valhalla", () => {
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
@@ -357,10 +441,10 @@ describe("⚡️ Valhalla", () => {
       const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const newSolFee = new anchor.BN(0.03 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       let tx = await program.methods
-        .updateConfig(newSolFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(newSolFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
@@ -378,7 +462,7 @@ describe("⚡️ Valhalla", () => {
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
@@ -392,8 +476,8 @@ describe("⚡️ Valhalla", () => {
 
       configAccount = await program.account.config.fetch(config);
 
-      expect(configAccount.rewardTokenMintKey.toString()).equals(
-        rewardTokenMint.toString()
+      expect(configAccount.governanceTokenMintKey.toString()).equals(
+        governanceTokenMint.toString()
       );
     });
 
@@ -402,7 +486,7 @@ describe("⚡️ Valhalla", () => {
       const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const newSolFee = new anchor.BN(0.03 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
       const newRewardTokenAmount = new anchor.BN(15 * LAMPORTS_PER_SOL);
 
       let tx = await program.methods
@@ -420,13 +504,13 @@ describe("⚡️ Valhalla", () => {
 
       let configAccount = await program.account.config.fetch(config);
 
-      expect(configAccount.rewardTokenAmount.toString()).equals(
+      expect(configAccount.governanceTokenAmount.toString()).equals(
         newRewardTokenAmount.toString()
       );
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
@@ -440,8 +524,8 @@ describe("⚡️ Valhalla", () => {
 
       configAccount = await program.account.config.fetch(config);
 
-      expect(configAccount.rewardTokenMintKey.toString()).equals(
-        rewardTokenMint.toString()
+      expect(configAccount.governanceTokenMintKey.toString()).equals(
+        governanceTokenMint.toString()
       );
     });
 
@@ -449,11 +533,11 @@ describe("⚡️ Valhalla", () => {
       const { config } = await getPDAs(program.programId);
       const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       try {
         const tx = await program.methods
-          .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+          .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
           .accounts({
             admin: payer.publicKey,
             newAdmin: payer.publicKey,
@@ -474,11 +558,11 @@ describe("⚡️ Valhalla", () => {
       const { config } = await getPDAs(program.programId);
       const solFee = new anchor.BN(0.000001 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       try {
         const tx = await program.methods
-          .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+          .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
           .accounts({
             admin: payer.publicKey,
             newAdmin: payer.publicKey,
@@ -501,11 +585,11 @@ describe("⚡️ Valhalla", () => {
       const { config } = await getPDAs(program.programId);
       const solFee = new anchor.BN(0.015 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(501);
-      const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+      const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       try {
         const tx = await program.methods
-          .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
+          .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
           .accounts({
             admin: payer.publicKey,
             newAdmin: payer.publicKey,
@@ -592,10 +676,10 @@ describe("⚡️ Valhalla", () => {
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorRewardAta: creatorRewardAta.address,
-          rewardTokenMint,
+          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -673,7 +757,7 @@ describe("⚡️ Valhalla", () => {
       );
 
       expect(creatorRewardAccountAfter.amount.toString()).equals(
-        configAccount.rewardTokenAmount.toString(),
+        configAccount.governanceTokenAmount.toString(),
         "Creator reward amount failed - 2"
       );
     });
@@ -736,9 +820,9 @@ describe("⚡️ Valhalla", () => {
             signerRewardAta: creatorRewardAta.address,
             recipientAta: recipientTokenAccount.address,
             mint,
-            rewardTokenMint,
+            governanceTokenMint,
             tokenProgram: TOKEN_2022_PROGRAM_ID,
-            rewardTokenProgram: TOKEN_PROGRAM_ID,
+            governanceTokenProgram: TOKEN_PROGRAM_ID,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
           })
@@ -775,9 +859,9 @@ describe("⚡️ Valhalla", () => {
           signerRewardAta: userRewardAta.address,
           recipientAta: recipientTokenAccount.address,
           mint,
-          rewardTokenMint,
+          governanceTokenMint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -852,10 +936,10 @@ describe("⚡️ Valhalla", () => {
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorRewardAta: creatorRewardAta.address,
-          rewardTokenMint,
+          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -988,10 +1072,10 @@ describe("⚡️ Valhalla", () => {
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorRewardAta: creatorRewardAta.address,
-          rewardTokenMint,
+          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1124,10 +1208,10 @@ describe("⚡️ Valhalla", () => {
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorRewardAta: creatorRewardAta.address,
-          rewardTokenMint,
+          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1222,10 +1306,10 @@ describe("⚡️ Valhalla", () => {
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorRewardAta: creatorRewardAta.address,
-          rewardTokenMint,
+          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1322,10 +1406,10 @@ describe("⚡️ Valhalla", () => {
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorRewardAta: creatorRewardAta.address,
-          rewardTokenMint,
+          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1392,10 +1476,10 @@ describe("⚡️ Valhalla", () => {
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorRewardAta: creatorRewardAta.address,
-          rewardTokenMint,
+          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1418,9 +1502,9 @@ describe("⚡️ Valhalla", () => {
           signerRewardAta: creatorRewardAta.address,
           recipientAta: recipientTokenAccount.address,
           mint,
-          rewardTokenMint,
+          governanceTokenMint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          rewardTokenProgram: TOKEN_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })

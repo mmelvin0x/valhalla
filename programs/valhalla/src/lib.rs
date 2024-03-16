@@ -28,7 +28,9 @@ pub mod valhalla {
     /// * `ctx` - The context for the transaction.
     /// * `sol_fee` - The fee value for the configuration.
     /// * `token_fee_basis_points` - The basis points of the token fee.
-    /// * `reward_token_amount` - The amount of reward tokens to be minted.
+    /// * `governance_token_amount` - The amount of reward tokens to be minted.
+    /// * `sol_treasury_governance_token_amount` - The amount of reward tokens to be minted for the sol treasury.
+    /// * `token_treasury_governance_token_amount` - The amount of reward tokens to be minted for the token treasury.
     ///
     /// # Errors
     ///
@@ -37,10 +39,10 @@ pub mod valhalla {
         ctx: Context<CreateConfig>,
         sol_fee: u64,
         token_fee_basis_points: u64,
-        reward_token_amount: u64,
+        governance_token_amount: u64,
     ) -> Result<()> {
         ctx.accounts
-            .create(sol_fee, token_fee_basis_points, reward_token_amount)
+            .create(sol_fee, token_fee_basis_points, governance_token_amount)
     }
 
     /// Updates the configuration with a new fee.
@@ -58,13 +60,27 @@ pub mod valhalla {
         ctx: Context<UpdateConfig>,
         new_sol_fee: u64,
         new_token_fee_basis_points: u64,
-        new_reward_token_amount: u64,
+        new_governance_token_amount: u64,
     ) -> Result<()> {
         ctx.accounts.update(
             new_sol_fee,
             new_token_fee_basis_points,
-            new_reward_token_amount,
+            new_governance_token_amount,
         )
+    }
+
+    /// Mints governance tokens to the receiver.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the transaction.
+    /// * `amount` - The amount of governance tokens to mint.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the minting fails.
+    pub fn mint_governance_tokens(ctx: Context<MintGovernanceTokens>, amount: u64) -> Result<()> {
+        ctx.accounts.mint_governance_tokens(amount, &ctx.bumps)
     }
 
     /// Creates a new vault with the specified parameters.

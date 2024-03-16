@@ -5,104 +5,98 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from '@solana/web3.js'
 import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 import { Authority, authorityBeet } from '../types/Authority'
-import { VestingType, vestingTypeBeet } from '../types/VestingType'
 
 /**
- * Arguments used to create {@link VestingSchedule}
+ * Arguments used to create {@link Vault}
  * @category Accounts
  * @category generated
  */
-export type VestingScheduleArgs = {
+export type VaultArgs = {
+  identifier: beet.bignum
+  name: number[] /* size: 32 */
   creator: web3.PublicKey
   recipient: web3.PublicKey
   mint: web3.PublicKey
-  name: number[] /* size: 32 */
   totalVestingDuration: beet.bignum
-  payoutInterval: beet.bignum
-  amountPerPayout: beet.bignum
-  startDate: beet.bignum
-  cliffPaymentAmount: beet.bignum
   createdTimestamp: beet.bignum
+  startDate: beet.bignum
   lastPaymentTimestamp: beet.bignum
+  initialDepositAmount: beet.bignum
+  totalNumberOfPayouts: beet.bignum
+  payoutInterval: beet.bignum
   numberOfPaymentsMade: beet.bignum
-  isCliffPaymentDisbursed: boolean
   cancelAuthority: Authority
-  changeRecipientAuthority: Authority
-  vestingType: VestingType
+  tokenAccountBump: number
 }
 
-export const vestingScheduleDiscriminator = [
-  130, 200, 173, 148, 39, 75, 243, 147,
-]
+export const vaultDiscriminator = [211, 8, 232, 43, 2, 152, 117, 119]
 /**
- * Holds the data for the {@link VestingSchedule} Account and provides de/serialization
+ * Holds the data for the {@link Vault} Account and provides de/serialization
  * functionality for that data
  *
  * @category Accounts
  * @category generated
  */
-export class VestingSchedule implements VestingScheduleArgs {
+export class Vault implements VaultArgs {
   private constructor(
+    readonly identifier: beet.bignum,
+    readonly name: number[] /* size: 32 */,
     readonly creator: web3.PublicKey,
     readonly recipient: web3.PublicKey,
     readonly mint: web3.PublicKey,
-    readonly name: number[] /* size: 32 */,
     readonly totalVestingDuration: beet.bignum,
-    readonly payoutInterval: beet.bignum,
-    readonly amountPerPayout: beet.bignum,
-    readonly startDate: beet.bignum,
-    readonly cliffPaymentAmount: beet.bignum,
     readonly createdTimestamp: beet.bignum,
+    readonly startDate: beet.bignum,
     readonly lastPaymentTimestamp: beet.bignum,
+    readonly initialDepositAmount: beet.bignum,
+    readonly totalNumberOfPayouts: beet.bignum,
+    readonly payoutInterval: beet.bignum,
     readonly numberOfPaymentsMade: beet.bignum,
-    readonly isCliffPaymentDisbursed: boolean,
     readonly cancelAuthority: Authority,
-    readonly changeRecipientAuthority: Authority,
-    readonly vestingType: VestingType
+    readonly tokenAccountBump: number
   ) {}
 
   /**
-   * Creates a {@link VestingSchedule} instance from the provided args.
+   * Creates a {@link Vault} instance from the provided args.
    */
-  static fromArgs(args: VestingScheduleArgs) {
-    return new VestingSchedule(
+  static fromArgs(args: VaultArgs) {
+    return new Vault(
+      args.identifier,
+      args.name,
       args.creator,
       args.recipient,
       args.mint,
-      args.name,
       args.totalVestingDuration,
-      args.payoutInterval,
-      args.amountPerPayout,
-      args.startDate,
-      args.cliffPaymentAmount,
       args.createdTimestamp,
+      args.startDate,
       args.lastPaymentTimestamp,
+      args.initialDepositAmount,
+      args.totalNumberOfPayouts,
+      args.payoutInterval,
       args.numberOfPaymentsMade,
-      args.isCliffPaymentDisbursed,
       args.cancelAuthority,
-      args.changeRecipientAuthority,
-      args.vestingType
+      args.tokenAccountBump
     )
   }
 
   /**
-   * Deserializes the {@link VestingSchedule} from the data of the provided {@link web3.AccountInfo}.
+   * Deserializes the {@link Vault} from the data of the provided {@link web3.AccountInfo}.
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static fromAccountInfo(
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
-  ): [VestingSchedule, number] {
-    return VestingSchedule.deserialize(accountInfo.data, offset)
+  ): [Vault, number] {
+    return Vault.deserialize(accountInfo.data, offset)
   }
 
   /**
    * Retrieves the account info from the provided address and deserializes
-   * the {@link VestingSchedule} from its data.
+   * the {@link Vault} from its data.
    *
    * @throws Error if no account info is found at the address or if deserialization fails
    */
@@ -110,15 +104,15 @@ export class VestingSchedule implements VestingScheduleArgs {
     connection: web3.Connection,
     address: web3.PublicKey,
     commitmentOrConfig?: web3.Commitment | web3.GetAccountInfoConfig
-  ): Promise<VestingSchedule> {
+  ): Promise<Vault> {
     const accountInfo = await connection.getAccountInfo(
       address,
       commitmentOrConfig
     )
     if (accountInfo == null) {
-      throw new Error(`Unable to find VestingSchedule account at ${address}`)
+      throw new Error(`Unable to find Vault account at ${address}`)
     }
-    return VestingSchedule.fromAccountInfo(accountInfo, 0)[0]
+    return Vault.fromAccountInfo(accountInfo, 0)[0]
   }
 
   /**
@@ -129,42 +123,42 @@ export class VestingSchedule implements VestingScheduleArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p'
+      '124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E'
     )
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, vestingScheduleBeet)
+    return beetSolana.GpaBuilder.fromStruct(programId, vaultBeet)
   }
 
   /**
-   * Deserializes the {@link VestingSchedule} from the provided data Buffer.
+   * Deserializes the {@link Vault} from the provided data Buffer.
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
-  static deserialize(buf: Buffer, offset = 0): [VestingSchedule, number] {
-    return vestingScheduleBeet.deserialize(buf, offset)
+  static deserialize(buf: Buffer, offset = 0): [Vault, number] {
+    return vaultBeet.deserialize(buf, offset)
   }
 
   /**
-   * Serializes the {@link VestingSchedule} into a Buffer.
+   * Serializes the {@link Vault} into a Buffer.
    * @returns a tuple of the created Buffer and the offset up to which the buffer was written to store it.
    */
   serialize(): [Buffer, number] {
-    return vestingScheduleBeet.serialize({
-      accountDiscriminator: vestingScheduleDiscriminator,
+    return vaultBeet.serialize({
+      accountDiscriminator: vaultDiscriminator,
       ...this,
     })
   }
 
   /**
    * Returns the byteSize of a {@link Buffer} holding the serialized data of
-   * {@link VestingSchedule}
+   * {@link Vault}
    */
   static get byteSize() {
-    return vestingScheduleBeet.byteSize
+    return vaultBeet.byteSize
   }
 
   /**
    * Fetches the minimum balance needed to exempt an account holding
-   * {@link VestingSchedule} data from rent
+   * {@link Vault} data from rent
    *
    * @param connection used to retrieve the rent exemption information
    */
@@ -173,75 +167,42 @@ export class VestingSchedule implements VestingScheduleArgs {
     commitment?: web3.Commitment
   ): Promise<number> {
     return connection.getMinimumBalanceForRentExemption(
-      VestingSchedule.byteSize,
+      Vault.byteSize,
       commitment
     )
   }
 
   /**
    * Determines if the provided {@link Buffer} has the correct byte size to
-   * hold {@link VestingSchedule} data.
+   * hold {@link Vault} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === VestingSchedule.byteSize
+    return buf.byteLength - offset === Vault.byteSize
   }
 
   /**
-   * Returns a readable version of {@link VestingSchedule} properties
+   * Returns a readable version of {@link Vault} properties
    * and can be used to convert to JSON and/or logging
    */
   pretty() {
     return {
+      identifier: (() => {
+        const x = <{ toNumber: () => number }>this.identifier
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
+      name: this.name,
       creator: this.creator.toBase58(),
       recipient: this.recipient.toBase58(),
       mint: this.mint.toBase58(),
-      name: this.name,
       totalVestingDuration: (() => {
         const x = <{ toNumber: () => number }>this.totalVestingDuration
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      payoutInterval: (() => {
-        const x = <{ toNumber: () => number }>this.payoutInterval
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      amountPerPayout: (() => {
-        const x = <{ toNumber: () => number }>this.amountPerPayout
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      startDate: (() => {
-        const x = <{ toNumber: () => number }>this.startDate
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
-      cliffPaymentAmount: (() => {
-        const x = <{ toNumber: () => number }>this.cliffPaymentAmount
         if (typeof x.toNumber === 'function') {
           try {
             return x.toNumber()
@@ -262,8 +223,52 @@ export class VestingSchedule implements VestingScheduleArgs {
         }
         return x
       })(),
+      startDate: (() => {
+        const x = <{ toNumber: () => number }>this.startDate
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
       lastPaymentTimestamp: (() => {
         const x = <{ toNumber: () => number }>this.lastPaymentTimestamp
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
+      initialDepositAmount: (() => {
+        const x = <{ toNumber: () => number }>this.initialDepositAmount
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
+      totalNumberOfPayouts: (() => {
+        const x = <{ toNumber: () => number }>this.totalNumberOfPayouts
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
+      payoutInterval: (() => {
+        const x = <{ toNumber: () => number }>this.payoutInterval
         if (typeof x.toNumber === 'function') {
           try {
             return x.toNumber()
@@ -284,11 +289,8 @@ export class VestingSchedule implements VestingScheduleArgs {
         }
         return x
       })(),
-      isCliffPaymentDisbursed: this.isCliffPaymentDisbursed,
       cancelAuthority: 'Authority.' + Authority[this.cancelAuthority],
-      changeRecipientAuthority:
-        'Authority.' + Authority[this.changeRecipientAuthority],
-      vestingType: 'VestingType.' + VestingType[this.vestingType],
+      tokenAccountBump: this.tokenAccountBump,
     }
   }
 }
@@ -297,31 +299,30 @@ export class VestingSchedule implements VestingScheduleArgs {
  * @category Accounts
  * @category generated
  */
-export const vestingScheduleBeet = new beet.BeetStruct<
-  VestingSchedule,
-  VestingScheduleArgs & {
+export const vaultBeet = new beet.BeetStruct<
+  Vault,
+  VaultArgs & {
     accountDiscriminator: number[] /* size: 8 */
   }
 >(
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['identifier', beet.u64],
+    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
     ['creator', beetSolana.publicKey],
     ['recipient', beetSolana.publicKey],
     ['mint', beetSolana.publicKey],
-    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
     ['totalVestingDuration', beet.u64],
-    ['payoutInterval', beet.u64],
-    ['amountPerPayout', beet.u64],
-    ['startDate', beet.u64],
-    ['cliffPaymentAmount', beet.u64],
     ['createdTimestamp', beet.u64],
+    ['startDate', beet.u64],
     ['lastPaymentTimestamp', beet.u64],
+    ['initialDepositAmount', beet.u64],
+    ['totalNumberOfPayouts', beet.u64],
+    ['payoutInterval', beet.u64],
     ['numberOfPaymentsMade', beet.u64],
-    ['isCliffPaymentDisbursed', beet.bool],
     ['cancelAuthority', authorityBeet],
-    ['changeRecipientAuthority', authorityBeet],
-    ['vestingType', vestingTypeBeet],
+    ['tokenAccountBump', beet.u8],
   ],
-  VestingSchedule.fromArgs,
-  'VestingSchedule'
+  Vault.fromArgs,
+  'Vault'
 )

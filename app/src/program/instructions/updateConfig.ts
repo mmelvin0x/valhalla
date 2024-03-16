@@ -10,66 +10,71 @@ import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
- * @category AdminInitialize
+ * @category UpdateConfig
  * @category generated
  */
-export type AdminInitializeInstructionArgs = {
-  fee: beet.bignum
+export type UpdateConfigInstructionArgs = {
+  newSolFee: beet.bignum
+  newTokenFeeBasisPoints: beet.bignum
+  newGovernanceTokenAmount: beet.bignum
 }
 /**
  * @category Instructions
- * @category AdminInitialize
+ * @category UpdateConfig
  * @category generated
  */
-export const adminInitializeStruct = new beet.BeetArgsStruct<
-  AdminInitializeInstructionArgs & {
+export const updateConfigStruct = new beet.BeetArgsStruct<
+  UpdateConfigInstructionArgs & {
     instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['fee', beet.u64],
+    ['newSolFee', beet.u64],
+    ['newTokenFeeBasisPoints', beet.u64],
+    ['newGovernanceTokenAmount', beet.u64],
   ],
-  'AdminInitializeInstructionArgs'
+  'UpdateConfigInstructionArgs'
 )
 /**
- * Accounts required by the _adminInitialize_ instruction
+ * Accounts required by the _updateConfig_ instruction
  *
  * @property [_writable_, **signer**] admin
+ * @property [] newAdmin
+ * @property [] newTokenTreasury
  * @property [_writable_] config
- * @property [] treasury
  * @category Instructions
- * @category AdminInitialize
+ * @category UpdateConfig
  * @category generated
  */
-export type AdminInitializeInstructionAccounts = {
+export type UpdateConfigInstructionAccounts = {
   admin: web3.PublicKey
+  newAdmin: web3.PublicKey
+  newTokenTreasury: web3.PublicKey
   config: web3.PublicKey
-  treasury: web3.PublicKey
-  systemProgram?: web3.PublicKey
 }
 
-export const adminInitializeInstructionDiscriminator = [
-  231, 170, 149, 43, 131, 117, 86, 5,
+export const updateConfigInstructionDiscriminator = [
+  29, 158, 252, 191, 10, 83, 219, 99,
 ]
 
 /**
- * Creates a _AdminInitialize_ instruction.
+ * Creates a _UpdateConfig_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
  *
  * @category Instructions
- * @category AdminInitialize
+ * @category UpdateConfig
  * @category generated
  */
-export function createAdminInitializeInstruction(
-  accounts: AdminInitializeInstructionAccounts,
-  args: AdminInitializeInstructionArgs,
-  programId = new web3.PublicKey('AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p')
+export function createUpdateConfigInstruction(
+  accounts: UpdateConfigInstructionAccounts,
+  args: UpdateConfigInstructionArgs,
+  programId = new web3.PublicKey('124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E')
 ) {
-  const [data] = adminInitializeStruct.serialize({
-    instructionDiscriminator: adminInitializeInstructionDiscriminator,
+  const [data] = updateConfigStruct.serialize({
+    instructionDiscriminator: updateConfigInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [
@@ -79,18 +84,18 @@ export function createAdminInitializeInstruction(
       isSigner: true,
     },
     {
+      pubkey: accounts.newAdmin,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.newTokenTreasury,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
       pubkey: accounts.config,
       isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.treasury,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
-      isWritable: false,
       isSigner: false,
     },
   ]

@@ -1,15 +1,18 @@
 import * as anchor from "@coral-xyz/anchor";
 
 import { IDL, Valhalla } from "../target/types/valhalla";
-import { LAMPORTS_PER_SOL, clusterApiUrl } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from "@solana/web3.js";
 
-import { getPDAs } from "../tests/utils/utils";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { confirm } from "../tests/utils/utils";
+import { getPDAs } from "../tests/utils/getPDAs";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p"
+  "124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E"
 );
-
-const FEE = 0.25;
+const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+const tokenFeeBasisPoints = new anchor.BN(10);
+const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
 const main = async () => {
   const wallet = anchor.Wallet.local();
@@ -31,24 +34,49 @@ const main = async () => {
 
   console.log("🔐 Config:", config.toBase58());
 
-  const initTx = await program.methods
-    .adminInitialize(new anchor.BN(FEE * LAMPORTS_PER_SOL))
+  const governanceTokenMint = PublicKey.findProgramAddressSync(
+    [Buffer.from("governance_token_mint")],
+    program.programId
+  )[0];
+
+  const tx = await program.methods
+    .createConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
     .accounts({
       admin: wallet.publicKey,
-      config: config,
-      treasury: wallet.publicKey,
+      config,
+      solTreasury: wallet.publicKey,
+      tokenTreasury: wallet.publicKey,
+      governanceTokenMint,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      systemProgram: anchor.web3.SystemProgram.programId,
     })
     .signers([wallet.payer])
     .rpc();
 
-  console.log("✅ Initialization Transaction:", initTx);
+  const sig = await confirm(provider.connection, tx);
 
-  await provider.connection.confirmTransaction(initTx, "confirmed");
+  console.log("✅ Initialization Transaction:", sig);
 
   const configAccount = await program.account.config.fetch(config);
   console.log("🐸 Admin:", configAccount.admin.toBase58());
-  console.log("💰 Treasury:", configAccount.treasury.toBase58());
-  console.log("❤️‍🩹 Fee:", configAccount.fee.toNumber() / LAMPORTS_PER_SOL);
+  console.log("💰 SOL Treasury:", configAccount.solTreasury.toBase58());
+  console.log("💰 Token Treasury::", configAccount.tokenTreasury.toBase58());
+  console.log(
+    "🫡 Reward Mint:",
+    configAccount.governanceTokenMintKey.toBase58()
+  );
+  console.log(
+    "❤️‍🩹 SOL Fee:",
+    configAccount.solFee.toNumber() / LAMPORTS_PER_SOL
+  );
+  console.log(
+    "❤️‍🩹 Token Fee BPS:",
+    configAccount.tokenFeeBasisPoints.toNumber()
+  );
+  console.log(
+    "🪙 Reward Token Amount:",
+    configAccount.governanceTokenAmount.toNumber()
+  );
 };
 
 main()

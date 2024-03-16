@@ -1,5 +1,8 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{Mint, TokenInterface};
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token_interface::{Mint, TokenInterface},
+};
 
 use crate::{constants, errors::ValhallaError, state::Config};
 
@@ -30,15 +33,18 @@ pub struct CreateConfig<'info> {
     #[account(
         init,
         payer = admin,
-        mint::decimals = 6,
-        mint::authority = reward_token_mint,
+        mint::decimals = 9,
+        mint::authority = governance_token_mint,
         seeds = [constants::REWARD_TOKEN_MINT_SEED],
         bump,
     )]
-    pub reward_token_mint: InterfaceAccount<'info, Mint>,
+    pub governance_token_mint: InterfaceAccount<'info, Mint>,
 
     /// The token program account.
     pub token_program: Interface<'info, TokenInterface>,
+
+    /// The associated token program account.
+    pub associated_token_program: Program<'info, AssociatedToken>,
 
     /// The system program account.
     pub system_program: Program<'info, System>,
@@ -51,6 +57,7 @@ impl<'info> CreateConfig<'info> {
     ///
     /// * `sol_fee` - The fee value for the configuration.
     /// * `token_fee_basis_points` - The basis points of the token fee.
+    /// * `governance_token_amount` - The amount of reward tokens to be minted.
     ///
     /// # Errors
     ///
@@ -59,7 +66,7 @@ impl<'info> CreateConfig<'info> {
         &mut self,
         sol_fee: u64,
         token_fee_basis_points: u64,
-        reward_token_amount: u64,
+        governance_token_amount: u64,
     ) -> Result<()> {
         // If the config account is already initialized, return an error.
         require!(
@@ -77,10 +84,10 @@ impl<'info> CreateConfig<'info> {
             admin: self.admin.to_account_info().key(),
             sol_treasury: self.sol_treasury.to_account_info().key(),
             token_treasury: self.token_treasury.to_account_info().key(),
-            reward_token_mint_key: self.reward_token_mint.to_account_info().key(),
+            governance_token_mint_key: self.governance_token_mint.to_account_info().key(),
             sol_fee,
             token_fee_basis_points,
-            reward_token_amount,
+            governance_token_amount,
         });
 
         Ok(())

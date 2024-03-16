@@ -177,7 +177,7 @@ async function mintSPLTokens() {
 
 async function main() {
   await mintToken2022Tokens();
-  // await mintSPLTokens();
+  await mintSPLTokens();
 }
 
 main().catch((err) => {

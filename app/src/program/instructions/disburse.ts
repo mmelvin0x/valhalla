@@ -11,61 +11,71 @@ import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
- * @category DisburseVestingSchedule
+ * @category Disburse
  * @category generated
  */
-export const disburseVestingScheduleStruct = new beet.BeetArgsStruct<{
+export const disburseStruct = new beet.BeetArgsStruct<{
   instructionDiscriminator: number[] /* size: 8 */
 }>(
   [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
-  'DisburseVestingScheduleInstructionArgs'
+  'DisburseInstructionArgs'
 )
 /**
- * Accounts required by the _disburseVestingSchedule_ instruction
+ * Accounts required by the _disburse_ instruction
  *
  * @property [_writable_, **signer**] signer
  * @property [] creator
  * @property [] recipient
- * @property [_writable_] vestingSchedule
- * @property [_writable_] vestingScheduleTokenAccount
- * @property [_writable_] recipientTokenAccount
+ * @property [_writable_] solTreasury
+ * @property [] config
+ * @property [_writable_] vault
+ * @property [_writable_] vaultAta
+ * @property [_writable_] signerRewardAta
+ * @property [_writable_] recipientAta
  * @property [] mint
+ * @property [_writable_] governanceTokenMint
+ * @property [] governanceTokenProgram
  * @property [] associatedTokenProgram
  * @category Instructions
- * @category DisburseVestingSchedule
+ * @category Disburse
  * @category generated
  */
-export type DisburseVestingScheduleInstructionAccounts = {
+export type DisburseInstructionAccounts = {
   signer: web3.PublicKey
   creator: web3.PublicKey
   recipient: web3.PublicKey
-  vestingSchedule: web3.PublicKey
-  vestingScheduleTokenAccount: web3.PublicKey
-  recipientTokenAccount: web3.PublicKey
+  solTreasury: web3.PublicKey
+  config: web3.PublicKey
+  vault: web3.PublicKey
+  vaultAta: web3.PublicKey
+  signerRewardAta: web3.PublicKey
+  recipientAta: web3.PublicKey
   mint: web3.PublicKey
+  governanceTokenMint: web3.PublicKey
   tokenProgram?: web3.PublicKey
+  governanceTokenProgram: web3.PublicKey
   associatedTokenProgram: web3.PublicKey
   systemProgram?: web3.PublicKey
 }
 
-export const disburseVestingScheduleInstructionDiscriminator = [
-  91, 85, 173, 155, 103, 56, 206, 100,
+export const disburseInstructionDiscriminator = [
+  68, 250, 205, 89, 217, 142, 13, 44,
 ]
 
 /**
- * Creates a _DisburseVestingSchedule_ instruction.
+ * Creates a _Disburse_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @category Instructions
- * @category DisburseVestingSchedule
+ * @category Disburse
  * @category generated
  */
-export function createDisburseVestingScheduleInstruction(
-  accounts: DisburseVestingScheduleInstructionAccounts,
-  programId = new web3.PublicKey('AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p')
+export function createDisburseInstruction(
+  accounts: DisburseInstructionAccounts,
+  programId = new web3.PublicKey('124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E')
 ) {
-  const [data] = disburseVestingScheduleStruct.serialize({
-    instructionDiscriminator: disburseVestingScheduleInstructionDiscriminator,
+  const [data] = disburseStruct.serialize({
+    instructionDiscriminator: disburseInstructionDiscriminator,
   })
   const keys: web3.AccountMeta[] = [
     {
@@ -84,17 +94,32 @@ export function createDisburseVestingScheduleInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.vestingSchedule,
+      pubkey: accounts.solTreasury,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.vestingScheduleTokenAccount,
+      pubkey: accounts.config,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.vault,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.recipientTokenAccount,
+      pubkey: accounts.vaultAta,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.signerRewardAta,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.recipientAta,
       isWritable: true,
       isSigner: false,
     },
@@ -104,7 +129,17 @@ export function createDisburseVestingScheduleInstruction(
       isSigner: false,
     },
     {
+      pubkey: accounts.governanceTokenMint,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
       pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.governanceTokenProgram,
       isWritable: false,
       isSigner: false,
     },

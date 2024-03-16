@@ -80,7 +80,7 @@ export const getAuthority = (
 export const CONFIG_SEED = Buffer.from("config");
 export const VAULT_SEED = Buffer.from("vault");
 export const VAULT_ATA_SEED = Buffer.from("vault_ata");
-export const REWARD_TOKEN_MINT_SEED = Buffer.from("reward_token_mint");
+export const REWARD_TOKEN_MINT_SEED = Buffer.from("governance_token_mint");
 
 export const setupTestAccounts = async (
   provider: AnchorProvider,
@@ -88,13 +88,13 @@ export const setupTestAccounts = async (
   creator: Keypair,
   recipient: Keypair,
   user: Keypair,
-  treasury: Keypair
+  tokenTreasury: Keypair
 ): Promise<[PublicKey, Account, Account, Account]> => {
   await airdrop(provider.connection, payer.publicKey);
   await airdrop(provider.connection, creator.publicKey);
   await airdrop(provider.connection, recipient.publicKey);
   await airdrop(provider.connection, user.publicKey);
-  await airdrop(provider.connection, treasury.publicKey);
+  await airdrop(provider.connection, tokenTreasury.publicKey);
 
   const [mint, creatorTokenAccount, recipientTokenAccount] =
     await mintTransferFeeTokens(
@@ -108,11 +108,11 @@ export const setupTestAccounts = async (
       amountMinted
     );
 
-  const treasuryTokenAccount = await getOrCreateAssociatedTokenAccount(
+  const tokenTreasuryTokenAccount = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     payer,
     mint,
-    treasury.publicKey,
+    tokenTreasury.publicKey,
     true,
     undefined,
     undefined,
@@ -124,6 +124,6 @@ export const setupTestAccounts = async (
     mint,
     creatorTokenAccount,
     recipientTokenAccount,
-    treasuryTokenAccount,
+    tokenTreasuryTokenAccount,
   ];
 };

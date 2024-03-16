@@ -60,9 +60,9 @@ pub struct DisburseVault<'info> {
     #[account(
         init_if_needed,
         payer = signer,
-        associated_token::mint = reward_token_mint,
+        associated_token::mint = governance_token_mint,
         associated_token::authority = signer,
-        associated_token::token_program = reward_token_program,
+        associated_token::token_program = governance_token_program,
     )]
     pub signer_reward_ata: InterfaceAccount<'info, TokenAccount>,
 
@@ -82,19 +82,19 @@ pub struct DisburseVault<'info> {
     /// The reward token mint account.
     #[account(
         mut,
-        mint::decimals = 6,
-        mint::authority = reward_token_mint,
-        mint::token_program = reward_token_program,
+        mint::decimals = 9,
+        mint::authority = governance_token_mint,
+        mint::token_program = governance_token_program,
         seeds = [constants::REWARD_TOKEN_MINT_SEED],
         bump,
     )]
-    pub reward_token_mint: InterfaceAccount<'info, Mint>,
+    pub governance_token_mint: InterfaceAccount<'info, Mint>,
 
     /// The token program.
     pub token_program: Interface<'info, TokenInterface>,
 
     /// The bump values for the accounts.
-    pub reward_token_program: Interface<'info, TokenInterface>,
+    pub governance_token_program: Interface<'info, TokenInterface>,
 
     /// The associated token program.
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -103,7 +103,6 @@ pub struct DisburseVault<'info> {
     pub system_program: Program<'info, System>,
 }
 
-/// Struct representing the disbursement of a vault.
 impl<'info> DisburseVault<'info> {
     /// Disburses funds from the vault to the recipient.
     ///
@@ -177,7 +176,6 @@ impl<'info> DisburseVault<'info> {
         };
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-        msg!("DEBUG - Transferring {} tokens to the recipient.", amount);
         transfer_checked(cpi_ctx, amount, self.mint.decimals)?;
 
         Ok(())
@@ -195,17 +193,17 @@ impl<'info> DisburseVault<'info> {
     fn mint_governance_tokens(&self, bumps: &DisburseVaultBumps) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
             constants::REWARD_TOKEN_MINT_SEED,
-            &[bumps.reward_token_mint],
+            &[bumps.governance_token_mint],
         ]];
 
-        let cpi_program = self.reward_token_program.to_account_info();
+        let cpi_program = self.governance_token_program.to_account_info();
         let cpi_accounts = MintTo {
-            mint: self.reward_token_mint.to_account_info(),
+            mint: self.governance_token_mint.to_account_info(),
             to: self.signer_reward_ata.to_account_info(),
-            authority: self.reward_token_mint.to_account_info(),
+            authority: self.governance_token_mint.to_account_info(),
         };
         let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-        mint_to(cpi_context, self.config.reward_token_amount)
+        mint_to(cpi_context, self.config.governance_token_amount)
     }
 }
