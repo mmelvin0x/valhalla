@@ -38,6 +38,9 @@ pub struct Vault {
     /// The number of payments to be made by the vault.
     pub total_number_of_payouts: u64,
 
+    /// The payout interval.
+    pub payout_interval: u64,
+
     /// The number of payments made from the vault.
     pub number_of_payments_made: u64,
 
@@ -63,6 +66,7 @@ impl Space for Vault {
             8 + // last_payment_timestamp
             8 + // initial_deposit_amount
             8 + // total_number_of_payouts
+            8 + // payout_interval
             8 + // number_of_payments_made
             1 + // cancel_authority
             1; // token_account_bump
@@ -79,7 +83,16 @@ impl<'info> Vault {
     ///
     /// This method returns `Ok(true)` if the vault is locked, `Ok(false)` otherwise.
     pub fn is_locked(&self, current_time: u64) -> Result<bool> {
-        Ok(self.start_date > current_time)
+        match self.start_date > current_time {
+            true => Ok(true),
+            false => {
+                let time_elapsed = current_time
+                    .checked_sub(self.last_payment_timestamp)
+                    .unwrap();
+
+                Ok(time_elapsed < self.payout_interval)
+            }
+        }
     }
 
     /// Checks if the vault has reached it's total vesting duration.

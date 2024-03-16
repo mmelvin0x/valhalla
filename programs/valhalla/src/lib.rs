@@ -77,7 +77,7 @@ pub mod valhalla {
     /// * `amount_to_be_vested` - The amount to be vested in the vault.
     /// * `total_vesting_duration` - The total duration of the vesting period.
     /// * `start_date` - The start date of the vesting period.
-    /// * `total_number_of_payouts` - The total number of payouts to be made from the vault.
+    /// * `payout_interval` - The interval at which the vested amount is disbursed.
     /// * `cancel_authority` - The authority to cancel the vault.
     ///
     /// # Errors
@@ -90,7 +90,7 @@ pub mod valhalla {
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
         start_date: u64,
-        total_number_of_payouts: u64,
+        payout_interval: u64,
         cancel_authority: Authority,
     ) -> Result<()> {
         ctx.accounts.create(
@@ -99,7 +99,7 @@ pub mod valhalla {
             amount_to_be_vested,
             total_vesting_duration,
             start_date,
-            total_number_of_payouts,
+            payout_interval,
             cancel_authority,
             &ctx.bumps,
         )

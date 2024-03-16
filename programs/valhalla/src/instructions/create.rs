@@ -152,7 +152,7 @@ impl<'info> CreateVault<'info> {
         amount_to_be_vested: u64,
         total_vesting_duration: u64,
         start_date: u64,
-        total_number_of_payouts: u64,
+        payout_interval: u64,
         cancel_authority: Authority,
         bumps: &CreateVaultBumps,
     ) -> Result<()> {
@@ -181,7 +181,8 @@ impl<'info> CreateVault<'info> {
             start_date,
             last_payment_timestamp: now,
             initial_deposit_amount: deposit_amount,
-            total_number_of_payouts,
+            total_number_of_payouts: (total_vesting_duration / payout_interval).max(1),
+            payout_interval,
             number_of_payments_made: 0,
             cancel_authority,
             token_account_bump: bumps.vault_ata,

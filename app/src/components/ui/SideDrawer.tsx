@@ -3,12 +3,10 @@ import {
   FaChartPie,
   FaClipboardList,
   FaHome,
-  FaLock,
   FaSearch,
-  FaStopwatch,
+  FaUserLock,
 } from "react-icons/fa";
 
-import { AccountBalance } from "components/dashboard/ui/AccountBalance";
 import Image from "next/image";
 import Link from "next/link";
 import SocialBar from "./SocialBar";
@@ -34,38 +32,29 @@ export default function SideDrawer() {
         ),
       },
       {
-        pathname: "/search",
-        content: (
-          <>
-            <FaSearch className="inline" />
-            Search Token Locks
-          </>
-        ),
-      },
-      {
         pathname: `/create?vestingType=${VestingType.VestingSchedule}`,
         content: (
           <>
             <FaCalendar className="inline" />
-            Vesting Schedules
+            Create Vesting Schedules & Locks
           </>
         ),
       },
       {
-        pathname: `/create?vestingType=${VestingType.TokenLock}`,
+        pathname: "/vaults/all",
         content: (
           <>
-            <FaLock className="inline" />
-            Token Locks
+            <FaSearch className="inline" />
+            All Vaults
           </>
         ),
       },
       {
-        pathname: `/create?vestingType=${VestingType.ScheduledPayment}`,
+        pathname: "/vaults/my-vaults",
         content: (
           <>
-            <FaStopwatch className="inline" />
-            Scheduled Payments
+            <FaUserLock className="inline" />
+            My Vaults
           </>
         ),
       },

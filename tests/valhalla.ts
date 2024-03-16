@@ -5,21 +5,15 @@ import {
   Account,
   TOKEN_2022_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
-  createMint,
   getAccount,
-  getMint,
   getOrCreateAssociatedTokenAccount,
   harvestWithheldTokensToMint,
 } from "@solana/spl-token";
 import {
   Authority,
-  calcExpectedAmount,
   confirm,
-  feeBasisPoints,
   getAuthority,
   getName,
-  getNowInSeconds,
-  maxFee,
   setupTestAccounts,
   sleep,
 } from "./utils/utils";
@@ -40,19 +34,19 @@ describe("⚡️ Valhalla", () => {
 
   const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
 
-  const creator = anchor.web3.Keypair.generate();
-  const recipient = anchor.web3.Keypair.generate();
-  const randomUser = anchor.web3.Keypair.generate();
-  const tokenTreasury = anchor.web3.Keypair.generate();
+  const creator = Keypair.generate();
+  const recipient = Keypair.generate();
+  const randomUser = Keypair.generate();
+  const tokenTreasury = Keypair.generate();
 
   let identifier: anchor.BN;
-  let mint: anchor.web3.PublicKey;
+  let mint: PublicKey;
   let creatorTokenAccount: Account;
   let recipientTokenAccount: Account;
   let treasuryTokenAccount: Account;
   let creatorRewardAta: Account;
   let userRewardAta: Account;
-  let rewardTokenMint: anchor.web3.PublicKey;
+  let rewardTokenMint: PublicKey;
 
   before(async () => {
     rewardTokenMint = PublicKey.findProgramAddressSync(
@@ -269,7 +263,7 @@ describe("⚡️ Valhalla", () => {
       const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const rewardTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
-      const newTokenTreasury = anchor.web3.Keypair.generate();
+      const newTokenTreasury = Keypair.generate();
 
       let tx = await program.methods
         .updateConfig(solFee, tokenFeeBasisPoints, rewardTokenAmount)
@@ -540,7 +534,7 @@ describe("⚡️ Valhalla", () => {
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
-      const totalNumberOfPayouts = new anchor.BN(5);
+      const payoutInterval = new anchor.BN(1);
       const cancelAuthority = await getAuthority(Authority.Neither, program);
       const { config, vault, vaultAta } = await getPDAs(
         program.programId,
@@ -584,7 +578,7 @@ describe("⚡️ Valhalla", () => {
           amountToBeVested,
           totalVestingDuration,
           startDate,
-          totalNumberOfPayouts,
+          payoutInterval,
           cancelAuthority
         )
         .accounts({
@@ -637,8 +631,8 @@ describe("⚡️ Valhalla", () => {
         startDate.toString(),
         "Start date failed"
       );
-      expect(vaultAccount.totalNumberOfPayouts.toString()).equals(
-        totalNumberOfPayouts.toString(),
+      expect(vaultAccount.payoutInterval.toString()).equals(
+        payoutInterval.toString(),
         "Total number of payouts failed"
       );
       expect(vaultAccount.numberOfPaymentsMade.toString()).equals(
@@ -828,7 +822,7 @@ describe("⚡️ Valhalla", () => {
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
-      const totalNumberOfPayouts = new anchor.BN(5);
+      const payoutInterval = new anchor.BN(5);
       const cancelAuthority = await getAuthority(Authority.Recipient, program);
       const { config, vault, vaultAta } = await getPDAs(
         program.programId,
@@ -844,7 +838,7 @@ describe("⚡️ Valhalla", () => {
           amountToBeVested,
           totalVestingDuration,
           startDate,
-          totalNumberOfPayouts,
+          payoutInterval,
           cancelAuthority
         )
         .accounts({
@@ -964,7 +958,7 @@ describe("⚡️ Valhalla", () => {
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
-      const totalNumberOfPayouts = new anchor.BN(5);
+      const payoutInterval = new anchor.BN(5);
       const cancelAuthority = await getAuthority(Authority.Creator, program);
       const { config, vault, vaultAta } = await getPDAs(
         program.programId,
@@ -980,7 +974,7 @@ describe("⚡️ Valhalla", () => {
           amountToBeVested,
           totalVestingDuration,
           startDate,
-          totalNumberOfPayouts,
+          payoutInterval,
           cancelAuthority
         )
         .accounts({
@@ -1100,7 +1094,7 @@ describe("⚡️ Valhalla", () => {
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
-      const totalNumberOfPayouts = new anchor.BN(5);
+      const payoutInterval = new anchor.BN(5);
       const cancelAuthority = await getAuthority(Authority.Both, program);
       const { config, vault, vaultAta } = await getPDAs(
         program.programId,
@@ -1116,7 +1110,7 @@ describe("⚡️ Valhalla", () => {
           amountToBeVested,
           totalVestingDuration,
           startDate,
-          totalNumberOfPayouts,
+          payoutInterval,
           cancelAuthority
         )
         .accounts({
@@ -1198,7 +1192,7 @@ describe("⚡️ Valhalla", () => {
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
-      const totalNumberOfPayouts = new anchor.BN(5);
+      const payoutInterval = new anchor.BN(5);
       const cancelAuthority = await getAuthority(Authority.Both, program);
       const { config, vault, vaultAta } = await getPDAs(
         program.programId,
@@ -1214,7 +1208,7 @@ describe("⚡️ Valhalla", () => {
           amountToBeVested,
           totalVestingDuration,
           startDate,
-          totalNumberOfPayouts,
+          payoutInterval,
           cancelAuthority
         )
         .accounts({
@@ -1298,7 +1292,7 @@ describe("⚡️ Valhalla", () => {
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
-      const totalNumberOfPayouts = new anchor.BN(5);
+      const payoutInterval = new anchor.BN(1);
       const cancelAuthority = await getAuthority(Authority.Both, program);
       const { config, vault, vaultAta } = await getPDAs(
         program.programId,
@@ -1314,7 +1308,7 @@ describe("⚡️ Valhalla", () => {
           amountToBeVested,
           totalVestingDuration,
           startDate,
-          totalNumberOfPayouts,
+          payoutInterval,
           cancelAuthority
         )
         .accounts({
@@ -1341,6 +1335,7 @@ describe("⚡️ Valhalla", () => {
       await confirm(provider.connection, tx);
 
       try {
+        await sleep(1000);
         tx = await program.methods
           .close()
           .accounts({
@@ -1367,7 +1362,7 @@ describe("⚡️ Valhalla", () => {
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(1);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
-      const totalNumberOfPayouts = new anchor.BN(1);
+      const payoutInterval = new anchor.BN(1);
       const cancelAuthority = await getAuthority(Authority.Both, program);
       const { config, vault, vaultAta } = await getPDAs(
         program.programId,
@@ -1383,7 +1378,7 @@ describe("⚡️ Valhalla", () => {
           amountToBeVested,
           totalVestingDuration,
           startDate,
-          totalNumberOfPayouts,
+          payoutInterval,
           cancelAuthority
         )
         .accounts({

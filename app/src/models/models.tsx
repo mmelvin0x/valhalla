@@ -7,90 +7,60 @@ import {
   getAssociatedTokenAddressSync,
   getMint,
 } from "@solana/spl-token";
-import {
-  Authority,
-  ScheduledPayment,
-  TokenLock,
-  VestingSchedule,
-  VestingType,
-} from "program";
+import { Authority, Vault } from "program";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { displayTime, shortenNumber } from "utils/formatters";
 
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
+import { displayTime } from "utils/formatters";
 import { getPDAs } from "utils/constants";
 
 export default class BaseModel {
-  cancelAuthority: Authority;
-  changeRecipientAuthority: Authority;
-  cliffPaymentAmount: anchor.BN = new anchor.BN(0);
-  das: DasApiAsset;
-  creator: PublicKey;
-  creatorTokenAccount: Account;
-  id: PublicKey;
-  isCliffPaymentDisbursed: boolean;
-  lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
-  mint: PublicKey;
-  mintInfo: Mint;
+  key: PublicKey;
+  identifier: anchor.BN;
   name: string;
-  payoutInterval: anchor.BN = new anchor.BN(0);
+  creator: PublicKey;
   recipient: PublicKey;
-  recipientTokenAccount: Account;
-  startDate: anchor.BN = new anchor.BN(0);
-  tokenAccount: Account;
+  mint: PublicKey;
   totalVestingDuration: anchor.BN = new anchor.BN(0);
-  vestingType: VestingType;
+  createdTimestamp: anchor.BN = new anchor.BN(0);
+  startDate: anchor.BN = new anchor.BN(0);
+  lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
+  initialDepositAmount: anchor.BN = new anchor.BN(0);
+  totalNumberOfPayouts: anchor.BN = new anchor.BN(0);
+  numberOfPaymentsMade: anchor.BN = new anchor.BN(0);
+  cancelAuthority: Authority;
+
+  das: DasApiAsset;
+
+  creatorAta: Account;
+  recipientAta: Account;
+  vaultAta: Account;
+  mintInfo: Mint;
   tokenProgramId: PublicKey;
-  numPaymentsMade: number;
 
   constructor(
     publicKey: PublicKey,
-    obj: VestingSchedule | ScheduledPayment | TokenLock,
+    obj: Vault,
     public connection: anchor.web3.Connection,
   ) {
-    this.id = publicKey;
+    this.key = publicKey;
+    this.identifier = new anchor.BN(obj.identifier);
+    this.name = obj.name;
     this.creator = obj.creator;
+    this.recipient = obj.recipient;
     this.mint = obj.mint;
-    this.name = anchor.utils.bytes.utf8.decode(new Uint8Array(obj.name));
     this.totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
-    this.vestingType = obj.vestingType;
-    this.numPaymentsMade = 0;
-
-    if (obj instanceof VestingSchedule || obj instanceof ScheduledPayment) {
-      this.cancelAuthority = obj.cancelAuthority;
-      this.changeRecipientAuthority = obj.changeRecipientAuthority;
-      this.recipient = obj.recipient;
-    }
-
-    if (obj instanceof ScheduledPayment || obj instanceof TokenLock) {
-      this.startDate = new anchor.BN(obj.createdTimestamp);
-    }
-
-    if (obj instanceof VestingSchedule) {
-      this.numPaymentsMade = new anchor.BN(obj.numberOfPaymentsMade).toNumber();
-      this.lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);
-      this.payoutInterval = new anchor.BN(obj.payoutInterval);
-      this.startDate = new anchor.BN(obj.startDate);
-      this.cliffPaymentAmount = new anchor.BN(obj.cliffPaymentAmount);
-      this.isCliffPaymentDisbursed = obj.isCliffPaymentDisbursed;
-    }
+    this.createdTimestamp = new anchor.BN(obj.createdTimestamp);
+    this.startDate = new anchor.BN(obj.startDate);
+    this.lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);
+    this.initialDepositAmount = new anchor.BN(obj.initialDepositAmount);
+    this.totalNumberOfPayouts = new anchor.BN(obj.totalNumberOfPayouts);
+    this.numberOfPaymentsMade = new anchor.BN(obj.numberOfPaymentsMade);
+    this.cancelAuthority = obj.cancelAuthority;
   }
 
   get paymentsComplete(): boolean {
-    if (this.vestingType === VestingType.VestingSchedule) {
-      const totalPayments = this.totalVestingDuration.div(this.payoutInterval);
-      return this.numPaymentsMade >= totalPayments.toNumber();
-    }
-
-    if (this.vestingType === VestingType.ScheduledPayment) {
-      return this.numPaymentsMade > 0;
-    }
-
-    if (this.vestingType === VestingType.TokenLock) {
-      return this.tokenAccount
-        ? this.tokenAccountBalance.toNumber() === 0
-        : false;
-    }
+    return this.numberOfPaymentsMade.gte(this.totalNumberOfPayouts);
   }
 
   get decimals(): number {
@@ -110,19 +80,7 @@ export default class BaseModel {
 
     const currentTime = Math.floor(Date.now() / 1000);
     const startDate = this.startDate.toNumber();
-    if (startDate < currentTime) {
-      switch (this.vestingType) {
-        case VestingType.VestingSchedule:
-          return (
-            this.payoutInterval.toNumber() +
-              this.lastPaymentTimestamp.toNumber() <
-            currentTime
-          );
-        case VestingType.ScheduledPayment:
-        case VestingType.TokenLock:
-          return startDate + this.totalVestingDuration.toNumber() < currentTime;
-      }
-    }
+    if (currentTime < startDate) return false;
 
     return false;
   }
