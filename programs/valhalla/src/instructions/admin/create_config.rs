@@ -35,7 +35,7 @@ pub struct CreateConfig<'info> {
         payer = admin,
         mint::decimals = 9,
         mint::authority = governance_token_mint,
-        seeds = [constants::REWARD_TOKEN_MINT_SEED],
+        seeds = [constants::GOVERNANCE_TOKEN_MINT_SEED],
         bump,
     )]
     pub governance_token_mint: InterfaceAccount<'info, Mint>,

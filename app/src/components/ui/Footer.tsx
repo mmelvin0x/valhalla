@@ -1,18 +1,15 @@
 import { FC, useMemo } from "react";
 import {
-  FaCalendar,
   FaChartPie,
   FaClipboardList,
   FaHome,
   FaLock,
   FaSearch,
-  FaStopwatch,
 } from "react-icons/fa";
 
 import Image from "next/image";
 import Link from "next/link";
 import SocialBar from "./SocialBar";
-import { VestingType } from "program";
 import logo128 from "../../assets/logo128.png";
 import useProgram from "program/useProgram";
 import { useRouter } from "next/router";
@@ -32,38 +29,20 @@ export const Footer: FC = () => {
         ),
       },
       {
-        pathname: "/search",
-        content: (
-          <>
-            <FaSearch className="inline" />
-            Search Token Locks
-          </>
-        ),
-      },
-      {
-        pathname: `/create?vestingType=${VestingType.VestingSchedule}`,
-        content: (
-          <>
-            <FaCalendar className="inline" />
-            Vesting Schedules
-          </>
-        ),
-      },
-      {
-        pathname: `/create?vestingType=${VestingType.TokenLock}`,
+        pathname: `/create`,
         content: (
           <>
             <FaLock className="inline" />
-            Token Locks
+            Create Vaults
           </>
         ),
       },
       {
-        pathname: `/create?vestingType=${VestingType.ScheduledPayment}`,
+        pathname: "/vaults/all",
         content: (
           <>
-            <FaStopwatch className="inline" />
-            Scheduled Payments
+            <FaSearch className="inline" />
+            All Vaults
           </>
         ),
       },

@@ -31,7 +31,7 @@ export type Valhalla = {
       "value": "[118, 97, 117, 108, 116, 95, 97, 116, 97]"
     },
     {
-      "name": "REWARD_TOKEN_MINT_SEED",
+      "name": "GOVERNANCE_TOKEN_MINT_SEED",
       "type": "bytes",
       "value": "[103, 111, 118, 101, 114, 110, 97, 110, 99, 101, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116]"
     }
@@ -380,7 +380,7 @@ export type Valhalla = {
           ]
         },
         {
-          "name": "creatorRewardAta",
+          "name": "creatorGovernanceAta",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -545,7 +545,7 @@ export type Valhalla = {
           ]
         },
         {
-          "name": "signerRewardAta",
+          "name": "signerGovernanceAta",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -1050,7 +1050,7 @@ export const IDL: Valhalla = {
       "value": "[118, 97, 117, 108, 116, 95, 97, 116, 97]"
     },
     {
-      "name": "REWARD_TOKEN_MINT_SEED",
+      "name": "GOVERNANCE_TOKEN_MINT_SEED",
       "type": "bytes",
       "value": "[103, 111, 118, 101, 114, 110, 97, 110, 99, 101, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116]"
     }
@@ -1399,7 +1399,7 @@ export const IDL: Valhalla = {
           ]
         },
         {
-          "name": "creatorRewardAta",
+          "name": "creatorGovernanceAta",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -1564,7 +1564,7 @@ export const IDL: Valhalla = {
           ]
         },
         {
-          "name": "signerRewardAta",
+          "name": "signerGovernanceAta",
           "isMut": true,
           "isSigner": false,
           "docs": [

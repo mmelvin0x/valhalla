@@ -80,7 +80,7 @@ export const getAuthority = (
 export const CONFIG_SEED = Buffer.from("config");
 export const VAULT_SEED = Buffer.from("vault");
 export const VAULT_ATA_SEED = Buffer.from("vault_ata");
-export const REWARD_TOKEN_MINT_SEED = Buffer.from("governance_token_mint");
+export const GOVERNANCE_TOKEN_MINT_SEED = Buffer.from("governance_token_mint");
 
 export const setupTestAccounts = async (
   provider: AnchorProvider,

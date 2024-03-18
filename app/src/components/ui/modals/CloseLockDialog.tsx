@@ -4,29 +4,29 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import BaseModel from "models/models";
 
 const CloseLockDialog: FC<{
-  lock: BaseModel;
-  onSubmit: (lock: BaseModel) => Promise<void>;
-}> = ({ lock, onSubmit }) => {
+  vault: BaseModel;
+  onSubmit: (vault: BaseModel) => Promise<void>;
+}> = ({ vault, onSubmit }) => {
   const value = useMemo(
     () =>
-      lock
-        ? (BigInt(lock.tokenAccount.amount)
-            ? BigInt(lock.tokenAccount.amount) / BigInt(10 ** lock.decimals)
+      vault
+        ? (BigInt(vault.vaultAta.amount)
+            ? BigInt(vault.vaultAta.amount) / BigInt(10 ** vault.decimals)
             : 0
           ).toString()
         : "0",
-    [lock],
+    [vault],
   );
 
   const balance = useMemo(
     () =>
-      lock
-        ? (BigInt(lock.tokenAccount.amount)
-            ? BigInt(lock.tokenAccount.amount) / BigInt(10 ** lock.decimals)
+      vault
+        ? (BigInt(vault.vaultAta.amount)
+            ? BigInt(vault.vaultAta.amount) / BigInt(10 ** vault.decimals)
             : 0
           ).toLocaleString()
         : "0",
-    [lock],
+    [vault],
   );
 
   return (
@@ -44,9 +44,7 @@ const CloseLockDialog: FC<{
           </button>
         </form>
 
-        <p className="prose">
-          This will withdraw all of your locked tokens and close the Lock.
-        </p>
+        <p className="prose">This can only be done if the vault is empty.</p>
 
         <div className="form-control">
           <input
@@ -64,7 +62,7 @@ const CloseLockDialog: FC<{
           <button
             className="btn btn-primary"
             onClick={async () => {
-              await onSubmit(lock);
+              await onSubmit(vault);
             }}
           >
             Submit

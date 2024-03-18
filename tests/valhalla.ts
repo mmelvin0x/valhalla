@@ -44,7 +44,7 @@ describe("⚡️ Valhalla", () => {
   let creatorTokenAccount: Account;
   let recipientTokenAccount: Account;
   let treasuryTokenAccount: Account;
-  let creatorRewardAta: Account;
+  let creatorGovernanceAta: Account;
   let userRewardAta: Account;
   let governanceTokenMint: PublicKey;
 
@@ -141,7 +141,7 @@ describe("⚡️ Valhalla", () => {
       );
 
       // Define these now that the reward token mint is created
-      creatorRewardAta = await getOrCreateAssociatedTokenAccount(
+      creatorGovernanceAta = await getOrCreateAssociatedTokenAccount(
         provider.connection,
         creator,
         governanceTokenMint,
@@ -645,7 +645,7 @@ describe("⚡️ Valhalla", () => {
 
       const creatorRewardAccountBefore = await getAccount(
         provider.connection,
-        creatorRewardAta.address,
+        creatorGovernanceAta.address,
         undefined,
         TOKEN_PROGRAM_ID
       );
@@ -675,7 +675,7 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorRewardAta: creatorRewardAta.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -741,7 +741,7 @@ describe("⚡️ Valhalla", () => {
 
       const creatorRewardAccountAfter = await getAccount(
         provider.connection,
-        creatorRewardAta.address,
+        creatorGovernanceAta.address,
         undefined,
         TOKEN_PROGRAM_ID
       );
@@ -817,7 +817,7 @@ describe("⚡️ Valhalla", () => {
             config,
             vault,
             vaultAta,
-            signerRewardAta: creatorRewardAta.address,
+            signerGovernanceAta: creatorGovernanceAta.address,
             recipientAta: recipientTokenAccount.address,
             mint,
             governanceTokenMint,
@@ -856,7 +856,7 @@ describe("⚡️ Valhalla", () => {
           config,
           vault,
           vaultAta,
-          signerRewardAta: userRewardAta.address,
+          signerGovernanceAta: userRewardAta.address,
           recipientAta: recipientTokenAccount.address,
           mint,
           governanceTokenMint,
@@ -935,7 +935,7 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorRewardAta: creatorRewardAta.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -1071,7 +1071,7 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorRewardAta: creatorRewardAta.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -1207,7 +1207,7 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorRewardAta: creatorRewardAta.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -1305,7 +1305,7 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorRewardAta: creatorRewardAta.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -1405,7 +1405,7 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorRewardAta: creatorRewardAta.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -1475,7 +1475,7 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           tokenTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorRewardAta: creatorRewardAta.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
@@ -1499,7 +1499,7 @@ describe("⚡️ Valhalla", () => {
           config,
           vault,
           vaultAta,
-          signerRewardAta: creatorRewardAta.address,
+          signerGovernanceAta: creatorGovernanceAta.address,
           recipientAta: recipientTokenAccount.address,
           mint,
           governanceTokenMint,

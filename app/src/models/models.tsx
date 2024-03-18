@@ -9,9 +9,9 @@ import {
 } from "@solana/spl-token";
 import { Authority, Vault } from "program";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { displayTime, shortenAddress } from "utils/formatters";
 
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import { displayTime } from "utils/formatters";
 import { getPDAs } from "utils/constants";
 
 export default class BaseModel {
@@ -22,14 +22,14 @@ export default class BaseModel {
   recipient: PublicKey;
   mint: PublicKey;
   totalVestingDuration: anchor.BN = new anchor.BN(0);
-  createdTimestamp: anchor.BN = new anchor.BN(0);
-  startDate: anchor.BN = new anchor.BN(0);
-  lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
-  initialDepositAmount: anchor.BN = new anchor.BN(0);
-  totalNumberOfPayouts: anchor.BN = new anchor.BN(0);
-  payoutInterval: anchor.BN = new anchor.BN(0);
-  numberOfPaymentsMade: anchor.BN = new anchor.BN(0);
-  cancelAuthority: Authority;
+  _createdTimestamp: anchor.BN = new anchor.BN(0);
+  _startDate: anchor.BN = new anchor.BN(0);
+  _lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
+  _initialDepositAmount: anchor.BN = new anchor.BN(0);
+  _totalNumberOfPayouts: anchor.BN = new anchor.BN(0);
+  _payoutInterval: anchor.BN = new anchor.BN(0);
+  _numberOfPaymentsMade: anchor.BN = new anchor.BN(0);
+  _cancelAuthority: Authority;
 
   das: DasApiAsset;
 
@@ -46,23 +46,23 @@ export default class BaseModel {
   ) {
     this.key = publicKey;
     this.identifier = new anchor.BN(obj.identifier);
-    this.name = obj.name;
+    this.name = anchor.utils.bytes.utf8.decode(new Uint8Array(obj.name));
     this.creator = obj.creator;
     this.recipient = obj.recipient;
     this.mint = obj.mint;
     this.totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
-    this.createdTimestamp = new anchor.BN(obj.createdTimestamp);
-    this.startDate = new anchor.BN(obj.startDate);
-    this.lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);
-    this.initialDepositAmount = new anchor.BN(obj.initialDepositAmount);
-    this.payoutInterval = new anchor.BN(obj.payoutInterval);
-    this.totalNumberOfPayouts = new anchor.BN(obj.totalNumberOfPayouts);
-    this.numberOfPaymentsMade = new anchor.BN(obj.numberOfPaymentsMade);
-    this.cancelAuthority = obj.cancelAuthority;
+    this._createdTimestamp = new anchor.BN(obj.createdTimestamp);
+    this._startDate = new anchor.BN(obj.startDate);
+    this._lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);
+    this._initialDepositAmount = new anchor.BN(obj.initialDepositAmount);
+    this._payoutInterval = new anchor.BN(obj.payoutInterval);
+    this._totalNumberOfPayouts = new anchor.BN(obj.totalNumberOfPayouts);
+    this._numberOfPaymentsMade = new anchor.BN(obj.numberOfPaymentsMade);
+    this._cancelAuthority = obj.cancelAuthority;
   }
 
   get paymentsComplete(): boolean {
-    return this.numberOfPaymentsMade.gte(this.totalNumberOfPayouts);
+    return this._numberOfPaymentsMade.gte(this._totalNumberOfPayouts);
   }
 
   get decimals(): number {
@@ -81,15 +81,47 @@ export default class BaseModel {
     if (this.paymentsComplete) return false;
 
     const currentTime = Math.floor(Date.now() / 1000);
-    const startDate = this.startDate.toNumber();
+    const startDate = this._startDate.toNumber();
     if (currentTime < startDate) return false;
     if (
-      this.lastPaymentTimestamp.add(this.payoutInterval).toNumber() >
+      this._lastPaymentTimestamp.add(this._payoutInterval).toNumber() >
       currentTime
     )
       return false;
 
     return false;
+  }
+
+  get cancelAuthority(): string {
+    switch (this._cancelAuthority) {
+      case Authority.Neither:
+        return "No one";
+      case Authority.Creator:
+        return shortenAddress(this.creator);
+      case Authority.Recipient:
+        return shortenAddress(this.recipient);
+      case Authority.Both:
+        return (
+          shortenAddress(this.creator) +
+          " and " +
+          shortenAddress(this.recipient)
+        );
+    }
+  }
+
+  get numberOfPaymentsMade(): number {
+    return this._numberOfPaymentsMade.toNumber();
+  }
+
+  get totalNumberOfPayouts(): number {
+    return this._totalNumberOfPayouts.toNumber();
+  }
+
+  get initialDeposit(): number {
+    console.log(
+      this._initialDepositAmount.toNumber() / Math.pow(10, this.decimals),
+    );
+    return this._initialDepositAmount.toNumber() / Math.pow(10, this.decimals);
   }
 
   get vaultAtaBalance(): anchor.BN {
@@ -107,17 +139,36 @@ export default class BaseModel {
     );
   }
 
+  get lastPaymentTimestamp(): Date {
+    const last = new Date(this._lastPaymentTimestamp.toNumber() * 1000);
+    return new Date(last.getTime());
+  }
+
+  get createdTimestamp(): Date {
+    const createdDate = new Date(this._createdTimestamp.toNumber() * 1000);
+    return new Date(createdDate.getTime());
+  }
+
+  get startDate(): Date {
+    const startDate = new Date(this._startDate.toNumber() * 1000);
+    return new Date(startDate.getTime());
+  }
+
   get endDate(): Date {
-    const startDate = new Date(this.startDate.toNumber() * 1000);
+    const startDate = new Date(this._startDate.toNumber() * 1000);
     return new Date(
       startDate.getTime() + this.totalVestingDuration.toNumber() * 1000,
     );
   }
 
+  get payoutInterval(): string {
+    return displayTime(this._payoutInterval.toNumber());
+  }
+
   get nextPayoutDate(): Date {
     return new Date(
-      this.lastPaymentTimestamp.toNumber() * 1000 +
-        this.payoutInterval.toNumber() * 1000,
+      this._lastPaymentTimestamp.toNumber() * 1000 +
+        this._payoutInterval.toNumber() * 1000,
     );
   }
 
@@ -130,7 +181,7 @@ export default class BaseModel {
   }
 
   canCancel(user: PublicKey): boolean {
-    switch (this.cancelAuthority) {
+    switch (this._cancelAuthority) {
       case Authority.Neither:
         return false;
       case Authority.Creator:
@@ -143,7 +194,7 @@ export default class BaseModel {
   }
 
   async populate(connection: Connection, obj: BaseModel) {
-    const pdas = getPDAs(obj.creator, obj.recipient, obj.mint);
+    const pdas = getPDAs(obj.identifier, obj.creator, obj.mint);
     const accountInfo = await connection.getAccountInfo(obj.mint);
     this.tokenProgramId = accountInfo?.owner;
     this.mintInfo = await getMint(
@@ -160,29 +211,39 @@ export default class BaseModel {
       this.tokenProgramId,
     );
 
-    this.creatorAta = await getAccount(
-      connection,
-      getAssociatedTokenAddressSync(
-        obj.mint,
-        obj.creator,
-        false,
+    try {
+      this.creatorAta = await getAccount(
+        connection,
+        getAssociatedTokenAddressSync(
+          obj.mint,
+          obj.creator,
+          false,
+          this.tokenProgramId,
+        ),
+        undefined,
         this.tokenProgramId,
-      ),
-      undefined,
-      this.tokenProgramId,
-    );
+      );
+    } catch (e) {
+      console.error(e);
+      this.creatorAta = null;
+    }
 
-    this.recipientAta = await getAccount(
-      connection,
-      getAssociatedTokenAddressSync(
-        obj.mint,
-        obj.recipient,
-        false,
+    try {
+      this.recipientAta = await getAccount(
+        connection,
+        getAssociatedTokenAddressSync(
+          obj.mint,
+          obj.recipient,
+          false,
+          this.tokenProgramId,
+        ),
+        undefined,
         this.tokenProgramId,
-      ),
-      undefined,
-      this.tokenProgramId,
-    );
+      );
+    } catch (e) {
+      console.error(e);
+      this.recipientAta = null;
+    }
   }
 }
 

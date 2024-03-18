@@ -58,7 +58,7 @@ export const createStruct = new beet.BeetArgsStruct<
  * @property [_writable_] vaultAta
  * @property [_writable_] tokenTreasuryAta
  * @property [_writable_] creatorAta
- * @property [_writable_] creatorRewardAta
+ * @property [_writable_] creatorGovernanceAta
  * @property [_writable_] governanceTokenMint
  * @property [] mint
  * @property [] governanceTokenProgram
@@ -77,7 +77,7 @@ export type CreateInstructionAccounts = {
   vaultAta: web3.PublicKey
   tokenTreasuryAta: web3.PublicKey
   creatorAta: web3.PublicKey
-  creatorRewardAta: web3.PublicKey
+  creatorGovernanceAta: web3.PublicKey
   governanceTokenMint: web3.PublicKey
   mint: web3.PublicKey
   tokenProgram?: web3.PublicKey
@@ -101,7 +101,7 @@ export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
 export function createCreateInstruction(
   accounts: CreateInstructionAccounts,
   args: CreateInstructionArgs,
-  programId = new web3.PublicKey('124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E')
+  programId = new web3.PublicKey('8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts')
 ) {
   const [data] = createStruct.serialize({
     instructionDiscriminator: createInstructionDiscriminator,
@@ -154,7 +154,7 @@ export function createCreateInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.creatorRewardAta,
+      pubkey: accounts.creatorGovernanceAta,
       isWritable: true,
       isSigner: false,
     },

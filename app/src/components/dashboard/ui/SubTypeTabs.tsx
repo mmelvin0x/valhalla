@@ -3,17 +3,14 @@ import { FaArrowAltCircleDown, FaArrowAltCircleUp } from "react-icons/fa";
 
 import BaseModel from "models/models";
 import { SubType } from "utils/constants";
-import { VestingType } from "program";
 
 export default function SubTypeTabs({
   subType,
   setSubType,
-  vestingType,
   list,
 }: {
   subType: SubType;
   setSubType: Dispatch<SetStateAction<SubType>>;
-  vestingType: VestingType;
   list: { created: BaseModel[]; recipient: BaseModel[] };
 }) {
   return (
@@ -30,11 +27,8 @@ export default function SubTypeTabs({
       </div>
 
       <div
-        onClick={() =>
-          vestingType !== VestingType.TokenLock &&
-          setSubType(SubType.Receivable)
-        }
-        className={`tab flex items-center gap-1 ${subType === SubType.Receivable ? "tab-active" : ""} ${vestingType === VestingType.TokenLock ? "tab-disabled" : ""}`}
+        onClick={() => setSubType(SubType.Receivable)}
+        className={`tab flex items-center gap-1 ${subType === SubType.Receivable ? "tab-active" : ""}`}
       >
         <div className="flex items-center gap-2">
           <span className="hidden sm:block">Receivable</span>{" "}

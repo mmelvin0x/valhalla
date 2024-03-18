@@ -1,62 +1,51 @@
 import {
-  DisburseVestingScheduleInstructionAccounts,
-  createDisburseScheduledPaymentInstruction,
-  createDisburseTokenLockInstruction,
-  createDisburseVestingScheduleInstruction,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddressSync,
+} from "@solana/spl-token";
+import {
+  DisburseInstructionAccounts,
+  createDisburseInstruction,
 } from "program";
+import { SOL_TREASURY, getPDAs } from "utils/constants";
 
-import { ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import BaseModel from "models/models";
 import { PublicKey } from "@solana/web3.js";
 
-export const disburseVestingScheduleInstruction = (
+export const disburseVaultInstruction = (
   userKey: PublicKey,
-  lock: BaseModel,
+  vault: BaseModel,
 ) => {
-  const accounts: DisburseVestingScheduleInstructionAccounts = {
+  const { config, governanceTokenMint } = getPDAs(
+    vault.identifier,
+    vault.creator,
+    vault.mint,
+  );
+
+  const userGovernanceAta = getAssociatedTokenAddressSync(
+    governanceTokenMint,
+    userKey,
+    false,
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
+  );
+
+  const accounts: DisburseInstructionAccounts = {
     signer: userKey,
-    creator: lock.creator,
-    recipient: lock.recipient,
-    vestingSchedule: lock.id,
-    vestingScheduleTokenAccount: lock.tokenAccount.address,
-    recipientTokenAccount: lock.recipientTokenAccount.address,
-    mint: lock.tokenAccount.mint,
-    tokenProgram: lock.tokenProgramId,
+    creator: vault.creator,
+    recipient: vault.recipient,
+    vault: vault.key,
+    vaultAta: vault.vaultAta.address,
+    mint: vault.mint,
+    solTreasury: SOL_TREASURY,
+    config,
+    signerGovernanceAta: userGovernanceAta,
+    recipientAta: vault.recipientAta.address,
+    governanceTokenMint,
+    governanceTokenProgram: TOKEN_PROGRAM_ID,
+    tokenProgram: vault.tokenProgramId,
     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
   };
 
-  return createDisburseVestingScheduleInstruction(accounts);
-};
-
-export const disburseTokenLockInstruction = (lock: BaseModel) => {
-  const accounts = {
-    creator: lock.creator,
-    creatorTokenAccount: lock.creatorTokenAccount.address,
-    tokenLock: lock.id,
-    tokenLockTokenAccount: lock.tokenAccount.address,
-    mint: lock.tokenAccount.mint,
-    tokenProgram: lock.tokenAccount.owner,
-    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-  };
-
-  return createDisburseTokenLockInstruction(accounts);
-};
-
-export const disburseScheduledPaymentInstruction = (
-  userKey: PublicKey,
-  lock: BaseModel,
-) => {
-  const accounts = {
-    signer: userKey,
-    creator: lock.creator,
-    recipient: lock.recipient,
-    recipientTokenAccount: lock.recipientTokenAccount.address,
-    scheduledPayment: lock.id,
-    paymentTokenAccount: lock.tokenAccount.address,
-    mint: lock.tokenAccount.mint,
-    tokenProgram: lock.tokenAccount.owner,
-    associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-  };
-
-  return createDisburseScheduledPaymentInstruction(accounts);
+  return createDisburseInstruction(accounts);
 };

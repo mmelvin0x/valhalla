@@ -11,6 +11,7 @@ import Notifications from "../components/ui/notifications/Notification";
 import { QueryProvider } from "contexts/QueryProvider";
 import SideDrawer from "components/ui/SideDrawer";
 import logo64 from "../assets/logo64.png";
+import { useRouter } from "next/router";
 
 const aclonica = Aclonica({
   subsets: ["latin"],
@@ -21,6 +22,8 @@ require("../styles/globals.css");
 require("@solana/wallet-adapter-react-ui/styles.css");
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
+  const router = useRouter();
+
   return (
     <QueryProvider>
       <Head>
@@ -49,7 +52,9 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
           <div className="drawer xl:drawer-open">
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content">
-              <div className="min-h-screen">
+              <div
+                className={`min-h-screen ${router.pathname === "/" ? "" : "max-w-screen-xl mx-auto"}`}
+              >
                 <div className="navbar fixed z-10">
                   <div className="navbar-start">
                     <label

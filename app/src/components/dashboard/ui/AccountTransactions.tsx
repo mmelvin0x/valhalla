@@ -1,9 +1,8 @@
-import { shortenAddress, shortenSignature } from "utils/formatters";
 import { useMemo, useState } from "react";
 
 import { ExplorerLink } from "components/ui/ExplorerLink";
-import { FaClock } from "react-icons/fa";
 import { PublicKey } from "@solana/web3.js";
+import { shortenSignature } from "utils/formatters";
 import { useGetSignatures } from "utils/useGetSignatures";
 
 export function AccountTransactions({ address }: { address: PublicKey }) {

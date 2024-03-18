@@ -87,22 +87,18 @@ export default function SelectTokenInput({
           {selectedToken?.id ? (
             <li className="">
               <div className="flex items-center gap-8">
-                <div className="rounded-full w-4 h-4">
+                <div className="rounded-full w-8 h-8">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {selectedToken?.content.links?.["image"] ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      className="rounded-full avatar"
+                      className="rounded-full"
                       src={selectedToken?.content.links?.["image"]}
                       alt={""}
                     />
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className="rounded-full avatar"
-                      src={"/LP.png"}
-                      alt={""}
-                    />
+                    <img className="rounded-full" src={"/LP.png"} alt={""} />
                   )}
                 </div>
 

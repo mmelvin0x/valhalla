@@ -1,7 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 
 export function getExplorerUrl(
-  endpoint: string,
+  endpoint: string = "mainnet-beta",
   viewTypeOrItemAddress: "inspector" | PublicKey | string,
   itemType = "address", // | 'tx' | 'block'
 ) {

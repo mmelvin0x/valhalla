@@ -1,26 +1,26 @@
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 
-import BaseModel from "models/models";
 import CreatorDisplay from "components/ui/lock/CreatorDisplay";
-import LoadingSpinner from "../../ui/LoadingSpinner";
+import LoadingSpinner from "components/ui/LoadingSpinner";
 import LockDetails from "./LockDetails";
 import NameDisplay from "components/ui/lock/NameDisplay";
 import NextPayoutDateDisplay from "components/ui/lock/NextPayoutDateDisplay";
 import RecipientDisplay from "components/ui/lock/RecipientDisplay";
 import TokenMintDisplay from "components/ui/lock/TokenMintDisplay";
+import { ValhallaVault } from "models/models";
 import useProgram from "program/useProgram";
 import { useState } from "react";
 
 export default function LockCollapse({
-  lock,
+  vault,
   disburse,
-  changeRecipient,
   cancel,
+  close,
 }: {
-  lock: BaseModel;
-  disburse: (lock: BaseModel) => Promise<void>;
-  changeRecipient: (lock: BaseModel) => Promise<void>;
-  cancel: (lock: BaseModel) => Promise<void>;
+  vault: ValhallaVault;
+  disburse: (vault: ValhallaVault) => Promise<void>;
+  cancel: (vault: ValhallaVault) => Promise<void>;
+  close: (vault: ValhallaVault) => Promise<void>;
 }) {
   const { connection } = useProgram();
   const [loading, setLoading] = useState(false);
@@ -29,12 +29,12 @@ export default function LockCollapse({
   return (
     <>
       <li
-        key={lock.id.toBase58()}
+        key={vault.key.toBase58()}
         className="border rounded p-2 items-center gap-1 my-1 md:justify-between cursor-pointer bg-base-100 hover:bg-base-200 transition-colors"
         onClick={async () => {
           if (!showDetails) {
             setLoading(true);
-            await lock.populate(connection, lock);
+            await vault.populate(connection, vault);
             setLoading(false);
           }
 
@@ -42,24 +42,24 @@ export default function LockCollapse({
         }}
       >
         <div className="font-bold">
-          <NameDisplay id={lock.id} name={lock.name} />
+          <NameDisplay id={vault.key} name={vault.name} />
         </div>
 
         <div className="flex flex-wrap gap-4">
           <div className="font-bold flex items-center gap-1 text-xs">
-            Mint: <TokenMintDisplay connection={connection} mint={lock.mint} />
+            Mint: <TokenMintDisplay connection={connection} mint={vault.mint} />
           </div>
 
           <div className="font-bold flex items-center gap-1 text-xs">
             Creator:{" "}
-            <CreatorDisplay connection={connection} creator={lock.creator} />
+            <CreatorDisplay connection={connection} creator={vault.creator} />
           </div>
 
           <div className="font-bold flex items-center gap-1 text-xs">
             Recipient:{" "}
             <RecipientDisplay
-              recipient={lock.recipient}
-              creator={lock.creator}
+              recipient={vault.recipient}
+              creator={vault.creator}
               connection={connection}
             />
           </div>
@@ -67,8 +67,8 @@ export default function LockCollapse({
           <div className="font-bold flex items-center gap-1 text-xs">
             Next Payout:{" "}
             <NextPayoutDateDisplay
-              paymentsComplete={lock.paymentsComplete}
-              nextPayoutDate={lock.nextPayoutDate}
+              paymentsComplete={vault.paymentsComplete}
+              nextPayoutDate={vault.nextPayoutDate}
             />
           </div>
 
@@ -85,10 +85,10 @@ export default function LockCollapse({
         <>
           {showDetails && (
             <LockDetails
-              lock={lock}
+              vault={vault}
               disburse={disburse}
               cancel={cancel}
-              changeRecipient={changeRecipient}
+              close={close}
             />
           )}
         </>

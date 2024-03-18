@@ -1,20 +1,26 @@
-import BaseModel from "models/models";
+import { ValhallaVault } from "models/models";
 import { create } from "zustand";
 
 interface ValhallaStore {
-  vaults: { created: Array<BaseModel>; recipient: Array<BaseModel> };
+  vaults: { created: Array<ValhallaVault>; recipient: Array<ValhallaVault> };
+  allVaults: Array<ValhallaVault>;
 
-  setVaults: (models: {
-    created: Array<BaseModel>;
-    recipient: Array<BaseModel>;
+  setMyVaults: (models: {
+    created: Array<ValhallaVault>;
+    recipient: Array<ValhallaVault>;
   }) => void;
+
+  setAllVaults: (models: Array<ValhallaVault>) => void;
 }
 
 export const useValhallaStore = create<ValhallaStore>((set) => ({
   vaults: { created: [], recipient: [] },
+  allVaults: [],
 
-  setVaults: (models: {
-    created: Array<BaseModel>;
-    recipient: Array<BaseModel>;
+  setMyVaults: (models: {
+    created: Array<ValhallaVault>;
+    recipient: Array<ValhallaVault>;
   }) => set({ vaults: models }),
+
+  setAllVaults: (models: Array<ValhallaVault>) => set({ allVaults: models }),
 }));

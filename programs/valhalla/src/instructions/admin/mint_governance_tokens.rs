@@ -29,7 +29,7 @@ pub struct MintGovernanceTokens<'info> {
         mut,
         mint::decimals = 9,
         mint::authority = governance_token_mint,
-        seeds = [constants::REWARD_TOKEN_MINT_SEED],
+        seeds = [constants::GOVERNANCE_TOKEN_MINT_SEED],
         bump,
     )]
     /// The governance token mint account.
@@ -71,7 +71,7 @@ impl<'info> MintGovernanceTokens<'info> {
         bumps: &MintGovernanceTokensBumps,
     ) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
-            constants::REWARD_TOKEN_MINT_SEED,
+            constants::GOVERNANCE_TOKEN_MINT_SEED,
             &[bumps.governance_token_mint],
         ]];
 

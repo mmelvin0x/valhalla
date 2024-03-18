@@ -71,7 +71,7 @@ export const updateConfigInstructionDiscriminator = [
 export function createUpdateConfigInstruction(
   accounts: UpdateConfigInstructionAccounts,
   args: UpdateConfigInstructionArgs,
-  programId = new web3.PublicKey('124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E')
+  programId = new web3.PublicKey('8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts')
 ) {
   const [data] = updateConfigStruct.serialize({
     instructionDiscriminator: updateConfigInstructionDiscriminator,

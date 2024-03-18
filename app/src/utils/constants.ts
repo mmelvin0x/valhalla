@@ -12,17 +12,15 @@ export const WRAPPED_SOL_MINT_KEY = new PublicKey(
   "So11111111111111111111111111111111111111112",
 );
 
-export const SOL_TREASURY = new PublicKey(
-  "AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA",
+export const SOL_TREASURY = new PublicKey(process.env.NEXT_PUBLIC_SOL_TREASURY);
+export const TOKEN_TREASURY = new PublicKey(
+  process.env.NEXT_PUBLIC_TOKEN_TREASURY,
 );
 
 export const CONFIG_SEED = Buffer.from("config");
 export const VAULT_SEED = Buffer.from("vault");
 export const VAULT_ATA_SEED = Buffer.from("vault_ata");
-
-export const getTreasuryKey = (): PublicKey => {
-  return SOL_TREASURY;
-};
+export const GOVERNANCE_TOKEN_MINT_SEED = Buffer.from("governance_token_mint");
 
 interface ValhallaPDAs {
   config: PublicKey;

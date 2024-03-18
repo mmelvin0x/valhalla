@@ -31,7 +31,7 @@
       "value": "[118, 97, 117, 108, 116, 95, 97, 116, 97]"
     },
     {
-      "name": "REWARD_TOKEN_MINT_SEED",
+      "name": "GOVERNANCE_TOKEN_MINT_SEED",
       "type": "bytes",
       "value": "[103, 111, 118, 101, 114, 110, 97, 110, 99, 101, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116]"
     }
@@ -380,7 +380,7 @@
           ]
         },
         {
-          "name": "creatorRewardAta",
+          "name": "creatorGovernanceAta",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -545,7 +545,7 @@
           ]
         },
         {
-          "name": "signerRewardAta",
+          "name": "signerGovernanceAta",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -1016,9 +1016,6 @@
     }
   ],
   "metadata": {
-    "address": "124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E",
-    "origin": "anchor",
-    "binaryVersion": "0.29.0",
-    "libVersion": "0.29.0"
+    "address": "8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts"
   }
 }

@@ -78,8 +78,7 @@ pub struct CreateVault<'info> {
 
     /// The creator's token account.
     #[account(
-        init_if_needed,
-        payer = creator,
+        mut,
         associated_token::mint = mint,
         associated_token::authority = creator,
         associated_token::token_program = token_program,
@@ -94,7 +93,7 @@ pub struct CreateVault<'info> {
         associated_token::authority = creator,
         associated_token::token_program = governance_token_program,
     )]
-    pub creator_reward_ata: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub creator_governance_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     /// The reward token mint account.
     #[account(
@@ -102,7 +101,7 @@ pub struct CreateVault<'info> {
         mint::decimals = 9,
         mint::authority = governance_token_mint,
         mint::token_program = governance_token_program,
-        seeds = [constants::REWARD_TOKEN_MINT_SEED],
+        seeds = [constants::GOVERNANCE_TOKEN_MINT_SEED],
         bump,
     )]
     pub governance_token_mint: InterfaceAccount<'info, Mint>,
@@ -287,14 +286,14 @@ impl<'info> CreateVault<'info> {
         match self.vault.cancel_authority {
             Authority::Neither => {
                 let signer_seeds: &[&[&[u8]]] = &[&[
-                    constants::REWARD_TOKEN_MINT_SEED,
+                    constants::GOVERNANCE_TOKEN_MINT_SEED,
                     &[bumps.governance_token_mint],
                 ]];
 
                 let cpi_program = self.governance_token_program.to_account_info();
                 let cpi_accounts = MintTo {
                     mint: self.governance_token_mint.to_account_info(),
-                    to: self.creator_reward_ata.to_account_info(),
+                    to: self.creator_governance_ata.to_account_info(),
                     authority: self.governance_token_mint.to_account_info(),
                 };
                 let cpi_context =

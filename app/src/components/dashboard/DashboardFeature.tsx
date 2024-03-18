@@ -1,29 +1,23 @@
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+
+import { ColDef, GridOptions } from "ag-grid-community";
 import { FormikHelpers, useFormik } from "formik";
-import {
-  disburseScheduledPaymentInstruction,
-  disburseTokenLockInstruction,
-  disburseVestingScheduleInstruction,
-} from "components/dashboard/instructions/disburse";
-import {
-  searchScheduledPayments,
-  searchTokenLocks,
-  searchVaults,
-} from "utils/search";
 import { useEffect, useMemo, useState } from "react";
 
-import AccountList from "./ui/AccountList";
+import { AgGridReact } from "ag-grid-react";
 import BaseModel from "models/models";
 import DashboardStats from "./ui/DashboardStats";
 import Head from "next/head";
 import SearchInput from "./ui/SearchInput";
 import { SubType } from "utils/constants";
 import SubTypeTabs from "./ui/SubTypeTabs";
-import { TransactionInstruction } from "@solana/web3.js";
-import { VestingType } from "program";
-import VestingTypeTabs from "./ui/VestingTypeTabs";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { columnDefs } from "components/vaults/utils/myVaultsColumnDefs";
 import { dashboardSearchValidationSchema } from "./utils/validationSchema";
+import { disburseVaultInstruction } from "components/dashboard/instructions/disburse";
 import { notify } from "utils/notifications";
+import { searchMyVaults } from "utils/search";
 import { sendTransaction } from "utils/sendTransaction";
 import { shortenSignature } from "utils/formatters";
 import useProgram from "program/useProgram";
@@ -31,14 +25,7 @@ import { useValhallaStore } from "stores/useValhallaStore";
 
 export default function DashboardFeature() {
   const { wallet, connection } = useProgram();
-  const {
-    vestingSchedules,
-    scheduledPayments,
-    tokenLocks,
-    setVestingSchedules,
-    setScheduledPayments,
-    setTokenLocks,
-  } = useValhallaStore();
+  const { vaults, setMyVaults } = useValhallaStore();
 
   const [loading, setLoading] = useState(false);
   const [currentList, setCurrentList] = useState<{
@@ -46,24 +33,35 @@ export default function DashboardFeature() {
     recipient: BaseModel[];
   }>({ created: [], recipient: [] });
   const [subType, setSubType] = useState<SubType>(SubType.Created);
-  const [vestingType, setVestingType] = useState<VestingType>(
-    VestingType.VestingSchedule,
-  );
 
-  const totalVestingSchedules = useMemo(() => {
-    return vestingSchedules.created.length + vestingSchedules.recipient.length;
-  }, [vestingSchedules.created, vestingSchedules.recipient]);
-  const getVestingSchedules = async (search = "") => {
+  const gridOptions: GridOptions = {
+    suppressMenuHide: true,
+    unSortIcon: true,
+    pagination: true,
+    paginationPageSize: 50,
+    paginationPageSizeSelector: false,
+  };
+
+  const defaultColDef: ColDef = {
+    flex: 1,
+    minWidth: 130,
+    filter: false,
+    sortable: false,
+  };
+
+  const colDefs = useMemo<ColDef[]>(() => columnDefs, []);
+
+  const getVaults = async (search = "") => {
     setLoading(true);
 
     try {
-      const { created, recipient } = await searchVaults(
+      const { created, recipient } = await searchMyVaults(
         connection,
         wallet.publicKey,
         search,
       );
 
-      setVestingSchedules({
+      setMyVaults({
         created,
         recipient,
       });
@@ -79,108 +77,30 @@ export default function DashboardFeature() {
     }
   };
 
-  const totalTokenLocks = useMemo(() => {
-    return tokenLocks.created.length;
-  }, [tokenLocks.created]);
-  const getTokenLocks = async (search = "") => {
-    try {
-      const { created } = await searchTokenLocks(
-        connection,
-        wallet.publicKey,
-        search,
-      );
-
-      setTokenLocks({ created });
-    } catch (e) {
-      console.error(e);
-      notify({
-        message: "Error",
-        description: "Failed to fetch token locks",
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const totalScheduledPayments = useMemo(() => {
-    return (
-      scheduledPayments.created.length + scheduledPayments.recipient.length
-    );
-  }, [scheduledPayments.created, scheduledPayments.recipient]);
-  const getScheduledPayments = async (search = "") => {
-    try {
-      const { created: fMapped, recipient: rMapped } =
-        await searchScheduledPayments(connection, wallet.publicKey, search);
-
-      setScheduledPayments({ created: fMapped, recipient: rMapped });
-    } catch (e) {
-      console.error(e);
-      notify({
-        message: "Error",
-        description: "Failed to fetch scheduled payments",
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Grabs the locks for the user
   // TODO: Add dataslice for paging
   useEffect(() => {
     if (!wallet.publicKey) return;
-    getVestingSchedules();
-    getTokenLocks();
-    getScheduledPayments();
+    getVaults();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey]);
 
   // Sets the current list based on the vesting type
   useEffect(() => {
-    switch (vestingType) {
-      case VestingType.VestingSchedule:
-        setCurrentList({
-          created: vestingSchedules.created,
-          recipient: vestingSchedules.recipient,
-        });
-        break;
-      case VestingType.TokenLock:
-        setCurrentList({ created: tokenLocks.created, recipient: [] });
-        break;
-      case VestingType.ScheduledPayment:
-        setCurrentList({
-          created: scheduledPayments.created,
-          recipient: scheduledPayments.recipient,
-        });
-        break;
-
-      default:
-        setCurrentList({ created: [], recipient: [] });
-        break;
-    }
-  }, [
-    scheduledPayments.created,
-    scheduledPayments.recipient,
-    subType,
-    tokenLocks.created,
-    vestingSchedules.created,
-    vestingSchedules.recipient,
-    vestingType,
-  ]);
+    setCurrentList({
+      created: vaults.created,
+      recipient: vaults.recipient,
+    });
+  }, [subType, vaults.created, vaults.recipient]);
 
   const onSearch = async (
     values: { search: string },
     helpers: FormikHelpers<{ search: string }>,
   ) => {
     setLoading(true);
-    setVestingSchedules({ created: [], recipient: [] });
-    setTokenLocks({ created: [] });
-    setScheduledPayments({ created: [], recipient: [] });
+    setMyVaults({ created: [], recipient: [] });
 
-    await getVestingSchedules(values.search);
-    await getTokenLocks(values.search);
-    await getScheduledPayments(values.search);
+    await getVaults(values.search);
 
     setLoading(false);
   };
@@ -191,30 +111,8 @@ export default function DashboardFeature() {
     onSubmit: onSearch,
   });
 
-  const disburse = async (lock: BaseModel) => {
-    let instruction: TransactionInstruction;
-    switch (lock.vestingType) {
-      case VestingType.VestingSchedule:
-        instruction = disburseVestingScheduleInstruction(
-          wallet.publicKey,
-          lock,
-        );
-
-        break;
-
-      case VestingType.TokenLock:
-        instruction = disburseTokenLockInstruction(lock);
-
-        break;
-
-      case VestingType.ScheduledPayment:
-        instruction = disburseScheduledPaymentInstruction(
-          wallet.publicKey,
-          lock,
-        );
-
-        break;
-    }
+  const disburse = async (vault: BaseModel) => {
+    const instruction = disburseVaultInstruction(wallet.publicKey, vault);
 
     try {
       const txid = await sendTransaction(connection, wallet, [instruction]);
@@ -233,11 +131,9 @@ export default function DashboardFeature() {
     }
   };
 
-  const changeRecipient = async (lock: BaseModel) => {};
+  const cancel = async (vault: BaseModel) => {};
 
-  const cancel = async (lock: BaseModel) => {};
-
-  const close = async (lock: BaseModel) => {};
+  const close = async (vault: BaseModel) => {};
 
   return (
     <>
@@ -260,33 +156,29 @@ export default function DashboardFeature() {
                 <SearchInput formik={formik} />
               </div>
 
-              <VestingTypeTabs
-                vestingType={vestingType}
-                setVestingType={setVestingType}
-                totalVestingSchedules={totalVestingSchedules}
-                totalScheduledPayments={totalScheduledPayments}
-                totalTokenLocks={totalTokenLocks}
-              />
-
               <SubTypeTabs
                 subType={subType}
                 setSubType={setSubType}
-                vestingType={vestingType}
                 list={currentList}
               />
 
-              <AccountList
-                loading={loading}
-                vestingType={vestingType}
-                subType={subType}
-                vestingSchedules={vestingSchedules}
-                scheduledPayments={scheduledPayments}
-                tokenLocks={tokenLocks}
-                disburse={disburse}
-                changeRecipient={changeRecipient}
-                cancel={cancel}
-                close={close}
-              />
+              <div className="min-h-[60vh] ag-theme-alpine">
+                {subType === SubType.Created ? (
+                  <AgGridReact
+                    gridOptions={gridOptions}
+                    defaultColDef={defaultColDef}
+                    columnDefs={colDefs}
+                    rowData={currentList.created}
+                  />
+                ) : (
+                  <AgGridReact
+                    gridOptions={gridOptions}
+                    defaultColDef={defaultColDef}
+                    columnDefs={colDefs}
+                    rowData={currentList.recipient}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </main>

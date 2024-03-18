@@ -1,16 +1,14 @@
 import {
-  FaCalendar,
   FaChartPie,
   FaClipboardList,
   FaHome,
+  FaLock,
   FaSearch,
-  FaUserLock,
 } from "react-icons/fa";
 
 import Image from "next/image";
 import Link from "next/link";
 import SocialBar from "./SocialBar";
-import { VestingType } from "program";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import logo128 from "../../assets/logo128.png";
 import router from "next/router";
@@ -32,11 +30,11 @@ export default function SideDrawer() {
         ),
       },
       {
-        pathname: `/create?vestingType=${VestingType.VestingSchedule}`,
+        pathname: `/create`,
         content: (
           <>
-            <FaCalendar className="inline" />
-            Create Vesting Schedules & Locks
+            <FaLock className="inline" />
+            Create Vaults
           </>
         ),
       },
@@ -49,22 +47,13 @@ export default function SideDrawer() {
           </>
         ),
       },
-      {
-        pathname: "/vaults/my-vaults",
-        content: (
-          <>
-            <FaUserLock className="inline" />
-            My Vaults
-          </>
-        ),
-      },
     ],
     [wallet?.publicKey],
   );
 
   return (
     <div className="min-h-full navlinks">
-      <ul className="menu p-2 w-60 gap-1">
+      <ul className="menu p-4 w-80 gap-1">
         <div className="flex flex-col items-center justify-center gap-8 my-12">
           <Image
             placeholder="blur"
@@ -80,7 +69,7 @@ export default function SideDrawer() {
         <li>
           <Link
             href={"/"}
-            className={`flex items-center gap-2 link link-hover font-bold ${
+            className={`flex items-center gap-2 link link-hover font-bold text-lg ${
               router?.pathname === "/" ? "link link-primary" : ""
             }`}
           >
@@ -91,27 +80,21 @@ export default function SideDrawer() {
 
         {links.map(({ pathname, content }) => (
           <li key={pathname}>
-            {wallet?.connected ? (
-              <Link
-                href={wallet?.connected ? pathname : "/"}
-                className={`flex items-center gap-2 link link-hover font-bold ${
-                  router?.pathname === pathname ? "link link-primary" : ""
-                }`}
-              >
-                {content}
-              </Link>
-            ) : (
-              <div className="flex items-center gap-2 text-gray-400 font-bold">
-                {content}
-              </div>
-            )}
+            <Link
+              href={wallet?.connected ? pathname : "/"}
+              className={`flex items-center gap-2 link link-hover font-bold text-lg ${
+                router?.pathname === pathname ? "link link-primary" : ""
+              }`}
+            >
+              {content}
+            </Link>
           </li>
         ))}
 
         <li>
           <Link
             href={`https://docs.valhalla.so`}
-            className={`flex items-center gap-2 link link-hover font-bold`}
+            className={`flex items-center gap-2 link link-hover font-bold text-lg`}
           >
             <FaClipboardList className="inline" />
             Documentation

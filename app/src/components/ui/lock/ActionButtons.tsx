@@ -1,42 +1,40 @@
-import BaseModel from "models/models";
 import { PublicKey } from "@solana/web3.js";
+import { ValhallaVault } from "models/models";
 
 export default function ActionButtons({
-  lock,
-  disburse,
+  vault,
   userKey,
-  changeRecipient,
+  disburse,
   cancel,
+  close,
 }: {
-  lock: BaseModel;
-  disburse: (lock: BaseModel) => Promise<void>;
+  vault: ValhallaVault;
   userKey: PublicKey;
-  changeRecipient: (lock: BaseModel) => Promise<void>;
-  cancel: (lock: BaseModel) => Promise<void>;
+  disburse: (vault: ValhallaVault) => Promise<void>;
+  cancel: (vault: ValhallaVault) => Promise<void>;
+  close: (vault: ValhallaVault) => Promise<void>;
 }) {
   return (
     <div className="flex flex-wrap gap-2 col-span-2">
       <button
         className="btn btn-sm btn-accent"
-        disabled={!lock.canDisburse}
-        onClick={() => disburse(lock)}
+        disabled={!vault.canDisburse}
+        onClick={() => disburse(vault)}
       >
-        Disburse
+        {vault.canDisburse ? "Disburse" : "Locked"}
       </button>
-      <button
-        className="btn btn-sm btn-secondary"
-        disabled={!lock.canChangeRecipient(userKey)}
-        onClick={() => changeRecipient(lock)}
-      >
-        Update
-      </button>
-      <button
-        className="btn btn-sm btn-error"
-        disabled={!lock.canCancel(userKey)}
-        onClick={() => cancel(lock)}
-      >
-        Cancel
-      </button>
+
+      {vault.canCancel(userKey) && (
+        <button className="btn btn-sm btn-error" onClick={() => cancel(vault)}>
+          Cancel
+        </button>
+      )}
+
+      {vault.paymentsComplete && (
+        <button className="btn btn-sm btn-error" onClick={() => close(vault)}>
+          Close
+        </button>
+      )}
     </div>
   );
 }

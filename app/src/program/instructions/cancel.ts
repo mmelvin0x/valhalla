@@ -62,7 +62,7 @@ export const cancelInstructionDiscriminator = [
  */
 export function createCancelInstruction(
   accounts: CancelInstructionAccounts,
-  programId = new web3.PublicKey('124MXaLuTTEyhH2VSQMJacxnZEcVcmcBCNvsCAMyeR8E')
+  programId = new web3.PublicKey('8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts')
 ) {
   const [data] = cancelStruct.serialize({
     instructionDiscriminator: cancelInstructionDiscriminator,

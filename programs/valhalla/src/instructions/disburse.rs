@@ -64,7 +64,7 @@ pub struct DisburseVault<'info> {
         associated_token::authority = signer,
         associated_token::token_program = governance_token_program,
     )]
-    pub signer_reward_ata: InterfaceAccount<'info, TokenAccount>,
+    pub signer_governance_ata: InterfaceAccount<'info, TokenAccount>,
 
     #[account(
         init_if_needed,
@@ -85,7 +85,7 @@ pub struct DisburseVault<'info> {
         mint::decimals = 9,
         mint::authority = governance_token_mint,
         mint::token_program = governance_token_program,
-        seeds = [constants::REWARD_TOKEN_MINT_SEED],
+        seeds = [constants::GOVERNANCE_TOKEN_MINT_SEED],
         bump,
     )]
     pub governance_token_mint: InterfaceAccount<'info, Mint>,
@@ -192,14 +192,14 @@ impl<'info> DisburseVault<'info> {
     /// This method returns an error if there is an error during the CPI (Cross-Program Invocation) call.
     fn mint_governance_tokens(&self, bumps: &DisburseVaultBumps) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
-            constants::REWARD_TOKEN_MINT_SEED,
+            constants::GOVERNANCE_TOKEN_MINT_SEED,
             &[bumps.governance_token_mint],
         ]];
 
         let cpi_program = self.governance_token_program.to_account_info();
         let cpi_accounts = MintTo {
             mint: self.governance_token_mint.to_account_info(),
-            to: self.signer_reward_ata.to_account_info(),
+            to: self.signer_governance_ata.to_account_info(),
             authority: self.governance_token_mint.to_account_info(),
         };
         let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);

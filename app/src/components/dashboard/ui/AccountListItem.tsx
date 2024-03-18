@@ -1,26 +1,23 @@
-import BaseModel from "models/models";
 import Link from "next/link";
 import LoadingSpinner from "components/ui/LoadingSpinner";
 import LockCollapse from "./LockCollapse";
 import { SubType } from "utils/constants";
-import { VestingType } from "program";
+import Vault from "models/models";
 
 export default function AccountListItem({
   loading,
-  vestingType,
   subType,
   list,
   disburse,
-  changeRecipient,
   cancel,
+  close,
 }: {
-  disburse: (lock: BaseModel) => Promise<void>;
-  changeRecipient: (lock: BaseModel) => Promise<void>;
-  cancel: (lock: BaseModel) => Promise<void>;
+  close: (vault: Vault) => Promise<void>;
+  disburse: (vault: Vault) => Promise<void>;
+  cancel: (vault: Vault) => Promise<void>;
   loading: boolean;
-  vestingType: VestingType;
   subType: SubType;
-  list: { created: BaseModel[]; recipient?: BaseModel[] };
+  list: { created: Vault[]; recipient?: Vault[] };
 }) {
   return (
     <ul>
@@ -32,29 +29,21 @@ export default function AccountListItem({
       {subType === SubType.Created && (
         <>
           {!!list.created.length ? (
-            list.created.map((lock) => (
+            list.created.map((vault) => (
               <LockCollapse
-                key={lock.id.toBase58()}
-                lock={lock}
+                key={vault.key.toBase58()}
+                vault={vault}
                 disburse={disburse}
-                changeRecipient={changeRecipient}
                 cancel={cancel}
+                close={close}
               />
             ))
           ) : (
             <div className="h-60 w-full flex flex-col items-center justify-center gap-4">
               <span className="text-center">
-                You have not created any{" "}
-                {vestingType === VestingType.VestingSchedule
-                  ? "Vesting Schedules"
-                  : vestingType === VestingType.TokenLock
-                    ? "Token Locks"
-                    : "Scheduled Payments"}
+                You have not created any vaults yet.
               </span>
-              <Link
-                href={`/create?vestingType=${vestingType}`}
-                className="btn btn-accent"
-              >
+              <Link href={`/create`} className="btn btn-accent">
                 Create One
               </Link>
             </div>
@@ -65,25 +54,18 @@ export default function AccountListItem({
       {subType === SubType.Receivable && (
         <>
           {!!list.recipient?.length ? (
-            list.recipient.map((lock) => (
+            list.recipient.map((vault) => (
               <LockCollapse
-                key={lock.id.toBase58()}
-                lock={lock}
+                key={vault.key.toBase58()}
+                vault={vault}
                 disburse={disburse}
-                changeRecipient={changeRecipient}
                 cancel={cancel}
+                close={close}
               />
             ))
           ) : (
             <div className="h-60 w-full flex flex-col items-center justify-center">
-              <span className="text-center">
-                No Receivable{" "}
-                {vestingType === VestingType.VestingSchedule
-                  ? "Vesting Schedules"
-                  : vestingType === VestingType.TokenLock
-                    ? "Token Locks"
-                    : "Scheduled Payments"}
-              </span>
+              <span className="text-center">No receivable vaults.</span>
             </div>
           )}
         </>

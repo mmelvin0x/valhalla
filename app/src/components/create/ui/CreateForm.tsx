@@ -1,19 +1,11 @@
 import AuthoritiesInput from "./AuthoritiesInput";
-import CliffPaymentAmountInput from "./CliffPaymentAmountInput";
 import PayoutIntervalInput from "./PayoutIntervalInput";
 import RecipientInput from "./RecipientInput";
 import SelectTokenInput from "./SelectTokenInput";
 import StartDateInput from "./StartDateInput";
 import VestingEndDateInput from "./VestingEndDateInput";
-import { VestingType } from "program";
 
-export default function CreateForm({
-  formik,
-  vestingType,
-}: {
-  formik;
-  vestingType: VestingType;
-}) {
+export default function CreateForm({ formik }: { formik }) {
   return (
     <form onReset={formik.handleReset} onSubmit={formik.handleSubmit}>
       <div className="form-control">
@@ -39,14 +31,11 @@ export default function CreateForm({
       </div>
 
       {/* TODO-CHECK: resolve .sol addresses and add validations */}
-      {(vestingType === VestingType.VestingSchedule ||
-        vestingType === VestingType.ScheduledPayment) && (
-        <RecipientInput
-          values={formik.values}
-          handler={formik.handleChange}
-          errors={formik.errors}
-        />
-      )}
+      <RecipientInput
+        values={formik.values}
+        handler={formik.handleChange}
+        errors={formik.errors}
+      />
 
       {/* TODO: replace default image with "UNK" */}
       <SelectTokenInput
@@ -56,23 +45,13 @@ export default function CreateForm({
         setFieldValue={formik.setFieldValue}
       />
 
-      {vestingType === VestingType.VestingSchedule && (
-        <CliffPaymentAmountInput
-          values={formik.values}
-          handler={formik.handleChange}
-          errors={formik.errors}
-        />
-      )}
-
-      {vestingType === VestingType.VestingSchedule && (
-        <StartDateInput
-          values={formik.values}
-          handler={(e) => {
-            formik.handleChange(e);
-          }}
-          errors={formik.errors}
-        />
-      )}
+      <StartDateInput
+        values={formik.values}
+        handler={(e) => {
+          formik.handleChange(e);
+        }}
+        errors={formik.errors}
+      />
 
       <VestingEndDateInput
         values={formik.values}
@@ -80,22 +59,16 @@ export default function CreateForm({
         errors={formik.errors}
       />
 
-      {vestingType === VestingType.VestingSchedule && (
-        <PayoutIntervalInput
-          values={formik.values}
-          handler={formik.handleChange}
-          errors={formik.errors}
-        />
-      )}
-
-      {(vestingType === VestingType.VestingSchedule ||
-        vestingType === VestingType.ScheduledPayment) && (
-        <AuthoritiesInput
-          values={formik.values}
-          handler={formik.handleChange}
-          errors={formik.errors}
-        />
-      )}
+      <PayoutIntervalInput
+        values={formik.values}
+        handler={formik.handleChange}
+        errors={formik.errors}
+      />
+      <AuthoritiesInput
+        values={formik.values}
+        handler={formik.handleChange}
+        errors={formik.errors}
+      />
 
       <div className="card-actions mt-8">
         <button className="btn btn-secondary" type="reset">

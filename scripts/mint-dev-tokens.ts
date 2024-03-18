@@ -20,11 +20,11 @@ import {
 } from "@solana/web3.js";
 
 const receiverOne = new anchor.web3.PublicKey(
-  "5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb"
+  "J7eKcBfEkVpt5iGGTGL7oXX9RcSBR7vGihkSisjpbyoB"
 );
 
 const receiverTwo = new anchor.web3.PublicKey(
-  "4TJHcKqgeMD7kjQ1Xub4xHmAGHfpdQjcW7AgRPtKfY5W"
+  "GQg22KPsLhEysUHsKdz4RxEW5oWTFQa4A7oQgvsSP6x6"
 );
 
 async function mintToken2022Tokens() {

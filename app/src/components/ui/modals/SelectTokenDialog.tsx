@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import AddressBadge from "components/ui/AddressBadge";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface SelectTokenDialogProps {
   assets: DasApiAsset[];
@@ -89,72 +90,79 @@ export default function SelectTokenDialog({
           <hr className="my-2" />
 
           <ul className="p-2 flex flex-col overflow-y-scroll">
-            {assetList
-              .filter((it) => it.id)
-              .map((asset: DasApiAsset) => (
-                <li key={asset.id} className="cursor-pointer">
-                  <form method="dialog">
-                    {/* if there is a button in form, it will close the modal */}
-                    <button
-                      className="w-full grid grid-cols-6 gap-2 px-2 items-center rounded hover:bg-base-200"
-                      onClick={() => {
-                        formik.setFieldValue("selectedToken", asset);
-                        onModalClose();
-                      }}
-                    >
-                      <div className="avatar mx-auto">
-                        <div className="rounded-full w-8 h-8">
-                          {asset.content.links?.["image"] ? (
-                            <>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                className="rounded-full avatar"
-                                src={asset.content.links?.["image"]}
-                                alt={""}
-                              />
-                            </>
-                          ) : (
-                            <>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                className="rounded-full avatar"
-                                src={"/LP.png"}
-                                alt={""}
-                              />
-                            </>
+            {!!assetList?.length ? (
+              assetList
+                .filter((it) => it.id)
+                .map((asset: DasApiAsset) => (
+                  <li key={asset.id} className="cursor-pointer">
+                    <form method="dialog">
+                      {/* if there is a button in form, it will close the modal */}
+                      <button
+                        className="w-full grid grid-cols-6 gap-2 px-2 items-center rounded hover:bg-base-200"
+                        onClick={() => {
+                          formik.setFieldValue("selectedToken", asset);
+                          onModalClose();
+                        }}
+                      >
+                        <div className="avatar mx-auto">
+                          <div className="rounded-full w-8 h-8">
+                            {asset.content.links?.["image"] ? (
+                              <>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  className="rounded-full"
+                                  src={asset.content.links?.["image"]}
+                                  alt={""}
+                                />
+                              </>
+                            ) : (
+                              <>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  className="rounded-full"
+                                  src={"/LP.png"}
+                                  alt={""}
+                                />
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col w-full p-2 col-span-3">
+                          <div className="flex items-center gap-1">
+                            <span className="font-bold">
+                              {asset.content.metadata.symbol || "Unknown"}
+                            </span>
+                            <AddressBadge address={asset.id} />
+                          </div>
+                          <span className="text-xs self-start">
+                            {asset.content.metadata.name || "Unknown"}
+                          </span>
+                        </div>
+
+                        <div className="flex-end col-span-2 text-right text-xs">
+                          <div>
+                            <span>{formatTokenBalance(asset)}</span>
+                          </div>
+                          {/* @ts-ignore */}
+                          {!!asset.token_info.price_info && (
+                            <div>
+                              {/* @ts-ignore */}
+                              {asset.token_info.price_info.price_per_token}{" "}
+                              {/* @ts-ignore */}
+                              {asset.token_info.price_info.currency}
+                            </div>
                           )}
                         </div>
-                      </div>
-                      <div className="flex flex-col w-full p-2 col-span-3">
-                        <div className="flex items-center gap-1">
-                          <span className="font-bold">
-                            {asset.content.metadata.symbol || "Unknown"}
-                          </span>
-                          <AddressBadge address={asset.id} />
-                        </div>
-                        <span className="text-xs self-start">
-                          {asset.content.metadata.name || "Unknown"}
-                        </span>
-                      </div>
-
-                      <div className="flex-end col-span-2 text-right text-xs">
-                        <div>
-                          <span>{formatTokenBalance(asset)}</span>
-                        </div>
-                        {/* @ts-ignore */}
-                        {!!asset.token_info.price_info && (
-                          <div>
-                            {/* @ts-ignore */}
-                            {asset.token_info.price_info.price_per_token}{" "}
-                            {/* @ts-ignore */}
-                            {asset.token_info.price_info.currency}
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  </form>
-                </li>
-              ))}
+                      </button>
+                    </form>
+                  </li>
+                ))
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-2 p-4">
+                <p className="prose">Connect your wallet to get started!</p>
+                <WalletMultiButton />
+              </div>
+            )}
           </ul>
         </div>
       </div>

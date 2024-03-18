@@ -31,7 +31,6 @@ export default function VestmentChart({
   totalVestingDuration,
   amountToBeVested,
   payoutInterval,
-  cliffPaymentAmount,
   startDate,
   vestingEndDate,
   formik,
@@ -39,7 +38,6 @@ export default function VestmentChart({
   totalVestingDuration: number;
   amountToBeVested: number;
   payoutInterval: number;
-  cliffPaymentAmount: number;
   startDate: Date;
   vestingEndDate: Date;
   formik: any;
@@ -95,9 +93,6 @@ export default function VestmentChart({
       }
     });
 
-    const cliff =
-      cliffPaymentAmount > 0 ? Array(1).fill(cliffPaymentAmount) : [];
-
     const config = {
       labels,
       datasets: [
@@ -111,18 +106,8 @@ export default function VestmentChart({
       ],
     };
 
-    if (cliff.length > 0) {
-      config.datasets.unshift({
-        label: "Cliff Payment",
-        data: cliff,
-        fill: true,
-        backgroundColor: "rgba(255, 99, 132, 0.8)",
-        stepped: true,
-      });
-    }
-
     return config;
-  }, [labels, amountPerPayout, cliffPaymentAmount]);
+  }, [labels, amountPerPayout]);
 
   return (
     <div className="card">
