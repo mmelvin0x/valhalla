@@ -26,6 +26,10 @@ pub mod valhalla {
     /// # Arguments
     ///
     /// * `ctx` - The context for the transaction.
+    /// * `name` - The name of the token.
+    /// * `symbol` - The symbol of the token.
+    /// * `uri` - The URI of the token.
+    /// * `decimals` - The number of decimals for the token.
     /// * `dev_fee` - The fee value for the configuration.
     /// * `token_fee_basis_points` - The basis points of the token fee.
     /// * `governance_token_amount` - The amount of reward tokens to be minted.
@@ -37,36 +41,98 @@ pub mod valhalla {
     /// Returns an error if the configuration creation fails.
     pub fn create_config(
         ctx: Context<CreateConfig>,
+        name: String,
+        symbol: String,
+        uri: String,
+        decimals: u8,
         dev_fee: u64,
         token_fee_basis_points: u64,
         governance_token_amount: u64,
     ) -> Result<()> {
-        ctx.accounts
-            .create(dev_fee, token_fee_basis_points, governance_token_amount)
+        ctx.accounts.create(
+            name,
+            symbol,
+            uri,
+            decimals,
+            dev_fee,
+            token_fee_basis_points,
+            governance_token_amount,
+            &ctx.bumps,
+        )
     }
 
-    /// Updates the configuration with a new fee.
+    /// Updates the admin of the program.
     ///
     /// # Arguments
     ///
     /// * `ctx` - The context for the transaction.
-    /// * `new_dev_fee` - The new fee to be set in the configuration.
-    /// * `new_token_fee_basis_points` - The new basis points of the token fee.
     ///
     /// # Errors
     ///
-    /// Returns an error if the configuration update fails.
-    pub fn update_config(
-        ctx: Context<UpdateConfig>,
-        new_dev_fee: u64,
-        new_token_fee_basis_points: u64,
-        new_governance_token_amount: u64,
+    /// Returns an error if the admin update fails.
+    pub fn update_admin(ctx: Context<UpdateAdmin>) -> Result<()> {
+        ctx.accounts.update()
+    }
+
+    /// Updates the dao treasury.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the transaction.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the dao treasury update fails.
+    pub fn update_dao_treasury(ctx: Context<UpdateDaoTreasury>) -> Result<()> {
+        ctx.accounts.update()
+    }
+
+    /// Updates the fee for the development team.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the transaction.
+    /// * `dev_fee` - The fee value for the configuration.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the dev fee update fails.
+    pub fn update_dev_fee(ctx: Context<UpdateDevFee>, dev_fee: u64) -> Result<()> {
+        ctx.accounts.update(dev_fee)
+    }
+
+    /// Updates the amount of governance tokens to be minted.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the transaction.
+    /// * `governance_token_amount` - The amount of governance tokens to be minted.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the governance token amount update fails.
+    pub fn update_governance_token_amount(
+        ctx: Context<UpdateGovernanceTokenAmount>,
+        governance_token_amount: u64,
     ) -> Result<()> {
-        ctx.accounts.update(
-            new_dev_fee,
-            new_token_fee_basis_points,
-            new_governance_token_amount,
-        )
+        ctx.accounts.update(governance_token_amount)
+    }
+
+    /// Updates the basis points of the token fee.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - The context for the transaction.
+    /// * `token_fee_basis_points` - The basis points of the token fee.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the token fee basis points update fails.
+    pub fn update_token_fee_basis_points(
+        ctx: Context<UpdateTokenFeeBasisPoints>,
+        token_fee_basis_points: u64,
+    ) -> Result<()> {
+        ctx.accounts.update(token_fee_basis_points)
     }
 
     /// Mints governance tokens to the receiver.

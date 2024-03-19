@@ -21,6 +21,10 @@ export enum Authority {
   Both,
 }
 
+export const MPL_TOKEN_METADATA_PROGRAM_ID = new PublicKey(
+  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+);
+
 export const decimals = 6;
 export const feeBasisPoints = 100;
 export const maxFee = 100 * 10 ** decimals;
