@@ -615,6 +615,7 @@ describe("⚡️ Valhalla", () => {
     it("should create a vault", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
+      const autopay = true;
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -663,7 +664,8 @@ describe("⚡️ Valhalla", () => {
           totalVestingDuration,
           startDate,
           payoutInterval,
-          cancelAuthority
+          cancelAuthority,
+          autopay
         )
         .accounts({
           creator: creator.publicKey,
@@ -903,6 +905,7 @@ describe("⚡️ Valhalla", () => {
     it("should create a vault with a recipient cancel authority", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
+      const autopay = true;
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -923,7 +926,8 @@ describe("⚡️ Valhalla", () => {
           totalVestingDuration,
           startDate,
           payoutInterval,
-          cancelAuthority
+          cancelAuthority,
+          autopay
         )
         .accounts({
           creator: creator.publicKey,
@@ -1039,6 +1043,7 @@ describe("⚡️ Valhalla", () => {
     it("should create a vault with a creator cancel authority", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
+      const autopay = true;
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1059,7 +1064,8 @@ describe("⚡️ Valhalla", () => {
           totalVestingDuration,
           startDate,
           payoutInterval,
-          cancelAuthority
+          cancelAuthority,
+          autopay
         )
         .accounts({
           creator: creator.publicKey,
@@ -1175,6 +1181,7 @@ describe("⚡️ Valhalla", () => {
     it("should create a vault with both update authorites", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
+      const autopay = true;
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1195,7 +1202,8 @@ describe("⚡️ Valhalla", () => {
           totalVestingDuration,
           startDate,
           payoutInterval,
-          cancelAuthority
+          cancelAuthority,
+          autopay
         )
         .accounts({
           creator: creator.publicKey,
@@ -1273,6 +1281,7 @@ describe("⚡️ Valhalla", () => {
     it("should create another vault with both update authorites", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
+      const autopay = true;
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1293,7 +1302,8 @@ describe("⚡️ Valhalla", () => {
           totalVestingDuration,
           startDate,
           payoutInterval,
-          cancelAuthority
+          cancelAuthority,
+          autopay
         )
         .accounts({
           creator: creator.publicKey,
@@ -1373,6 +1383,7 @@ describe("⚡️ Valhalla", () => {
     it("should not close a vault that is not expired", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
+      const autopay = true;
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1393,7 +1404,8 @@ describe("⚡️ Valhalla", () => {
           totalVestingDuration,
           startDate,
           payoutInterval,
-          cancelAuthority
+          cancelAuthority,
+          autopay
         )
         .accounts({
           creator: creator.publicKey,
@@ -1443,6 +1455,7 @@ describe("⚡️ Valhalla", () => {
     it("should close a vault that is empty", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
+      const autopay = true;
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(1);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1463,7 +1476,8 @@ describe("⚡️ Valhalla", () => {
           totalVestingDuration,
           startDate,
           payoutInterval,
-          cancelAuthority
+          cancelAuthority,
+          autopay
         )
         .accounts({
           creator: creator.publicKey,

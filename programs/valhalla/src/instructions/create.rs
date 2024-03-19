@@ -181,7 +181,12 @@ impl<'info> CreateVault<'info> {
         let from = self.creator.to_account_info();
         let to = self.dev_treasury.to_account_info();
 
-        let transfer_ix = system_instruction::transfer(from.key, to.key, self.config.dev_fee);
+        let fee = match self.vault.autopay {
+            true => self.config.dev_fee,
+            false => self.config.dev_fee.checked_mul(2).unwrap(),
+        };
+
+        let transfer_ix = system_instruction::transfer(from.key, to.key, fee);
 
         solana_program::program::invoke_signed(
             &transfer_ix,
