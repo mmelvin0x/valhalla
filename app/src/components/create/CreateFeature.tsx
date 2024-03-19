@@ -36,6 +36,7 @@ export default function CreateFeature() {
       selectedToken: assets[0],
       amountToBeVested: "",
       cancelAuthority: Authority.Neither,
+      autopay: false,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],

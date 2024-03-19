@@ -22,6 +22,7 @@ export default class BaseModel {
   recipient: PublicKey;
   mint: PublicKey;
   totalVestingDuration: anchor.BN = new anchor.BN(0);
+  autopay: boolean;
   _createdTimestamp: anchor.BN = new anchor.BN(0);
   _startDate: anchor.BN = new anchor.BN(0);
   _lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
@@ -51,6 +52,7 @@ export default class BaseModel {
     this.recipient = obj.recipient;
     this.mint = obj.mint;
     this.totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
+    this.autopay = obj.autopay;
     this._createdTimestamp = new anchor.BN(obj.createdTimestamp);
     this._startDate = new anchor.BN(obj.startDate);
     this._lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);

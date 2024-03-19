@@ -14,6 +14,12 @@ export const columnDefs: ColDef[] = [
     },
   },
   {
+    headerName: "Autopay",
+    field: "autopay",
+    width: 90,
+    minWidth: 90,
+  },
+  {
     headerName: "Mint",
     field: "mint",
     cellRenderer: ExplorerCellRenderer,

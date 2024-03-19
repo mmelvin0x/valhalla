@@ -30,6 +30,7 @@ export type VaultArgs = {
   payoutInterval: beet.bignum
   numberOfPaymentsMade: beet.bignum
   cancelAuthority: Authority
+  autopay: boolean
   tokenAccountBump: number
 }
 
@@ -57,6 +58,7 @@ export class Vault implements VaultArgs {
     readonly payoutInterval: beet.bignum,
     readonly numberOfPaymentsMade: beet.bignum,
     readonly cancelAuthority: Authority,
+    readonly autopay: boolean,
     readonly tokenAccountBump: number
   ) {}
 
@@ -79,6 +81,7 @@ export class Vault implements VaultArgs {
       args.payoutInterval,
       args.numberOfPaymentsMade,
       args.cancelAuthority,
+      args.autopay,
       args.tokenAccountBump
     )
   }
@@ -123,7 +126,7 @@ export class Vault implements VaultArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky'
+      '44dSpmq2ATy23AiyouLCzsPgn12WeaTv8pi6ym5UHNGV'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, vaultBeet)
@@ -290,6 +293,7 @@ export class Vault implements VaultArgs {
         return x
       })(),
       cancelAuthority: 'Authority.' + Authority[this.cancelAuthority],
+      autopay: this.autopay,
       tokenAccountBump: this.tokenAccountBump,
     }
   }
@@ -321,6 +325,7 @@ export const vaultBeet = new beet.BeetStruct<
     ['payoutInterval', beet.u64],
     ['numberOfPaymentsMade', beet.u64],
     ['cancelAuthority', authorityBeet],
+    ['autopay', beet.bool],
     ['tokenAccountBump', beet.u8],
   ],
   Vault.fromArgs,

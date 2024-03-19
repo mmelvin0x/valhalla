@@ -8,6 +8,20 @@ import VestingEndDateInput from "./VestingEndDateInput";
 export default function CreateForm({ formik }: { formik }) {
   return (
     <form onReset={formik.handleReset} onSubmit={formik.handleSubmit}>
+      <div className="flex items-center justify-end gap-4">
+        <label className="label cursor-pointer">
+          <span className="label-text font-bold">Autopay?</span>
+        </label>
+        <input
+          type="checkbox"
+          className="toggle"
+          name="autopay"
+          checked={formik.values.autopay}
+          onChange={formik.handleChange}
+          disabled={formik.isSubmitting}
+        />
+      </div>
+
       <div className="form-control">
         <label htmlFor="" className="label">
           <span className="label-text font-bold">Name</span>

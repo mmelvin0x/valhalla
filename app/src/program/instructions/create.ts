@@ -23,6 +23,7 @@ export type CreateInstructionArgs = {
   startDate: beet.bignum
   payoutInterval: beet.bignum
   cancelAuthority: Authority
+  autopay: boolean
 }
 /**
  * @category Instructions
@@ -43,6 +44,7 @@ export const createStruct = new beet.BeetArgsStruct<
     ['startDate', beet.u64],
     ['payoutInterval', beet.u64],
     ['cancelAuthority', authorityBeet],
+    ['autopay', beet.bool],
   ],
   'CreateInstructionArgs'
 )
@@ -101,7 +103,7 @@ export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
 export function createCreateInstruction(
   accounts: CreateInstructionAccounts,
   args: CreateInstructionArgs,
-  programId = new web3.PublicKey('4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky')
+  programId = new web3.PublicKey('44dSpmq2ATy23AiyouLCzsPgn12WeaTv8pi6ym5UHNGV')
 ) {
   const [data] = createStruct.serialize({
     instructionDiscriminator: createInstructionDiscriminator,

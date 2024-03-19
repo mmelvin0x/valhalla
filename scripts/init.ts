@@ -8,7 +8,7 @@ import { confirm } from "../tests/utils/utils";
 import { getPDAs } from "../tests/utils/getPDAs";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky"
+  "44dSpmq2ATy23AiyouLCzsPgn12WeaTv8pi6ym5UHNGV"
 );
 const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
 const tokenFeeBasisPoints = new anchor.BN(10);

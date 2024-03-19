@@ -55,7 +55,7 @@ export default function HomeFeature() {
                     className="btn btn-accent"
                     href={`/dashboard/${wallet.publicKey.toBase58()}`}
                   >
-                    Launch App
+                    Your Dashboard
                   </Link>
 
                   <Link
@@ -194,7 +194,7 @@ export default function HomeFeature() {
                 className="btn btn-accent"
                 href={`/dashboard/${wallet.publicKey.toBase58()}`}
               >
-                Launch App
+                Your Dashboard
               </Link>
 
               <Link
@@ -370,7 +370,7 @@ export default function HomeFeature() {
                     className="btn btn-accent"
                     href={`/dashboard/${wallet.publicKey.toBase58()}`}
                   >
-                    Launch App
+                    Your Dashboard
                   </Link>
 
                   <Link
@@ -524,7 +524,7 @@ export default function HomeFeature() {
                 className="btn btn-accent"
                 href={`/dashboard/${wallet.publicKey.toBase58()}`}
               >
-                Launch App
+                Your Dashboard
               </Link>
 
               <Link

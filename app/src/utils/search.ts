@@ -28,6 +28,9 @@ export const searchMyVaults = async (
   const created = await Vault.gpaBuilder();
   const recipient = await Vault.gpaBuilder();
 
+  created.addFilter("accountDiscriminator", vaultDiscriminator);
+  recipient.addFilter("accountDiscriminator", vaultDiscriminator);
+
   if (userKey) {
     created.addFilter("creator", userKey);
     recipient.addFilter("recipient", userKey);
@@ -39,6 +42,7 @@ export const searchMyVaults = async (
   }
 
   const fMapped = (await created.run(connection)).map((v) => {
+    console.log(v);
     const [vs] = Vault.fromAccountInfo(v.account);
     return new ValhallaVault(v.pubkey, vs, connection);
   });

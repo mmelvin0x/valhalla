@@ -74,7 +74,7 @@ export const mintGovernanceTokensInstructionDiscriminator = [
 export function createMintGovernanceTokensInstruction(
   accounts: MintGovernanceTokensInstructionAccounts,
   args: MintGovernanceTokensInstructionArgs,
-  programId = new web3.PublicKey('4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky')
+  programId = new web3.PublicKey('44dSpmq2ATy23AiyouLCzsPgn12WeaTv8pi6ym5UHNGV')
 ) {
   const [data] = mintGovernanceTokensStruct.serialize({
     instructionDiscriminator: mintGovernanceTokensInstructionDiscriminator,

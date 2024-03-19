@@ -122,6 +122,7 @@ const getInstructions = async (
     startDate: Math.round(new Date(values.startDate).getTime() / 1000),
     payoutInterval: Math.round(values.payoutInterval / 1000),
     cancelAuthority: values.cancelAuthority,
+    autopay: values.autopay,
   };
 
   const mint = new PublicKey(values.selectedToken.id);

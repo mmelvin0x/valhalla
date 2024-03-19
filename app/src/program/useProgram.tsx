@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 
-import { IDL, Valhalla } from "program/valhalla";
+import { IDL, Valhalla } from "./valhalla";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 

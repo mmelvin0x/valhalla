@@ -28,11 +28,6 @@ export default function VaultDetailFeature() {
   const history = useGetSignatures({ address: vault?.key });
 
   const rowData = useMemo(() => history.data, [history]);
-  console.log(
-    "%c🤪 ~ file: VaultDetailFeature.tsx:29 [VaultDetailFeature] -> rowData : ",
-    "color: #38ffb6",
-    rowData,
-  );
 
   const colDefs: ColDef[] = [
     {
