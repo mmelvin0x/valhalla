@@ -24,17 +24,21 @@ export default function ActionButtons({
         {vault.canDisburse ? "Disburse" : "Locked"}
       </button>
 
-      {vault.canCancel(userKey) && (
-        <button className="btn btn-sm btn-error" onClick={() => cancel(vault)}>
-          Cancel
-        </button>
-      )}
+      <button
+        className="btn btn-sm btn-error"
+        disabled={!vault.canCancel(userKey)}
+        onClick={() => cancel(vault)}
+      >
+        Cancel
+      </button>
 
-      {vault.paymentsComplete && (
-        <button className="btn btn-sm btn-error" onClick={() => close(vault)}>
-          Close
-        </button>
-      )}
+      <button
+        className="btn btn-sm btn-error"
+        disabled={!vault.paymentsComplete}
+        onClick={() => close(vault)}
+      >
+        Close
+      </button>
     </div>
   );
 }

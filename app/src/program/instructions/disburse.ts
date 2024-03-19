@@ -26,7 +26,7 @@ export const disburseStruct = new beet.BeetArgsStruct<{
  * @property [_writable_, **signer**] signer
  * @property [] creator
  * @property [] recipient
- * @property [_writable_] solTreasury
+ * @property [_writable_] devTreasury
  * @property [] config
  * @property [_writable_] vault
  * @property [_writable_] vaultAta
@@ -44,7 +44,7 @@ export type DisburseInstructionAccounts = {
   signer: web3.PublicKey
   creator: web3.PublicKey
   recipient: web3.PublicKey
-  solTreasury: web3.PublicKey
+  devTreasury: web3.PublicKey
   config: web3.PublicKey
   vault: web3.PublicKey
   vaultAta: web3.PublicKey
@@ -72,7 +72,7 @@ export const disburseInstructionDiscriminator = [
  */
 export function createDisburseInstruction(
   accounts: DisburseInstructionAccounts,
-  programId = new web3.PublicKey('8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts')
+  programId = new web3.PublicKey('4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky')
 ) {
   const [data] = disburseStruct.serialize({
     instructionDiscriminator: disburseInstructionDiscriminator,
@@ -94,7 +94,7 @@ export function createDisburseInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.solTreasury,
+      pubkey: accounts.devTreasury,
       isWritable: true,
       isSigner: false,
     },

@@ -8,7 +8,9 @@ export default function StartDateInput({
   values,
   handler,
   errors,
+  disabled,
 }: {
+  disabled: boolean;
   values: FormikValues;
   handler: ChangeEventHandler<any>;
   errors: FormikErrors<ICreateForm>;
@@ -29,6 +31,7 @@ export default function StartDateInput({
         min={today.toDate().getTime()}
         value={startDate}
         onChange={handler}
+        disabled={disabled}
       />
 
       {!!errors.startDate && (

@@ -8,10 +8,6 @@ export enum SubType {
   Receivable,
 }
 
-export const WRAPPED_SOL_MINT_KEY = new PublicKey(
-  "So11111111111111111111111111111111111111112",
-);
-
 export const SOL_TREASURY = new PublicKey(process.env.NEXT_PUBLIC_SOL_TREASURY);
 export const TOKEN_TREASURY = new PublicKey(
   process.env.NEXT_PUBLIC_TOKEN_TREASURY,

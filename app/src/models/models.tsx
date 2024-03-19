@@ -8,7 +8,7 @@ import {
   getMint,
 } from "@solana/spl-token";
 import { Authority, Vault } from "program";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { displayTime, shortenAddress } from "utils/formatters";
 
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
@@ -78,18 +78,17 @@ export default class BaseModel {
   }
 
   get canDisburse(): boolean {
-    if (this.paymentsComplete) return false;
-
     const currentTime = Math.floor(Date.now() / 1000);
     const startDate = this._startDate.toNumber();
-    if (currentTime < startDate) return false;
+    if (startDate > currentTime) return false;
+
     if (
       this._lastPaymentTimestamp.add(this._payoutInterval).toNumber() >
       currentTime
     )
       return false;
 
-    return false;
+    return true;
   }
 
   get cancelAuthority(): string {
@@ -118,9 +117,6 @@ export default class BaseModel {
   }
 
   get initialDeposit(): number {
-    console.log(
-      this._initialDepositAmount.toNumber() / Math.pow(10, this.decimals),
-    );
     return this._initialDepositAmount.toNumber() / Math.pow(10, this.decimals);
   }
 
@@ -254,5 +250,49 @@ export class ValhallaVault extends BaseModel {
     public connection: Connection,
   ) {
     super(publicKey, scheduledPayment, connection);
+  }
+}
+
+export class ValhallaConfig {
+  constructor(
+    private _admin: PublicKey,
+    private _devTreasury: PublicKey,
+    private _daoTreasury: PublicKey,
+    private _governanceTokenMintKey: PublicKey,
+    private _devFee: anchor.BN,
+    private _tokenFeeBasisPoints: anchor.BN,
+    private _governanceTokenAmount: anchor.BN,
+  ) {}
+
+  get admin(): string {
+    return shortenAddress(this._admin);
+  }
+
+  get devTreasury(): string {
+    return shortenAddress(this._devTreasury);
+  }
+
+  get daoTreasury(): string {
+    return shortenAddress(this._daoTreasury);
+  }
+
+  get governanceTokenMintKey(): string {
+    return shortenAddress(this._governanceTokenMintKey);
+  }
+
+  get devFee(): number {
+    return this._devFee.toNumber() / LAMPORTS_PER_SOL;
+  }
+
+  get tokenFeeBasisPoints(): number {
+    return this._tokenFeeBasisPoints.toNumber();
+  }
+
+  get tokenFeePercentage(): string {
+    return (this._tokenFeeBasisPoints.toNumber() / 100).toLocaleString() + "%";
+  }
+
+  get governanceTokenAmount(): number {
+    return this._governanceTokenAmount.toNumber() / LAMPORTS_PER_SOL;
   }
 }

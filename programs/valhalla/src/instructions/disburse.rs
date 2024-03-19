@@ -21,12 +21,12 @@ pub struct DisburseVault<'info> {
     /// The recipient of the funds.
     pub recipient: SystemAccount<'info>,
 
-    /// The sol treasury account.
+    /// The dev treasury account.
     #[account(mut)]
-    pub sol_treasury: SystemAccount<'info>,
+    pub dev_treasury: SystemAccount<'info>,
 
     /// The configuration account.
-    #[account(seeds = [constants::CONFIG_SEED], bump, has_one = sol_treasury)]
+    #[account(seeds = [constants::CONFIG_SEED], bump, has_one = dev_treasury)]
     pub config: Box<Account<'info, Config>>,
 
     #[account(

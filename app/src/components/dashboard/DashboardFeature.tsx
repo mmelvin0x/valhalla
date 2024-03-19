@@ -1,30 +1,28 @@
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
+import BaseModel, { ValhallaVault } from "models/models";
 import { ColDef, GridOptions } from "ag-grid-community";
 import { FormikHelpers, useFormik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
-import BaseModel from "models/models";
 import DashboardStats from "./ui/DashboardStats";
 import Head from "next/head";
 import SearchInput from "./ui/SearchInput";
 import { SubType } from "utils/constants";
 import SubTypeTabs from "./ui/SubTypeTabs";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { disburse as _disburse } from "components/dashboard/instructions/disburse";
 import { columnDefs } from "components/vaults/utils/myVaultsColumnDefs";
 import { dashboardSearchValidationSchema } from "./utils/validationSchema";
-import { disburseVaultInstruction } from "components/dashboard/instructions/disburse";
 import { notify } from "utils/notifications";
 import { searchMyVaults } from "utils/search";
-import { sendTransaction } from "utils/sendTransaction";
-import { shortenSignature } from "utils/formatters";
 import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
 
 export default function DashboardFeature() {
-  const { wallet, connection } = useProgram();
+  const { wallet, connection, program } = useProgram();
   const { vaults, setMyVaults } = useValhallaStore();
 
   const [loading, setLoading] = useState(false);
@@ -110,30 +108,6 @@ export default function DashboardFeature() {
     validationSchema: dashboardSearchValidationSchema,
     onSubmit: onSearch,
   });
-
-  const disburse = async (vault: BaseModel) => {
-    const instruction = disburseVaultInstruction(wallet.publicKey, vault);
-
-    try {
-      const txid = await sendTransaction(connection, wallet, [instruction]);
-      notify({
-        message: "Transaction sent",
-        description: `Transaction ${shortenSignature(txid)} has been sent`,
-        type: "success",
-      });
-    } catch (error) {
-      console.error(error);
-      notify({
-        message: "Transaction Failed",
-        description: error.message,
-        type: "error",
-      });
-    }
-  };
-
-  const cancel = async (vault: BaseModel) => {};
-
-  const close = async (vault: BaseModel) => {};
 
   return (
     <>

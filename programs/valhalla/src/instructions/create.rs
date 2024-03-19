@@ -25,16 +25,16 @@ pub struct CreateVault<'info> {
     #[account(mut)]
     pub recipient: SystemAccount<'info>,
 
-    /// The sol treasury account.
+    /// The dev treasury account.
     #[account(mut)]
-    pub sol_treasury: SystemAccount<'info>,
+    pub dev_treasury: SystemAccount<'info>,
 
-    /// The token treasury account.
+    /// The dao treasury account.
     #[account(mut)]
-    pub token_treasury: SystemAccount<'info>,
+    pub dao_treasury: SystemAccount<'info>,
 
     /// The configuration account.
-    #[account(seeds = [constants::CONFIG_SEED], bump, has_one = sol_treasury)]
+    #[account(seeds = [constants::CONFIG_SEED], bump, has_one = dev_treasury)]
     pub config: Box<Account<'info, Config>>,
 
     /// The vault account.
@@ -71,10 +71,10 @@ pub struct CreateVault<'info> {
         init_if_needed,
         payer = creator,
         associated_token::mint = mint,
-        associated_token::authority = token_treasury,
+        associated_token::authority = dao_treasury,
         associated_token::token_program = token_program,
     )]
-    pub token_treasury_ata: Box<InterfaceAccount<'info, TokenAccount>>,
+    pub dao_treasury_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     /// The creator's token account.
     #[account(
@@ -199,7 +199,7 @@ impl<'info> CreateVault<'info> {
         self.transfer(
             token_fee_amount,
             self.creator_ata.to_account_info(),
-            self.token_treasury_ata.to_account_info(),
+            self.dao_treasury_ata.to_account_info(),
             self.creator.to_account_info(),
             self.mint.to_account_info(),
         )?;
@@ -207,7 +207,7 @@ impl<'info> CreateVault<'info> {
         // Mint governance tokens to the creator
         self.mint_governance_tokens(bumps)?;
 
-        // Transfer sol fee to the sol treasury
+        // Transfer sol fee to the dev treasury
         self.transfer_sol()
     }
 
@@ -218,9 +218,9 @@ impl<'info> CreateVault<'info> {
     /// This method returns an error if there is an error during the CPI (Cross-Program Invocation) call.
     fn transfer_sol(&mut self) -> Result<()> {
         let from = self.creator.to_account_info();
-        let to = self.sol_treasury.to_account_info();
+        let to = self.dev_treasury.to_account_info();
 
-        let transfer_ix = system_instruction::transfer(from.key, to.key, self.config.sol_fee);
+        let transfer_ix = system_instruction::transfer(from.key, to.key, self.config.dev_fee);
 
         solana_program::program::invoke_signed(
             &transfer_ix,

@@ -1,54 +1,18 @@
 import { FC, useMemo } from "react";
-import {
-  FaChartPie,
-  FaClipboardList,
-  FaHome,
-  FaLock,
-  FaSearch,
-} from "react-icons/fa";
+import { FaClipboardList, FaHome } from "react-icons/fa";
 
 import Image from "next/image";
 import Link from "next/link";
 import SocialBar from "./SocialBar";
 import logo128 from "../../assets/logo128.png";
+import { routes } from "utils/routes";
 import useProgram from "program/useProgram";
 import { useRouter } from "next/router";
 
 export const Footer: FC = () => {
   const { wallet } = useProgram();
   const router = useRouter();
-  const links = useMemo(
-    () => [
-      {
-        pathname: `/dashboard/${wallet?.publicKey?.toBase58()}`,
-        content: (
-          <>
-            <FaChartPie className="inline" />
-            Dashboard
-          </>
-        ),
-      },
-      {
-        pathname: `/create`,
-        content: (
-          <>
-            <FaLock className="inline" />
-            Create Vaults
-          </>
-        ),
-      },
-      {
-        pathname: "/vaults/all",
-        content: (
-          <>
-            <FaSearch className="inline" />
-            All Vaults
-          </>
-        ),
-      },
-    ],
-    [wallet?.publicKey],
-  );
+  const links = useMemo(() => routes(wallet), [wallet]);
 
   return (
     <footer className="footer footer-center p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

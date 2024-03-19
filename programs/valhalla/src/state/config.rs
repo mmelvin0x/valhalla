@@ -6,17 +6,17 @@ pub struct Config {
     /// The public key of the admin account.
     pub admin: Pubkey,
 
-    /// The public key of the sol treasury account.
-    pub sol_treasury: Pubkey,
+    /// The public key of the dev treasury account.
+    pub dev_treasury: Pubkey,
 
-    /// The public key of the token treasury account.
-    pub token_treasury: Pubkey,
+    /// The public key of the dao treasury account.
+    pub dao_treasury: Pubkey,
 
     /// The public key of the token mint used for rewards.
     pub governance_token_mint_key: Pubkey,
 
-    /// The amount of sol taken as a flat fee to the sol treasury.
-    pub sol_fee: u64,
+    /// The amount of sol taken as a flat fee to the dev treasury.
+    pub dev_fee: u64,
 
     /// The basis points of the token fee.
     pub token_fee_basis_points: u64,

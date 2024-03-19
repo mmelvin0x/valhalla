@@ -8,9 +8,9 @@ import { confirm } from "../tests/utils/utils";
 import { getPDAs } from "../tests/utils/getPDAs";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts"
+  "4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky"
 );
-const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
 const tokenFeeBasisPoints = new anchor.BN(10);
 const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
@@ -40,12 +40,12 @@ const main = async () => {
   )[0];
 
   const tx = await program.methods
-    .createConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+    .createConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
     .accounts({
       admin: wallet.publicKey,
       config,
-      solTreasury: wallet.publicKey,
-      tokenTreasury: wallet.publicKey,
+      devTreasury: wallet.publicKey,
+      daoTreasury: wallet.publicKey,
       governanceTokenMint,
       tokenProgram: TOKEN_PROGRAM_ID,
       systemProgram: anchor.web3.SystemProgram.programId,
@@ -59,15 +59,15 @@ const main = async () => {
 
   const configAccount = await program.account.config.fetch(config);
   console.log("🐸 Admin:", configAccount.admin.toBase58());
-  console.log("💰 SOL Treasury:", configAccount.solTreasury.toBase58());
-  console.log("💰 Token Treasury::", configAccount.tokenTreasury.toBase58());
+  console.log("💰 SOL Treasury:", configAccount.devTreasury.toBase58());
+  console.log("💰 Token Treasury::", configAccount.daoTreasury.toBase58());
   console.log(
     "🫡 Reward Mint:",
     configAccount.governanceTokenMintKey.toBase58()
   );
   console.log(
     "❤️‍🩹 SOL Fee:",
-    configAccount.solFee.toNumber() / LAMPORTS_PER_SOL
+    configAccount.devFee.toNumber() / LAMPORTS_PER_SOL
   );
   console.log(
     "❤️‍🩹 Token Fee BPS:",

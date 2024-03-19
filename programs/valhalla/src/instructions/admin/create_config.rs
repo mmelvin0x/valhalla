@@ -23,11 +23,11 @@ pub struct CreateConfig<'info> {
     /// The configuration account to be created.
     pub config: Account<'info, Config>,
 
-    /// The sol treasury account.
-    pub sol_treasury: SystemAccount<'info>,
+    /// The dev treasury account.
+    pub dev_treasury: SystemAccount<'info>,
 
-    /// The token treasury account.
-    pub token_treasury: SystemAccount<'info>,
+    /// The dao treasury account.
+    pub dao_treasury: SystemAccount<'info>,
 
     /// The reward token mint account.
     #[account(
@@ -55,7 +55,7 @@ impl<'info> CreateConfig<'info> {
     ///
     /// # Arguments
     ///
-    /// * `sol_fee` - The fee value for the configuration.
+    /// * `dev_fee` - The fee value for the configuration.
     /// * `token_fee_basis_points` - The basis points of the token fee.
     /// * `governance_token_amount` - The amount of reward tokens to be minted.
     ///
@@ -64,7 +64,7 @@ impl<'info> CreateConfig<'info> {
     /// Returns an error if the configuration account is already initialized.
     pub fn create(
         &mut self,
-        sol_fee: u64,
+        dev_fee: u64,
         token_fee_basis_points: u64,
         governance_token_amount: u64,
     ) -> Result<()> {
@@ -82,13 +82,15 @@ impl<'info> CreateConfig<'info> {
 
         self.config.set_inner(Config {
             admin: self.admin.to_account_info().key(),
-            sol_treasury: self.sol_treasury.to_account_info().key(),
-            token_treasury: self.token_treasury.to_account_info().key(),
+            dev_treasury: self.dev_treasury.to_account_info().key(),
+            dao_treasury: self.dao_treasury.to_account_info().key(),
             governance_token_mint_key: self.governance_token_mint.to_account_info().key(),
-            sol_fee,
+            dev_fee,
             token_fee_basis_points,
             governance_token_amount,
         });
+
+        // TODO: Create the metadata for the governance token.
 
         Ok(())
     }

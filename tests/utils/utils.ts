@@ -88,13 +88,13 @@ export const setupTestAccounts = async (
   creator: Keypair,
   recipient: Keypair,
   user: Keypair,
-  tokenTreasury: Keypair
+  daoTreasury: Keypair
 ): Promise<[PublicKey, Account, Account, Account]> => {
   await airdrop(provider.connection, payer.publicKey);
   await airdrop(provider.connection, creator.publicKey);
   await airdrop(provider.connection, recipient.publicKey);
   await airdrop(provider.connection, user.publicKey);
-  await airdrop(provider.connection, tokenTreasury.publicKey);
+  await airdrop(provider.connection, daoTreasury.publicKey);
 
   const [mint, creatorTokenAccount, recipientTokenAccount] =
     await mintTransferFeeTokens(
@@ -108,11 +108,11 @@ export const setupTestAccounts = async (
       amountMinted
     );
 
-  const tokenTreasuryTokenAccount = await getOrCreateAssociatedTokenAccount(
+  const daoTreasuryTokenAccount = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     payer,
     mint,
-    tokenTreasury.publicKey,
+    daoTreasury.publicKey,
     true,
     undefined,
     undefined,
@@ -124,6 +124,6 @@ export const setupTestAccounts = async (
     mint,
     creatorTokenAccount,
     recipientTokenAccount,
-    tokenTreasuryTokenAccount,
+    daoTreasuryTokenAccount,
   ];
 };

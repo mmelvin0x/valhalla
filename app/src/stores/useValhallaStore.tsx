@@ -1,7 +1,12 @@
-import { ValhallaVault } from "models/models";
+import { ValhallaConfig, ValhallaVault } from "models/models";
+
 import { create } from "zustand";
 
 interface ValhallaStore {
+  config: ValhallaConfig;
+
+  setConfig: (config: ValhallaConfig) => void;
+
   vaults: { created: Array<ValhallaVault>; recipient: Array<ValhallaVault> };
   allVaults: Array<ValhallaVault>;
 
@@ -14,6 +19,10 @@ interface ValhallaStore {
 }
 
 export const useValhallaStore = create<ValhallaStore>((set) => ({
+  config: null,
+
+  setConfig: (config: ValhallaConfig) => set({ config }),
+
   vaults: { created: [], recipient: [] },
   allVaults: [],
 

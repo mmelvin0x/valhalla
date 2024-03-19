@@ -1,10 +1,4 @@
-import {
-  FaChartPie,
-  FaClipboardList,
-  FaHome,
-  FaLock,
-  FaSearch,
-} from "react-icons/fa";
+import { FaClipboardList, FaHome } from "react-icons/fa";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -12,44 +6,13 @@ import SocialBar from "./SocialBar";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import logo128 from "../../assets/logo128.png";
 import router from "next/router";
+import { routes } from "utils/routes";
 import { useMemo } from "react";
 import useProgram from "program/useProgram";
 
 export default function SideDrawer() {
   const { wallet } = useProgram();
-
-  const links = useMemo(
-    () => [
-      {
-        pathname: `/dashboard/${wallet?.publicKey?.toBase58()}`,
-        content: (
-          <>
-            <FaChartPie className="inline" />
-            Dashboard
-          </>
-        ),
-      },
-      {
-        pathname: `/create`,
-        content: (
-          <>
-            <FaLock className="inline" />
-            Create Vaults
-          </>
-        ),
-      },
-      {
-        pathname: "/vaults/all",
-        content: (
-          <>
-            <FaSearch className="inline" />
-            All Vaults
-          </>
-        ),
-      },
-    ],
-    [wallet?.publicKey],
-  );
+  const links = useMemo(() => routes(wallet), [wallet]);
 
   return (
     <div className="min-h-full navlinks">

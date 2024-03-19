@@ -14,7 +14,7 @@ export default function AccountDetailsFeature() {
     try {
       return new PublicKey(router.query.address);
     } catch (e) {
-      console.log(`Invalid public key`, e);
+      console.error(`Invalid public key`, e);
     }
   }, [router.query.address]);
 

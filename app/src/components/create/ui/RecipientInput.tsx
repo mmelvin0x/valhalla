@@ -10,13 +10,15 @@ export default function RecipientInput({
   values,
   handler,
   errors,
+  disabled,
 }: {
+  disabled: boolean;
   values: FormikValues;
   handler: ChangeEventHandler<any>;
   errors: FormikErrors<ICreateForm>;
 }) {
   const { recipient } = values;
-  const { wallet, connection } = useProgram();
+  const { connection } = useProgram();
 
   // TODO: Add support for .sol addresses
   const getPublicKeyFromSolDomain = async (
@@ -46,6 +48,7 @@ export default function RecipientInput({
         placeholder={"Public Key of the recipient"}
         value={recipient}
         onChange={handler}
+        disabled={disabled}
       />
 
       {!!errors.recipient && (

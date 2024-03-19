@@ -14,6 +14,7 @@ import SelectTokenDialog from "components/ui/modals/SelectTokenDialog";
 import VestmentChart from "components/create/ui/VestmentChart";
 import axios from "axios";
 import { createVault } from "./instructions/create";
+import { notify } from "utils/notifications";
 import { useDates } from "utils/useDates";
 import useProgram from "program/useProgram";
 import { vaultValidationSchema } from "./utils/validationSchemas";
@@ -52,16 +53,24 @@ export default function CreateFeature() {
       values: ICreateForm,
       helpers: FormikHelpers<ICreateForm>,
     ) => {
-      await createVault(
-        values,
-        helpers,
-        wallet,
-        connection,
-        program,
-        totalVestingDuration,
-        balance,
-        today.toDate(),
-      );
+      try {
+        await createVault(
+          values,
+          helpers,
+          wallet,
+          connection,
+          program,
+          totalVestingDuration,
+          balance,
+          today.toDate(),
+        );
+      } catch (e) {
+        notify({
+          message: "Error",
+          description: "Failed to create the vesting account",
+          type: "error",
+        });
+      }
     },
   });
 
@@ -132,6 +141,7 @@ export default function CreateFeature() {
           />
 
           <ReviewLockCard
+            isSubmitting={formik.isSubmitting}
             creator={wallet.publicKey}
             recipient={formik.values.recipient}
             selectedToken={formik.values.selectedToken}

@@ -2,14 +2,20 @@ import * as anchor from "@coral-xyz/anchor";
 
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_2022_PROGRAM_ID,
+  NATIVE_MINT,
+  NATIVE_MINT_2022,
   TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
+  createSyncNativeInstruction,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import {
   Connection,
+  LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
+  Transaction,
+  TransactionInstruction,
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
@@ -19,45 +25,72 @@ import {
   createCreateInstruction,
 } from "program";
 import { FormikHelpers, FormikValues } from "formik";
-import { getNameArg, shortenSignature } from "utils/formatters";
 
 import { ICreateForm } from "utils/interfaces";
 import { Valhalla } from "program/valhalla";
+import { WalletContextState } from "@solana/wallet-adapter-react";
+import { getNameArg } from "utils/formatters";
 import { getPDAs } from "utils/constants";
 import { isPublicKey } from "@metaplex-foundation/umi";
 import { notify } from "utils/notifications";
 import { randomBytes } from "crypto";
 import router from "next/router";
+import { sendTransaction } from "utils/sendTransaction";
 
 export const createVault = async (
   values: FormikValues,
   helpers: FormikHelpers<ICreateForm>,
-  wallet: any,
+  wallet: WalletContextState,
   connection: Connection,
   program: anchor.Program<Valhalla>,
   totalVestingDuration: number,
   balance: number,
   today: Date,
 ) => {
+  if (!vaultValid(values, helpers, balance, today)) return;
+
+  const instructions = await getInstructions(
+    connection,
+    program,
+    wallet,
+    values,
+    totalVestingDuration,
+  );
+
+  await sendTransaction(connection, wallet, instructions);
+
+  router.push(`/dashboard/${wallet.publicKey.toBase58()}`);
+};
+
+const isNativeMint = (mint: PublicKey) => {
+  return mint.equals(NATIVE_MINT) || mint.equals(NATIVE_MINT_2022);
+};
+
+const vaultValid = (
+  values: FormikValues,
+  helpers: FormikHelpers<ICreateForm>,
+  balance: number,
+  today: Date,
+) => {
   if (Number(values.amountToBeVested) > balance) {
     helpers.setFieldError("amountToBeVested", "Amount exceeds token balance");
 
-    return;
+    return false;
   }
 
   if (values.vestingEndDate <= values.startDate) {
     helpers.setFieldError("vestingEndDate", "Invalid Date");
-    return;
+    return false;
   }
 
   if (values.startDate < today) {
     helpers.setFieldError("startDate", "Invalid Date");
-    return;
+    return false;
   }
 
   if (!isPublicKey(values.recipient)) {
     helpers.setFieldError("recipient", "Invalid Address");
-    return;
+    return false;
   }
 
   if (!isPublicKey(values.selectedToken?.id)) {
@@ -67,9 +100,19 @@ export const createVault = async (
       type: "error",
     });
 
-    return;
+    return false;
   }
 
+  return true;
+};
+
+const getInstructions = async (
+  connection: Connection,
+  program: anchor.Program<Valhalla>,
+  wallet: WalletContextState,
+  values: FormikValues,
+  totalVestingDuration: number,
+): Promise<TransactionInstruction[]> => {
   const identifier = new anchor.BN(randomBytes(8));
   const createInstructionArgs: CreateInstructionArgs = {
     identifier,
@@ -91,15 +134,17 @@ export const createVault = async (
   );
 
   const configAccount = await program.account.config.fetch(config);
+
   const creatorAta = getAssociatedTokenAddressSync(
     mint,
     new PublicKey(wallet.publicKey),
     false,
     tokenProgramId,
   );
-  const tokenTreasuryAta = getAssociatedTokenAddressSync(
+
+  const daoTreasuryAta = getAssociatedTokenAddressSync(
     mint,
-    configAccount.tokenTreasury,
+    configAccount.daoTreasury,
     false,
     tokenProgramId,
   );
@@ -108,18 +153,18 @@ export const createVault = async (
     configAccount.governanceTokenMintKey,
     new PublicKey(wallet.publicKey),
     false,
-    TOKEN_PROGRAM_ID,
+    tokenProgramId,
   );
 
   const createInstructionAccounts: CreateInstructionAccounts = {
     creator: wallet.publicKey,
     recipient: recipientKey,
-    solTreasury: configAccount.solTreasury,
-    tokenTreasury: configAccount.tokenTreasury,
+    devTreasury: configAccount.devTreasury,
+    daoTreasury: configAccount.daoTreasury,
     config,
     vault,
     vaultAta,
-    tokenTreasuryAta,
+    daoTreasuryAta,
     creatorAta,
     creatorGovernanceAta,
     governanceTokenMint: configAccount.governanceTokenMintKey,
@@ -131,45 +176,46 @@ export const createVault = async (
   };
 
   try {
+    let instructions = [];
+    if (isNativeMint(mint)) {
+      const associatedToken = getAssociatedTokenAddressSync(
+        mint,
+        wallet.publicKey,
+        false,
+        tokenProgramId,
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+      );
+
+      const ix = new Transaction().add(
+        createAssociatedTokenAccountInstruction(
+          wallet.publicKey,
+          associatedToken,
+          wallet.publicKey,
+          mint,
+          tokenProgramId,
+          ASSOCIATED_TOKEN_PROGRAM_ID,
+        ),
+        SystemProgram.transfer({
+          fromPubkey: wallet.publicKey,
+          toPubkey: associatedToken,
+          lamports: Number(values.amountToBeVested) * LAMPORTS_PER_SOL,
+        }),
+        createSyncNativeInstruction(associatedToken, tokenProgramId),
+      ).instructions;
+
+      instructions = ix;
+    }
+
     const createLockInstruction = createCreateInstruction(
       createInstructionAccounts,
       createInstructionArgs,
     );
 
-    const latestBlockhash = await connection.getLatestBlockhash();
-    const messageV0 = new TransactionMessage({
-      payerKey: wallet.publicKey,
-      recentBlockhash: latestBlockhash.blockhash,
-      instructions: [createLockInstruction],
-    }).compileToV0Message();
+    instructions.push(createLockInstruction);
 
-    const tx = new VersionedTransaction(messageV0);
-    const txid = await wallet.sendTransaction(tx, connection);
-    const confirmation = await connection.confirmTransaction({
-      signature: txid,
-      blockhash: latestBlockhash.blockhash,
-      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-    });
-
-    if (confirmation.value.err) {
-      notify({
-        message: "Transaction Failed",
-        description: `Transaction ${shortenSignature(txid)} failed (${
-          confirmation.value.err
-        })`,
-        type: "error",
-      });
-    }
-
-    notify({
-      message: "Transaction sent",
-      description: `Transaction ${shortenSignature(txid)} has been sent`,
-      type: "success",
-    });
-
-    router.push(`/dashboard/${wallet.publicKey.toBase58()}`);
+    return instructions;
   } catch (error) {
-    console.log("-> ~ error", error);
+    console.error("-> ~ error", error);
     notify({
       message: "Transaction Failed",
       description: `${error}`,

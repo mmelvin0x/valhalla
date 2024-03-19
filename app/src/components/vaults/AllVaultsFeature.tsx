@@ -69,11 +69,6 @@ export default function AllVaultsFeature() {
       recipient,
       mint,
     );
-    console.log(
-      "%c🤪 ~ file: AllVaultsFeature.tsx:71 [AllVaultsFeature/onSearch/vaults] -> vaults : ",
-      "color: #43716c",
-      vaults,
-    );
 
     setAllVaults(vaults);
   };

@@ -1,6 +1,5 @@
 import ActionButtons from "components/ui/lock/ActionButtons";
 import BalanceDisplay from "components/ui/lock/BalanceDisplay";
-import CancelAuthorityDisplay from "components/ui/lock/CancelAuthorityDisplay";
 import CreatorDisplay from "components/ui/lock/CreatorDisplay";
 import EndDateDisplay from "components/ui/lock/EndDateDisplay";
 import NextPayoutDateDisplay from "components/ui/lock/NextPayoutDateDisplay";
@@ -91,12 +90,7 @@ export default function LockDetails({
 
       <div className="flex flex-col">
         <span className="text-lg font-bold">Cancel</span>
-        <CancelAuthorityDisplay
-          connection={connection}
-          authority={vault.cancelAuthority}
-          creator={vault.creator}
-          recipient={vault.recipient}
-        />
+        {vault.cancelAuthority}
       </div>
     </div>
   );

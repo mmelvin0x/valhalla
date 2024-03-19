@@ -6,10 +6,10 @@ export default function EndDateDisplay({
   startDate,
   totalVestingDuration,
 }: {
-  startDate: anchor.BN;
+  startDate: Date;
   totalVestingDuration: anchor.BN;
 }) {
-  const _startDate = new Date(startDate.toNumber() * 1000);
+  const _startDate = new Date(startDate);
   const endDate = new Date(
     _startDate.getTime() + totalVestingDuration.toNumber() * 1000,
   );

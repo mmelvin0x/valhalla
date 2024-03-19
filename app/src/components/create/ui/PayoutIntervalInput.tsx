@@ -8,7 +8,9 @@ export default function PayoutIntervalInput({
   values,
   handler,
   errors,
+  disabled,
 }: {
+  disabled: boolean;
   values: FormikValues;
   handler: ChangeEventHandler<any>;
   errors: FormikErrors<ICreateForm>;
@@ -26,6 +28,7 @@ export default function PayoutIntervalInput({
         name="payoutInterval"
         value={payoutInterval}
         onChange={handler}
+        disabled={disabled}
       >
         <option value={Number(1000 * 60 * 60)}>Hourly</option>
         <option value={Number(60 * 60 * 24 * 1000)}>Daily</option>

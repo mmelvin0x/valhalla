@@ -26,23 +26,23 @@ pub mod valhalla {
     /// # Arguments
     ///
     /// * `ctx` - The context for the transaction.
-    /// * `sol_fee` - The fee value for the configuration.
+    /// * `dev_fee` - The fee value for the configuration.
     /// * `token_fee_basis_points` - The basis points of the token fee.
     /// * `governance_token_amount` - The amount of reward tokens to be minted.
-    /// * `sol_treasury_governance_token_amount` - The amount of reward tokens to be minted for the sol treasury.
-    /// * `token_treasury_governance_token_amount` - The amount of reward tokens to be minted for the token treasury.
+    /// * `dev_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dev treasury.
+    /// * `dao_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dao treasury.
     ///
     /// # Errors
     ///
     /// Returns an error if the configuration creation fails.
     pub fn create_config(
         ctx: Context<CreateConfig>,
-        sol_fee: u64,
+        dev_fee: u64,
         token_fee_basis_points: u64,
         governance_token_amount: u64,
     ) -> Result<()> {
         ctx.accounts
-            .create(sol_fee, token_fee_basis_points, governance_token_amount)
+            .create(dev_fee, token_fee_basis_points, governance_token_amount)
     }
 
     /// Updates the configuration with a new fee.
@@ -50,7 +50,7 @@ pub mod valhalla {
     /// # Arguments
     ///
     /// * `ctx` - The context for the transaction.
-    /// * `new_sol_fee` - The new fee to be set in the configuration.
+    /// * `new_dev_fee` - The new fee to be set in the configuration.
     /// * `new_token_fee_basis_points` - The new basis points of the token fee.
     ///
     /// # Errors
@@ -58,12 +58,12 @@ pub mod valhalla {
     /// Returns an error if the configuration update fails.
     pub fn update_config(
         ctx: Context<UpdateConfig>,
-        new_sol_fee: u64,
+        new_dev_fee: u64,
         new_token_fee_basis_points: u64,
         new_governance_token_amount: u64,
     ) -> Result<()> {
         ctx.accounts.update(
-            new_sol_fee,
+            new_dev_fee,
             new_token_fee_basis_points,
             new_governance_token_amount,
         )

@@ -14,7 +14,7 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export type UpdateConfigInstructionArgs = {
-  newSolFee: beet.bignum
+  newDevFee: beet.bignum
   newTokenFeeBasisPoints: beet.bignum
   newGovernanceTokenAmount: beet.bignum
 }
@@ -30,7 +30,7 @@ export const updateConfigStruct = new beet.BeetArgsStruct<
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['newSolFee', beet.u64],
+    ['newDevFee', beet.u64],
     ['newTokenFeeBasisPoints', beet.u64],
     ['newGovernanceTokenAmount', beet.u64],
   ],
@@ -41,7 +41,7 @@ export const updateConfigStruct = new beet.BeetArgsStruct<
  *
  * @property [_writable_, **signer**] admin
  * @property [] newAdmin
- * @property [] newTokenTreasury
+ * @property [] newDaoTreasury
  * @property [_writable_] config
  * @category Instructions
  * @category UpdateConfig
@@ -50,7 +50,7 @@ export const updateConfigStruct = new beet.BeetArgsStruct<
 export type UpdateConfigInstructionAccounts = {
   admin: web3.PublicKey
   newAdmin: web3.PublicKey
-  newTokenTreasury: web3.PublicKey
+  newDaoTreasury: web3.PublicKey
   config: web3.PublicKey
 }
 
@@ -71,7 +71,7 @@ export const updateConfigInstructionDiscriminator = [
 export function createUpdateConfigInstruction(
   accounts: UpdateConfigInstructionAccounts,
   args: UpdateConfigInstructionArgs,
-  programId = new web3.PublicKey('8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts')
+  programId = new web3.PublicKey('4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky')
 ) {
   const [data] = updateConfigStruct.serialize({
     instructionDiscriminator: updateConfigInstructionDiscriminator,
@@ -89,7 +89,7 @@ export function createUpdateConfigInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.newTokenTreasury,
+      pubkey: accounts.newDaoTreasury,
       isWritable: false,
       isSigner: false,
     },

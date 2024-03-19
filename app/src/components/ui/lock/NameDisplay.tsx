@@ -10,7 +10,7 @@ export default function NameDisplay({
 }) {
   return (
     <Link
-      className="link link-secondary flex items-center gap-1"
+      className="link link-secondary flex items-center gap-1 font-bold text-xl"
       target="_blank"
       href={`/vesting/${id.toBase58()}`}
     >

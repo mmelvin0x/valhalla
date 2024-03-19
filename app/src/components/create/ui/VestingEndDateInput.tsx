@@ -7,7 +7,9 @@ export default function VestingEndDateInput({
   values,
   handler,
   errors,
+  disabled,
 }: {
+  disabled: boolean;
   values: FormikValues;
   handler: ChangeEventHandler<any>;
   errors: FormikErrors<ICreateForm>;
@@ -26,6 +28,7 @@ export default function VestingEndDateInput({
         min={values.startDate}
         value={values.vestingEndDate}
         onChange={handler}
+        disabled={disabled}
       />
 
       {!!errors.vestingEndDate && (

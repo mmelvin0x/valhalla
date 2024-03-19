@@ -87,14 +87,14 @@ async function spl() {
     userTwo.publicKey
   );
 
-  const tokenTreasuryAtaUserOne = await getOrCreateAssociatedTokenAccount(
+  const daoTreasuryAtaUserOne = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     userOne,
     mintUserOne,
     wallet.publicKey
   );
 
-  const tokenTreasuryAtaUserTwo = await getOrCreateAssociatedTokenAccount(
+  const daoTreasuryAtaUserTwo = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     userTwo,
     mintUserTwo,
@@ -106,8 +106,8 @@ async function spl() {
     const creator = i % 2 === 0 ? userOne : userTwo;
     const recipient = i % 2 === 0 ? userTwo : userOne;
     const creatorAta = i % 2 === 0 ? userOneAta : userTwoAta;
-    const tokenTreasuryAta =
-      i % 2 === 0 ? tokenTreasuryAtaUserOne : tokenTreasuryAtaUserTwo;
+    const daoTreasuryAta =
+      i % 2 === 0 ? daoTreasuryAtaUserOne : daoTreasuryAtaUserTwo;
     const creatorGovernanceAta =
       i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
@@ -117,7 +117,7 @@ async function spl() {
       creator,
       recipient,
       creatorAta,
-      tokenTreasuryAta,
+      daoTreasuryAta,
       creatorGovernanceAta,
       mint,
       i,
@@ -190,7 +190,7 @@ async function token2022() {
     userTwo.publicKey
   );
 
-  const tokenTreasuryAtaUserOne = await getOrCreateAssociatedTokenAccount(
+  const daoTreasuryAtaUserOne = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     userOne,
     mintUserOne,
@@ -202,7 +202,7 @@ async function token2022() {
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
-  const tokenTreasuryAtaUserTwo = await getOrCreateAssociatedTokenAccount(
+  const daoTreasuryAtaUserTwo = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     userTwo,
     mintUserTwo,
@@ -218,8 +218,8 @@ async function token2022() {
     const creator = i % 2 === 0 ? userOne : userTwo;
     const recipient = i % 2 === 0 ? userTwo : userOne;
     const creatorAta = i % 2 === 0 ? userOneAta : userTwoAta;
-    const tokenTreasuryAta =
-      i % 2 === 0 ? tokenTreasuryAtaUserOne : tokenTreasuryAtaUserTwo;
+    const daoTreasuryAta =
+      i % 2 === 0 ? daoTreasuryAtaUserOne : daoTreasuryAtaUserTwo;
     const creatorGovernanceAta =
       i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
@@ -229,7 +229,7 @@ async function token2022() {
       creator,
       recipient,
       creatorAta,
-      tokenTreasuryAta,
+      daoTreasuryAta,
       creatorGovernanceAta,
       mint,
       i,
@@ -246,7 +246,7 @@ async function create(
   creator: Keypair,
   recipient: Keypair,
   creatorAta: Account,
-  tokenTreasuryAta: Account,
+  daoTreasuryAta: Account,
   creatorGovernanceAta: Account,
   mint: PublicKey,
   i: number,
@@ -317,12 +317,12 @@ async function create(
     .accounts({
       creator: creator.publicKey,
       recipient: recipient.publicKey,
-      solTreasury: wallet.publicKey,
-      tokenTreasury: wallet.publicKey,
+      devTreasury: wallet.publicKey,
+      daoTreasury: wallet.publicKey,
       config: pdas.config,
       vault: pdas.vault,
       vaultAta: pdas.vaultAta,
-      tokenTreasuryAta: tokenTreasuryAta.address,
+      daoTreasuryAta: daoTreasuryAta.address,
       creatorAta: creatorAta.address,
       creatorGovernanceAta: creatorGovernanceAta.address,
       governanceTokenMint: config.account.governanceTokenMintKey,

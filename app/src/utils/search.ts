@@ -71,22 +71,18 @@ export const searchAllVaults = async (
   };
 
   if (name) {
-    console.log("name");
     builder.addFilter("name", getNameArg(name));
   }
 
   if (creator) {
-    console.log("creator", creator);
     builder.addFilter("creator", creator);
   }
 
   if (recipient) {
-    console.log("recipient", recipient);
     builder.addFilter("recipient", recipient);
   }
 
   if (mint) {
-    console.log("mint", mint);
     builder.addFilter("mint", mint);
   }
 

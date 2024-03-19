@@ -10,7 +10,9 @@ export default function SelectTokenInput({
   handler,
   errors,
   setFieldValue,
+  disabled,
 }: {
+  disabled: boolean;
   values: FormikValues;
   handler: ChangeEventHandler<any>;
   errors: FormikErrors<ICreateForm>;
@@ -121,6 +123,7 @@ export default function SelectTokenInput({
             className={`input  input-bordered w-full ${errors.amountToBeVested && "input-error"}`}
             value={amountToBeVested}
             onChange={handler}
+            disabled={disabled}
           />
           <label className="label">
             <span className="label-text-alt text-error">

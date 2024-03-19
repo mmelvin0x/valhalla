@@ -37,7 +37,7 @@ describe("⚡️ Valhalla", () => {
   const creator = Keypair.generate();
   const recipient = Keypair.generate();
   const randomUser = Keypair.generate();
-  const tokenTreasury = Keypair.generate();
+  const daoTreasury = Keypair.generate();
 
   let identifier: anchor.BN;
   let mint: PublicKey;
@@ -61,7 +61,7 @@ describe("⚡️ Valhalla", () => {
         creator,
         recipient,
         randomUser,
-        tokenTreasury
+        daoTreasury
       );
   });
 
@@ -78,8 +78,8 @@ describe("⚡️ Valhalla", () => {
           .accounts({
             admin: payer.publicKey,
             config,
-            solTreasury: payer.publicKey,
-            tokenTreasury: tokenTreasury.publicKey,
+            devTreasury: payer.publicKey,
+            daoTreasury: daoTreasury.publicKey,
             governanceTokenMint,
             tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
@@ -100,17 +100,17 @@ describe("⚡️ Valhalla", () => {
 
     it("should create a config", async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       const tx = await program.methods
-        .createConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+        .createConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           config,
-          solTreasury: payer.publicKey,
-          tokenTreasury: tokenTreasury.publicKey,
+          devTreasury: payer.publicKey,
+          daoTreasury: daoTreasury.publicKey,
           governanceTokenMint,
           tokenProgram: TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -123,13 +123,13 @@ describe("⚡️ Valhalla", () => {
       const configAccount = await program.account.config.fetch(config);
 
       expect(configAccount.admin.toString()).equals(payer.publicKey.toString());
-      expect(configAccount.solTreasury.toString()).equals(
+      expect(configAccount.devTreasury.toString()).equals(
         payer.publicKey.toString()
       );
-      expect(configAccount.tokenTreasury.toString()).equals(
-        tokenTreasury.publicKey.toString()
+      expect(configAccount.daoTreasury.toString()).equals(
+        daoTreasury.publicKey.toString()
       );
-      expect(configAccount.solFee.toString()).equals(solFee.toString());
+      expect(configAccount.devFee.toString()).equals(devFee.toString());
       expect(configAccount.tokenFeeBasisPoints.toString()).equals(
         tokenFeeBasisPoints.toString()
       );
@@ -178,8 +178,8 @@ describe("⚡️ Valhalla", () => {
           .accounts({
             admin: payer.publicKey,
             config,
-            solTreasury: payer.publicKey,
-            tokenTreasury: tokenTreasury.publicKey,
+            devTreasury: payer.publicKey,
+            daoTreasury: daoTreasury.publicKey,
             governanceTokenMint,
             tokenProgram: TOKEN_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
@@ -282,16 +282,16 @@ describe("⚡️ Valhalla", () => {
   describe("Update Config", () => {
     it("should update to a new admin", async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       let tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+        .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: creator.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -307,11 +307,11 @@ describe("⚡️ Valhalla", () => {
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+        .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: creator.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([creator])
@@ -324,13 +324,13 @@ describe("⚡️ Valhalla", () => {
       expect(configAccount.admin.toString()).equals(payer.publicKey.toString());
 
       // check the rest are unchanged
-      expect(configAccount.solTreasury.toString()).equals(
+      expect(configAccount.devTreasury.toString()).equals(
         payer.publicKey.toString()
       );
-      expect(configAccount.tokenTreasury.toString()).equals(
-        tokenTreasury.publicKey.toString()
+      expect(configAccount.daoTreasury.toString()).equals(
+        daoTreasury.publicKey.toString()
       );
-      expect(configAccount.solFee.toString()).equals(solFee.toString());
+      expect(configAccount.devFee.toString()).equals(devFee.toString());
       expect(configAccount.tokenFeeBasisPoints.toString()).equals(
         tokenFeeBasisPoints.toString()
       );
@@ -342,19 +342,19 @@ describe("⚡️ Valhalla", () => {
       );
     });
 
-    it("should update the new token treasury", async () => {
+    it("should update the new dao treasury", async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
-      const newTokenTreasury = Keypair.generate();
+      const newDaoTreasury = Keypair.generate();
 
       let tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+        .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: newTokenTreasury.publicKey,
+          newDaoTreasury: newDaoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -364,17 +364,17 @@ describe("⚡️ Valhalla", () => {
 
       let configAccount = await program.account.config.fetch(config);
 
-      expect(configAccount.tokenTreasury.toString()).equals(
-        newTokenTreasury.publicKey.toString()
+      expect(configAccount.daoTreasury.toString()).equals(
+        newDaoTreasury.publicKey.toString()
       );
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+        .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -384,24 +384,24 @@ describe("⚡️ Valhalla", () => {
 
       configAccount = await program.account.config.fetch(config);
 
-      expect(configAccount.tokenTreasury.toString()).equals(
-        tokenTreasury.publicKey.toString()
+      expect(configAccount.daoTreasury.toString()).equals(
+        daoTreasury.publicKey.toString()
       );
     });
 
     it("should update the new token fee basis points", async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const newTokenFeeBasisPoints = new anchor.BN(15);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       let tx = await program.methods
-        .updateConfig(solFee, newTokenFeeBasisPoints, governanceTokenAmount)
+        .updateConfig(devFee, newTokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -417,11 +417,11 @@ describe("⚡️ Valhalla", () => {
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+        .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -431,14 +431,14 @@ describe("⚡️ Valhalla", () => {
 
       configAccount = await program.account.config.fetch(config);
 
-      expect(configAccount.tokenTreasury.toString()).equals(
-        tokenTreasury.publicKey.toString()
+      expect(configAccount.daoTreasury.toString()).equals(
+        daoTreasury.publicKey.toString()
       );
     });
 
     it("should update the new sol fee", async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const newSolFee = new anchor.BN(0.03 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
@@ -448,7 +448,7 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -458,15 +458,15 @@ describe("⚡️ Valhalla", () => {
 
       let configAccount = await program.account.config.fetch(config);
 
-      expect(configAccount.solFee.toString()).equals(newSolFee.toString());
+      expect(configAccount.devFee.toString()).equals(newSolFee.toString());
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+        .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -483,7 +483,7 @@ describe("⚡️ Valhalla", () => {
 
     it("should update the new reward token amount", async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const newSolFee = new anchor.BN(0.03 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
@@ -494,7 +494,7 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -510,11 +510,11 @@ describe("⚡️ Valhalla", () => {
 
       // set it back to original
       tx = await program.methods
-        .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+        .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
         .accounts({
           admin: payer.publicKey,
           newAdmin: payer.publicKey,
-          newTokenTreasury: tokenTreasury.publicKey,
+          newDaoTreasury: daoTreasury.publicKey,
           config,
         })
         .signers([payer])
@@ -531,17 +531,17 @@ describe("⚡️ Valhalla", () => {
 
     it("should fail if the signer is not the admin", async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       try {
         const tx = await program.methods
-          .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+          .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
           .accounts({
             admin: payer.publicKey,
             newAdmin: payer.publicKey,
-            newTokenTreasury: tokenTreasury.publicKey,
+            newDaoTreasury: daoTreasury.publicKey,
             config,
           })
           .signers([creator])
@@ -556,17 +556,17 @@ describe("⚡️ Valhalla", () => {
 
     it("should fail if the new sol fee is less than the minimum sol fee", async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.000001 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.000001 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(10);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       try {
         const tx = await program.methods
-          .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+          .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
           .accounts({
             admin: payer.publicKey,
             newAdmin: payer.publicKey,
-            newTokenTreasury: tokenTreasury.publicKey,
+            newDaoTreasury: daoTreasury.publicKey,
             config,
           })
           .signers([payer])
@@ -583,17 +583,17 @@ describe("⚡️ Valhalla", () => {
 
     it('should fail if the new token fee basis points is greater than "500"', async () => {
       const { config } = await getPDAs(program.programId);
-      const solFee = new anchor.BN(0.015 * LAMPORTS_PER_SOL);
+      const devFee = new anchor.BN(0.015 * LAMPORTS_PER_SOL);
       const tokenFeeBasisPoints = new anchor.BN(501);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
       try {
         const tx = await program.methods
-          .updateConfig(solFee, tokenFeeBasisPoints, governanceTokenAmount)
+          .updateConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
           .accounts({
             admin: payer.publicKey,
             newAdmin: payer.publicKey,
-            newTokenTreasury: tokenTreasury.publicKey,
+            newDaoTreasury: daoTreasury.publicKey,
             config,
           })
           .signers([payer])
@@ -627,7 +627,7 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
-      const solTreasuryBalanceBefore = await provider.connection.getBalance(
+      const devTreasuryBalanceBefore = await provider.connection.getBalance(
         payer.publicKey
       );
 
@@ -668,12 +668,12 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
-          tokenTreasury: tokenTreasury.publicKey,
+          devTreasury: payer.publicKey,
+          daoTreasury: daoTreasury.publicKey,
           config,
           vault,
           vaultAta,
-          tokenTreasuryAta: treasuryTokenAccount.address,
+          daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
@@ -728,7 +728,7 @@ describe("⚡️ Valhalla", () => {
         "Cancel authority failed"
       );
 
-      const solTreasuryBalanceAfter = await provider.connection.getBalance(
+      const devTreasuryBalanceAfter = await provider.connection.getBalance(
         payer.publicKey
       );
 
@@ -746,8 +746,8 @@ describe("⚡️ Valhalla", () => {
         TOKEN_PROGRAM_ID
       );
 
-      expect(solTreasuryBalanceAfter).gt(
-        solTreasuryBalanceBefore,
+      expect(devTreasuryBalanceAfter).gt(
+        devTreasuryBalanceBefore,
         "Sol treasury balance failed"
       );
 
@@ -813,7 +813,7 @@ describe("⚡️ Valhalla", () => {
             signer: creator.publicKey,
             creator: creator.publicKey,
             recipient: recipient.publicKey,
-            solTreasury: payer.publicKey,
+            devTreasury: payer.publicKey,
             config,
             vault,
             vaultAta,
@@ -852,7 +852,7 @@ describe("⚡️ Valhalla", () => {
           signer: randomUser.publicKey,
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
+          devTreasury: payer.publicKey,
           config,
           vault,
           vaultAta,
@@ -928,12 +928,12 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
-          tokenTreasury: tokenTreasury.publicKey,
+          devTreasury: payer.publicKey,
+          daoTreasury: daoTreasury.publicKey,
           config,
           vault,
           vaultAta,
-          tokenTreasuryAta: treasuryTokenAccount.address,
+          daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
@@ -1064,12 +1064,12 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
-          tokenTreasury: tokenTreasury.publicKey,
+          devTreasury: payer.publicKey,
+          daoTreasury: daoTreasury.publicKey,
           config,
           vault,
           vaultAta,
-          tokenTreasuryAta: treasuryTokenAccount.address,
+          daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
@@ -1200,12 +1200,12 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
-          tokenTreasury: tokenTreasury.publicKey,
+          devTreasury: payer.publicKey,
+          daoTreasury: daoTreasury.publicKey,
           config,
           vault,
           vaultAta,
-          tokenTreasuryAta: treasuryTokenAccount.address,
+          daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
@@ -1298,12 +1298,12 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
-          tokenTreasury: tokenTreasury.publicKey,
+          devTreasury: payer.publicKey,
+          daoTreasury: daoTreasury.publicKey,
           config,
           vault,
           vaultAta,
-          tokenTreasuryAta: treasuryTokenAccount.address,
+          daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
@@ -1398,12 +1398,12 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
-          tokenTreasury: tokenTreasury.publicKey,
+          devTreasury: payer.publicKey,
+          daoTreasury: daoTreasury.publicKey,
           config,
           vault,
           vaultAta,
-          tokenTreasuryAta: treasuryTokenAccount.address,
+          daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
@@ -1468,12 +1468,12 @@ describe("⚡️ Valhalla", () => {
         .accounts({
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
-          tokenTreasury: tokenTreasury.publicKey,
+          devTreasury: payer.publicKey,
+          daoTreasury: daoTreasury.publicKey,
           config,
           vault,
           vaultAta,
-          tokenTreasuryAta: treasuryTokenAccount.address,
+          daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
           creatorGovernanceAta: creatorGovernanceAta.address,
           governanceTokenMint,
@@ -1495,7 +1495,7 @@ describe("⚡️ Valhalla", () => {
           signer: creator.publicKey,
           creator: creator.publicKey,
           recipient: recipient.publicKey,
-          solTreasury: payer.publicKey,
+          devTreasury: payer.publicKey,
           config,
           vault,
           vaultAta,

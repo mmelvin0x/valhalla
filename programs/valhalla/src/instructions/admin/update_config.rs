@@ -13,9 +13,9 @@ pub struct UpdateConfig<'info> {
     /// Pass in the same admin if you don't want to change it.
     pub new_admin: SystemAccount<'info>,
 
-    /// The new token treasury account to be set in the configuration.
-    /// Pass in the same token treasury if you don't want to change it.
-    pub new_token_treasury: SystemAccount<'info>,
+    /// The new dao treasury account to be set in the configuration.
+    /// Pass in the same dao treasury if you don't want to change it.
+    pub new_dao_treasury: SystemAccount<'info>,
 
     /// The configuration account to be updated.
     #[account(
@@ -32,7 +32,7 @@ impl<'info> UpdateConfig<'info> {
     ///
     /// # Arguments
     ///
-    /// * `new_sol_fee` - The new fee to be set in the configuration.
+    /// * `new_dev_fee` - The new fee to be set in the configuration.
     /// * `new_token_fee_basis_points` - The new basis points of the token fee to be set in the configuration.
     /// * `new_governance_token_amount` - The new amount of reward tokens to be minted.
     ///
@@ -41,7 +41,7 @@ impl<'info> UpdateConfig<'info> {
     /// Returns an error if the caller is not authorized to update the configuration.
     pub fn update(
         &mut self,
-        new_sol_fee: u64,
+        new_dev_fee: u64,
         new_token_fee_basis_points: u64,
         new_governance_token_amount: u64,
     ) -> Result<()> {
@@ -53,10 +53,10 @@ impl<'info> UpdateConfig<'info> {
 
         // Require that the new fee is greater than or equal to the minimum fee.
         require!(
-            new_sol_fee >= constants::MIN_SOL_FEE,
+            new_dev_fee >= constants::MIN_SOL_FEE,
             ValhallaError::InvalidSolFee
         );
-        self.config.sol_fee = new_sol_fee;
+        self.config.dev_fee = new_dev_fee;
 
         // Require that the new token fee basis points are less than or equal to 500.
         require!(
@@ -65,9 +65,9 @@ impl<'info> UpdateConfig<'info> {
         );
         self.config.token_fee_basis_points = new_token_fee_basis_points;
 
-        // Update the configuration with the new token treasury account if it is different.
-        if self.new_token_treasury.key() != self.config.token_treasury.key() {
-            self.config.token_treasury = self.new_token_treasury.key();
+        // Update the configuration with the new dao treasury account if it is different.
+        if self.new_dao_treasury.key() != self.config.dao_treasury.key() {
+            self.config.dao_treasury = self.new_dao_treasury.key();
         }
 
         // Update the configuration with the new reward token amount.

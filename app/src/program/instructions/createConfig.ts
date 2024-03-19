@@ -15,7 +15,7 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export type CreateConfigInstructionArgs = {
-  solFee: beet.bignum
+  devFee: beet.bignum
   tokenFeeBasisPoints: beet.bignum
   governanceTokenAmount: beet.bignum
 }
@@ -31,7 +31,7 @@ export const createConfigStruct = new beet.BeetArgsStruct<
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['solFee', beet.u64],
+    ['devFee', beet.u64],
     ['tokenFeeBasisPoints', beet.u64],
     ['governanceTokenAmount', beet.u64],
   ],
@@ -42,8 +42,8 @@ export const createConfigStruct = new beet.BeetArgsStruct<
  *
  * @property [_writable_, **signer**] admin
  * @property [_writable_] config
- * @property [] solTreasury
- * @property [] tokenTreasury
+ * @property [] devTreasury
+ * @property [] daoTreasury
  * @property [_writable_] governanceTokenMint
  * @property [] associatedTokenProgram
  * @category Instructions
@@ -53,8 +53,8 @@ export const createConfigStruct = new beet.BeetArgsStruct<
 export type CreateConfigInstructionAccounts = {
   admin: web3.PublicKey
   config: web3.PublicKey
-  solTreasury: web3.PublicKey
-  tokenTreasury: web3.PublicKey
+  devTreasury: web3.PublicKey
+  daoTreasury: web3.PublicKey
   governanceTokenMint: web3.PublicKey
   tokenProgram?: web3.PublicKey
   associatedTokenProgram: web3.PublicKey
@@ -78,7 +78,7 @@ export const createConfigInstructionDiscriminator = [
 export function createCreateConfigInstruction(
   accounts: CreateConfigInstructionAccounts,
   args: CreateConfigInstructionArgs,
-  programId = new web3.PublicKey('8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts')
+  programId = new web3.PublicKey('4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky')
 ) {
   const [data] = createConfigStruct.serialize({
     instructionDiscriminator: createConfigInstructionDiscriminator,
@@ -96,12 +96,12 @@ export function createCreateConfigInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.solTreasury,
+      pubkey: accounts.devTreasury,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: accounts.tokenTreasury,
+      pubkey: accounts.daoTreasury,
       isWritable: false,
       isSigner: false,
     },

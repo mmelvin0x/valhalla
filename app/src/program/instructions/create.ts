@@ -51,12 +51,12 @@ export const createStruct = new beet.BeetArgsStruct<
  *
  * @property [_writable_, **signer**] creator
  * @property [_writable_] recipient
- * @property [_writable_] solTreasury
- * @property [_writable_] tokenTreasury
+ * @property [_writable_] devTreasury
+ * @property [_writable_] daoTreasury
  * @property [] config
  * @property [_writable_] vault
  * @property [_writable_] vaultAta
- * @property [_writable_] tokenTreasuryAta
+ * @property [_writable_] daoTreasuryAta
  * @property [_writable_] creatorAta
  * @property [_writable_] creatorGovernanceAta
  * @property [_writable_] governanceTokenMint
@@ -70,12 +70,12 @@ export const createStruct = new beet.BeetArgsStruct<
 export type CreateInstructionAccounts = {
   creator: web3.PublicKey
   recipient: web3.PublicKey
-  solTreasury: web3.PublicKey
-  tokenTreasury: web3.PublicKey
+  devTreasury: web3.PublicKey
+  daoTreasury: web3.PublicKey
   config: web3.PublicKey
   vault: web3.PublicKey
   vaultAta: web3.PublicKey
-  tokenTreasuryAta: web3.PublicKey
+  daoTreasuryAta: web3.PublicKey
   creatorAta: web3.PublicKey
   creatorGovernanceAta: web3.PublicKey
   governanceTokenMint: web3.PublicKey
@@ -101,7 +101,7 @@ export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
 export function createCreateInstruction(
   accounts: CreateInstructionAccounts,
   args: CreateInstructionArgs,
-  programId = new web3.PublicKey('8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts')
+  programId = new web3.PublicKey('4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky')
 ) {
   const [data] = createStruct.serialize({
     instructionDiscriminator: createInstructionDiscriminator,
@@ -119,12 +119,12 @@ export function createCreateInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.solTreasury,
+      pubkey: accounts.devTreasury,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.tokenTreasury,
+      pubkey: accounts.daoTreasury,
       isWritable: true,
       isSigner: false,
     },
@@ -144,7 +144,7 @@ export function createCreateInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.tokenTreasuryAta,
+      pubkey: accounts.daoTreasuryAta,
       isWritable: true,
       isSigner: false,
     },

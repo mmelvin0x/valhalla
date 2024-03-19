@@ -6,6 +6,8 @@ import {
 } from "@solana/web3.js";
 
 import { WalletContextState } from "@solana/wallet-adapter-react";
+import { notify } from "./notifications";
+import { shortenSignature } from "./formatters";
 
 export const sendTransaction = async (
   connection: Connection,
@@ -29,10 +31,20 @@ export const sendTransaction = async (
     });
 
     if (confirmation.value.err) {
-      throw new Error(
-        `Error confirming transaction: ${JSON.stringify(confirmation.value.err)}`,
-      );
+      notify({
+        message: "Transaction Failed",
+        description: `Transaction ${shortenSignature(txid)} failed (${
+          confirmation.value.err
+        })`,
+        type: "error",
+      });
     }
+
+    notify({
+      message: "Transaction sent",
+      description: `Transaction ${shortenSignature(txid)} has been sent`,
+      type: "success",
+    });
 
     return txid;
   } catch (error) {

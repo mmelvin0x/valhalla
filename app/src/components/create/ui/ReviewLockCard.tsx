@@ -4,6 +4,7 @@ import { Authority } from "program";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import Link from "next/link";
 import { PublicKey } from "@solana/web3.js";
+import RecipientDisplay from "components/ui/lock/RecipientDisplay";
 import SocialBar from "components/ui/SocialBar";
 import { getExplorerUrl } from "utils/explorer";
 import { isPublicKey } from "@metaplex-foundation/umi";
@@ -20,10 +21,10 @@ interface ReviewLockCardProps {
   startDate: Date;
   vestingEndDate: Date;
   cancelAuthority: Authority;
+  isSubmitting: boolean;
 }
 
 export default function ReviewLockCard({
-  creator,
   recipient,
   selectedToken,
   vestingEndDate,
@@ -53,7 +54,7 @@ export default function ReviewLockCard({
       amount: Math.round(amountToBeVested / numPayments),
       display:
         !!numPayments && !!amountToBeVested
-          ? shortenNumber(Math.round(amountToBeVested / numPayments), 2)
+          ? (amountToBeVested / numPayments).toFixed(4)
           : "N/A",
     }),
     [numPayments, amountToBeVested],
@@ -140,6 +141,18 @@ export default function ReviewLockCard({
             {numPayments} x {amountPerPayout.display}
           </div>
         </div>
+
+        {recipient && (
+          <div className="flex flex-col gap-2">
+            <div className="font-bold">Recipient</div>
+            <div className="text-xl font-bold">
+              <RecipientDisplay
+                connection={connection}
+                recipient={new PublicKey(recipient)}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           <div className="font-bold">Start Date</div>

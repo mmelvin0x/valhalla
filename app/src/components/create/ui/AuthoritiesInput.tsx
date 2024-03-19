@@ -9,7 +9,9 @@ export default function AuthoritiesInput({
   values,
   handler,
   errors,
+  disabled,
 }: {
+  disabled: boolean;
   values: FormikValues;
   handler: ChangeEventHandler<any>;
   errors: FormikErrors<ICreateForm>;
@@ -34,6 +36,7 @@ export default function AuthoritiesInput({
         value={cancelAuthority}
         className={`select  select-bordered w-full ${errors.cancelAuthority && "select-error"}`}
         onChange={handler}
+        disabled={disabled}
       >
         <option value={Authority.Neither}>No One</option>
         <option value={Authority.Creator}>Only Creator</option>

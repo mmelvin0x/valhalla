@@ -16,10 +16,10 @@ import * as beetSolana from '@metaplex-foundation/beet-solana'
  */
 export type ConfigArgs = {
   admin: web3.PublicKey
-  solTreasury: web3.PublicKey
-  tokenTreasury: web3.PublicKey
+  devTreasury: web3.PublicKey
+  daoTreasury: web3.PublicKey
   governanceTokenMintKey: web3.PublicKey
-  solFee: beet.bignum
+  devFee: beet.bignum
   tokenFeeBasisPoints: beet.bignum
   governanceTokenAmount: beet.bignum
 }
@@ -35,10 +35,10 @@ export const configDiscriminator = [155, 12, 170, 224, 30, 250, 204, 130]
 export class Config implements ConfigArgs {
   private constructor(
     readonly admin: web3.PublicKey,
-    readonly solTreasury: web3.PublicKey,
-    readonly tokenTreasury: web3.PublicKey,
+    readonly devTreasury: web3.PublicKey,
+    readonly daoTreasury: web3.PublicKey,
     readonly governanceTokenMintKey: web3.PublicKey,
-    readonly solFee: beet.bignum,
+    readonly devFee: beet.bignum,
     readonly tokenFeeBasisPoints: beet.bignum,
     readonly governanceTokenAmount: beet.bignum
   ) {}
@@ -49,10 +49,10 @@ export class Config implements ConfigArgs {
   static fromArgs(args: ConfigArgs) {
     return new Config(
       args.admin,
-      args.solTreasury,
-      args.tokenTreasury,
+      args.devTreasury,
+      args.daoTreasury,
       args.governanceTokenMintKey,
-      args.solFee,
+      args.devFee,
       args.tokenFeeBasisPoints,
       args.governanceTokenAmount
     )
@@ -98,7 +98,7 @@ export class Config implements ConfigArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '8ND4DBYFa2nmoptLTfqfetHyh7r76xLFf7jn4LRD84Ts'
+      '4m91tz91kUVLg2Yv9MypJWysyg34RCmJziCaAoKQuuky'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, configBeet)
@@ -162,11 +162,11 @@ export class Config implements ConfigArgs {
   pretty() {
     return {
       admin: this.admin.toBase58(),
-      solTreasury: this.solTreasury.toBase58(),
-      tokenTreasury: this.tokenTreasury.toBase58(),
+      devTreasury: this.devTreasury.toBase58(),
+      daoTreasury: this.daoTreasury.toBase58(),
       governanceTokenMintKey: this.governanceTokenMintKey.toBase58(),
-      solFee: (() => {
-        const x = <{ toNumber: () => number }>this.solFee
+      devFee: (() => {
+        const x = <{ toNumber: () => number }>this.devFee
         if (typeof x.toNumber === 'function') {
           try {
             return x.toNumber()
@@ -215,10 +215,10 @@ export const configBeet = new beet.BeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['admin', beetSolana.publicKey],
-    ['solTreasury', beetSolana.publicKey],
-    ['tokenTreasury', beetSolana.publicKey],
+    ['devTreasury', beetSolana.publicKey],
+    ['daoTreasury', beetSolana.publicKey],
     ['governanceTokenMintKey', beetSolana.publicKey],
-    ['solFee', beet.u64],
+    ['devFee', beet.u64],
     ['tokenFeeBasisPoints', beet.u64],
     ['governanceTokenAmount', beet.u64],
   ],

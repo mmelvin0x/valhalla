@@ -45,11 +45,11 @@ export type Valhalla = {
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `sol_fee` - The fee value for the configuration.",
+        "* `dev_fee` - The fee value for the configuration.",
         "* `token_fee_basis_points` - The basis points of the token fee.",
         "* `governance_token_amount` - The amount of reward tokens to be minted.",
-        "* `sol_treasury_governance_token_amount` - The amount of reward tokens to be minted for the sol treasury.",
-        "* `token_treasury_governance_token_amount` - The amount of reward tokens to be minted for the token treasury.",
+        "* `dev_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dev treasury.",
+        "* `dao_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dao treasury.",
         "",
         "# Errors",
         "",
@@ -73,19 +73,19 @@ export type Valhalla = {
           ]
         },
         {
-          "name": "solTreasury",
+          "name": "devTreasury",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The sol treasury account."
+            "The dev treasury account."
           ]
         },
         {
-          "name": "tokenTreasury",
+          "name": "daoTreasury",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The token treasury account."
+            "The dao treasury account."
           ]
         },
         {
@@ -123,7 +123,7 @@ export type Valhalla = {
       ],
       "args": [
         {
-          "name": "solFee",
+          "name": "devFee",
           "type": "u64"
         },
         {
@@ -144,7 +144,7 @@ export type Valhalla = {
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `new_sol_fee` - The new fee to be set in the configuration.",
+        "* `new_dev_fee` - The new fee to be set in the configuration.",
         "* `new_token_fee_basis_points` - The new basis points of the token fee.",
         "",
         "# Errors",
@@ -170,12 +170,12 @@ export type Valhalla = {
           ]
         },
         {
-          "name": "newTokenTreasury",
+          "name": "newDaoTreasury",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The new token treasury account to be set in the configuration.",
-            "Pass in the same token treasury if you don't want to change it."
+            "The new dao treasury account to be set in the configuration.",
+            "Pass in the same dao treasury if you don't want to change it."
           ]
         },
         {
@@ -189,7 +189,7 @@ export type Valhalla = {
       ],
       "args": [
         {
-          "name": "newSolFee",
+          "name": "newDevFee",
           "type": "u64"
         },
         {
@@ -327,19 +327,19 @@ export type Valhalla = {
           ]
         },
         {
-          "name": "solTreasury",
+          "name": "devTreasury",
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The sol treasury account."
+            "The dev treasury account."
           ]
         },
         {
-          "name": "tokenTreasury",
+          "name": "daoTreasury",
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The token treasury account."
+            "The dao treasury account."
           ]
         },
         {
@@ -367,7 +367,7 @@ export type Valhalla = {
           ]
         },
         {
-          "name": "tokenTreasuryAta",
+          "name": "daoTreasuryAta",
           "isMut": true,
           "isSigner": false
         },
@@ -513,11 +513,11 @@ export type Valhalla = {
           ]
         },
         {
-          "name": "solTreasury",
+          "name": "devTreasury",
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The sol treasury account."
+            "The dev treasury account."
           ]
         },
         {
@@ -783,16 +783,16 @@ export type Valhalla = {
             "type": "publicKey"
           },
           {
-            "name": "solTreasury",
+            "name": "devTreasury",
             "docs": [
-              "The public key of the sol treasury account."
+              "The public key of the dev treasury account."
             ],
             "type": "publicKey"
           },
           {
-            "name": "tokenTreasury",
+            "name": "daoTreasury",
             "docs": [
-              "The public key of the token treasury account."
+              "The public key of the dao treasury account."
             ],
             "type": "publicKey"
           },
@@ -804,9 +804,9 @@ export type Valhalla = {
             "type": "publicKey"
           },
           {
-            "name": "solFee",
+            "name": "devFee",
             "docs": [
-              "The amount of sol taken as a flat fee to the sol treasury."
+              "The amount of sol taken as a flat fee to the dev treasury."
             ],
             "type": "u64"
           },
@@ -1064,11 +1064,11 @@ export const IDL: Valhalla = {
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `sol_fee` - The fee value for the configuration.",
+        "* `dev_fee` - The fee value for the configuration.",
         "* `token_fee_basis_points` - The basis points of the token fee.",
         "* `governance_token_amount` - The amount of reward tokens to be minted.",
-        "* `sol_treasury_governance_token_amount` - The amount of reward tokens to be minted for the sol treasury.",
-        "* `token_treasury_governance_token_amount` - The amount of reward tokens to be minted for the token treasury.",
+        "* `dev_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dev treasury.",
+        "* `dao_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dao treasury.",
         "",
         "# Errors",
         "",
@@ -1092,19 +1092,19 @@ export const IDL: Valhalla = {
           ]
         },
         {
-          "name": "solTreasury",
+          "name": "devTreasury",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The sol treasury account."
+            "The dev treasury account."
           ]
         },
         {
-          "name": "tokenTreasury",
+          "name": "daoTreasury",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The token treasury account."
+            "The dao treasury account."
           ]
         },
         {
@@ -1142,7 +1142,7 @@ export const IDL: Valhalla = {
       ],
       "args": [
         {
-          "name": "solFee",
+          "name": "devFee",
           "type": "u64"
         },
         {
@@ -1163,7 +1163,7 @@ export const IDL: Valhalla = {
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `new_sol_fee` - The new fee to be set in the configuration.",
+        "* `new_dev_fee` - The new fee to be set in the configuration.",
         "* `new_token_fee_basis_points` - The new basis points of the token fee.",
         "",
         "# Errors",
@@ -1189,12 +1189,12 @@ export const IDL: Valhalla = {
           ]
         },
         {
-          "name": "newTokenTreasury",
+          "name": "newDaoTreasury",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "The new token treasury account to be set in the configuration.",
-            "Pass in the same token treasury if you don't want to change it."
+            "The new dao treasury account to be set in the configuration.",
+            "Pass in the same dao treasury if you don't want to change it."
           ]
         },
         {
@@ -1208,7 +1208,7 @@ export const IDL: Valhalla = {
       ],
       "args": [
         {
-          "name": "newSolFee",
+          "name": "newDevFee",
           "type": "u64"
         },
         {
@@ -1346,19 +1346,19 @@ export const IDL: Valhalla = {
           ]
         },
         {
-          "name": "solTreasury",
+          "name": "devTreasury",
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The sol treasury account."
+            "The dev treasury account."
           ]
         },
         {
-          "name": "tokenTreasury",
+          "name": "daoTreasury",
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The token treasury account."
+            "The dao treasury account."
           ]
         },
         {
@@ -1386,7 +1386,7 @@ export const IDL: Valhalla = {
           ]
         },
         {
-          "name": "tokenTreasuryAta",
+          "name": "daoTreasuryAta",
           "isMut": true,
           "isSigner": false
         },
@@ -1532,11 +1532,11 @@ export const IDL: Valhalla = {
           ]
         },
         {
-          "name": "solTreasury",
+          "name": "devTreasury",
           "isMut": true,
           "isSigner": false,
           "docs": [
-            "The sol treasury account."
+            "The dev treasury account."
           ]
         },
         {
@@ -1802,16 +1802,16 @@ export const IDL: Valhalla = {
             "type": "publicKey"
           },
           {
-            "name": "solTreasury",
+            "name": "devTreasury",
             "docs": [
-              "The public key of the sol treasury account."
+              "The public key of the dev treasury account."
             ],
             "type": "publicKey"
           },
           {
-            "name": "tokenTreasury",
+            "name": "daoTreasury",
             "docs": [
-              "The public key of the token treasury account."
+              "The public key of the dao treasury account."
             ],
             "type": "publicKey"
           },
@@ -1823,9 +1823,9 @@ export const IDL: Valhalla = {
             "type": "publicKey"
           },
           {
-            "name": "solFee",
+            "name": "devFee",
             "docs": [
-              "The amount of sol taken as a flat fee to the sol treasury."
+              "The amount of sol taken as a flat fee to the dev treasury."
             ],
             "type": "u64"
           },
