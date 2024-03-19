@@ -95,6 +95,7 @@ pub mod valhalla {
     /// * `start_date` - The start date of the vesting period.
     /// * `payout_interval` - The interval at which the vested amount is disbursed.
     /// * `cancel_authority` - The authority to cancel the vault.
+    /// * `autopay` - Whether the vault should automatically disburse the vested amount.
     ///
     /// # Errors
     ///
@@ -108,6 +109,7 @@ pub mod valhalla {
         start_date: u64,
         payout_interval: u64,
         cancel_authority: Authority,
+        autopay: bool,
     ) -> Result<()> {
         ctx.accounts.create(
             identifier,
@@ -117,6 +119,7 @@ pub mod valhalla {
             start_date,
             payout_interval,
             cancel_authority,
+            autopay,
             &ctx.bumps,
         )
     }

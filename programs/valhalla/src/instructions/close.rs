@@ -6,10 +6,8 @@ use anchor_spl::token_interface::{
 use crate::{constants, errors::ValhallaError, Vault};
 
 #[derive(Accounts)]
-/// Represents the instruction to close a vault.
 pub struct CloseVault<'info> {
     #[account(mut)]
-    /// The creator of the vault.
     pub creator: Signer<'info>,
 
     #[account(
@@ -23,7 +21,6 @@ pub struct CloseVault<'info> {
         ],
         bump,
     )]
-    /// The vault account to be closed.
     pub vault: Account<'info, Vault>,
 
     #[account(
@@ -36,22 +33,14 @@ pub struct CloseVault<'info> {
         token::mint = mint,
         token::authority = vault_ata,
     )]
-    /// The associated token account for the vault.
     pub vault_ata: InterfaceAccount<'info, TokenAccount>,
 
-    /// The mint account for the token.
     pub mint: InterfaceAccount<'info, Mint>,
 
-    /// The token program interface.
     pub token_program: Interface<'info, TokenInterface>,
 }
 
 impl<'info> CloseVault<'info> {
-    /// Closes the vault by transferring its funds to the creator's account.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the close account CPI (Cross-Program Invocation) fails.
     pub fn close(&mut self) -> Result<()> {
         match self.vault.is_expired(Clock::get()?.unix_timestamp as u64)? {
             false => Err(ValhallaError::Locked.into()),
@@ -62,11 +51,6 @@ impl<'info> CloseVault<'info> {
         }
     }
 
-    /// Closes the vault token account.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the close account CPI (Cross-Program Invocation) fails.
     fn close_vault_ata(&mut self) -> Result<()> {
         let lock_key = self.vault.key();
         let signer_seeds: &[&[&[u8]]] = &[&[

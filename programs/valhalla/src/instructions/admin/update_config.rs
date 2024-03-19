@@ -2,22 +2,15 @@ use anchor_lang::prelude::*;
 
 use crate::{constants, errors::ValhallaError, state::Config};
 
-/// Accounts required for updating the configuration.
 #[derive(Accounts)]
 pub struct UpdateConfig<'info> {
-    /// The admin account that is authorized to update the configuration.
     #[account(mut, constraint = config.admin == admin.key())]
     pub admin: Signer<'info>,
 
-    /// The new admin account to be set in the configuration.
-    /// Pass in the same admin if you don't want to change it.
     pub new_admin: SystemAccount<'info>,
 
-    /// The new dao treasury account to be set in the configuration.
-    /// Pass in the same dao treasury if you don't want to change it.
     pub new_dao_treasury: SystemAccount<'info>,
 
-    /// The configuration account to be updated.
     #[account(
         mut,
         seeds = [constants::CONFIG_SEED],
@@ -28,17 +21,6 @@ pub struct UpdateConfig<'info> {
 }
 
 impl<'info> UpdateConfig<'info> {
-    /// Updates the configuration with the new admin account and treasury account.
-    ///
-    /// # Arguments
-    ///
-    /// * `new_dev_fee` - The new fee to be set in the configuration.
-    /// * `new_token_fee_basis_points` - The new basis points of the token fee to be set in the configuration.
-    /// * `new_governance_token_amount` - The new amount of reward tokens to be minted.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the caller is not authorized to update the configuration.
     pub fn update(
         &mut self,
         new_dev_fee: u64,

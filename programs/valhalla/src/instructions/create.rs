@@ -15,29 +15,22 @@ use crate::{
 
 #[derive(Accounts)]
 #[instruction(identifier: u64)]
-/// Represents the instruction to create a vault.
 pub struct CreateVault<'info> {
-    /// The creator of the vault.
     #[account(mut)]
     pub creator: Signer<'info>,
 
-    /// The recipient of the vault tokens.
     #[account(mut)]
     pub recipient: SystemAccount<'info>,
 
-    /// The dev treasury account.
     #[account(mut)]
     pub dev_treasury: SystemAccount<'info>,
 
-    /// The dao treasury account.
     #[account(mut)]
     pub dao_treasury: SystemAccount<'info>,
 
-    /// The configuration account.
     #[account(seeds = [constants::CONFIG_SEED], bump, has_one = dev_treasury)]
     pub config: Box<Account<'info, Config>>,
 
-    /// The vault account.
     #[account(
         init,
         payer = creator,
@@ -52,7 +45,6 @@ pub struct CreateVault<'info> {
     )]
     pub vault: Box<Account<'info, Vault>>,
 
-    /// The vault token account.
     #[account(
         init_if_needed,
         seeds = [
@@ -76,7 +68,6 @@ pub struct CreateVault<'info> {
     )]
     pub dao_treasury_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
-    /// The creator's token account.
     #[account(
         mut,
         associated_token::mint = mint,
@@ -85,7 +76,6 @@ pub struct CreateVault<'info> {
     )]
     pub creator_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
-    /// The creator's reward token account
     #[account(
         init_if_needed,
         payer = creator,
@@ -95,7 +85,6 @@ pub struct CreateVault<'info> {
     )]
     pub creator_governance_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
-    /// The reward token mint account.
     #[account(
         mut,
         mint::decimals = 9,
@@ -106,43 +95,18 @@ pub struct CreateVault<'info> {
     )]
     pub governance_token_mint: InterfaceAccount<'info, Mint>,
 
-    /// The mint of the token.
     pub mint: InterfaceAccount<'info, Mint>,
 
-    /// The token program for the mint.
     pub token_program: Interface<'info, TokenInterface>,
 
-    /// The token program for the reward token.
     pub governance_token_program: Interface<'info, TokenInterface>,
 
-    /// The associated token program.
     pub associated_token_program: Program<'info, AssociatedToken>,
 
-    /// The system program.
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> CreateVault<'info> {
-    /// Creates a new vault with the specified parameters.
-    ///
-    /// # Arguments
-    ///
-    /// * `identifier` - The identifier of the vault.
-    /// * `name` - The name of the vault.
-    /// * `amount_to_be_vested` - The amount to be vested in the vault.
-    /// * `total_vesting_duration` - The total duration of the vesting period.
-    /// * `start_date` - The start date of the vesting period.
-    /// * `total_number_of_payouts` - The total number of payouts to be made from the vault.
-    /// * `cancel_authority` - The authority to cancel the vault.
-    /// * `bump` - The bump value for the vault associated token account pda associated with the vault.
-    ///
-    /// # Errors
-    ///
-    /// This method returns an error if there are insufficient funds for the deposit or if any of the operations fail.
-    ///
-    /// # Returns
-    ///
-    /// This method returns `Ok(())` if the vault creation is successful.
     pub fn create(
         &mut self,
         identifier: u64,
@@ -152,6 +116,7 @@ impl<'info> CreateVault<'info> {
         start_date: u64,
         payout_interval: u64,
         cancel_authority: Authority,
+        autopay: bool,
         bumps: &CreateVaultBumps,
     ) -> Result<()> {
         let mut deposit_amount = amount_to_be_vested
@@ -183,6 +148,7 @@ impl<'info> CreateVault<'info> {
             payout_interval,
             number_of_payments_made: 0,
             cancel_authority,
+            autopay,
             token_account_bump: bumps.vault_ata,
         });
 
@@ -211,11 +177,6 @@ impl<'info> CreateVault<'info> {
         self.transfer_sol()
     }
 
-    /// Transfers the sol fee to the treasury.
-    ///
-    /// # Errors
-    ///
-    /// This method returns an error if there is an error during the CPI (Cross-Program Invocation) call.
     fn transfer_sol(&mut self) -> Result<()> {
         let from = self.creator.to_account_info();
         let to = self.dev_treasury.to_account_info();
@@ -236,23 +197,6 @@ impl<'info> CreateVault<'info> {
         Ok(())
     }
 
-    /// Transfers SPL tokens from the creator's token account to the vault token account.
-    ///
-    /// # Arguments
-    ///
-    /// * `amount` - The amount to be transferred to the vault token account.
-    /// * `from` - The senders's token account.
-    /// * `to` - The receivers's token account.
-    /// * `authority` - The authority of the token account.
-    /// * `mint` - The mint of the token.
-    ///
-    /// # Errors
-    ///
-    /// This method returns an error if there is an error during the CPI (Cross-Program Invocation) call.
-    ///
-    /// # Returns
-    ///
-    /// This method returns `Ok(())` if the transfer is successful.
     fn transfer(
         &self,
         amount: u64,
@@ -273,15 +217,6 @@ impl<'info> CreateVault<'info> {
         transfer_checked(cpi_ctx, amount, self.mint.decimals)
     }
 
-    /// Mints governance tokens to the creator.
-    ///
-    /// # Arguments
-    ///
-    /// * `bumps` - The bump values for the accounts.
-    ///
-    /// # Errors
-    ///
-    /// This method returns an error if there is an error during the CPI (Cross-Program Invocation) call.
     fn mint_governance_tokens(&self, bumps: &CreateVaultBumps) -> Result<()> {
         match self.vault.cancel_authority {
             Authority::Neither => {

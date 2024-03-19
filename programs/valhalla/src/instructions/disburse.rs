@@ -9,23 +9,17 @@ use anchor_spl::{
 use crate::{constants, errors::ValhallaError, state::Vault, Config};
 
 #[derive(Accounts)]
-/// Represents a disbursement of funds from a vault to a recipient.
 pub struct DisburseVault<'info> {
     #[account(mut)]
-    /// The signer of the transaction.
     pub signer: Signer<'info>,
 
-    /// The creator of the vault.
     pub creator: SystemAccount<'info>,
 
-    /// The recipient of the funds.
     pub recipient: SystemAccount<'info>,
 
-    /// The dev treasury account.
     #[account(mut)]
     pub dev_treasury: SystemAccount<'info>,
 
-    /// The configuration account.
     #[account(seeds = [constants::CONFIG_SEED], bump, has_one = dev_treasury)]
     pub config: Box<Account<'info, Config>>,
 
@@ -39,7 +33,6 @@ pub struct DisburseVault<'info> {
         ],
         bump,
     )]
-    /// The vault account from which the funds will be disbursed.
     pub vault: Account<'info, Vault>,
 
     #[account(
@@ -53,10 +46,8 @@ pub struct DisburseVault<'info> {
         token::authority = vault_ata,
         token::token_program = token_program,
     )]
-    /// The associated token account for the vault.
     pub vault_ata: InterfaceAccount<'info, TokenAccount>,
 
-    /// The signer's reward token account
     #[account(
         init_if_needed,
         payer = signer,
@@ -73,13 +64,10 @@ pub struct DisburseVault<'info> {
         associated_token::authority = recipient,
         associated_token::token_program = token_program,
     )]
-    /// The associated token account for the recipient.
     pub recipient_ata: InterfaceAccount<'info, TokenAccount>,
 
-    /// The mint of the tokens being disbursed.
     pub mint: InterfaceAccount<'info, Mint>,
 
-    /// The reward token mint account.
     #[account(
         mut,
         mint::decimals = 9,
@@ -90,25 +78,16 @@ pub struct DisburseVault<'info> {
     )]
     pub governance_token_mint: InterfaceAccount<'info, Mint>,
 
-    /// The token program.
     pub token_program: Interface<'info, TokenInterface>,
 
-    /// The bump values for the accounts.
     pub governance_token_program: Interface<'info, TokenInterface>,
 
-    /// The associated token program.
     pub associated_token_program: Program<'info, AssociatedToken>,
 
-    /// The system program.
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> DisburseVault<'info> {
-    /// Disburses funds from the vault to the recipient.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the vault is locked or if there are no funds to disburse.
     pub fn disburse(&mut self, bumps: &DisburseVaultBumps) -> Result<()> {
         let current_time = Clock::get()?.unix_timestamp as u64;
         require!(!self.vault.is_locked(current_time)?, ValhallaError::Locked);
@@ -127,15 +106,6 @@ impl<'info> DisburseVault<'info> {
         self.mint_governance_tokens(bumps)
     }
 
-    /// Calculates the amount to be disbursed from the vault.
-    ///
-    /// # Arguments
-    ///
-    /// * `current_time` - The current time.
-    ///
-    /// # Returns
-    ///
-    /// This method returns a Result containing the amount to be disbursed from the vault.
     fn get_transfer_amount(&self, current_time: u64, vault_balance: u64) -> Result<u64> {
         let amount_per_payout = self.vault.get_amount_per_payout()?;
         let amount = amount_per_payout.min(vault_balance);
@@ -146,19 +116,6 @@ impl<'info> DisburseVault<'info> {
         }
     }
 
-    /// Transfers the specified amount from the vault to the recipient.
-    ///
-    /// # Arguments
-    ///
-    /// * `amount` - The amount to transfer.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the transfer fails.
-    ///
-    /// # Returns
-    ///
-    /// This method returns `Ok(())` if the transfer is successful.
     fn transfer(&self, amount: u64) -> Result<()> {
         let lock_key = self.vault.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
@@ -181,15 +138,6 @@ impl<'info> DisburseVault<'info> {
         Ok(())
     }
 
-    /// Mints governance tokens to the creator.
-    ///
-    /// # Arguments
-    ///
-    /// * `bumps` - The bump values for the accounts.
-    ///
-    /// # Errors
-    ///
-    /// This method returns an error if there is an error during the CPI (Cross-Program Invocation) call.
     fn mint_governance_tokens(&self, bumps: &DisburseVaultBumps) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
             constants::GOVERNANCE_TOKEN_MINT_SEED,

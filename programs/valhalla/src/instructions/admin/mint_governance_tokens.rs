@@ -9,11 +9,9 @@ use crate::{constants, Config};
 #[derive(Accounts)]
 pub struct MintGovernanceTokens<'info> {
     #[account(mut)]
-    /// The admin account that will sign the transaction.
     pub admin: Signer<'info>,
 
     #[account(mut)]
-    /// The account that will receive the minted governance tokens.
     pub receiver: SystemAccount<'info>,
 
     #[account(
@@ -22,7 +20,6 @@ pub struct MintGovernanceTokens<'info> {
         bump,
         has_one = admin,
     )]
-    /// The config account
     pub config: Account<'info, Config>,
 
     #[account(
@@ -32,7 +29,6 @@ pub struct MintGovernanceTokens<'info> {
         seeds = [constants::GOVERNANCE_TOKEN_MINT_SEED],
         bump,
     )]
-    /// The governance token mint account.
     pub governance_token_mint: InterfaceAccount<'info, Mint>,
 
     #[account(
@@ -41,30 +37,16 @@ pub struct MintGovernanceTokens<'info> {
         associated_token::mint = governance_token_mint,
         associated_token::authority = receiver,
     )]
-    /// The receiver token account.
     pub receiver_token_account: InterfaceAccount<'info, TokenAccount>,
 
-    /// The token program account.
     pub token_program: Interface<'info, TokenInterface>,
 
-    /// The associated token program account.
     pub associated_token_program: Program<'info, AssociatedToken>,
 
-    /// The system program account.
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> MintGovernanceTokens<'info> {
-    /// Mints governance tokens and deposits them into the receiver's token account.
-    ///
-    /// # Arguments
-    ///
-    /// * `amount` - The amount of governance tokens to mint.
-    /// * `bumps` - The bump values for the accounts.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the minting fails.
     pub fn mint_governance_tokens(
         &self,
         amount: u64,

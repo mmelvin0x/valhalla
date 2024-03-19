@@ -10,22 +10,16 @@ use anchor_spl::{
 use crate::{constants, errors::ValhallaError, state::Vault, Authority};
 
 #[derive(Accounts)]
-/// Represents the accounts needed to cancel the vault.
-/// This instruction cancels a vault and performs various account operations.
 pub struct CancelVault<'info> {
-    /// The signer account for the instruction.
     #[account(mut, constraint = creator.key() == signer.key() || recipient.key() == signer.key())]
     pub signer: Signer<'info>,
 
-    /// The creator account of the vault.
     #[account(mut, constraint = vault.creator == creator.key())]
     pub creator: SystemAccount<'info>,
 
-    /// The recipient account of the vault.
     #[account(mut, constraint = vault.recipient == recipient.key())]
     pub recipient: SystemAccount<'info>,
 
-    /// The vault account to be closed.
     #[account(
         mut,
         close = creator,
@@ -39,7 +33,6 @@ pub struct CancelVault<'info> {
     )]
     pub vault: Account<'info, Vault>,
 
-    /// The associated token account for the vault.
     #[account(
         mut,
         seeds = [
@@ -52,7 +45,6 @@ pub struct CancelVault<'info> {
     )]
     pub vault_ata: InterfaceAccount<'info, TokenAccount>,
 
-    /// The creator's token account.
     #[account(
         init_if_needed,
         payer = signer,
@@ -61,25 +53,16 @@ pub struct CancelVault<'info> {
     )]
     pub creator_ata: InterfaceAccount<'info, TokenAccount>,
 
-    /// The mint account for the token.
     pub mint: InterfaceAccount<'info, Mint>,
 
-    /// The token program interface.
     pub token_program: Interface<'info, TokenInterface>,
 
-    /// The associated token program.
     pub associated_token_program: Program<'info, AssociatedToken>,
 
-    /// The system program.
     pub system_program: Program<'info, System>,
 }
 
 impl<'info> CancelVault<'info> {
-    /// Cancels the vault.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the authority is not valid or if there is an error during the transfer.
     pub fn cancel(&mut self) -> Result<()> {
         self.validate_cancel_authority()?;
 
@@ -92,11 +75,6 @@ impl<'info> CancelVault<'info> {
         }
     }
 
-    /// Validates the authority to cancel the vault.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the authority is not valid.
     fn validate_cancel_authority(&self) -> Result<()> {
         match self.vault.cancel_authority {
             Authority::Neither => {
@@ -124,11 +102,6 @@ impl<'info> CancelVault<'info> {
         Ok(())
     }
 
-    /// Transfers the remaining tokens from the vault to the creator's token account.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if there is an error during the CPI (Cross-Program Invocation) call.
     fn transfer(&mut self) -> Result<()> {
         let lock_key = self.vault.to_account_info().key();
         let signer: &[&[&[u8]]] = &[&[
@@ -149,11 +122,6 @@ impl<'info> CancelVault<'info> {
         transfer_checked(cpi_ctx, self.vault_ata.amount, self.mint.decimals)
     }
 
-    /// Closes the vault token account.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if there is an error during the CPI (Cross-Program Invocation) call.
     fn close_vault_ata(&self) -> Result<()> {
         let lock_key = self.vault.to_account_info().key();
         let signer: &[&[&[u8]]] = &[&[
