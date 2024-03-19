@@ -36,7 +36,7 @@ import one from "../.keys/creator.json";
 import { randomBytes } from "crypto";
 import two from "../.keys/recipient.json";
 
-const NUM_VAULTS_TO_MAKE = 30;
+const NUM_VAULTS_TO_MAKE = 15;
 
 const second = new anchor.BN(60);
 const minute = new anchor.BN(60 * second.toNumber());
@@ -111,6 +111,7 @@ async function spl() {
     const creatorGovernanceAta =
       i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
+    const autopay = i % 3 === 0 ? true : false;
 
     await create(
       connection,
@@ -120,6 +121,7 @@ async function spl() {
       daoTreasuryAta,
       creatorGovernanceAta,
       mint,
+      autopay,
       i,
       program,
       wallet,
@@ -223,6 +225,7 @@ async function token2022() {
     const creatorGovernanceAta =
       i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
+    const autopay = i % 3 === 0 ? true : false;
 
     await create(
       connection,
@@ -232,6 +235,7 @@ async function token2022() {
       daoTreasuryAta,
       creatorGovernanceAta,
       mint,
+      autopay,
       i,
       program,
       wallet,
@@ -249,6 +253,7 @@ async function create(
   daoTreasuryAta: Account,
   creatorGovernanceAta: Account,
   mint: PublicKey,
+  autopay: boolean,
   i: number,
   program: anchor.Program<Valhalla>,
   wallet: NodeWallet,
@@ -312,7 +317,8 @@ async function create(
       totalVestingDuration,
       startDate,
       payoutInterval,
-      cancelAuthority
+      cancelAuthority,
+      autopay
     )
     .accounts({
       creator: creator.publicKey,
