@@ -5,7 +5,7 @@ use anchor_spl::{
         mpl_token_metadata::{instructions::CreateV1CpiBuilder, types::TokenStandard},
         Metadata,
     },
-    token_interface::{Mint, MintTo, TokenInterface},
+    token_interface::{Mint, TokenInterface},
 };
 
 use crate::{constants, errors::ValhallaError, state::Config};
