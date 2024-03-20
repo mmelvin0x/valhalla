@@ -13,7 +13,7 @@ import SearchInput from "./ui/SearchInput";
 import { SubType } from "utils/constants";
 import SubTypeTabs from "./ui/SubTypeTabs";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { disburse as _disburse } from "components/dashboard/instructions/disburse";
+import { disburse as _disburse } from "instructions/disburse";
 import { columnDefs } from "components/vaults/utils/myVaultsColumnDefs";
 import { dashboardSearchValidationSchema } from "./utils/validationSchema";
 import { notify } from "utils/notifications";
@@ -22,10 +22,9 @@ import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
 
 export default function DashboardFeature() {
-  const { wallet, connection, program } = useProgram();
+  const { wallet, connection } = useProgram();
   const { vaults, setMyVaults } = useValhallaStore();
 
-  const [loading, setLoading] = useState(false);
   const [currentList, setCurrentList] = useState<{
     created: BaseModel[];
     recipient: BaseModel[];
@@ -50,8 +49,6 @@ export default function DashboardFeature() {
   const colDefs = useMemo<ColDef[]>(() => columnDefs, []);
 
   const getVaults = async (search = "") => {
-    setLoading(true);
-
     try {
       const { created, recipient } = await searchMyVaults(
         connection,
@@ -64,14 +61,11 @@ export default function DashboardFeature() {
         recipient,
       });
     } catch (e) {
-      console.error(e);
       notify({
         message: "Error",
         description: "Failed to fetch vesting schedules",
         type: "error",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -91,24 +85,6 @@ export default function DashboardFeature() {
     });
   }, [subType, vaults.created, vaults.recipient]);
 
-  const onSearch = async (
-    values: { search: string },
-    helpers: FormikHelpers<{ search: string }>,
-  ) => {
-    setLoading(true);
-    setMyVaults({ created: [], recipient: [] });
-
-    await getVaults(values.search);
-
-    setLoading(false);
-  };
-
-  const formik = useFormik({
-    initialValues: { search: "" },
-    validationSchema: dashboardSearchValidationSchema,
-    onSubmit: onSearch,
-  });
-
   return (
     <>
       <Head>
@@ -125,9 +101,8 @@ export default function DashboardFeature() {
 
           <div className="card">
             <div className="card-body">
-              <div className="card-title justify-between">
+              <div className="card-title">
                 <span className="flex-1">Accounts</span>
-                <SearchInput formik={formik} />
               </div>
 
               <SubTypeTabs

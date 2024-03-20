@@ -1,3 +1,5 @@
+import { FaCheckCircle, FaCross, FaTimesCircle, FaXing } from "react-icons/fa";
+
 import ActionButtons from "components/ui/lock/ActionButtons";
 import BalanceDisplay from "components/ui/lock/BalanceDisplay";
 import CreatorDisplay from "components/ui/lock/CreatorDisplay";
@@ -91,6 +93,15 @@ export default function LockDetails({
       <div className="flex flex-col">
         <span className="text-lg font-bold">Cancel</span>
         {vault.cancelAuthority}
+      </div>
+
+      <div className="flex flex-col">
+        <span className="text-lg font-bold">Autopay?</span>
+        {vault.autopay ? (
+          <FaCheckCircle className="text-success w-6 h-6" />
+        ) : (
+          <FaTimesCircle className="text-error w-6 h-6" />
+        )}
       </div>
     </div>
   );

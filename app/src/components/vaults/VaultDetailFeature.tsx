@@ -2,21 +2,20 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import { ColDef, GridOptions } from "ag-grid-community";
-import { shortenAddress, shortenSignature } from "utils/formatters";
 import { useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
 import BlockCellRenderer from "./ui/BlockCellRenderer";
-import ExplorerCellRenderer from "./ui/ExplorerCellRenderer";
 import Head from "next/head";
 import Link from "next/link";
 import LoadingSpinner from "components/ui/LoadingSpinner";
 import LockDetails from "components/dashboard/ui/LockDetails";
 import SignatureCellRenderer from "./ui/SignatureCellRenderer";
 import { ValhallaVault } from "models/models";
-import { disburse as _disburse } from "components/dashboard/instructions/disburse";
+import { disburse as _disburse } from "instructions/disburse";
 import { getExplorerUrl } from "utils/explorer";
 import { getVaultByIdentifier } from "utils/search";
+import { shortenAddress } from "utils/formatters";
 import { useGetSignatures } from "utils/useGetSignatures";
 import useProgram from "program/useProgram";
 import { useRouter } from "next/router";
