@@ -7,12 +7,10 @@ export default function EndDateDisplay({
   totalVestingDuration,
 }: {
   startDate: Date;
-  totalVestingDuration: anchor.BN;
+  totalVestingDuration: number;
 }) {
   const _startDate = new Date(startDate);
-  const endDate = new Date(
-    _startDate.getTime() + totalVestingDuration.toNumber() * 1000,
-  );
+  const endDate = new Date(_startDate.getTime() + totalVestingDuration * 1000);
 
   return (
     <div className="flex items-center gap-1">

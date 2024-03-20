@@ -21,8 +21,8 @@ export default class BaseModel {
   creator: PublicKey;
   recipient: PublicKey;
   mint: PublicKey;
-  totalVestingDuration: anchor.BN = new anchor.BN(0);
   autopay: boolean;
+  _totalVestingDuration: anchor.BN = new anchor.BN(0);
   _createdTimestamp: anchor.BN = new anchor.BN(0);
   _startDate: anchor.BN = new anchor.BN(0);
   _lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
@@ -51,8 +51,8 @@ export default class BaseModel {
     this.creator = obj.creator;
     this.recipient = obj.recipient;
     this.mint = obj.mint;
-    this.totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
     this.autopay = obj.autopay;
+    this._totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
     this._createdTimestamp = new anchor.BN(obj.createdTimestamp);
     this._startDate = new anchor.BN(obj.startDate);
     this._lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);
@@ -110,6 +110,10 @@ export default class BaseModel {
     }
   }
 
+  get totalVestingDuration(): number {
+    return this._totalVestingDuration.toNumber();
+  }
+
   get numberOfPaymentsMade(): number {
     return this._numberOfPaymentsMade.toNumber();
   }
@@ -154,13 +158,15 @@ export default class BaseModel {
 
   get endDate(): Date {
     const startDate = new Date(this._startDate.toNumber() * 1000);
-    return new Date(
-      startDate.getTime() + this.totalVestingDuration.toNumber() * 1000,
-    );
+    return new Date(startDate.getTime() + this.totalVestingDuration * 1000);
   }
 
   get payoutInterval(): string {
     return displayTime(this._payoutInterval.toNumber());
+  }
+
+  get payoutIntervalAsNumber(): number {
+    return this._payoutInterval.toNumber();
   }
 
   get nextPayoutDate(): Date {

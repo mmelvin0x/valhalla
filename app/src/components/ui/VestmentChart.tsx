@@ -110,28 +110,22 @@ export default function VestmentChart({
   }, [labels, amountPerPayout]);
 
   return (
-    <div className="card">
-      <div className="card-body">
-        <div className="card-media">
-          <Bar
-            className="flex-1"
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  display: true,
-                },
-              },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                },
-              },
-            }}
-            data={chartData}
-          />
-        </div>
-      </div>
-    </div>
+    <Bar
+      className="flex-1"
+      options={{
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true,
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      }}
+      data={chartData}
+    />
   );
 }

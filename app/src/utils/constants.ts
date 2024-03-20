@@ -8,6 +8,10 @@ export enum SubType {
   Receivable,
 }
 
+export const ODIN_MINT_ADDRESS = new PublicKey(
+  "GPZHuXHxa3sZqzzbzk2bkLkTzHet6V3ximdMCLJufp3u",
+);
+
 export const SOL_TREASURY = new PublicKey(process.env.NEXT_PUBLIC_SOL_TREASURY);
 export const TOKEN_TREASURY = new PublicKey(
   process.env.NEXT_PUBLIC_TOKEN_TREASURY,

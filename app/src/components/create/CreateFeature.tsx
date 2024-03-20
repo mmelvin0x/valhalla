@@ -11,7 +11,7 @@ import Head from "next/head";
 import { ICreateForm } from "utils/interfaces";
 import ReviewLockCard from "components/create/ui/ReviewLockCard";
 import SelectTokenDialog from "components/ui/modals/SelectTokenDialog";
-import VestmentChart from "components/create/ui/VestmentChart";
+import VestmentChart from "components/ui/VestmentChart";
 import axios from "axios";
 import { createVault } from "./instructions/create";
 import { notify } from "utils/notifications";
@@ -132,14 +132,20 @@ export default function CreateFeature() {
         </section>
 
         <section className="flex flex-col gap-8">
-          <VestmentChart
-            formik={formik}
-            vestingEndDate={formik.values.vestingEndDate}
-            startDate={formik.values.startDate}
-            totalVestingDuration={totalVestingDuration}
-            amountToBeVested={Number(formik.values.amountToBeVested)}
-            payoutInterval={Number(formik.values.payoutInterval)}
-          />
+          <div className="card">
+            <div className="card-body">
+              <div className="card-media">
+                <VestmentChart
+                  formik={formik}
+                  vestingEndDate={formik.values.vestingEndDate}
+                  startDate={formik.values.startDate}
+                  totalVestingDuration={totalVestingDuration}
+                  amountToBeVested={Number(formik.values.amountToBeVested)}
+                  payoutInterval={Number(formik.values.payoutInterval)}
+                />
+              </div>
+            </div>
+          </div>
 
           <ReviewLockCard
             isSubmitting={formik.isSubmitting}

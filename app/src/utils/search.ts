@@ -42,7 +42,6 @@ export const searchMyVaults = async (
   }
 
   const fMapped = (await created.run(connection)).map((v) => {
-    console.log(v);
     const [vs] = Vault.fromAccountInfo(v.account);
     return new ValhallaVault(v.pubkey, vs, connection);
   });

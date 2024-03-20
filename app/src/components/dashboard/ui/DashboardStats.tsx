@@ -1,57 +1,154 @@
 import {
+  FaArrowAltCircleDown,
   FaArrowAltCircleUp,
   FaCalendar,
   FaCoins,
   FaUserLock,
 } from "react-icons/fa";
+import { useEffect, useMemo, useState } from "react";
 
-import { useMemo } from "react";
+import Image from "next/image";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { ODIN_MINT_ADDRESS } from "utils/constants";
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
 
-export default function DashboardStats() {
+interface DashboardStatsProps {
+  disburseMany: () => Promise<void>;
+}
+
+export default function DashboardStats({ disburseMany }: DashboardStatsProps) {
+  const { connection, wallet } = useProgram();
   const { vaults } = useValhallaStore();
-  const nextVaultDisbursement = useMemo(() => {
-    const next = vaults.recipient
-      .map((v) => ({
-        time: v.nextPayoutDate.getTime(),
-        display: v.nextPayoutShortDate,
-      }))
-      .sort((a, b) => a.time - b.time);
-    return next[0]?.display || "None";
+
+  const [odinBalance, setOdinBalance] = useState<number | null>(null);
+  const [solBalance, setSolBalance] = useState<number | null>(null);
+
+  const createdLocksCount = useMemo(() => {
+    return vaults.created.filter((v) => v.nextPayoutDate < new Date()).length;
+  }, [vaults.created]);
+
+  const receivableLocksCount = useMemo(() => {
+    return vaults.recipient.filter((v) => v.nextPayoutDate < new Date()).length;
   }, [vaults.recipient]);
 
+  const nextCreatedVaultDisbursement = useMemo(() => {
+    const next = vaults.created
+      .map((v) => ({
+        time: v.nextPayoutDate,
+        display: v.nextPayoutShortDate,
+      }))
+      .sort((a, b) => a.time.getTime() - b.time.getTime());
+    return next[0]?.time;
+  }, [vaults.created]);
+
+  const nextReceivableVaultDisbursement = useMemo(() => {
+    const next = vaults.recipient
+      .map((v) => ({
+        time: v.nextPayoutDate,
+        display: v.nextPayoutShortDate,
+      }))
+      .sort((a, b) => a.time.getTime() - b.time.getTime());
+    return next[0]?.time;
+  }, [vaults.recipient]);
+
+  useEffect(() => {
+    (async () => {
+      const userOdinTokenAccountKey = getAssociatedTokenAddressSync(
+        ODIN_MINT_ADDRESS,
+        wallet.publicKey,
+      );
+
+      try {
+        const odinBalance = await connection.getTokenAccountBalance(
+          userOdinTokenAccountKey,
+        );
+
+        setOdinBalance(odinBalance.value.uiAmount);
+      } catch (e) {
+        setOdinBalance(0);
+      }
+
+      const userSolBalance = await connection.getBalance(wallet.publicKey);
+      setSolBalance(Number((userSolBalance / LAMPORTS_PER_SOL).toFixed(2)));
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="stats stats-vertical lg:stats-horizontal">
-      <div className="stat">
-        <div className="stat-title">Unlocks</div>
-        <div className="stat-value">{nextVaultDisbursement}</div>
-        <div className="stat-figure hidden sm:block cursor-pointer rounded-full">
-          {nextVaultDisbursement === "Now" && (
-            <FaArrowAltCircleUp className="w-12 h-12 text-accent animate-pulse" />
-          )}
+    <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="stats stats-vertical">
+        <div className="stat">
+          <div className="stat-title">Created Vault Unlocks</div>
+          <div className="stat-value">{createdLocksCount}</div>
+          <div className="stat-figure hidden sm:block cursor-pointer rounded-full">
+            {nextCreatedVaultDisbursement <= new Date() && (
+              <FaArrowAltCircleUp
+                className="w-12 h-12 text-info animate-pulse"
+                onClick={disburseMany}
+              />
+            )}
 
-          {nextVaultDisbursement !== "Now" && (
-            <FaCalendar className="w-12 h-12" />
-          )}
-        </div>
-        <div className="stat-desc">Next vestment date</div>
-      </div>
-
-      <div className="stat">
-        <div className="stat-title">Created Vaults</div>
-        <div className="stat-value">{vaults.created.length}</div>
-        <div className="stat-figure hidden sm:block cursor-pointer rounded-full">
-          <FaUserLock className="w-12 h-12" />
-        </div>
-      </div>
-
-      <div className="stat">
-        <div className="stat-title">Receivable Vaults</div>
-        <div className="stat-value">{vaults.recipient.length}</div>
-        <div className="stat-figure hidden sm:block cursor-pointer rounded-full">
-          <FaCoins className="w-12 h-12" />
+            {nextCreatedVaultDisbursement > new Date() && (
+              <FaCalendar className="w-12 h-12" />
+            )}
+          </div>
+          <div className="stat-desc">
+            Next unlock: {nextCreatedVaultDisbursement?.toLocaleString()}
+          </div>
         </div>
       </div>
-    </div>
+
+      <div className="stats stats-vertical">
+        <div className="stat">
+          <div className="stat-title">Receivable Vault Unlocks</div>
+          <div className="stat-value">{receivableLocksCount}</div>
+          <div className="stat-figure hidden sm:block cursor-pointer rounded-full">
+            {nextReceivableVaultDisbursement <= new Date() && (
+              <FaArrowAltCircleDown
+                className="w-12 h-12 text-accent animate-pulse"
+                onClick={disburseMany}
+              />
+            )}
+
+            {nextReceivableVaultDisbursement > new Date() && (
+              <FaCalendar className="w-12 h-12" />
+            )}
+          </div>
+          <div className="stat-desc">
+            Next unlock: {nextReceivableVaultDisbursement?.toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      <div className="stats stats-vertical">
+        <div className="stat">
+          <div className="stat-title">Balances</div>
+          <div className="stat-value flex flex-col gap-2">
+            <span className="flex items-center gap-2">
+              {" "}
+              {odinBalance}{" "}
+              <Image src="/odin.png" width={32} height={32} alt="$ODIN" />
+            </span>
+
+            <span className="flex items-center gap-2">
+              {" "}
+              {solBalance}{" "}
+              <Image
+                className="rounded-full"
+                src="/sol.png"
+                width={32}
+                height={32}
+                alt="SOL"
+              />
+            </span>
+          </div>
+          <div className="stat-figure hidden sm:block cursor-pointer rounded-full">
+            <Image src="/odin.png" width={64} height={64} alt="$ODIN" />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

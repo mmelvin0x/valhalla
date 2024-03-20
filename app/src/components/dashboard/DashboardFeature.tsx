@@ -1,21 +1,18 @@
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-import BaseModel, { ValhallaVault } from "models/models";
 import { ColDef, GridOptions } from "ag-grid-community";
-import { FormikHelpers, useFormik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
 import DashboardStats from "./ui/DashboardStats";
 import Head from "next/head";
-import SearchInput from "./ui/SearchInput";
 import { SubType } from "utils/constants";
 import SubTypeTabs from "./ui/SubTypeTabs";
+import { ValhallaVault } from "models/models";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { disburse as _disburse } from "instructions/disburse";
 import { columnDefs } from "components/vaults/utils/myVaultsColumnDefs";
-import { dashboardSearchValidationSchema } from "./utils/validationSchema";
 import { notify } from "utils/notifications";
 import { searchMyVaults } from "utils/search";
 import useProgram from "program/useProgram";
@@ -26,8 +23,8 @@ export default function DashboardFeature() {
   const { vaults, setMyVaults } = useValhallaStore();
 
   const [currentList, setCurrentList] = useState<{
-    created: BaseModel[];
-    recipient: BaseModel[];
+    created: ValhallaVault[];
+    recipient: ValhallaVault[];
   }>({ created: [], recipient: [] });
   const [subType, setSubType] = useState<SubType>(SubType.Created);
 
@@ -47,6 +44,10 @@ export default function DashboardFeature() {
   };
 
   const colDefs = useMemo<ColDef[]>(() => columnDefs, []);
+
+  const disburseMany = async () => {
+    alert("Disburse Many: Implement me!");
+  };
 
   const getVaults = async (search = "") => {
     try {
@@ -97,7 +98,7 @@ export default function DashboardFeature() {
 
       {wallet.connected ? (
         <main className="grid grid-cols-1 gap-8 m-8">
-          <DashboardStats />
+          <DashboardStats disburseMany={disburseMany} />
 
           <div className="card">
             <div className="card-body">
