@@ -53,7 +53,7 @@ export const closeInstructionDiscriminator = [
  */
 export function createCloseInstruction(
   accounts: CloseInstructionAccounts,
-  programId = new web3.PublicKey('44dSpmq2ATy23AiyouLCzsPgn12WeaTv8pi6ym5UHNGV')
+  programId = new web3.PublicKey('5PypERESHinFR5gzXQnWnJkC2U4QTQqi34RhmjpvFRkC')
 ) {
   const [data] = closeStruct.serialize({
     instructionDiscriminator: closeInstructionDiscriminator,

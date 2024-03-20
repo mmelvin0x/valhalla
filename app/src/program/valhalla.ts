@@ -45,6 +45,10 @@ export type Valhalla = {
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
+        "* `name` - The name of the token.",
+        "* `symbol` - The symbol of the token.",
+        "* `uri` - The URI of the token.",
+        "* `decimals` - The number of decimals for the token.",
         "* `dev_fee` - The fee value for the configuration.",
         "* `token_fee_basis_points` - The basis points of the token fee.",
         "* `governance_token_amount` - The amount of reward tokens to be minted.",
@@ -60,6 +64,11 @@ export type Valhalla = {
           "name": "admin",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "config",
@@ -82,6 +91,11 @@ export type Valhalla = {
           "isSigner": false
         },
         {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
@@ -95,9 +109,30 @@ export type Valhalla = {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "sysvarInstruction",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "name": "uri",
+          "type": "string"
+        },
+        {
+          "name": "decimals",
+          "type": "u8"
+        },
         {
           "name": "devFee",
           "type": "u64"
@@ -113,19 +148,17 @@ export type Valhalla = {
       ]
     },
     {
-      "name": "updateConfig",
+      "name": "updateAdmin",
       "docs": [
-        "Updates the configuration with a new fee.",
+        "Updates the admin of the program.",
         "",
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `new_dev_fee` - The new fee to be set in the configuration.",
-        "* `new_token_fee_basis_points` - The new basis points of the token fee.",
         "",
         "# Errors",
         "",
-        "Returns an error if the configuration update fails."
+        "Returns an error if the admin update fails."
       ],
       "accounts": [
         {
@@ -139,9 +172,64 @@ export type Valhalla = {
           "isSigner": false
         },
         {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateDaoTreasury",
+      "docs": [
+        "Updates the dao treasury.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context for the transaction.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the dao treasury update fails."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "newDaoTreasury",
           "isMut": false,
           "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateDevFee",
+      "docs": [
+        "Updates the fee for the development team.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context for the transaction.",
+        "* `dev_fee` - The fee value for the configuration.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the dev fee update fails."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
           "name": "config",
@@ -151,15 +239,73 @@ export type Valhalla = {
       ],
       "args": [
         {
-          "name": "newDevFee",
+          "name": "devFee",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "updateGovernanceTokenAmount",
+      "docs": [
+        "Updates the amount of governance tokens to be minted.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context for the transaction.",
+        "* `governance_token_amount` - The amount of governance tokens to be minted.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the governance token amount update fails."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "newTokenFeeBasisPoints",
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "governanceTokenAmount",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "updateTokenFeeBasisPoints",
+      "docs": [
+        "Updates the basis points of the token fee.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context for the transaction.",
+        "* `token_fee_basis_points` - The basis points of the token fee.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the token fee basis points update fails."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "newGovernanceTokenAmount",
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "tokenFeeBasisPoints",
           "type": "u64"
         }
       ]
@@ -804,6 +950,10 @@ export const IDL: Valhalla = {
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
+        "* `name` - The name of the token.",
+        "* `symbol` - The symbol of the token.",
+        "* `uri` - The URI of the token.",
+        "* `decimals` - The number of decimals for the token.",
         "* `dev_fee` - The fee value for the configuration.",
         "* `token_fee_basis_points` - The basis points of the token fee.",
         "* `governance_token_amount` - The amount of reward tokens to be minted.",
@@ -819,6 +969,11 @@ export const IDL: Valhalla = {
           "name": "admin",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
         },
         {
           "name": "config",
@@ -841,6 +996,11 @@ export const IDL: Valhalla = {
           "isSigner": false
         },
         {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
@@ -854,9 +1014,30 @@ export const IDL: Valhalla = {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "sysvarInstruction",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "name": "uri",
+          "type": "string"
+        },
+        {
+          "name": "decimals",
+          "type": "u8"
+        },
         {
           "name": "devFee",
           "type": "u64"
@@ -872,19 +1053,17 @@ export const IDL: Valhalla = {
       ]
     },
     {
-      "name": "updateConfig",
+      "name": "updateAdmin",
       "docs": [
-        "Updates the configuration with a new fee.",
+        "Updates the admin of the program.",
         "",
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `new_dev_fee` - The new fee to be set in the configuration.",
-        "* `new_token_fee_basis_points` - The new basis points of the token fee.",
         "",
         "# Errors",
         "",
-        "Returns an error if the configuration update fails."
+        "Returns an error if the admin update fails."
       ],
       "accounts": [
         {
@@ -898,9 +1077,64 @@ export const IDL: Valhalla = {
           "isSigner": false
         },
         {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateDaoTreasury",
+      "docs": [
+        "Updates the dao treasury.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context for the transaction.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the dao treasury update fails."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "newDaoTreasury",
           "isMut": false,
           "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "updateDevFee",
+      "docs": [
+        "Updates the fee for the development team.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context for the transaction.",
+        "* `dev_fee` - The fee value for the configuration.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the dev fee update fails."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
           "name": "config",
@@ -910,15 +1144,73 @@ export const IDL: Valhalla = {
       ],
       "args": [
         {
-          "name": "newDevFee",
+          "name": "devFee",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "updateGovernanceTokenAmount",
+      "docs": [
+        "Updates the amount of governance tokens to be minted.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context for the transaction.",
+        "* `governance_token_amount` - The amount of governance tokens to be minted.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the governance token amount update fails."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "newTokenFeeBasisPoints",
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "governanceTokenAmount",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "updateTokenFeeBasisPoints",
+      "docs": [
+        "Updates the basis points of the token fee.",
+        "",
+        "# Arguments",
+        "",
+        "* `ctx` - The context for the transaction.",
+        "* `token_fee_basis_points` - The basis points of the token fee.",
+        "",
+        "# Errors",
+        "",
+        "Returns an error if the token fee basis points update fails."
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          "name": "newGovernanceTokenAmount",
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "tokenFeeBasisPoints",
           "type": "u64"
         }
       ]

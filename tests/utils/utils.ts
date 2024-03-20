@@ -4,7 +4,6 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   Account,
   TOKEN_2022_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import { Commitment, Connection, Keypair, PublicKey } from "@solana/web3.js";
@@ -20,10 +19,6 @@ export enum Authority {
   Recipient,
   Both,
 }
-
-export const MPL_TOKEN_METADATA_PROGRAM_ID = new PublicKey(
-  "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
-);
 
 export const decimals = 6;
 export const feeBasisPoints = 100;

@@ -1,18 +1,30 @@
 import * as anchor from "@coral-xyz/anchor";
 
 import { IDL, Valhalla } from "../target/types/valhalla";
-import { LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from "@solana/web3.js";
+import {
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SYSVAR_INSTRUCTIONS_PUBKEY,
+  clusterApiUrl,
+} from "@solana/web3.js";
 
+import { MPL_TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { confirm } from "../tests/utils/utils";
 import { getPDAs } from "../tests/utils/getPDAs";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "44dSpmq2ATy23AiyouLCzsPgn12WeaTv8pi6ym5UHNGV"
+  "5PypERESHinFR5gzXQnWnJkC2U4QTQqi34RhmjpvFRkC"
 );
+
 const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
 const tokenFeeBasisPoints = new anchor.BN(10);
 const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+const tokenName = "Odin";
+const tokenSymbol = "ODIN";
+const tokenURI =
+  "https://shdw-drive.genesysgo.net/FFGzTBpq8qvqipeLVPWTcqo1mszCFwA5tvN7ciaqyxBw/odin.json";
+const tokenDecimals = 9;
 
 const main = async () => {
   const wallet = anchor.Wallet.local();
@@ -39,15 +51,35 @@ const main = async () => {
     program.programId
   )[0];
 
+  const metadata = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from("metadata"),
+      new PublicKey(MPL_TOKEN_METADATA_PROGRAM_ID).toBuffer(),
+      new PublicKey(governanceTokenMint).toBuffer(),
+    ],
+    new PublicKey(MPL_TOKEN_METADATA_PROGRAM_ID)
+  )[0];
+
   const tx = await program.methods
-    .createConfig(devFee, tokenFeeBasisPoints, governanceTokenAmount)
+    .createConfig(
+      tokenName,
+      tokenSymbol,
+      tokenURI,
+      tokenDecimals,
+      devFee,
+      tokenFeeBasisPoints,
+      governanceTokenAmount
+    )
     .accounts({
       admin: wallet.publicKey,
       config,
+      metadata,
       devTreasury: wallet.publicKey,
       daoTreasury: wallet.publicKey,
       governanceTokenMint,
       tokenProgram: TOKEN_PROGRAM_ID,
+      sysvarInstruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+      tokenMetadataProgram: MPL_TOKEN_METADATA_PROGRAM_ID,
       systemProgram: anchor.web3.SystemProgram.programId,
     })
     .signers([wallet.payer])

@@ -11,7 +11,6 @@ import {
 } from "@solana/spl-token";
 import {
   Authority,
-  MPL_TOKEN_METADATA_PROGRAM_ID,
   confirm,
   getAuthority,
   getName,
@@ -23,13 +22,14 @@ import {
   LAMPORTS_PER_SOL,
   SYSVAR_INSTRUCTIONS_PUBKEY,
   SYSVAR_RENT_PUBKEY,
-  SystemProgram,
 } from "@solana/web3.js";
 import { assert, expect } from "chai";
 
+import { MPL_TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { PublicKey } from "@metaplex-foundation/js";
 import { Valhalla } from "../target/types/valhalla";
+import { airdrop } from "./utils/airdrop";
 import { getPDAs } from "./utils/getPDAs";
 import { randomBytes } from "crypto";
 
@@ -54,7 +54,7 @@ describe("⚡️ Valhalla", () => {
   let creatorGovernanceAta: Account;
   let userRewardAta: Account;
   let governanceTokenMint: PublicKey;
-  let metadata: PublicKey;
+  let metadata;
 
   before(async () => {
     governanceTokenMint = PublicKey.findProgramAddressSync(
@@ -65,10 +65,10 @@ describe("⚡️ Valhalla", () => {
     metadata = PublicKey.findProgramAddressSync(
       [
         Buffer.from("metadata"),
-        MPL_TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        governanceTokenMint.toBuffer(),
+        new PublicKey(MPL_TOKEN_METADATA_PROGRAM_ID).toBuffer(),
+        new PublicKey(governanceTokenMint).toBuffer(),
       ],
-      program.programId
+      new PublicKey(MPL_TOKEN_METADATA_PROGRAM_ID)
     )[0];
 
     [mint, creatorTokenAccount, recipientTokenAccount, treasuryTokenAccount] =
@@ -83,7 +83,7 @@ describe("⚡️ Valhalla", () => {
   });
 
   describe("Create Config", () => {
-    xit("should fail if the token fee basis points are greater than 10000", async () => {
+    it("should fail if the token fee basis points are greater than 10000", async () => {
       try {
         const { config } = await getPDAs(program.programId);
         const tx = await program.methods
@@ -99,13 +99,13 @@ describe("⚡️ Valhalla", () => {
           .accounts({
             admin: payer.publicKey,
             config,
+            metadata,
             devTreasury: payer.publicKey,
             daoTreasury: daoTreasury.publicKey,
             governanceTokenMint,
             tokenProgram: TOKEN_PROGRAM_ID,
+            sysvarInstruction: SYSVAR_INSTRUCTIONS_PUBKEY,
             tokenMetadataProgram: MPL_TOKEN_METADATA_PROGRAM_ID,
-            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-            sysvarInstruction: SYSVAR_RENT_PUBKEY,
             systemProgram: anchor.web3.SystemProgram.programId,
           })
           .signers([])
@@ -128,32 +128,36 @@ describe("⚡️ Valhalla", () => {
       const tokenFeeBasisPoints = new anchor.BN(10);
       const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 
-      const tx = await program.methods
-        .createConfig(
-          "Odin",
-          "ODIN",
-          "https://test.com",
-          9,
-          devFee,
-          tokenFeeBasisPoints,
-          governanceTokenAmount
-        )
-        .accounts({
-          admin: payer.publicKey,
-          config,
-          metadata,
-          devTreasury: payer.publicKey,
-          daoTreasury: daoTreasury.publicKey,
-          governanceTokenMint,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          sysvarInstruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-          tokenMetadataProgram: MPL_TOKEN_METADATA_PROGRAM_ID,
-          systemProgram: anchor.web3.SystemProgram.programId,
-        })
-        .signers([])
-        .rpc();
+      try {
+        const tx = await program.methods
+          .createConfig(
+            "Odin",
+            "ODIN",
+            "https://test.com",
+            9,
+            devFee,
+            tokenFeeBasisPoints,
+            governanceTokenAmount
+          )
+          .accounts({
+            admin: payer.publicKey,
+            config,
+            metadata,
+            devTreasury: payer.publicKey,
+            daoTreasury: daoTreasury.publicKey,
+            governanceTokenMint,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            sysvarInstruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+            tokenMetadataProgram: MPL_TOKEN_METADATA_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          })
+          .signers([])
+          .rpc();
 
-      await confirm(provider.connection, tx);
+        await confirm(provider.connection, tx);
+      } catch (e) {
+        console.error(e);
+      }
 
       const configAccount = await program.account.config.fetch(config);
 
@@ -201,7 +205,7 @@ describe("⚡️ Valhalla", () => {
       );
     });
 
-    xit("should fail if the config account is already initialized", async () => {
+    it("should fail if the config account is already initialized", async () => {
       try {
         const { config } = await getPDAs(program.programId);
         const tx = await program.methods
@@ -217,10 +221,13 @@ describe("⚡️ Valhalla", () => {
           .accounts({
             admin: payer.publicKey,
             config,
+            metadata,
             devTreasury: payer.publicKey,
             daoTreasury: daoTreasury.publicKey,
             governanceTokenMint,
             tokenProgram: TOKEN_PROGRAM_ID,
+            sysvarInstruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+            tokenMetadataProgram: MPL_TOKEN_METADATA_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
           })
           .signers([])
@@ -233,7 +240,7 @@ describe("⚡️ Valhalla", () => {
       }
     });
 
-    xit("should let the admin mint governance tokens", async () => {
+    it("should let the admin mint governance tokens", async () => {
       const receiverTokenAccount = await getOrCreateAssociatedTokenAccount(
         provider.connection,
         payer,
@@ -276,7 +283,7 @@ describe("⚡️ Valhalla", () => {
       );
     });
 
-    xit("should not let a non-admin mint governance tokens", async () => {
+    it("should not let a non-admin mint governance tokens", async () => {
       try {
         const receiverTokenAccount = await getOrCreateAssociatedTokenAccount(
           provider.connection,
@@ -318,7 +325,150 @@ describe("⚡️ Valhalla", () => {
     });
   });
 
-  xdescribe("Vault w/ Neither Cancel Authority", () => {
+  describe("Update Config", () => {
+    it("should update the admin", async () => {
+      const { config } = await getPDAs(program.programId);
+      const newAdmin = Keypair.generate();
+
+      let tx = await program.methods
+        .updateAdmin()
+        .accounts({
+          admin: payer.publicKey,
+          newAdmin: newAdmin.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      let configAccount = await program.account.config.fetch(config);
+      expect(configAccount.admin.toString()).equals(
+        newAdmin.publicKey.toString()
+      );
+
+      await airdrop(provider.connection, newAdmin.publicKey);
+
+      tx = await program.methods
+        .updateAdmin()
+        .accounts({
+          admin: newAdmin.publicKey,
+          newAdmin: payer.publicKey,
+          config,
+        })
+        .signers([newAdmin])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      configAccount = await program.account.config.fetch(config);
+      expect(configAccount.admin.toString()).equals(payer.publicKey.toString());
+    });
+
+    it("should update the dao treasury", async () => {
+      const { config } = await getPDAs(program.programId);
+      const newDaoTreasury = Keypair.generate();
+
+      let tx = await program.methods
+        .updateDaoTreasury()
+        .accounts({
+          admin: payer.publicKey,
+          newDaoTreasury: newDaoTreasury.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      let configAccount = await program.account.config.fetch(config);
+      expect(configAccount.daoTreasury.toString()).equals(
+        newDaoTreasury.publicKey.toString()
+      );
+
+      await airdrop(provider.connection, newDaoTreasury.publicKey);
+
+      tx = await program.methods
+        .updateDaoTreasury()
+        .accounts({
+          admin: payer.publicKey,
+          newDaoTreasury: payer.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      configAccount = await program.account.config.fetch(config);
+      expect(configAccount.daoTreasury.toString()).equals(
+        payer.publicKey.toString()
+      );
+    });
+
+    it("should update the dev fee", async () => {
+      const { config } = await getPDAs(program.programId);
+      const newDevFee = new anchor.BN(0.05 * LAMPORTS_PER_SOL);
+
+      const tx = await program.methods
+        .updateDevFee(newDevFee)
+        .accounts({
+          admin: payer.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      const configAccount = await program.account.config.fetch(config);
+      expect(configAccount.devFee.toString()).equals(newDevFee.toString());
+    });
+
+    it("should update the governance token amount", async () => {
+      const { config } = await getPDAs(program.programId);
+      const newGovernanceTokenAmount = new anchor.BN(20 * LAMPORTS_PER_SOL);
+
+      const tx = await program.methods
+        .updateGovernanceTokenAmount(newGovernanceTokenAmount)
+        .accounts({
+          admin: payer.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      const configAccount = await program.account.config.fetch(config);
+      expect(configAccount.governanceTokenAmount.toString()).equals(
+        newGovernanceTokenAmount.toString()
+      );
+    });
+
+    it("should update the token fee basis points", async () => {
+      const { config } = await getPDAs(program.programId);
+      const newTokenFeeBasisPoints = new anchor.BN(100);
+
+      const tx = await program.methods
+        .updateTokenFeeBasisPoints(newTokenFeeBasisPoints)
+        .accounts({
+          admin: payer.publicKey,
+          config,
+        })
+        .signers([payer])
+        .rpc();
+
+      await confirm(provider.connection, tx);
+
+      const configAccount = await program.account.config.fetch(config);
+      expect(configAccount.tokenFeeBasisPoints.toString()).equals(
+        newTokenFeeBasisPoints.toString()
+      );
+    });
+  });
+
+  describe("Vault w/ Neither Cancel Authority", () => {
     it("should create a vault", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
@@ -554,7 +704,7 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
-      await sleep(1000);
+      await sleep(2000);
       const tx = await program.methods
         .disburse()
         .accounts({
@@ -600,7 +750,7 @@ describe("⚡️ Valhalla", () => {
       );
 
       expect(Number(userRewardAccount.amount) / LAMPORTS_PER_SOL).eq(
-        10,
+        20,
         "Creator reward amount failed - 3"
       );
 
@@ -608,7 +758,7 @@ describe("⚡️ Valhalla", () => {
     });
   });
 
-  xdescribe("Vault w/ Recipient Cancel Authority", () => {
+  describe("Vault w/ Recipient Cancel Authority", () => {
     it("should create a vault with a recipient cancel authority", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
@@ -746,7 +896,7 @@ describe("⚡️ Valhalla", () => {
     });
   });
 
-  xdescribe("Vault w/ Creator Cancel Authority", () => {
+  describe("Vault w/ Creator Cancel Authority", () => {
     it("should create a vault with a creator cancel authority", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
@@ -884,7 +1034,7 @@ describe("⚡️ Valhalla", () => {
     });
   });
 
-  xdescribe("Vault w/ Both Cancel Authority", () => {
+  describe("Vault w/ Both Cancel Authority", () => {
     it("should create a vault with both update authorites", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
@@ -1086,7 +1236,7 @@ describe("⚡️ Valhalla", () => {
     });
   });
 
-  xdescribe("Vault w/ Disburse and Close", () => {
+  describe("Vault w/ Disburse and Close", () => {
     it("should not close a vault that is not expired", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");

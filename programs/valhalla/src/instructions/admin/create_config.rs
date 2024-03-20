@@ -3,9 +3,9 @@ use anchor_spl::{
     associated_token::AssociatedToken,
     metadata::{
         mpl_token_metadata::{instructions::CreateV1CpiBuilder, types::TokenStandard},
-        Metadata, MetadataAccount,
+        Metadata,
     },
-    token_interface::{Mint, TokenInterface},
+    token_interface::{Mint, MintTo, TokenInterface},
 };
 
 use crate::{constants, errors::ValhallaError, state::Config};
@@ -25,7 +25,8 @@ pub struct CreateConfig<'info> {
     pub admin: Signer<'info>,
 
     #[account(mut)]
-    pub metadata: Account<'info, MetadataAccount>,
+    /// CHECK: no need to check it out
+    pub metadata: UncheckedAccount<'info>,
 
     #[account(
         init,
@@ -119,6 +120,8 @@ impl<'info> CreateConfig<'info> {
             .seller_fee_basis_points(0)
             .token_standard(TokenStandard::Fungible)
             .invoke_signed(signer_seeds)?;
+
+        // TODO: Mint initial allocations of governance tokens to the DAO treasury and development team treasury.
 
         Ok(())
     }

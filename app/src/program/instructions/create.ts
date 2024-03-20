@@ -103,7 +103,7 @@ export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
 export function createCreateInstruction(
   accounts: CreateInstructionAccounts,
   args: CreateInstructionArgs,
-  programId = new web3.PublicKey('44dSpmq2ATy23AiyouLCzsPgn12WeaTv8pi6ym5UHNGV')
+  programId = new web3.PublicKey('5PypERESHinFR5gzXQnWnJkC2U4QTQqi34RhmjpvFRkC')
 ) {
   const [data] = createStruct.serialize({
     instructionDiscriminator: createInstructionDiscriminator,

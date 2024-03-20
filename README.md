@@ -1,22 +1,23 @@
 ```bash
+ ~/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/ [refactor+*] yarn deploy:devnet:init
 yarn run v1.22.21
 $ anchor deploy --provider.cluster devnet && yarn init-config:devnet && yarn solita && yarn copy:idl && yarn copy:types
 Deploying cluster: https://api.devnet.solana.com
 Upgrade authority: ./.keys/id.json
 Deploying program "valhalla"...
 Program path: /Users/mmelvin0x/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/target/deploy/valhalla.so...
-Program Id: 44dSpmq2ATy23AiyouLCzsPgn12WeaTv8pi6ym5UHNGV
+Program Id: 5PypERESHinFR5gzXQnWnJkC2U4QTQqi34RhmjpvFRkC
 
 Deploy success
 $ anchor run init-config --provider.cluster devnet
 $ /Users/mmelvin0x/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/node_modules/.bin/ts-node ./scripts/init.ts
 👨‍💻 Deployer: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
-🔐 Config: BJVgJH1K5awEFfTansfzjnR27p6tZFBuusb2NNN38ff7
-✅ Initialization Transaction: 434dhF95WQAfYNJRhESkir31y5ihFL4rpwA67Tv2rBbjejJJPDHsb4ys9qPBuXqrNegTbsnZMz4znSUkXtTywGcH
+🔐 Config: 4V5oNGoFVDDX392EwADUYTSv8pq4PBiGELvTLcyMd3dx
+✅ Initialization Transaction: 5XKZY7Teq6h4LH2HgsKWdUecPLhTFXh7QnV8QDEv9iKjiBXzyJERyULf7zHuz8mdNfoBP8rTQhQoPurVyaxS59r4
 🐸 Admin: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
 💰 SOL Treasury: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
 💰 Token Treasury:: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
-🫡 Reward Mint: HB5bdpgk21tSGmeMNukE58XKB6VdieBpNsg4iYw5uo6U
+🫡 Reward Mint: BP2ski3AuSejY7TPvWfc3UuBxVcSL4D9WwPNLsEVX6eh
 ❤️‍🩹 SOL Fee: 0.025
 ❤️‍🩹 Token Fee BPS: 10
 🪙 Reward Token Amount: 10000000000
@@ -33,5 +34,5 @@ Writing errors to directory: app/src/program/errors
 Success!
 $ cp ./target/idl/valhalla.json ./app/src/program/idl.json
 $ cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts
-✨  Done in 27.32s.
+✨  Done in 25.62s.
 ```
