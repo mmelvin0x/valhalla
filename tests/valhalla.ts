@@ -21,7 +21,6 @@ import {
   Keypair,
   LAMPORTS_PER_SOL,
   SYSVAR_INSTRUCTIONS_PUBKEY,
-  SYSVAR_RENT_PUBKEY,
 } from "@solana/web3.js";
 import { assert, expect } from "chai";
 

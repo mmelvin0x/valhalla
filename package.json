@@ -6,6 +6,8 @@
   "scripts": {
     "copy:idl": "cp ./target/idl/valhalla.json ./app/src/program/idl.json",
     "copy:types": "cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts",
+    "copy:idl:server": "cp ./target/idl/valhalla.json ./server/src/program/idl.json",
+    "copy:types:server": "cp ./target/types/valhalla.ts ./server/src/program/valhalla.ts",
     "test": "anchor test",
     "deploy:local": "anchor deploy --provider.cluster localnet",
     "init-config:local": "anchor run init-config --provider.cluster localnet",
