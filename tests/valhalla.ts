@@ -11,8 +11,10 @@ import {
 } from "@solana/spl-token";
 import {
   Authority,
+  Autopay,
   confirm,
   getAuthority,
+  getAutopay,
   getName,
   setupTestAccounts,
   sleep,
@@ -471,7 +473,7 @@ describe("⚡️ Valhalla", () => {
     it("should create a vault", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
-      const autopay = true;
+      const autopay = getAutopay(Autopay.None, program);
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -761,7 +763,7 @@ describe("⚡️ Valhalla", () => {
     it("should create a vault with a recipient cancel authority", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
-      const autopay = true;
+      const autopay = getAutopay(Autopay.None, program);
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -899,7 +901,7 @@ describe("⚡️ Valhalla", () => {
     it("should create a vault with a creator cancel authority", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
-      const autopay = true;
+      const autopay = getAutopay(Autopay.None, program);
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1037,7 +1039,7 @@ describe("⚡️ Valhalla", () => {
     it("should create a vault with both update authorites", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
-      const autopay = true;
+      const autopay = getAutopay(Autopay.None, program);
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1137,7 +1139,7 @@ describe("⚡️ Valhalla", () => {
     it("should create another vault with both update authorites", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
-      const autopay = true;
+      const autopay = getAutopay(Autopay.None, program);
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1239,7 +1241,7 @@ describe("⚡️ Valhalla", () => {
     it("should not close a vault that is not expired", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
-      const autopay = true;
+      const autopay = getAutopay(Autopay.None, program);
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(10);
       const startDate = new anchor.BN(new Date().getTime() / 1000);
@@ -1311,7 +1313,7 @@ describe("⚡️ Valhalla", () => {
     it("should close a vault that is empty", async () => {
       identifier = new anchor.BN(randomBytes(8));
       const name = getName("Vault");
-      const autopay = true;
+      const autopay = getAutopay(Autopay.None, program);
       const amountToBeVested = new anchor.BN(100);
       const totalVestingDuration = new anchor.BN(1);
       const startDate = new anchor.BN(new Date().getTime() / 1000);

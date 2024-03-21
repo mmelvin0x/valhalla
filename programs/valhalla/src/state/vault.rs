@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::types::Authority;
+use crate::{types::Authority, Autopay};
 
 #[account]
 pub struct Vault {
@@ -18,7 +18,7 @@ pub struct Vault {
     pub payout_interval: u64,
     pub number_of_payments_made: u64,
     pub cancel_authority: Authority,
-    pub autopay: bool,
+    pub autopay: Autopay,
     pub token_account_bump: u8,
 }
 

@@ -20,6 +20,12 @@ export enum Authority {
   Both,
 }
 
+export enum Autopay {
+  None,
+  NotRegistered,
+  Registered,
+}
+
 export const decimals = 6;
 export const feeBasisPoints = 100;
 export const maxFee = 100 * 10 ** decimals;
@@ -75,6 +81,11 @@ export const getAuthority = (
   program: anchor.Program<Valhalla>
 ) =>
   program.coder.types.decode("Authority", new anchor.BN(authority).toBuffer());
+
+export const getAutopay = (
+  autopay: Autopay,
+  program: anchor.Program<Valhalla>
+) => program.coder.types.decode("Autopay", new anchor.BN(autopay).toBuffer());
 
 export const CONFIG_SEED = Buffer.from("config");
 export const VAULT_SEED = Buffer.from("vault");

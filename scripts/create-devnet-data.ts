@@ -15,8 +15,10 @@ import {
 } from "@solana/spl-token";
 import {
   Authority,
+  Autopay,
   confirm,
   getAuthority,
+  getAutopay,
   getName,
   sleep,
 } from "../tests/utils/utils";
@@ -111,7 +113,12 @@ async function spl() {
     const creatorGovernanceAta =
       i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
-    const autopay = i % 3 === 0 ? true : false;
+    const autopay =
+      i % 3 === 0 && i % 2 === 0
+        ? Autopay.None
+        : i % 3 === 0
+        ? Autopay.Registered
+        : Autopay.NotRegistered;
 
     await create(
       connection,
@@ -225,7 +232,12 @@ async function token2022() {
     const creatorGovernanceAta =
       i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
-    const autopay = i % 3 === 0 ? true : false;
+    const autopay =
+      i % 3 === 0 && i % 2 === 0
+        ? Autopay.None
+        : i % 3 === 0
+        ? Autopay.Registered
+        : Autopay.NotRegistered;
 
     await create(
       connection,
@@ -253,7 +265,7 @@ async function create(
   daoTreasuryAta: Account,
   creatorGovernanceAta: Account,
   mint: PublicKey,
-  autopay: boolean,
+  autopay: Autopay,
   i: number,
   program: anchor.Program<Valhalla>,
   wallet: NodeWallet,
@@ -318,7 +330,7 @@ async function create(
       startDate,
       payoutInterval,
       cancelAuthority,
-      autopay
+      getAutopay(autopay, program)
     )
     .accounts({
       creator: creator.publicKey,

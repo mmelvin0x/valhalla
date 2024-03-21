@@ -514,7 +514,9 @@ export type Valhalla = {
         },
         {
           "name": "autopay",
-          "type": "bool"
+          "type": {
+            "defined": "Autopay"
+          }
         }
       ]
     },
@@ -827,7 +829,9 @@ export type Valhalla = {
           },
           {
             "name": "autopay",
-            "type": "bool"
+            "type": {
+              "defined": "Autopay"
+            }
           },
           {
             "name": "tokenAccountBump",
@@ -854,6 +858,23 @@ export type Valhalla = {
           },
           {
             "name": "Both"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Autopay",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "NotRegistered"
+          },
+          {
+            "name": "Registered"
           }
         ]
       }
@@ -1419,7 +1440,9 @@ export const IDL: Valhalla = {
         },
         {
           "name": "autopay",
-          "type": "bool"
+          "type": {
+            "defined": "Autopay"
+          }
         }
       ]
     },
@@ -1732,7 +1755,9 @@ export const IDL: Valhalla = {
           },
           {
             "name": "autopay",
-            "type": "bool"
+            "type": {
+              "defined": "Autopay"
+            }
           },
           {
             "name": "tokenAccountBump",
@@ -1759,6 +1784,23 @@ export const IDL: Valhalla = {
           },
           {
             "name": "Both"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Autopay",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "NotRegistered"
+          },
+          {
+            "name": "Registered"
           }
         ]
       }

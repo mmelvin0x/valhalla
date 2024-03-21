@@ -137,7 +137,7 @@ export class Vault implements VaultArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "5PypERESHinFR5gzXQnWnJkC2U4QTQqi34RhmjpvFRkC",
+      "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU",
     ),
   ): beetSolana.GpaBuilder<
     VaultArgs & { accountDiscriminator: number[] /* size: 8 */ }

@@ -6,7 +6,7 @@ Deploying cluster: https://api.devnet.solana.com
 Upgrade authority: ./.keys/id.json
 Deploying program "valhalla"...
 Program path: /Users/mmelvin0x/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/target/deploy/valhalla.so...
-Program Id: 5PypERESHinFR5gzXQnWnJkC2U4QTQqi34RhmjpvFRkC
+Program Id: 57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU
 
 Deploy success
 $ anchor run init-config --provider.cluster devnet

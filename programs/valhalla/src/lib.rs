@@ -175,7 +175,7 @@ pub mod valhalla {
         start_date: u64,
         payout_interval: u64,
         cancel_authority: Authority,
-        autopay: bool,
+        autopay: Autopay,
     ) -> Result<()> {
         ctx.accounts.create(
             identifier,

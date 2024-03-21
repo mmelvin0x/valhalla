@@ -10,20 +10,19 @@ import {
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import {
+  Autopay,
+  CreateInstructionAccounts,
+  CreateInstructionArgs,
+  createCreateInstruction,
+} from "program";
+import {
   Connection,
   LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
   Transaction,
   TransactionInstruction,
-  TransactionMessage,
-  VersionedTransaction,
 } from "@solana/web3.js";
-import {
-  CreateInstructionAccounts,
-  CreateInstructionArgs,
-  createCreateInstruction,
-} from "program";
 import { FormikHelpers, FormikValues } from "formik";
 
 import { ICreateForm } from "utils/interfaces";
@@ -122,7 +121,7 @@ const getInstructions = async (
     startDate: Math.round(new Date(values.startDate).getTime() / 1000),
     payoutInterval: Math.round(values.payoutInterval / 1000),
     cancelAuthority: values.cancelAuthority,
-    autopay: values.autopay,
+    autopay: values.autopay ? Autopay.NotRegistered : Autopay.None,
   };
 
   const mint = new PublicKey(values.selectedToken.id);

@@ -514,7 +514,9 @@
         },
         {
           "name": "autopay",
-          "type": "bool"
+          "type": {
+            "defined": "Autopay"
+          }
         }
       ]
     },
@@ -827,7 +829,9 @@
           },
           {
             "name": "autopay",
-            "type": "bool"
+            "type": {
+              "defined": "Autopay"
+            }
           },
           {
             "name": "tokenAccountBump",
@@ -854,6 +858,23 @@
           },
           {
             "name": "Both"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Autopay",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "NotRegistered"
+          },
+          {
+            "name": "Registered"
           }
         ]
       }
@@ -902,7 +923,7 @@
     }
   ],
   "metadata": {
-    "address": "5PypERESHinFR5gzXQnWnJkC2U4QTQqi34RhmjpvFRkC",
+    "address": "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU",
     "origin": "anchor",
     "binaryVersion": "0.29.0",
     "libVersion": "0.29.0"

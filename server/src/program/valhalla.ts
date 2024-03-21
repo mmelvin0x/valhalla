@@ -1,45 +1,45 @@
-export interface Valhalla {
-  version: "0.1.0";
-  name: "valhalla";
-  docs: [
-    "The `valhalla` module contains functions for creating, updating, and managing vaults.",
-  ];
-  constants: [
+export type Valhalla = {
+  "version": "0.1.0",
+  "name": "valhalla",
+  "docs": [
+    "The `valhalla` module contains functions for creating, updating, and managing vaults."
+  ],
+  "constants": [
     {
-      name: "MIN_SOL_FEE";
-      type: "u64";
-      value: "(0.001 * LAMPORTS_PER_SOL as f64) as u64";
+      "name": "MIN_SOL_FEE",
+      "type": "u64",
+      "value": "(0.001 * LAMPORTS_PER_SOL as f64) as u64"
     },
     {
-      name: "MAX_BASIS_POINTS";
-      type: "u64";
-      value: "10000";
+      "name": "MAX_BASIS_POINTS",
+      "type": "u64",
+      "value": "10000"
     },
     {
-      name: "CONFIG_SEED";
-      type: "bytes";
-      value: "[99, 111, 110, 102, 105, 103]";
+      "name": "CONFIG_SEED",
+      "type": "bytes",
+      "value": "[99, 111, 110, 102, 105, 103]"
     },
     {
-      name: "VAULT_SEED";
-      type: "bytes";
-      value: "[118, 97, 117, 108, 116]";
+      "name": "VAULT_SEED",
+      "type": "bytes",
+      "value": "[118, 97, 117, 108, 116]"
     },
     {
-      name: "VAULT_ATA_SEED";
-      type: "bytes";
-      value: "[118, 97, 117, 108, 116, 95, 97, 116, 97]";
+      "name": "VAULT_ATA_SEED",
+      "type": "bytes",
+      "value": "[118, 97, 117, 108, 116, 95, 97, 116, 97]"
     },
     {
-      name: "GOVERNANCE_TOKEN_MINT_SEED";
-      type: "bytes";
-      value: "[103, 111, 118, 101, 114, 110, 97, 110, 99, 101, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116]";
-    },
-  ];
-  instructions: [
+      "name": "GOVERNANCE_TOKEN_MINT_SEED",
+      "type": "bytes",
+      "value": "[103, 111, 118, 101, 114, 110, 97, 110, 99, 101, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116]"
+    }
+  ],
+  "instructions": [
     {
-      name: "createConfig";
-      docs: [
+      "name": "createConfig",
+      "docs": [
         "Creates a new configuration with the specified fee.",
         "",
         "# Arguments",
@@ -57,99 +57,99 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the configuration creation fails.",
-      ];
-      accounts: [
+        "Returns an error if the configuration creation fails."
+      ],
+      "accounts": [
         {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "metadata";
-          isMut: true;
-          isSigner: false;
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "config";
-          isMut: true;
-          isSigner: false;
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "devTreasury";
-          isMut: false;
-          isSigner: false;
+          "name": "devTreasury",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "daoTreasury";
-          isMut: false;
-          isSigner: false;
+          "name": "daoTreasury",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "governanceTokenMint";
-          isMut: true;
-          isSigner: false;
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenMetadataProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "sysvarInstruction";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [
+          "name": "sysvarInstruction",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
         {
-          name: "name";
-          type: "string";
-        },
-        {
-          name: "symbol";
-          type: "string";
+          "name": "name",
+          "type": "string"
         },
         {
-          name: "uri";
-          type: "string";
+          "name": "symbol",
+          "type": "string"
         },
         {
-          name: "decimals";
-          type: "u8";
+          "name": "uri",
+          "type": "string"
         },
         {
-          name: "devFee";
-          type: "u64";
+          "name": "decimals",
+          "type": "u8"
         },
         {
-          name: "tokenFeeBasisPoints";
-          type: "u64";
+          "name": "devFee",
+          "type": "u64"
         },
         {
-          name: "governanceTokenAmount";
-          type: "u64";
+          "name": "tokenFeeBasisPoints",
+          "type": "u64"
         },
-      ];
+        {
+          "name": "governanceTokenAmount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "updateAdmin";
-      docs: [
+      "name": "updateAdmin",
+      "docs": [
         "Updates the admin of the program.",
         "",
         "# Arguments",
@@ -158,30 +158,30 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the admin update fails.",
-      ];
-      accounts: [
+        "Returns an error if the admin update fails."
+      ],
+      "accounts": [
         {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "newAdmin";
-          isMut: false;
-          isSigner: false;
+          "name": "newAdmin",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "config";
-          isMut: true;
-          isSigner: false;
-        },
-      ];
-      args: [];
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
-      name: "updateDaoTreasury";
-      docs: [
+      "name": "updateDaoTreasury",
+      "docs": [
         "Updates the dao treasury.",
         "",
         "# Arguments",
@@ -190,30 +190,30 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the dao treasury update fails.",
-      ];
-      accounts: [
+        "Returns an error if the dao treasury update fails."
+      ],
+      "accounts": [
         {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "config";
-          isMut: true;
-          isSigner: false;
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "newDaoTreasury";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [];
+          "name": "newDaoTreasury",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
-      name: "updateDevFee";
-      docs: [
+      "name": "updateDevFee",
+      "docs": [
         "Updates the fee for the development team.",
         "",
         "# Arguments",
@@ -223,30 +223,30 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the dev fee update fails.",
-      ];
-      accounts: [
+        "Returns an error if the dev fee update fails."
+      ],
+      "accounts": [
         {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "config";
-          isMut: true;
-          isSigner: false;
-        },
-      ];
-      args: [
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
         {
-          name: "devFee";
-          type: "u64";
-        },
-      ];
+          "name": "devFee",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "updateGovernanceTokenAmount";
-      docs: [
+      "name": "updateGovernanceTokenAmount",
+      "docs": [
         "Updates the amount of governance tokens to be minted.",
         "",
         "# Arguments",
@@ -256,30 +256,30 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the governance token amount update fails.",
-      ];
-      accounts: [
+        "Returns an error if the governance token amount update fails."
+      ],
+      "accounts": [
         {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "config";
-          isMut: true;
-          isSigner: false;
-        },
-      ];
-      args: [
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
         {
-          name: "governanceTokenAmount";
-          type: "u64";
-        },
-      ];
+          "name": "governanceTokenAmount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "updateTokenFeeBasisPoints";
-      docs: [
+      "name": "updateTokenFeeBasisPoints",
+      "docs": [
         "Updates the basis points of the token fee.",
         "",
         "# Arguments",
@@ -289,30 +289,30 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the token fee basis points update fails.",
-      ];
-      accounts: [
+        "Returns an error if the token fee basis points update fails."
+      ],
+      "accounts": [
         {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "config";
-          isMut: true;
-          isSigner: false;
-        },
-      ];
-      args: [
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
         {
-          name: "tokenFeeBasisPoints";
-          type: "u64";
-        },
-      ];
+          "name": "tokenFeeBasisPoints",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "mintGovernanceTokens";
-      docs: [
+      "name": "mintGovernanceTokens",
+      "docs": [
         "Mints governance tokens to the receiver.",
         "",
         "# Arguments",
@@ -322,60 +322,60 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the minting fails.",
-      ];
-      accounts: [
+        "Returns an error if the minting fails."
+      ],
+      "accounts": [
         {
-          name: "admin";
-          isMut: true;
-          isSigner: true;
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "receiver";
-          isMut: true;
-          isSigner: false;
+          "name": "receiver",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "config";
-          isMut: true;
-          isSigner: false;
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "governanceTokenMint";
-          isMut: true;
-          isSigner: false;
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "receiverTokenAccount";
-          isMut: true;
-          isSigner: false;
+          "name": "receiverTokenAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
         {
-          name: "amount";
-          type: "u64";
-        },
-      ];
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "create";
-      docs: [
+      "name": "create",
+      "docs": [
         "Creates a new vault with the specified parameters.",
         "",
         "# Arguments",
@@ -392,132 +392,137 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the vault creation fails.",
-      ];
-      accounts: [
+        "Returns an error if the vault creation fails."
+      ],
+      "accounts": [
         {
-          name: "creator";
-          isMut: true;
-          isSigner: true;
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "recipient";
-          isMut: true;
-          isSigner: false;
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "devTreasury";
-          isMut: true;
-          isSigner: false;
+          "name": "devTreasury",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "daoTreasury";
-          isMut: true;
-          isSigner: false;
+          "name": "daoTreasury",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "config";
-          isMut: false;
-          isSigner: false;
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "vault";
-          isMut: true;
-          isSigner: false;
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vaultAta";
-          isMut: true;
-          isSigner: false;
+          "name": "vaultAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "daoTreasuryAta";
-          isMut: true;
-          isSigner: false;
+          "name": "daoTreasuryAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "creatorAta";
-          isMut: true;
-          isSigner: false;
+          "name": "creatorAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "creatorGovernanceAta";
-          isMut: true;
-          isSigner: false;
+          "name": "creatorGovernanceAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "governanceTokenMint";
-          isMut: true;
-          isSigner: false;
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "governanceTokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "governanceTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
         {
-          name: "identifier";
-          type: "u64";
-        },
-        {
-          name: "name";
-          type: {
-            array: ["u8", 32];
-          };
+          "name": "identifier",
+          "type": "u64"
         },
         {
-          name: "amountToBeVested";
-          type: "u64";
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         },
         {
-          name: "totalVestingDuration";
-          type: "u64";
+          "name": "amountToBeVested",
+          "type": "u64"
         },
         {
-          name: "startDate";
-          type: "u64";
+          "name": "totalVestingDuration",
+          "type": "u64"
         },
         {
-          name: "payoutInterval";
-          type: "u64";
+          "name": "startDate",
+          "type": "u64"
         },
         {
-          name: "cancelAuthority";
-          type: {
-            defined: "Authority";
-          };
+          "name": "payoutInterval",
+          "type": "u64"
         },
         {
-          name: "autopay";
-          type: "bool";
+          "name": "cancelAuthority",
+          "type": {
+            "defined": "Authority"
+          }
         },
-      ];
+        {
+          "name": "autopay",
+          "type": {
+            "defined": "Autopay"
+          }
+        }
+      ]
     },
     {
-      name: "disburse";
-      docs: [
+      "name": "disburse",
+      "docs": [
         "Disburses the vested amount from the vault.",
         "",
         "# Arguments",
@@ -526,90 +531,90 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the disbursement fails.",
-      ];
-      accounts: [
+        "Returns an error if the disbursement fails."
+      ],
+      "accounts": [
         {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "creator";
-          isMut: false;
-          isSigner: false;
+          "name": "creator",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "recipient";
-          isMut: false;
-          isSigner: false;
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "devTreasury";
-          isMut: true;
-          isSigner: false;
+          "name": "devTreasury",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "config";
-          isMut: false;
-          isSigner: false;
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "vault";
-          isMut: true;
-          isSigner: false;
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vaultAta";
-          isMut: true;
-          isSigner: false;
+          "name": "vaultAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signerGovernanceAta";
-          isMut: true;
-          isSigner: false;
+          "name": "signerGovernanceAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "recipientAta";
-          isMut: true;
-          isSigner: false;
+          "name": "recipientAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "governanceTokenMint";
-          isMut: true;
-          isSigner: false;
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "governanceTokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "governanceTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [];
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
-      name: "close";
-      docs: [
+      "name": "close",
+      "docs": [
         "Closes the vault, preventing further vesting and disbursements.",
         "",
         "# Arguments",
@@ -618,40 +623,40 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the vault closure fails.",
-      ];
-      accounts: [
+        "Returns an error if the vault closure fails."
+      ],
+      "accounts": [
         {
-          name: "creator";
-          isMut: true;
-          isSigner: true;
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "vault";
-          isMut: true;
-          isSigner: false;
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vaultAta";
-          isMut: true;
-          isSigner: false;
+          "name": "vaultAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [];
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
-      name: "cancel";
-      docs: [
+      "name": "cancel",
+      "docs": [
         "Cancels the vault, preventing further vesting and disbursements and returning the remaining funds to the cancel authority.",
         "",
         "# Arguments",
@@ -660,286 +665,307 @@ export interface Valhalla {
         "",
         "# Errors",
         "",
-        "Returns an error if the vault cancellation fails.",
-      ];
-      accounts: [
+        "Returns an error if the vault cancellation fails."
+      ],
+      "accounts": [
         {
-          name: "signer";
-          isMut: true;
-          isSigner: true;
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "creator";
-          isMut: true;
-          isSigner: false;
+          "name": "creator",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "recipient";
-          isMut: true;
-          isSigner: false;
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vault";
-          isMut: true;
-          isSigner: false;
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vaultAta";
-          isMut: true;
-          isSigner: false;
+          "name": "vaultAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "creatorAta";
-          isMut: true;
-          isSigner: false;
+          "name": "creatorAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mint";
-          isMut: false;
-          isSigner: false;
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [];
-    },
-  ];
-  accounts: [
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
     {
-      name: "config";
-      type: {
-        kind: "struct";
-        fields: [
+      "name": "config",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "admin";
-            type: "publicKey";
+            "name": "admin",
+            "type": "publicKey"
           },
           {
-            name: "devTreasury";
-            type: "publicKey";
+            "name": "devTreasury",
+            "type": "publicKey"
           },
           {
-            name: "daoTreasury";
-            type: "publicKey";
+            "name": "daoTreasury",
+            "type": "publicKey"
           },
           {
-            name: "governanceTokenMintKey";
-            type: "publicKey";
+            "name": "governanceTokenMintKey",
+            "type": "publicKey"
           },
           {
-            name: "devFee";
-            type: "u64";
+            "name": "devFee",
+            "type": "u64"
           },
           {
-            name: "tokenFeeBasisPoints";
-            type: "u64";
+            "name": "tokenFeeBasisPoints",
+            "type": "u64"
           },
           {
-            name: "governanceTokenAmount";
-            type: "u64";
-          },
-        ];
-      };
-    },
-    {
-      name: "vault";
-      type: {
-        kind: "struct";
-        fields: [
-          {
-            name: "identifier";
-            type: "u64";
-          },
-          {
-            name: "name";
-            type: {
-              array: ["u8", 32];
-            };
-          },
-          {
-            name: "creator";
-            type: "publicKey";
-          },
-          {
-            name: "recipient";
-            type: "publicKey";
-          },
-          {
-            name: "mint";
-            type: "publicKey";
-          },
-          {
-            name: "totalVestingDuration";
-            type: "u64";
-          },
-          {
-            name: "createdTimestamp";
-            type: "u64";
-          },
-          {
-            name: "startDate";
-            type: "u64";
-          },
-          {
-            name: "lastPaymentTimestamp";
-            type: "u64";
-          },
-          {
-            name: "initialDepositAmount";
-            type: "u64";
-          },
-          {
-            name: "totalNumberOfPayouts";
-            type: "u64";
-          },
-          {
-            name: "payoutInterval";
-            type: "u64";
-          },
-          {
-            name: "numberOfPaymentsMade";
-            type: "u64";
-          },
-          {
-            name: "cancelAuthority";
-            type: {
-              defined: "Authority";
-            };
-          },
-          {
-            name: "autopay";
-            type: "bool";
-          },
-          {
-            name: "tokenAccountBump";
-            type: "u8";
-          },
-        ];
-      };
-    },
-  ];
-  types: [
-    {
-      name: "Authority";
-      type: {
-        kind: "enum";
-        variants: [
-          {
-            name: "Neither";
-          },
-          {
-            name: "Creator";
-          },
-          {
-            name: "Recipient";
-          },
-          {
-            name: "Both";
-          },
-        ];
-      };
-    },
-  ];
-  errors: [
-    {
-      code: 6000;
-      name: "Locked";
-      msg: "The vault is locked!";
+            "name": "governanceTokenAmount",
+            "type": "u64"
+          }
+        ]
+      }
     },
     {
-      code: 6001;
-      name: "Unauthorized";
-      msg: "Not authorized to perform this action!";
+      "name": "vault",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "identifier",
+            "type": "u64"
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
+            "name": "recipient",
+            "type": "publicKey"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "totalVestingDuration",
+            "type": "u64"
+          },
+          {
+            "name": "createdTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "startDate",
+            "type": "u64"
+          },
+          {
+            "name": "lastPaymentTimestamp",
+            "type": "u64"
+          },
+          {
+            "name": "initialDepositAmount",
+            "type": "u64"
+          },
+          {
+            "name": "totalNumberOfPayouts",
+            "type": "u64"
+          },
+          {
+            "name": "payoutInterval",
+            "type": "u64"
+          },
+          {
+            "name": "numberOfPaymentsMade",
+            "type": "u64"
+          },
+          {
+            "name": "cancelAuthority",
+            "type": {
+              "defined": "Authority"
+            }
+          },
+          {
+            "name": "autopay",
+            "type": {
+              "defined": "Autopay"
+            }
+          },
+          {
+            "name": "tokenAccountBump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Authority",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Neither"
+          },
+          {
+            "name": "Creator"
+          },
+          {
+            "name": "Recipient"
+          },
+          {
+            "name": "Both"
+          }
+        ]
+      }
     },
     {
-      code: 6002;
-      name: "NoPayout";
-      msg: "No payout!";
+      "name": "Autopay",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "NotRegistered"
+          },
+          {
+            "name": "Registered"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Locked",
+      "msg": "The vault is locked!"
     },
     {
-      code: 6003;
-      name: "AlreadyInitialized";
-      msg: "Config account is already initialized!";
+      "code": 6001,
+      "name": "Unauthorized",
+      "msg": "Not authorized to perform this action!"
     },
     {
-      code: 6004;
-      name: "CloseVaultFailed";
-      msg: "Closing the vault failed!";
+      "code": 6002,
+      "name": "NoPayout",
+      "msg": "No payout!"
     },
     {
-      code: 6005;
-      name: "InvalidTokenFeeBasisPoints";
-      msg: "Token fee basis points are invalid!";
+      "code": 6003,
+      "name": "AlreadyInitialized",
+      "msg": "Config account is already initialized!"
     },
     {
-      code: 6006;
-      name: "InvalidSolFee";
-      msg: "SOL fee is invalid!";
+      "code": 6004,
+      "name": "CloseVaultFailed",
+      "msg": "Closing the vault failed!"
     },
     {
-      code: 6007;
-      name: "FeePaymentFailed";
-      msg: "Fee payment failed!";
+      "code": 6005,
+      "name": "InvalidTokenFeeBasisPoints",
+      "msg": "Token fee basis points are invalid!"
     },
-  ];
-}
+    {
+      "code": 6006,
+      "name": "InvalidSolFee",
+      "msg": "SOL fee is invalid!"
+    },
+    {
+      "code": 6007,
+      "name": "FeePaymentFailed",
+      "msg": "Fee payment failed!"
+    }
+  ]
+};
 
 export const IDL: Valhalla = {
-  version: "0.1.0",
-  name: "valhalla",
-  docs: [
-    "The `valhalla` module contains functions for creating, updating, and managing vaults.",
+  "version": "0.1.0",
+  "name": "valhalla",
+  "docs": [
+    "The `valhalla` module contains functions for creating, updating, and managing vaults."
   ],
-  constants: [
+  "constants": [
     {
-      name: "MIN_SOL_FEE",
-      type: "u64",
-      value: "(0.001 * LAMPORTS_PER_SOL as f64) as u64",
+      "name": "MIN_SOL_FEE",
+      "type": "u64",
+      "value": "(0.001 * LAMPORTS_PER_SOL as f64) as u64"
     },
     {
-      name: "MAX_BASIS_POINTS",
-      type: "u64",
-      value: "10000",
+      "name": "MAX_BASIS_POINTS",
+      "type": "u64",
+      "value": "10000"
     },
     {
-      name: "CONFIG_SEED",
-      type: "bytes",
-      value: "[99, 111, 110, 102, 105, 103]",
+      "name": "CONFIG_SEED",
+      "type": "bytes",
+      "value": "[99, 111, 110, 102, 105, 103]"
     },
     {
-      name: "VAULT_SEED",
-      type: "bytes",
-      value: "[118, 97, 117, 108, 116]",
+      "name": "VAULT_SEED",
+      "type": "bytes",
+      "value": "[118, 97, 117, 108, 116]"
     },
     {
-      name: "VAULT_ATA_SEED",
-      type: "bytes",
-      value: "[118, 97, 117, 108, 116, 95, 97, 116, 97]",
+      "name": "VAULT_ATA_SEED",
+      "type": "bytes",
+      "value": "[118, 97, 117, 108, 116, 95, 97, 116, 97]"
     },
     {
-      name: "GOVERNANCE_TOKEN_MINT_SEED",
-      type: "bytes",
-      value:
-        "[103, 111, 118, 101, 114, 110, 97, 110, 99, 101, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116]",
-    },
+      "name": "GOVERNANCE_TOKEN_MINT_SEED",
+      "type": "bytes",
+      "value": "[103, 111, 118, 101, 114, 110, 97, 110, 99, 101, 95, 116, 111, 107, 101, 110, 95, 109, 105, 110, 116]"
+    }
   ],
-  instructions: [
+  "instructions": [
     {
-      name: "createConfig",
-      docs: [
+      "name": "createConfig",
+      "docs": [
         "Creates a new configuration with the specified fee.",
         "",
         "# Arguments",
@@ -957,99 +983,99 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the configuration creation fails.",
+        "Returns an error if the configuration creation fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "metadata",
-          isMut: true,
-          isSigner: false,
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "config",
-          isMut: true,
-          isSigner: false,
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "devTreasury",
-          isMut: false,
-          isSigner: false,
+          "name": "devTreasury",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "daoTreasury",
-          isMut: false,
-          isSigner: false,
+          "name": "daoTreasury",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "governanceTokenMint",
-          isMut: true,
-          isSigner: false,
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenMetadataProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "sysvarInstruction",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "sysvarInstruction",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "name",
-          type: "string",
+          "name": "name",
+          "type": "string"
         },
         {
-          name: "symbol",
-          type: "string",
+          "name": "symbol",
+          "type": "string"
         },
         {
-          name: "uri",
-          type: "string",
+          "name": "uri",
+          "type": "string"
         },
         {
-          name: "decimals",
-          type: "u8",
+          "name": "decimals",
+          "type": "u8"
         },
         {
-          name: "devFee",
-          type: "u64",
+          "name": "devFee",
+          "type": "u64"
         },
         {
-          name: "tokenFeeBasisPoints",
-          type: "u64",
+          "name": "tokenFeeBasisPoints",
+          "type": "u64"
         },
         {
-          name: "governanceTokenAmount",
-          type: "u64",
-        },
-      ],
+          "name": "governanceTokenAmount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "updateAdmin",
-      docs: [
+      "name": "updateAdmin",
+      "docs": [
         "Updates the admin of the program.",
         "",
         "# Arguments",
@@ -1058,30 +1084,30 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the admin update fails.",
+        "Returns an error if the admin update fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "newAdmin",
-          isMut: false,
-          isSigner: false,
+          "name": "newAdmin",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "config",
-          isMut: true,
-          isSigner: false,
-        },
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
       ],
-      args: [],
+      "args": []
     },
     {
-      name: "updateDaoTreasury",
-      docs: [
+      "name": "updateDaoTreasury",
+      "docs": [
         "Updates the dao treasury.",
         "",
         "# Arguments",
@@ -1090,30 +1116,30 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the dao treasury update fails.",
+        "Returns an error if the dao treasury update fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "config",
-          isMut: true,
-          isSigner: false,
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "newDaoTreasury",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "newDaoTreasury",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [],
+      "args": []
     },
     {
-      name: "updateDevFee",
-      docs: [
+      "name": "updateDevFee",
+      "docs": [
         "Updates the fee for the development team.",
         "",
         "# Arguments",
@@ -1123,30 +1149,30 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the dev fee update fails.",
+        "Returns an error if the dev fee update fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "config",
-          isMut: true,
-          isSigner: false,
-        },
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "devFee",
-          type: "u64",
-        },
-      ],
+          "name": "devFee",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "updateGovernanceTokenAmount",
-      docs: [
+      "name": "updateGovernanceTokenAmount",
+      "docs": [
         "Updates the amount of governance tokens to be minted.",
         "",
         "# Arguments",
@@ -1156,30 +1182,30 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the governance token amount update fails.",
+        "Returns an error if the governance token amount update fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "config",
-          isMut: true,
-          isSigner: false,
-        },
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "governanceTokenAmount",
-          type: "u64",
-        },
-      ],
+          "name": "governanceTokenAmount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "updateTokenFeeBasisPoints",
-      docs: [
+      "name": "updateTokenFeeBasisPoints",
+      "docs": [
         "Updates the basis points of the token fee.",
         "",
         "# Arguments",
@@ -1189,30 +1215,30 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the token fee basis points update fails.",
+        "Returns an error if the token fee basis points update fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "config",
-          isMut: true,
-          isSigner: false,
-        },
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "tokenFeeBasisPoints",
-          type: "u64",
-        },
-      ],
+          "name": "tokenFeeBasisPoints",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "mintGovernanceTokens",
-      docs: [
+      "name": "mintGovernanceTokens",
+      "docs": [
         "Mints governance tokens to the receiver.",
         "",
         "# Arguments",
@@ -1222,60 +1248,60 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the minting fails.",
+        "Returns an error if the minting fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "admin",
-          isMut: true,
-          isSigner: true,
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "receiver",
-          isMut: true,
-          isSigner: false,
+          "name": "receiver",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "config",
-          isMut: true,
-          isSigner: false,
+          "name": "config",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "governanceTokenMint",
-          isMut: true,
-          isSigner: false,
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "receiverTokenAccount",
-          isMut: true,
-          isSigner: false,
+          "name": "receiverTokenAccount",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "amount",
-          type: "u64",
-        },
-      ],
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
     {
-      name: "create",
-      docs: [
+      "name": "create",
+      "docs": [
         "Creates a new vault with the specified parameters.",
         "",
         "# Arguments",
@@ -1292,132 +1318,137 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the vault creation fails.",
+        "Returns an error if the vault creation fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "creator",
-          isMut: true,
-          isSigner: true,
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "recipient",
-          isMut: true,
-          isSigner: false,
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "devTreasury",
-          isMut: true,
-          isSigner: false,
+          "name": "devTreasury",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "daoTreasury",
-          isMut: true,
-          isSigner: false,
+          "name": "daoTreasury",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "config",
-          isMut: false,
-          isSigner: false,
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "vault",
-          isMut: true,
-          isSigner: false,
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vaultAta",
-          isMut: true,
-          isSigner: false,
+          "name": "vaultAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "daoTreasuryAta",
-          isMut: true,
-          isSigner: false,
+          "name": "daoTreasuryAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "creatorAta",
-          isMut: true,
-          isSigner: false,
+          "name": "creatorAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "creatorGovernanceAta",
-          isMut: true,
-          isSigner: false,
+          "name": "creatorGovernanceAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "governanceTokenMint",
-          isMut: true,
-          isSigner: false,
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mint",
-          isMut: false,
-          isSigner: false,
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "governanceTokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "governanceTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [
+      "args": [
         {
-          name: "identifier",
-          type: "u64",
+          "name": "identifier",
+          "type": "u64"
         },
         {
-          name: "name",
-          type: {
-            array: ["u8", 32],
-          },
+          "name": "name",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
         },
         {
-          name: "amountToBeVested",
-          type: "u64",
+          "name": "amountToBeVested",
+          "type": "u64"
         },
         {
-          name: "totalVestingDuration",
-          type: "u64",
+          "name": "totalVestingDuration",
+          "type": "u64"
         },
         {
-          name: "startDate",
-          type: "u64",
+          "name": "startDate",
+          "type": "u64"
         },
         {
-          name: "payoutInterval",
-          type: "u64",
+          "name": "payoutInterval",
+          "type": "u64"
         },
         {
-          name: "cancelAuthority",
-          type: {
-            defined: "Authority",
-          },
+          "name": "cancelAuthority",
+          "type": {
+            "defined": "Authority"
+          }
         },
         {
-          name: "autopay",
-          type: "bool",
-        },
-      ],
+          "name": "autopay",
+          "type": {
+            "defined": "Autopay"
+          }
+        }
+      ]
     },
     {
-      name: "disburse",
-      docs: [
+      "name": "disburse",
+      "docs": [
         "Disburses the vested amount from the vault.",
         "",
         "# Arguments",
@@ -1426,90 +1457,90 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the disbursement fails.",
+        "Returns an error if the disbursement fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "creator",
-          isMut: false,
-          isSigner: false,
+          "name": "creator",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "recipient",
-          isMut: false,
-          isSigner: false,
+          "name": "recipient",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "devTreasury",
-          isMut: true,
-          isSigner: false,
+          "name": "devTreasury",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "config",
-          isMut: false,
-          isSigner: false,
+          "name": "config",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "vault",
-          isMut: true,
-          isSigner: false,
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vaultAta",
-          isMut: true,
-          isSigner: false,
+          "name": "vaultAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "signerGovernanceAta",
-          isMut: true,
-          isSigner: false,
+          "name": "signerGovernanceAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "recipientAta",
-          isMut: true,
-          isSigner: false,
+          "name": "recipientAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mint",
-          isMut: false,
-          isSigner: false,
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "governanceTokenMint",
-          isMut: true,
-          isSigner: false,
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "governanceTokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "governanceTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [],
+      "args": []
     },
     {
-      name: "close",
-      docs: [
+      "name": "close",
+      "docs": [
         "Closes the vault, preventing further vesting and disbursements.",
         "",
         "# Arguments",
@@ -1518,40 +1549,40 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the vault closure fails.",
+        "Returns an error if the vault closure fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "creator",
-          isMut: true,
-          isSigner: true,
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "vault",
-          isMut: true,
-          isSigner: false,
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vaultAta",
-          isMut: true,
-          isSigner: false,
+          "name": "vaultAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mint",
-          isMut: false,
-          isSigner: false,
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [],
+      "args": []
     },
     {
-      name: "cancel",
-      docs: [
+      "name": "cancel",
+      "docs": [
         "Cancels the vault, preventing further vesting and disbursements and returning the remaining funds to the cancel authority.",
         "",
         "# Arguments",
@@ -1560,239 +1591,261 @@ export const IDL: Valhalla = {
         "",
         "# Errors",
         "",
-        "Returns an error if the vault cancellation fails.",
+        "Returns an error if the vault cancellation fails."
       ],
-      accounts: [
+      "accounts": [
         {
-          name: "signer",
-          isMut: true,
-          isSigner: true,
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
         },
         {
-          name: "creator",
-          isMut: true,
-          isSigner: false,
+          "name": "creator",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "recipient",
-          isMut: true,
-          isSigner: false,
+          "name": "recipient",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vault",
-          isMut: true,
-          isSigner: false,
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "vaultAta",
-          isMut: true,
-          isSigner: false,
+          "name": "vaultAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "creatorAta",
-          isMut: true,
-          isSigner: false,
+          "name": "creatorAta",
+          "isMut": true,
+          "isSigner": false
         },
         {
-          name: "mint",
-          isMut: false,
-          isSigner: false,
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
         },
         {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
       ],
-      args: [],
-    },
+      "args": []
+    }
   ],
-  accounts: [
+  "accounts": [
     {
-      name: "config",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "config",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "admin",
-            type: "publicKey",
+            "name": "admin",
+            "type": "publicKey"
           },
           {
-            name: "devTreasury",
-            type: "publicKey",
+            "name": "devTreasury",
+            "type": "publicKey"
           },
           {
-            name: "daoTreasury",
-            type: "publicKey",
+            "name": "daoTreasury",
+            "type": "publicKey"
           },
           {
-            name: "governanceTokenMintKey",
-            type: "publicKey",
+            "name": "governanceTokenMintKey",
+            "type": "publicKey"
           },
           {
-            name: "devFee",
-            type: "u64",
+            "name": "devFee",
+            "type": "u64"
           },
           {
-            name: "tokenFeeBasisPoints",
-            type: "u64",
+            "name": "tokenFeeBasisPoints",
+            "type": "u64"
           },
           {
-            name: "governanceTokenAmount",
-            type: "u64",
-          },
-        ],
-      },
+            "name": "governanceTokenAmount",
+            "type": "u64"
+          }
+        ]
+      }
     },
     {
-      name: "vault",
-      type: {
-        kind: "struct",
-        fields: [
+      "name": "vault",
+      "type": {
+        "kind": "struct",
+        "fields": [
           {
-            name: "identifier",
-            type: "u64",
+            "name": "identifier",
+            "type": "u64"
           },
           {
-            name: "name",
-            type: {
-              array: ["u8", 32],
-            },
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
           },
           {
-            name: "creator",
-            type: "publicKey",
+            "name": "creator",
+            "type": "publicKey"
           },
           {
-            name: "recipient",
-            type: "publicKey",
+            "name": "recipient",
+            "type": "publicKey"
           },
           {
-            name: "mint",
-            type: "publicKey",
+            "name": "mint",
+            "type": "publicKey"
           },
           {
-            name: "totalVestingDuration",
-            type: "u64",
+            "name": "totalVestingDuration",
+            "type": "u64"
           },
           {
-            name: "createdTimestamp",
-            type: "u64",
+            "name": "createdTimestamp",
+            "type": "u64"
           },
           {
-            name: "startDate",
-            type: "u64",
+            "name": "startDate",
+            "type": "u64"
           },
           {
-            name: "lastPaymentTimestamp",
-            type: "u64",
+            "name": "lastPaymentTimestamp",
+            "type": "u64"
           },
           {
-            name: "initialDepositAmount",
-            type: "u64",
+            "name": "initialDepositAmount",
+            "type": "u64"
           },
           {
-            name: "totalNumberOfPayouts",
-            type: "u64",
+            "name": "totalNumberOfPayouts",
+            "type": "u64"
           },
           {
-            name: "payoutInterval",
-            type: "u64",
+            "name": "payoutInterval",
+            "type": "u64"
           },
           {
-            name: "numberOfPaymentsMade",
-            type: "u64",
+            "name": "numberOfPaymentsMade",
+            "type": "u64"
           },
           {
-            name: "cancelAuthority",
-            type: {
-              defined: "Authority",
-            },
+            "name": "cancelAuthority",
+            "type": {
+              "defined": "Authority"
+            }
           },
           {
-            name: "autopay",
-            type: "bool",
+            "name": "autopay",
+            "type": {
+              "defined": "Autopay"
+            }
           },
           {
-            name: "tokenAccountBump",
-            type: "u8",
-          },
-        ],
-      },
-    },
+            "name": "tokenAccountBump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
   ],
-  types: [
+  "types": [
     {
-      name: "Authority",
-      type: {
-        kind: "enum",
-        variants: [
+      "name": "Authority",
+      "type": {
+        "kind": "enum",
+        "variants": [
           {
-            name: "Neither",
+            "name": "Neither"
           },
           {
-            name: "Creator",
+            "name": "Creator"
           },
           {
-            name: "Recipient",
+            "name": "Recipient"
           },
           {
-            name: "Both",
-          },
-        ],
-      },
+            "name": "Both"
+          }
+        ]
+      }
     },
+    {
+      "name": "Autopay",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "NotRegistered"
+          },
+          {
+            "name": "Registered"
+          }
+        ]
+      }
+    }
   ],
-  errors: [
+  "errors": [
     {
-      code: 6000,
-      name: "Locked",
-      msg: "The vault is locked!",
+      "code": 6000,
+      "name": "Locked",
+      "msg": "The vault is locked!"
     },
     {
-      code: 6001,
-      name: "Unauthorized",
-      msg: "Not authorized to perform this action!",
+      "code": 6001,
+      "name": "Unauthorized",
+      "msg": "Not authorized to perform this action!"
     },
     {
-      code: 6002,
-      name: "NoPayout",
-      msg: "No payout!",
+      "code": 6002,
+      "name": "NoPayout",
+      "msg": "No payout!"
     },
     {
-      code: 6003,
-      name: "AlreadyInitialized",
-      msg: "Config account is already initialized!",
+      "code": 6003,
+      "name": "AlreadyInitialized",
+      "msg": "Config account is already initialized!"
     },
     {
-      code: 6004,
-      name: "CloseVaultFailed",
-      msg: "Closing the vault failed!",
+      "code": 6004,
+      "name": "CloseVaultFailed",
+      "msg": "Closing the vault failed!"
     },
     {
-      code: 6005,
-      name: "InvalidTokenFeeBasisPoints",
-      msg: "Token fee basis points are invalid!",
+      "code": 6005,
+      "name": "InvalidTokenFeeBasisPoints",
+      "msg": "Token fee basis points are invalid!"
     },
     {
-      code: 6006,
-      name: "InvalidSolFee",
-      msg: "SOL fee is invalid!",
+      "code": 6006,
+      "name": "InvalidSolFee",
+      "msg": "SOL fee is invalid!"
     },
     {
-      code: 6007,
-      name: "FeePaymentFailed",
-      msg: "Fee payment failed!",
-    },
-  ],
+      "code": 6007,
+      "name": "FeePaymentFailed",
+      "msg": "Fee payment failed!"
+    }
+  ]
 };

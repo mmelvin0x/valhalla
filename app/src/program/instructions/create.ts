@@ -9,6 +9,7 @@ import * as splToken from '@solana/spl-token'
 import * as beet from '@metaplex-foundation/beet'
 import * as web3 from '@solana/web3.js'
 import { Authority, authorityBeet } from '../types/Authority'
+import { Autopay, autopayBeet } from '../types/Autopay'
 
 /**
  * @category Instructions
@@ -23,7 +24,7 @@ export type CreateInstructionArgs = {
   startDate: beet.bignum
   payoutInterval: beet.bignum
   cancelAuthority: Authority
-  autopay: boolean
+  autopay: Autopay
 }
 /**
  * @category Instructions
@@ -44,7 +45,7 @@ export const createStruct = new beet.BeetArgsStruct<
     ['startDate', beet.u64],
     ['payoutInterval', beet.u64],
     ['cancelAuthority', authorityBeet],
-    ['autopay', beet.bool],
+    ['autopay', autopayBeet],
   ],
   'CreateInstructionArgs'
 )
@@ -103,7 +104,7 @@ export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
 export function createCreateInstruction(
   accounts: CreateInstructionAccounts,
   args: CreateInstructionArgs,
-  programId = new web3.PublicKey('5PypERESHinFR5gzXQnWnJkC2U4QTQqi34RhmjpvFRkC')
+  programId = new web3.PublicKey('57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU')
 ) {
   const [data] = createStruct.serialize({
     instructionDiscriminator: createInstructionDiscriminator,
