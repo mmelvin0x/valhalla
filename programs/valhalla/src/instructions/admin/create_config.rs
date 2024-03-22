@@ -72,6 +72,7 @@ impl<'info> CreateConfig<'info> {
         uri: String,
         decimals: u8,
         dev_fee: u64,
+        autopay_multiplier: u64,
         token_fee_basis_points: u64,
         governance_token_amount: u64,
         bumps: &CreateConfigBumps,
@@ -94,6 +95,7 @@ impl<'info> CreateConfig<'info> {
             dao_treasury: self.dao_treasury.to_account_info().key(),
             governance_token_mint_key: self.governance_token_mint.to_account_info().key(),
             dev_fee,
+            autopay_multiplier,
             token_fee_basis_points,
             governance_token_amount,
         });

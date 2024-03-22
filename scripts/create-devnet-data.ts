@@ -33,12 +33,13 @@ import {
 
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { Valhalla } from "../target/types/valhalla";
+import generate from "project-name-generator";
 import { getPDAs } from "../tests/utils/getPDAs";
 import one from "../.keys/creator.json";
 import { randomBytes } from "crypto";
 import two from "../.keys/recipient.json";
 
-const NUM_VAULTS_TO_MAKE = 15;
+const NUM_VAULTS_TO_MAKE = 100;
 
 const second = new anchor.BN(60);
 const minute = new anchor.BN(60 * second.toNumber());
@@ -54,6 +55,13 @@ async function spl() {
   const wallet = provider.wallet as NodeWallet;
   const userOne = Keypair.fromSecretKey(new Uint8Array(one));
   const userTwo = Keypair.fromSecretKey(new Uint8Array(two));
+  console.log("User one: ", userOne.publicKey.toBase58());
+  console.log("User two: ", userTwo.publicKey.toBase58());
+
+  // await airdrop(connection, userOne.publicKey, 5 * LAMPORTS_PER_SOL);
+  // await sleep(5000);
+  // await airdrop(connection, userTwo.publicKey, 5 * LAMPORTS_PER_SOL);
+  // await sleep(5000);
 
   const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
   const config = (await program.account.config.all())[0];
@@ -104,7 +112,7 @@ async function spl() {
   );
 
   for (let i = 0; i < NUM_VAULTS_TO_MAKE; i++) {
-    console.log(`Creating vault ${i}`);
+    console.log(`Creating vaults ${i}`);
     const creator = i % 2 === 0 ? userOne : userTwo;
     const recipient = i % 2 === 0 ? userTwo : userOne;
     const creatorAta = i % 2 === 0 ? userOneAta : userTwoAta;
@@ -135,6 +143,10 @@ async function spl() {
       config,
       TOKEN_PROGRAM_ID
     );
+
+    console.log(`Vaults ${i} created`);
+
+    await sleep(2500);
   }
 }
 
@@ -273,10 +285,10 @@ async function create(
   tokenProgram: PublicKey
 ) {
   const identifier = new anchor.BN(randomBytes(8));
-  const name = getName(`Vault ${i}`);
+  const name = getName(generate({ words: 2 }).spaced.toLocaleUpperCase());
   const amountToBeVested = new anchor.BN(10_000_000 / 100);
-  const totalVestingDuration = new anchor.BN(60 * 60 * (i + 1));
-  const startDate = new anchor.BN(Date.now() / 1000);
+  const totalVestingDuration = new anchor.BN(60 * (i + 1));
+  const startDate = new anchor.BN(Date.now() + (60 * i) / 1000);
 
   let payoutInterval;
   const intervalNum = getRandomNumberInRange(1, 6);

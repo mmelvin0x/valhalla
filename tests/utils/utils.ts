@@ -82,11 +82,6 @@ export const getAuthority = (
 ) =>
   program.coder.types.decode("Authority", new anchor.BN(authority).toBuffer());
 
-export const getAutopay = (
-  autopay: Autopay,
-  program: anchor.Program<Valhalla>
-) => program.coder.types.decode("Autopay", new anchor.BN(autopay).toBuffer());
-
 export const CONFIG_SEED = Buffer.from("config");
 export const VAULT_SEED = Buffer.from("vault");
 export const VAULT_ATA_SEED = Buffer.from("vault_ata");

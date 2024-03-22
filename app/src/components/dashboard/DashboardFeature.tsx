@@ -38,12 +38,12 @@ export default function DashboardFeature() {
 
   const defaultColDef: ColDef = {
     flex: 1,
-    minWidth: 130,
-    filter: false,
-    sortable: false,
+    minWidth: 200,
+    filter: true,
+    sortable: true,
   };
 
-  const colDefs = useMemo<ColDef[]>(() => columnDefs, []);
+  const colDefs = useMemo<ColDef[]>(() => columnDefs(subType), [subType]);
 
   const disburseMany = async () => {
     alert("Disburse Many: Implement me!");

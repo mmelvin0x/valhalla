@@ -10,7 +10,7 @@ use solana_program::system_instruction;
 use crate::{
     constants,
     state::{Config, Vault},
-    Authority, Autopay,
+    Authority,
 };
 
 #[derive(Accounts)]
@@ -116,7 +116,7 @@ impl<'info> CreateVault<'info> {
         start_date: u64,
         payout_interval: u64,
         cancel_authority: Authority,
-        autopay: Autopay,
+        autopay: bool,
         bumps: &CreateVaultBumps,
     ) -> Result<()> {
         let mut deposit_amount = amount_to_be_vested
@@ -181,9 +181,13 @@ impl<'info> CreateVault<'info> {
         let from = self.creator.to_account_info();
         let to = self.dev_treasury.to_account_info();
 
-        let fee = match self.vault.autopay {
-            Autopay::NotRegistered => self.config.dev_fee.checked_mul(2).unwrap(),
-            _ => self.config.dev_fee,
+        let fee = if self.vault.autopay {
+            self.config
+                .dev_fee
+                .checked_mul(self.config.autopay_multiplier)
+                .unwrap()
+        } else {
+            self.config.dev_fee
         };
 
         let transfer_ix = system_instruction::transfer(from.key, to.key, fee);

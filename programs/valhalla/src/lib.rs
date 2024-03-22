@@ -31,6 +31,7 @@ pub mod valhalla {
     /// * `uri` - The URI of the token.
     /// * `decimals` - The number of decimals for the token.
     /// * `dev_fee` - The fee value for the configuration.
+    /// * `autopay_multiplier` - The multiplier for the autopay fee.
     /// * `token_fee_basis_points` - The basis points of the token fee.
     /// * `governance_token_amount` - The amount of reward tokens to be minted.
     /// * `dev_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dev treasury.
@@ -46,6 +47,7 @@ pub mod valhalla {
         uri: String,
         decimals: u8,
         dev_fee: u64,
+        autopay_multiplier: u64,
         token_fee_basis_points: u64,
         governance_token_amount: u64,
     ) -> Result<()> {
@@ -55,6 +57,7 @@ pub mod valhalla {
             uri,
             decimals,
             dev_fee,
+            autopay_multiplier,
             token_fee_basis_points,
             governance_token_amount,
             &ctx.bumps,
@@ -175,7 +178,7 @@ pub mod valhalla {
         start_date: u64,
         payout_interval: u64,
         cancel_authority: Authority,
-        autopay: Autopay,
+        autopay: bool,
     ) -> Result<()> {
         ctx.accounts.create(
             identifier,

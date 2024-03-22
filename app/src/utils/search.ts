@@ -15,8 +15,8 @@ export const getVaultByIdentifier = async (
   builder.addFilter("identifier", new anchor.BN(identifier));
 
   return (await builder.run(connection)).map((v) => {
-    const [vs] = Vault.fromAccountInfo(v.account);
-    return new ValhallaVault(v.pubkey, vs, connection);
+    const [vault] = Vault.fromAccountInfo(v.account);
+    return new ValhallaVault(v.pubkey, vault, connection);
   })[0];
 };
 
@@ -42,12 +42,12 @@ export const searchMyVaults = async (
   }
 
   const fMapped = (await created.run(connection)).map((v) => {
-    const [vs] = Vault.fromAccountInfo(v.account);
-    return new ValhallaVault(v.pubkey, vs, connection);
+    const [vault] = Vault.fromAccountInfo(v.account);
+    return new ValhallaVault(v.pubkey, vault, connection);
   });
   const rMapped = (await recipient.run(connection)).map((v) => {
-    const [vs] = Vault.fromAccountInfo(v.account);
-    return new ValhallaVault(v.pubkey, vs, connection);
+    const [vault] = Vault.fromAccountInfo(v.account);
+    return new ValhallaVault(v.pubkey, vault, connection);
   });
 
   return {

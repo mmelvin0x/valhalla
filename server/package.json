@@ -15,7 +15,8 @@
     "bn.js": "^5.2.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.0",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "winston": "^3.12.0"
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.5",

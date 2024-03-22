@@ -17,7 +17,8 @@ const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
   "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU"
 );
 
-const devFee = new anchor.BN(0.025 * LAMPORTS_PER_SOL);
+const devFee = new anchor.BN(0.05 * LAMPORTS_PER_SOL);
+const autopayMultiplier = new anchor.BN(5);
 const tokenFeeBasisPoints = new anchor.BN(10);
 const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
 const tokenName = "Odin";
@@ -67,6 +68,7 @@ const main = async () => {
       tokenURI,
       tokenDecimals,
       devFee,
+      autopayMultiplier,
       tokenFeeBasisPoints,
       governanceTokenAmount
     )

@@ -7,7 +7,7 @@ import {
   getAssociatedTokenAddressSync,
   getMint,
 } from "@solana/spl-token";
-import { Authority, Vault } from "program";
+import { Authority, Autopay, Vault } from "program";
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { displayTime, shortenAddress } from "utils/formatters";
 
@@ -21,7 +21,7 @@ export default class BaseModel {
   creator: PublicKey;
   recipient: PublicKey;
   mint: PublicKey;
-  autopay: boolean;
+  autopay: Autopay;
   _totalVestingDuration: anchor.BN = new anchor.BN(0);
   _createdTimestamp: anchor.BN = new anchor.BN(0);
   _startDate: anchor.BN = new anchor.BN(0);

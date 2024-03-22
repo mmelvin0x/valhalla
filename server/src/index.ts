@@ -12,118 +12,60 @@ import {
   clusterApiUrl,
 } from "@solana/web3.js";
 import wallet from "../.keys/id.json";
-import cron, { type ScheduledTask } from "node-cron";
-import { Vault, vaultDiscriminator } from "./program/vault";
-import { cronToTimeStringWithSteps, cronFromPayoutInterval } from "./utils";
+import cron from "node-cron";
+import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
+import { registerVaults } from "./registerVault";
+import { scheduleRegisteredVaults } from "./scheduleVault";
+import WinstonLogger from "./logger";
 
 dotenv.config();
 
+const logger = WinstonLogger.logger();
+
+const EVERY_HOUR = "0 * * * *";
 const EVERY_FIVE_MINUTES = "*/5 * * * *";
+const EVERY_MINUTE = "* * * * *";
+const REGISTERED_IDS = new Set<number>();
+const SCHEDULED_IDS = new Set<number>();
 
 const app: Application = express();
-const port = 3001;
+const port = process.env.PORT ?? 3001;
 
-const payer = Keypair.fromSecretKey(new Uint8Array(wallet));
+const payer = new NodeWallet(Keypair.fromSecretKey(new Uint8Array(wallet)));
 const connection = new Connection(
-  clusterApiUrl((process.env.CLUSTER as Cluster) ?? "devnet")
+  clusterApiUrl((process.env.CLUSTER as Cluster) ?? "devnet"),
 );
 
 app.use("/healthcheck", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).send({ data: "Healthy!" });
 });
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 app.listen(port, () => {
-  console.log(`Server is listening on port ${port}!`);
-  console.log(`Cluster: ${process.env.CLUSTER != null || "devnet"}`);
-  console.log(`Payer: ${payer.publicKey.toBase58()}`);
+  logger.info(`Server is listening on port ${port}!`);
+  logger.info(`Cluster: ${process.env.CLUSTER != null || "devnet"}`);
+  logger.info(`Payer: ${payer.publicKey.toBase58()}`);
 
-  // schedule the register to run every hour
+  cron.schedule(
+    EVERY_FIVE_MINUTES,
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    async () => {
+      logger.info("Scheduling registered vaults");
+      const ids = await scheduleRegisteredVaults(
+        connection,
+        payer,
+        SCHEDULED_IDS,
+      );
+      logger.info(`Scheduled ${ids.length} vaults`);
+      ids.forEach((id) => SCHEDULED_IDS.add(id));
+    },
+  );
+
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  cron.schedule(EVERY_FIVE_MINUTES, async (): Promise<void> => {
-    await register(connection);
+  cron.schedule(EVERY_MINUTE, async () => {
+    logger.info("Registering vaults");
+    const ids = await registerVaults(connection, payer, REGISTERED_IDS);
+    logger.info(`Registered ${ids.size} vaults`);
+    ids.forEach((id) => REGISTERED_IDS.add(id));
   });
 });
-
-async function register(connection: Connection): Promise<void> {
-  const vaults = Vault.gpaBuilder();
-  vaults.addFilter("accountDiscriminator", vaultDiscriminator);
-  vaults.addFilter("autopay", true);
-
-  const vaultAccounts = await vaults.run(connection);
-  const vaultsStarted = vaultAccounts
-    .map((it) => Vault.fromAccountInfo(it.account)[0])
-    .filter(
-      (it) =>
-        Number(it.startDate.toString()) +
-          Number(it.payoutInterval.toString()) <=
-        Date.now() / 1000
-    );
-  console.log(`Found ${vaultsStarted.length} vaults`);
-
-  const vaultTasks = createTasks(vaultsStarted);
-
-  const toMark = [];
-  for (let i = 0; i < vaultTasks.length; i++) {
-    const vaultTask = vaultTasks[i];
-    vaultTask.task.start();
-    toMark.push(vaultTask.vault);
-  }
-
-  await markVaultAsRegistered(toMark);
-}
-
-function createTasks(vaultAccounts: Vault[]): Array<{
-  task: ScheduledTask;
-  vault: Vault;
-}> {
-  return vaultAccounts.map((vault: Vault) => {
-    console.log(
-      `Scheduling disbursement - Vault ID: ${vault.identifier.toString()} - ${cronToTimeStringWithSteps(
-        cronFromPayoutInterval(vault.payoutInterval)
-      )}`
-    );
-
-    return {
-      vault,
-      task: cron.schedule(
-        cronFromPayoutInterval(vault.payoutInterval),
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        async (): Promise<void> => {
-          await disburse(vault);
-        },
-        {
-          scheduled: false,
-        }
-      ),
-    };
-  });
-}
-
-async function disburse(vault: Vault): Promise<void> {
-  try {
-    console.log(
-      `Disbursing funds for Vault ID: ${vault.identifier.toString()}`
-    );
-
-    console.log(`Funds disbursed for Vault ID: ${vault.identifier.toString()}`);
-  } catch (error) {
-    console.error(
-      `Error disbursing funds for Vault ID: ${vault.identifier.toString()}`
-    );
-    console.error(error);
-  }
-}
-
-async function markVaultAsRegistered(vaults: Vault[]): Promise<void> {
-  console.log("Marking vaults as registered");
-  // try {
-  //   console.log(
-  //     `Marking Vault ID: ${vault.identifier.toString()} as registered`
-  //   );
-  // } catch (error) {
-  //   console.error(
-  //     `Error marking Vault ID: ${vault.identifier.toString()} as registered`
-  //   );
-  //   console.error(error);
-  // }
-}
