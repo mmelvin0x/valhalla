@@ -1,0 +1,53 @@
+{
+  "name": "disburser",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "disburser/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/disburser",
+        "main": "disburser/src/main.ts",
+        "tsConfig": "disburser/tsconfig.app.json",
+        "assets": ["disburser/src/assets"],
+        "webpackConfig": "disburser/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "disburser:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "disburser:build:development"
+        },
+        "production": {
+          "buildTarget": "disburser:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "disburser/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
