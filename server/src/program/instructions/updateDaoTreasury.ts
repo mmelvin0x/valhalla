@@ -23,16 +23,16 @@ export const updateDaoTreasuryStruct = new beet.BeetArgsStruct<{
  * Accounts required by the _updateDaoTreasury_ instruction
  *
  * @property [_writable_, **signer**] admin
- * @property [_writable_] config
  * @property [] newDaoTreasury
+ * @property [_writable_] config
  * @category Instructions
  * @category UpdateDaoTreasury
  * @category generated
  */
 export type UpdateDaoTreasuryInstructionAccounts = {
   admin: web3.PublicKey
-  config: web3.PublicKey
   newDaoTreasury: web3.PublicKey
+  config: web3.PublicKey
 }
 
 export const updateDaoTreasuryInstructionDiscriminator = [
@@ -49,7 +49,7 @@ export const updateDaoTreasuryInstructionDiscriminator = [
  */
 export function createUpdateDaoTreasuryInstruction(
   accounts: UpdateDaoTreasuryInstructionAccounts,
-  programId = new web3.PublicKey('57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU')
+  programId = new web3.PublicKey('8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP')
 ) {
   const [data] = updateDaoTreasuryStruct.serialize({
     instructionDiscriminator: updateDaoTreasuryInstructionDiscriminator,
@@ -61,13 +61,13 @@ export function createUpdateDaoTreasuryInstruction(
       isSigner: true,
     },
     {
-      pubkey: accounts.config,
-      isWritable: true,
+      pubkey: accounts.newDaoTreasury,
+      isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: accounts.newDaoTreasury,
-      isWritable: false,
+      pubkey: accounts.config,
+      isWritable: true,
       isSigner: false,
     },
   ]

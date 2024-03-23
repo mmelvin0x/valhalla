@@ -9,7 +9,6 @@ import * as splToken from '@solana/spl-token'
 import * as beet from '@metaplex-foundation/beet'
 import * as web3 from '@solana/web3.js'
 import { Authority, authorityBeet } from '../types/Authority'
-import { Autopay, autopayBeet } from '../types/Autopay'
 
 /**
  * @category Instructions
@@ -24,7 +23,7 @@ export type CreateInstructionArgs = {
   startDate: beet.bignum
   payoutInterval: beet.bignum
   cancelAuthority: Authority
-  autopay: Autopay
+  autopay: boolean
 }
 /**
  * @category Instructions
@@ -45,7 +44,7 @@ export const createStruct = new beet.BeetArgsStruct<
     ['startDate', beet.u64],
     ['payoutInterval', beet.u64],
     ['cancelAuthority', authorityBeet],
-    ['autopay', autopayBeet],
+    ['autopay', beet.bool],
   ],
   'CreateInstructionArgs'
 )
@@ -61,10 +60,7 @@ export const createStruct = new beet.BeetArgsStruct<
  * @property [_writable_] vaultAta
  * @property [_writable_] daoTreasuryAta
  * @property [_writable_] creatorAta
- * @property [_writable_] creatorGovernanceAta
- * @property [_writable_] governanceTokenMint
  * @property [] mint
- * @property [] governanceTokenProgram
  * @property [] associatedTokenProgram
  * @category Instructions
  * @category Create
@@ -80,11 +76,8 @@ export type CreateInstructionAccounts = {
   vaultAta: web3.PublicKey
   daoTreasuryAta: web3.PublicKey
   creatorAta: web3.PublicKey
-  creatorGovernanceAta: web3.PublicKey
-  governanceTokenMint: web3.PublicKey
   mint: web3.PublicKey
   tokenProgram?: web3.PublicKey
-  governanceTokenProgram: web3.PublicKey
   associatedTokenProgram: web3.PublicKey
   systemProgram?: web3.PublicKey
 }
@@ -104,7 +97,7 @@ export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
 export function createCreateInstruction(
   accounts: CreateInstructionAccounts,
   args: CreateInstructionArgs,
-  programId = new web3.PublicKey('57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU')
+  programId = new web3.PublicKey('8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP')
 ) {
   const [data] = createStruct.serialize({
     instructionDiscriminator: createInstructionDiscriminator,
@@ -157,27 +150,12 @@ export function createCreateInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.creatorGovernanceAta,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.governanceTokenMint,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
       pubkey: accounts.mint,
       isWritable: false,
       isSigner: false,
     },
     {
       pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.governanceTokenProgram,
       isWritable: false,
       isSigner: false,
     },

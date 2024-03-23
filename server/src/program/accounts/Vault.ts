@@ -9,7 +9,6 @@ import * as beet from '@metaplex-foundation/beet'
 import * as web3 from '@solana/web3.js'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 import { Authority, authorityBeet } from '../types/Authority'
-import { Autopay, autopayBeet } from '../types/Autopay'
 
 /**
  * Arguments used to create {@link Vault}
@@ -31,7 +30,7 @@ export type VaultArgs = {
   payoutInterval: beet.bignum
   numberOfPaymentsMade: beet.bignum
   cancelAuthority: Authority
-  autopay: Autopay
+  autopay: boolean
   tokenAccountBump: number
 }
 
@@ -59,7 +58,7 @@ export class Vault implements VaultArgs {
     readonly payoutInterval: beet.bignum,
     readonly numberOfPaymentsMade: beet.bignum,
     readonly cancelAuthority: Authority,
-    readonly autopay: Autopay,
+    readonly autopay: boolean,
     readonly tokenAccountBump: number
   ) {}
 
@@ -127,7 +126,7 @@ export class Vault implements VaultArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU'
+      '8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, vaultBeet)
@@ -294,7 +293,7 @@ export class Vault implements VaultArgs {
         return x
       })(),
       cancelAuthority: 'Authority.' + Authority[this.cancelAuthority],
-      autopay: 'Autopay.' + Autopay[this.autopay],
+      autopay: this.autopay,
       tokenAccountBump: this.tokenAccountBump,
     }
   }
@@ -326,7 +325,7 @@ export const vaultBeet = new beet.BeetStruct<
     ['payoutInterval', beet.u64],
     ['numberOfPaymentsMade', beet.u64],
     ['cancelAuthority', authorityBeet],
-    ['autopay', autopayBeet],
+    ['autopay', beet.bool],
     ['tokenAccountBump', beet.u8],
   ],
   Vault.fromArgs,

@@ -50,10 +50,11 @@
         "* `uri` - The URI of the token.",
         "* `decimals` - The number of decimals for the token.",
         "* `dev_fee` - The fee value for the configuration.",
+        "* `autopay_multiplier` - The multiplier for the autopay fee.",
         "* `token_fee_basis_points` - The basis points of the token fee.",
-        "* `governance_token_amount` - The amount of reward tokens to be minted.",
-        "* `dev_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dev treasury.",
-        "* `dao_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dao treasury.",
+        "* `governance_token_amount` - The amount of governance tokens to be minted on disburse.",
+        "* `dev_treasury_governance_token_amount` - The amount of governance tokens to be minted for the dev treasury.",
+        "* `dao_treasury_governance_token_amount` - The amount of governance tokens to be minted for the dao treasury.",
         "",
         "# Errors",
         "",
@@ -138,6 +139,10 @@
           "type": "u64"
         },
         {
+          "name": "autopayMultiplier",
+          "type": "u64"
+        },
+        {
           "name": "tokenFeeBasisPoints",
           "type": "u64"
         },
@@ -199,13 +204,13 @@
           "isSigner": true
         },
         {
-          "name": "config",
-          "isMut": true,
+          "name": "newDaoTreasury",
+          "isMut": false,
           "isSigner": false
         },
         {
-          "name": "newDaoTreasury",
-          "isMut": false,
+          "name": "config",
+          "isMut": true,
           "isSigner": false
         }
       ],
@@ -252,7 +257,7 @@
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `governance_token_amount` - The amount of governance tokens to be minted.",
+        "* `governance_token_amount` - The amount of governance tokens to be minted on disburse.",
         "",
         "# Errors",
         "",
@@ -441,27 +446,12 @@
           "isSigner": false
         },
         {
-          "name": "creatorGovernanceAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceTokenMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "mint",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "governanceTokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -514,9 +504,7 @@
         },
         {
           "name": "autopay",
-          "type": {
-            "defined": "Autopay"
-          }
+          "type": "bool"
         }
       ]
     },
@@ -749,6 +737,10 @@
             "type": "u64"
           },
           {
+            "name": "autopayMultiplier",
+            "type": "u64"
+          },
+          {
             "name": "tokenFeeBasisPoints",
             "type": "u64"
           },
@@ -829,9 +821,7 @@
           },
           {
             "name": "autopay",
-            "type": {
-              "defined": "Autopay"
-            }
+            "type": "bool"
           },
           {
             "name": "tokenAccountBump",
@@ -858,23 +848,6 @@
           },
           {
             "name": "Both"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Autopay",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "None"
-          },
-          {
-            "name": "NotRegistered"
-          },
-          {
-            "name": "Registered"
           }
         ]
       }
@@ -923,6 +896,9 @@
     }
   ],
   "metadata": {
-    "address": "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU"
+    "address": "8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP",
+    "origin": "anchor",
+    "binaryVersion": "0.29.0",
+    "libVersion": "0.29.0"
   }
 }

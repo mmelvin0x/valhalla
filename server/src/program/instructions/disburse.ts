@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as splToken from "@solana/spl-token";
-import * as web3 from "@solana/web3.js";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -15,11 +15,11 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export const disburseStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */;
+  instructionDiscriminator: number[] /* size: 8 */
 }>(
-  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
-  "DisburseInstructionArgs",
-);
+  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
+  'DisburseInstructionArgs'
+)
 /**
  * Accounts required by the _disburse_ instruction
  *
@@ -41,26 +41,26 @@ export const disburseStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type DisburseInstructionAccounts = {
-  signer: web3.PublicKey;
-  creator: web3.PublicKey;
-  recipient: web3.PublicKey;
-  devTreasury: web3.PublicKey;
-  config: web3.PublicKey;
-  vault: web3.PublicKey;
-  vaultAta: web3.PublicKey;
-  signerGovernanceAta: web3.PublicKey;
-  recipientAta: web3.PublicKey;
-  mint: web3.PublicKey;
-  governanceTokenMint: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  governanceTokenProgram: web3.PublicKey;
-  associatedTokenProgram: web3.PublicKey;
-  systemProgram?: web3.PublicKey;
-};
+  signer: web3.PublicKey
+  creator: web3.PublicKey
+  recipient: web3.PublicKey
+  devTreasury: web3.PublicKey
+  config: web3.PublicKey
+  vault: web3.PublicKey
+  vaultAta: web3.PublicKey
+  signerGovernanceAta: web3.PublicKey
+  recipientAta: web3.PublicKey
+  mint: web3.PublicKey
+  governanceTokenMint: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+  governanceTokenProgram: web3.PublicKey
+  associatedTokenProgram: web3.PublicKey
+  systemProgram?: web3.PublicKey
+}
 
 export const disburseInstructionDiscriminator = [
   68, 250, 205, 89, 217, 142, 13, 44,
-];
+]
 
 /**
  * Creates a _Disburse_ instruction.
@@ -72,13 +72,11 @@ export const disburseInstructionDiscriminator = [
  */
 export function createDisburseInstruction(
   accounts: DisburseInstructionAccounts,
-  programId = new web3.PublicKey(
-    "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU",
-  ),
-): web3.TransactionInstruction {
+  programId = new web3.PublicKey('8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP')
+) {
   const [data] = disburseStruct.serialize({
     instructionDiscriminator: disburseInstructionDiscriminator,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.signer,
@@ -155,12 +153,12 @@ export function createDisburseInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

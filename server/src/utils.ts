@@ -1,5 +1,5 @@
 import type * as beet from "@metaplex-foundation/beet";
-import { type Vault } from "program";
+import { type Vault } from "./program";
 
 export function canDisburseVault(vault: Vault): boolean {
   const currentTime = Math.floor(Date.now() / 1000);
@@ -40,33 +40,6 @@ export const displayTime = (seconds: number): string => {
     return `${(seconds / SECONDS_IN_MONTH).toFixed(2)} Month(s)`;
   }
 };
-
-export function cronWithStepsToTimeInSeconds(cronStr: string): number {
-  // Split the cron string to extract seconds, minutes, and hours
-  const parts = cronStr.split(" ");
-  if (parts.length < 3) {
-    return -1;
-  }
-
-  let [second, minute, hour] = parts;
-
-  // Helper function to handle step values and wildcard
-  const formatField = (field: string): string => {
-    if (field === "*") return "0";
-    if (field.includes("/")) {
-      const [base, step] = field.split("/");
-      if (base === "*") return step;
-      else return base;
-    }
-    return field;
-  };
-
-  second = formatField(second);
-  minute = formatField(minute);
-  hour = formatField(hour);
-
-  return +second + +minute * 60 + +hour * 3600;
-}
 
 export function cronFromPayoutInterval(payoutInterval: beet.bignum): string {
   return `*/${payoutInterval.toString()} * * * * *`;

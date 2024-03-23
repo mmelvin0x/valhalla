@@ -14,18 +14,15 @@ import {
 import wallet from "../.keys/id.json";
 import cron from "node-cron";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
-import { registerVaults } from "./registerVault";
-import { scheduleRegisteredVaults } from "./scheduleVault";
+import { createTasks } from "./createTasks";
 import WinstonLogger from "./logger";
+import { getVaultsToSchedule } from "./getVaultsToSchedule";
 
 dotenv.config();
 
 const logger = WinstonLogger.logger();
 
-const EVERY_HOUR = "0 * * * *";
-const EVERY_FIVE_MINUTES = "*/5 * * * *";
-const EVERY_MINUTE = "* * * * *";
-const REGISTERED_IDS = new Set<number>();
+const SCHEDULE_INTERVAL = process.env.SCHEDULE_INTERVAL ?? "* * * * *";
 const SCHEDULED_IDS = new Set<number>();
 
 const app: Application = express();
@@ -40,32 +37,28 @@ app.use("/healthcheck", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).send({ data: "Healthy!" });
 });
 
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
 app.listen(port, () => {
   logger.info(`Server is listening on port ${port}!`);
   logger.info(`Cluster: ${process.env.CLUSTER != null || "devnet"}`);
   logger.info(`Payer: ${payer.publicKey.toBase58()}`);
 
-  cron.schedule(
-    EVERY_FIVE_MINUTES,
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    async () => {
-      logger.info("Scheduling registered vaults");
-      const ids = await scheduleRegisteredVaults(
-        connection,
-        payer,
-        SCHEDULED_IDS,
-      );
-      logger.info(`Scheduled ${ids.length} vaults`);
-      ids.forEach((id) => SCHEDULED_IDS.add(id));
-    },
-  );
-
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  cron.schedule(EVERY_MINUTE, async () => {
-    logger.info("Registering vaults");
-    const ids = await registerVaults(connection, payer, REGISTERED_IDS);
-    logger.info(`Registered ${ids.size} vaults`);
-    ids.forEach((id) => REGISTERED_IDS.add(id));
+  cron.schedule(SCHEDULE_INTERVAL, () => {
+    void scheduler();
   });
 });
+
+const scheduler = async (): Promise<void> => {
+  const logger = WinstonLogger.logger();
+  const vaultsToSchedule = (await getVaultsToSchedule(connection)).filter(
+    (it) => !SCHEDULED_IDS.has(Number(it.identifier)),
+  );
+
+  logger.info(`\nFound ${vaultsToSchedule.length} unscheduled vaults.\n`);
+
+  const vaultTasks = createTasks(connection, payer, vaultsToSchedule);
+  vaultTasks.forEach((vaultTask) => {
+    vaultTask.task.start();
+    SCHEDULED_IDS.add(Number(vaultTask.vault.identifier));
+    logger.info(`Scheduled vault: ${Number(vaultTask.vault.identifier)}`);
+  });
+};
