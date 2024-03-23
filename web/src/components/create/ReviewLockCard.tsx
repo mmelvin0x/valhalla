@@ -12,7 +12,7 @@ import StartDateDisplay from "../lock/StartDateDisplay";
 import TokenMintDisplay from "../lock/TokenMintDisplay";
 import { getExplorerUrl } from "@/src/utils/explorer";
 import { useMemo } from "react";
-import useProgram from "@/src/contexts/useProgram";
+import useProgram from "@/src/utils/useProgram";
 
 interface ReviewLockCardProps {
   creator: PublicKey;
@@ -146,7 +146,7 @@ export default function ReviewLockCard({
       <div className="flex flex-col gap-2">
         <div className="font-bold">Payout Date</div>
         <div className="font-bold">
-          <EndDateDisplay vestingEndDate={vestingEndDate} />
+          <EndDateDisplay vestingEndDate={vestingEndDate.getTime()} />
         </div>
       </div>
 

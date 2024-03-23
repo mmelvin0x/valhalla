@@ -18,7 +18,7 @@ import { AgGridReact } from "ag-grid-react";
 import { Head } from "next/document";
 import { searchAllVaults } from "@/src/utils/search";
 import { useMemo } from "react";
-import useProgram from "@/src/contexts/useProgram";
+import useProgram from "@/src/utils/useProgram";
 import { useValhallaStore } from "@/src/stores/useValhallaStore";
 
 export default function AllVaultsFeature() {

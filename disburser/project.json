@@ -14,7 +14,6 @@
         "outputPath": "dist/disburser",
         "main": "disburser/src/main.ts",
         "tsConfig": "disburser/tsconfig.app.json",
-        "assets": ["disburser/src/assets"],
         "webpackConfig": "disburser/webpack.config.js"
       },
       "configurations": {

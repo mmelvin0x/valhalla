@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import useProgram from "../contexts/useProgram";
+import useProgram from "./useProgram";
 import { useQuery } from "@tanstack/react-query";
 
 export function useGetSignatures({ address }: { address: PublicKey }) {

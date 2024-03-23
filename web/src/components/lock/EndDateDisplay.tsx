@@ -3,7 +3,7 @@ import { IconCalendarExclamation } from "@tabler/icons-react";
 export default function EndDateDisplay({
   vestingEndDate,
 }: {
-  vestingEndDate: Date;
+  vestingEndDate: number;
 }) {
   return (
     <div className="flex items-center gap-1">

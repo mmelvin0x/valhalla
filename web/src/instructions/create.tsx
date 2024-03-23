@@ -9,6 +9,14 @@ import {
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import {
+  Config,
+  CreateInstructionAccounts,
+  CreateInstructionArgs,
+  createCreateInstruction,
+  getNameArg,
+  getPDAs,
+} from "@valhalla/lib";
+import {
   Connection,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -16,17 +24,9 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import {
-  CreateInstructionAccounts,
-  CreateInstructionArgs,
-  createCreateInstruction,
-  getNameArg,
-  getPDAs,
-} from "@valhalla/lib";
 import { FormikHelpers, FormikValues } from "formik";
 
 import { ICreateForm } from "../utils/interfaces";
-import { Valhalla } from "@valhalla/anchor";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { isPublicKey } from "@metaplex-foundation/umi";
 import { notify } from "../utils/notifications";
@@ -39,7 +39,6 @@ export const createVault = async (
   helpers: FormikHelpers<ICreateForm>,
   wallet: WalletContextState,
   connection: Connection,
-  program: anchor.Program<Valhalla>,
   totalVestingDuration: number,
   balance: number,
   today: Date
@@ -52,7 +51,6 @@ export const createVault = async (
       ...instructions,
       ...(await getInstructions(
         connection,
-        program,
         wallet,
         value,
         totalVestingDuration
@@ -111,7 +109,6 @@ const vaultValid = (
 
 const getInstructions = async (
   connection: Connection,
-  program: anchor.Program<Valhalla>,
   wallet: WalletContextState,
   values: ICreateForm,
   totalVestingDuration: number
@@ -141,7 +138,7 @@ const getInstructions = async (
     mint
   );
 
-  const configAccount = await program.account.config.fetch(config);
+  const configAccount = await Config.fromAccountAddress(connection, config);
 
   const creatorAta = getAssociatedTokenAddressSync(
     mint,

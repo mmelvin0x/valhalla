@@ -1,25 +1,23 @@
-import * as anchor from "@coral-xyz/anchor";
-
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import {
-  Connection,
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import {
+  Config,
   DisburseInstructionAccounts,
   ValhallaVault,
   createDisburseInstruction,
   getPDAs,
   shortenSignature,
 } from "@valhalla/lib";
+import {
+  Connection,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
 
-import { Valhalla } from "@valhalla/anchor";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { notify } from "../utils/notifications";
 
@@ -27,8 +25,7 @@ export const disburse = async (
   connection: Connection,
   userKey: PublicKey,
   vault: ValhallaVault,
-  wallet: WalletContextState,
-  program: anchor.Program<Valhalla>
+  wallet: WalletContextState
 ) => {
   if (
     !wallet.publicKey ||
@@ -39,7 +36,7 @@ export const disburse = async (
     return;
 
   const { config } = getPDAs(vault.identifier, vault.creator, vault.mint);
-  const configAccount = await program.account.config.fetch(config);
+  const configAccount = await Config.fromAccountAddress(connection, config);
 
   const userGovernanceAta = getAssociatedTokenAddressSync(
     configAccount.governanceTokenMintKey,

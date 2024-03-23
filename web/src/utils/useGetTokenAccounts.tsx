@@ -1,7 +1,7 @@
 import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 import { PublicKey } from "@solana/web3.js";
-import useProgram from "../contexts/useProgram";
+import useProgram from "./useProgram";
 import { useQuery } from "@tanstack/react-query";
 
 // TODO: Should we use DASAPI here?

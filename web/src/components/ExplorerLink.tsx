@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getExplorerUrl } from "../utils/explorer";
-import useProgram from "../contexts/useProgram";
+import useProgram from "../utils/useProgram";
 
 export function ExplorerLink({
   address,

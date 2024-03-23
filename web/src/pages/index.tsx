@@ -20,7 +20,7 @@ import ship from "../assets/ship.png";
 import team00 from "../assets/team-00.png";
 import team01 from "../assets/team-01.png";
 import team02 from "../assets/team-02.png";
-import useProgram from "../contexts/useProgram";
+import useProgram from "../utils/useProgram";
 import vesting from "../assets/vesting.png";
 
 export default function HomeFeature() {

@@ -1,30 +1,32 @@
+import { Config, PROGRAM_ID, ValhallaConfig, getPDAs } from "@valhalla/lib";
+
 import Head from "next/head";
 import { IconArrowRight } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ValhallaConfig } from "@valhalla/lib";
 import { getExplorerUrl } from "../utils/explorer";
 import { useEffect } from "react";
-import useProgram from "../contexts/useProgram";
+import useProgram from "../utils/useProgram";
 import { useValhallaStore } from "../stores/useValhallaStore";
 
 export default function GovernanceFeature() {
-  const { connection, program } = useProgram();
+  const { connection } = useProgram();
   const { config, setConfig } = useValhallaStore();
 
   useEffect(() => {
     (async () => {
-      const config = (await program.account.config.all())[0];
+      const { config: configKey } = getPDAs(PROGRAM_ID);
+      const config = await Config.fromAccountAddress(connection, configKey);
       setConfig(
         new ValhallaConfig(
-          (config.account as any).admin,
-          (config.account as any).devTreasury,
-          (config.account as any).daoTreasury,
-          (config.account as any).governanceTokenMintKey,
-          (config.account as any).devFee,
-          (config.account as any).autopayMultiplier,
-          (config.account as any).tokenFeeBasisPoints,
-          (config.account as any).governanceTokenAmount
+          config.admin,
+          config.devTreasury,
+          config.daoTreasury,
+          config.governanceTokenMintKey,
+          config.devFee,
+          config.autopayMultiplier,
+          config.tokenFeeBasisPoints,
+          config.governanceTokenAmount
         )
       );
     })();

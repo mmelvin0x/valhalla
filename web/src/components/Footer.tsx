@@ -6,7 +6,7 @@ import Link from "next/link";
 import SocialBar from "./SocialBar";
 import logo128 from "../assets/logo128.png";
 import { routes } from "../utils/routes";
-import useProgram from "../contexts/useProgram";
+import useProgram from "../utils/useProgram";
 import { useRouter } from "next/router";
 
 export const Footer: FC = () => {

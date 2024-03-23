@@ -18,11 +18,11 @@ import axios from "axios";
 import { createVault } from "../instructions/create";
 import { notify } from "../utils/notifications";
 import { useDates } from "../utils/useDates";
-import useProgram from "../contexts/useProgram";
+import useProgram from "../utils/useProgram";
 import { vaultValidationSchema } from "../utils/vaultValidationSchema";
 
 export default function CreateFeature() {
-  const { wallet, connection, program } = useProgram();
+  const { wallet, connection } = useProgram();
   const { today, tomorrow, oneDayInMilliseconds } = useDates();
 
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
@@ -67,7 +67,6 @@ export default function CreateFeature() {
           helpers,
           wallet,
           connection,
-          program,
           totalVestingDuration,
           balance,
           today.toDate()

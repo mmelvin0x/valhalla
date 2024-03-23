@@ -10,7 +10,7 @@ import StartDateDisplay from "../lock/StartDateDisplay";
 import TokenMintDisplay from "../lock/TokenMintDisplay";
 import { ValhallaVault } from "@valhalla/lib";
 import VestmentChart from "../VestmentChart";
-import useProgram from "@/src/contexts/useProgram";
+import useProgram from "@/src/utils/useProgram";
 
 export default function LockDetails({
   vault,

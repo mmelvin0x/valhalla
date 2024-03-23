@@ -1,11 +1,11 @@
-import { Config, ValhallaConfig, ValhallaVault } from "@valhalla/lib";
+import { Config, PROGRAM_ID, ValhallaConfig, getPDAs } from "@valhalla/lib";
 import { IconCalendarDollar, IconReceipt, IconSend } from "@tabler/icons-react";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useEffect, useMemo, useState } from "react";
 
 import Image from "next/image";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-import useProgram from "@/src/contexts/useProgram";
+import useProgram from "@/src/utils/useProgram";
 import { useValhallaStore } from "@/src/stores/useValhallaStore";
 
 interface DashboardStatsProps {
@@ -13,7 +13,7 @@ interface DashboardStatsProps {
 }
 
 export default function DashboardStats({ disburseMany }: DashboardStatsProps) {
-  const { connection, wallet, program } = useProgram();
+  const { connection, wallet } = useProgram();
   const { vaults, setConfig } = useValhallaStore();
 
   const [odinBalance, setOdinBalance] = useState<number | null>(null);
@@ -50,22 +50,23 @@ export default function DashboardStats({ disburseMany }: DashboardStatsProps) {
   useEffect(() => {
     (async () => {
       if (wallet.publicKey) {
-        const config = (await program.account.config.all())[0];
+        const { config: configKey } = getPDAs(PROGRAM_ID);
+        const config = await Config.fromAccountAddress(connection, configKey);
         setConfig(
           new ValhallaConfig(
-            (config.account as any).admin,
-            (config.account as any).devTreasury,
-            (config.account as any).daoTreasury,
-            (config.account as any).governanceTokenMintKey,
-            (config.account as any).devFee,
-            (config.account as any).autopayMultiplier,
-            (config.account as any).tokenFeeBasisPoints,
-            (config.account as any).governanceTokenAmount
+            config.admin,
+            config.devTreasury,
+            config.daoTreasury,
+            config.governanceTokenMintKey,
+            config.devFee,
+            config.autopayMultiplier,
+            config.tokenFeeBasisPoints,
+            config.governanceTokenAmount
           )
         );
 
         const userOdinTokenAccountKey = getAssociatedTokenAddressSync(
-          new PublicKey((config.account as any).governanceTokenMintKey),
+          new PublicKey(config.governanceTokenMintKey),
           wallet.publicKey
         );
 

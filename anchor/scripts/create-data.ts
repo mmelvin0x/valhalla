@@ -126,11 +126,6 @@ async function token2022() {
   const userTwo = Keypair.fromSecretKey(new Uint8Array(two));
   const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
 
-  // await airdrop(connection, userOne.publicKey, 1 * LAMPORTS_PER_SOL);
-  // await sleep(5000);
-  // await airdrop(connection, userTwo.publicKey, 1 * LAMPORTS_PER_SOL);
-  // await sleep(5000);
-
   const mintUserOne = await mintToken2022Tokens(
     connection,
     userOne,

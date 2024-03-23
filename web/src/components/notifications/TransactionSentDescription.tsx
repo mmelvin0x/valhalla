@@ -2,7 +2,7 @@ import { FC } from "react";
 import Link from "next/link";
 import { getExplorerUrl } from "@/src/utils/explorer";
 import { shortenSignature } from "@valhalla/lib";
-import useProgram from "@/src/contexts/useProgram";
+import useProgram from "@/src/utils/useProgram";
 
 const TransactionSentDescription: FC<{
   signature: string;

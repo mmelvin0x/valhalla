@@ -1,25 +1,12 @@
-import * as anchor from "@coral-xyz/anchor";
-
-import { Valhalla, ValhallaIDL } from "@valhalla/anchor";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { PROGRAM_ID } from "@valhalla/lib";
 
 const useProgram = () => {
   const wallet = useWallet();
   const { connection } = useConnection();
   const [balance, setBalance] = useState<string>("0 ◎");
-  const provider = useMemo(
-    // @ts-ignore
-    () => new anchor.AnchorProvider(connection, wallet, {}),
-    [connection, wallet]
-  );
-  const program = useMemo(
-    () => new anchor.Program<Valhalla>(ValhallaIDL, PROGRAM_ID, provider),
-    [provider]
-  );
 
   const getBalance = useCallback(async () => {
     if (!wallet?.publicKey) return "0 ◎";
@@ -34,8 +21,6 @@ const useProgram = () => {
   }, [getBalance, wallet]);
 
   return {
-    program,
-    provider,
     wallet,
     connection,
     balance,

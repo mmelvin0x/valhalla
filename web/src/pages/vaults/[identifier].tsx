@@ -17,11 +17,11 @@ import { disburse as _disburse } from "@/src/instructions/disburse";
 import { getExplorerUrl } from "@/src/utils/explorer";
 import { getVaultByIdentifier } from "@/src/utils/search";
 import { useGetSignatures } from "@/src/utils/useGetSignatures";
-import useProgram from "@/src/contexts/useProgram";
+import useProgram from "@/src/utils/useProgram";
 import { useRouter } from "next/router";
 
 export default function VaultDetailFeature() {
-  const { connection, wallet, program, connected } = useProgram();
+  const { connection, wallet, connected } = useProgram();
   const router = useRouter();
   const [vault, setVault] = useState<ValhallaVault | null>(null);
   const history = useGetSignatures({ address: vault?.key! });
@@ -63,7 +63,7 @@ export default function VaultDetailFeature() {
   };
 
   const disburse = async (vault: ValhallaVault) => {
-    await _disburse(connection, wallet.publicKey!, vault, wallet, program);
+    await _disburse(connection, wallet.publicKey!, vault, wallet);
   };
 
   const cancel = async (vault: ValhallaVault) => {};

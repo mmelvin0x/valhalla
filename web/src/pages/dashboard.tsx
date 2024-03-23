@@ -14,7 +14,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { columnDefs } from "../components/grid/grid-configs";
 import { notify } from "../utils/notifications";
 import { searchMyVaults } from "../utils/search";
-import useProgram from "../contexts/useProgram";
+import useProgram from "../utils/useProgram";
 import { useValhallaStore } from "../stores/useValhallaStore";
 
 export default function DashboardFeature() {

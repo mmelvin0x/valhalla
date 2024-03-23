@@ -4,7 +4,7 @@ import { NameRegistryState, getDomainKeySync } from "@bonfida/spl-name-service";
 import { ChangeEventHandler } from "react";
 import { ICreateForm } from "@/src/utils/interfaces";
 import { PublicKey } from "@solana/web3.js";
-import useProgram from "@/src/contexts/useProgram";
+import useProgram from "@/src/utils/useProgram";
 
 export default function RecipientInput({
   values,
