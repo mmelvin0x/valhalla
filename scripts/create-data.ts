@@ -15,10 +15,8 @@ import {
 } from "@solana/spl-token";
 import {
   Authority,
-  Autopay,
   confirm,
   getAuthority,
-  getAutopay,
   getName,
   sleep,
 } from "../tests/utils/utils";
@@ -33,6 +31,7 @@ import {
 
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { Valhalla } from "../target/types/valhalla";
+// import { airdrop } from "../tests/utils/airdrop";
 import generate from "project-name-generator";
 import { getPDAs } from "../tests/utils/getPDAs";
 import one from "../.keys/creator.json";
@@ -58,13 +57,12 @@ async function spl() {
   console.log("User one: ", userOne.publicKey.toBase58());
   console.log("User two: ", userTwo.publicKey.toBase58());
 
-  // await airdrop(connection, userOne.publicKey, 5 * LAMPORTS_PER_SOL);
+  // await airdrop(connection, userOne.publicKey, 1 * LAMPORTS_PER_SOL);
   // await sleep(5000);
-  // await airdrop(connection, userTwo.publicKey, 5 * LAMPORTS_PER_SOL);
+  // await airdrop(connection, userTwo.publicKey, 1 * LAMPORTS_PER_SOL);
   // await sleep(5000);
 
   const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
-  const config = (await program.account.config.all())[0];
 
   const mintUserOne = await mintSplTokens(connection, userOne, 10_000_000);
   const mintUserTwo = await mintSplTokens(connection, userTwo, 10_000_000);
@@ -82,21 +80,6 @@ async function spl() {
     mintUserTwo,
     userTwo.publicKey
   );
-
-  const userOneGovernanceAta = await getOrCreateAssociatedTokenAccount(
-    connection,
-    userOne,
-    config.account.governanceTokenMintKey,
-    userOne.publicKey
-  );
-
-  const userTwoGovernanceAta = await getOrCreateAssociatedTokenAccount(
-    connection,
-    userTwo,
-    config.account.governanceTokenMintKey,
-    userTwo.publicKey
-  );
-
   const daoTreasuryAtaUserOne = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     userOne,
@@ -111,22 +94,15 @@ async function spl() {
     wallet.publicKey
   );
 
+  console.log(`Creating SPL vaults...`);
   for (let i = 0; i < NUM_VAULTS_TO_MAKE; i++) {
-    console.log(`Creating vaults ${i}`);
     const creator = i % 2 === 0 ? userOne : userTwo;
     const recipient = i % 2 === 0 ? userTwo : userOne;
     const creatorAta = i % 2 === 0 ? userOneAta : userTwoAta;
     const daoTreasuryAta =
       i % 2 === 0 ? daoTreasuryAtaUserOne : daoTreasuryAtaUserTwo;
-    const creatorGovernanceAta =
-      i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
-    const autopay =
-      i % 3 === 0 && i % 2 === 0
-        ? Autopay.None
-        : i % 3 === 0
-        ? Autopay.Registered
-        : Autopay.NotRegistered;
+    const autopay = i % 3 === 0;
 
     await create(
       connection,
@@ -134,19 +110,15 @@ async function spl() {
       recipient,
       creatorAta,
       daoTreasuryAta,
-      creatorGovernanceAta,
       mint,
       autopay,
       i,
       program,
       wallet,
-      config,
       TOKEN_PROGRAM_ID
     );
 
-    console.log(`Vaults ${i} created`);
-
-    await sleep(2500);
+    console.log(`Created SPL vault ${i + 1}/${NUM_VAULTS_TO_MAKE}`);
   }
 }
 
@@ -158,9 +130,12 @@ async function token2022() {
   const wallet = provider.wallet as NodeWallet;
   const userOne = Keypair.fromSecretKey(new Uint8Array(one));
   const userTwo = Keypair.fromSecretKey(new Uint8Array(two));
-
   const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
-  const config = (await program.account.config.all())[0];
+
+  // await airdrop(connection, userOne.publicKey, 1 * LAMPORTS_PER_SOL);
+  // await sleep(5000);
+  // await airdrop(connection, userTwo.publicKey, 1 * LAMPORTS_PER_SOL);
+  // await sleep(5000);
 
   const mintUserOne = await mintToken2022Tokens(
     connection,
@@ -197,20 +172,6 @@ async function token2022() {
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
-  const userOneGovernanceAta = await getOrCreateAssociatedTokenAccount(
-    connection,
-    userOne,
-    config.account.governanceTokenMintKey,
-    userOne.publicKey
-  );
-
-  const userTwoGovernanceAta = await getOrCreateAssociatedTokenAccount(
-    connection,
-    userTwo,
-    config.account.governanceTokenMintKey,
-    userTwo.publicKey
-  );
-
   const daoTreasuryAtaUserOne = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     userOne,
@@ -235,21 +196,15 @@ async function token2022() {
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
+  console.log(`Creating Token 2022 vaults...`);
   for (let i = 0; i < NUM_VAULTS_TO_MAKE; i++) {
     const creator = i % 2 === 0 ? userOne : userTwo;
     const recipient = i % 2 === 0 ? userTwo : userOne;
     const creatorAta = i % 2 === 0 ? userOneAta : userTwoAta;
     const daoTreasuryAta =
       i % 2 === 0 ? daoTreasuryAtaUserOne : daoTreasuryAtaUserTwo;
-    const creatorGovernanceAta =
-      i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
-    const autopay =
-      i % 3 === 0 && i % 2 === 0
-        ? Autopay.None
-        : i % 3 === 0
-        ? Autopay.Registered
-        : Autopay.NotRegistered;
+    const autopay = i % 2 === 0 ? true : false;
 
     await create(
       connection,
@@ -257,15 +212,15 @@ async function token2022() {
       recipient,
       creatorAta,
       daoTreasuryAta,
-      creatorGovernanceAta,
       mint,
       autopay,
       i,
       program,
       wallet,
-      config,
       TOKEN_2022_PROGRAM_ID
     );
+
+    console.log(`Created Token 2022 vault ${i + 1}/${NUM_VAULTS_TO_MAKE}`);
   }
 }
 
@@ -275,20 +230,18 @@ async function create(
   recipient: Keypair,
   creatorAta: Account,
   daoTreasuryAta: Account,
-  creatorGovernanceAta: Account,
   mint: PublicKey,
-  autopay: Autopay,
+  autopay: boolean,
   i: number,
   program: anchor.Program<Valhalla>,
   wallet: NodeWallet,
-  config: any,
   tokenProgram: PublicKey
 ) {
   const identifier = new anchor.BN(randomBytes(8));
   const name = getName(generate({ words: 2 }).spaced.toLocaleUpperCase());
   const amountToBeVested = new anchor.BN(10_000_000 / 100);
   const totalVestingDuration = new anchor.BN(60 * (i + 1));
-  const startDate = new anchor.BN(Date.now() + (60 * i) / 1000);
+  const startDate = new anchor.BN(Date.now() / 1000);
 
   let payoutInterval;
   const intervalNum = getRandomNumberInRange(1, 6);
@@ -342,7 +295,7 @@ async function create(
       startDate,
       payoutInterval,
       cancelAuthority,
-      getAutopay(autopay, program)
+      autopay
     )
     .accounts({
       creator: creator.publicKey,
@@ -354,18 +307,15 @@ async function create(
       vaultAta: pdas.vaultAta,
       daoTreasuryAta: daoTreasuryAta.address,
       creatorAta: creatorAta.address,
-      creatorGovernanceAta: creatorGovernanceAta.address,
-      governanceTokenMint: config.account.governanceTokenMintKey,
       mint,
       tokenProgram,
-      governanceTokenProgram: TOKEN_PROGRAM_ID,
       systemProgram: SystemProgram.programId,
     })
     .signers([creator])
     .rpc();
 
   await confirm(connection, tx);
-  await sleep(2500);
+  await sleep(5000);
 }
 
 function getRandomNumberInRange(min, max) {

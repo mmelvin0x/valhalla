@@ -1,38 +1,51 @@
 ```bash
- ~/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/ [refactor+*] yarn deploy:devnet:init
+ ~/Workspace/valhalla/ [refactor*] yarn deploy:init:devnet
 yarn run v1.22.21
-$ anchor deploy --provider.cluster devnet && yarn init-config:devnet && yarn solita && yarn copy:idl && yarn copy:types
+$ anchor deploy --provider.cluster devnet && yarn init:devnet && yarn solita && yarn copy
 Deploying cluster: https://api.devnet.solana.com
 Upgrade authority: ./.keys/id.json
 Deploying program "valhalla"...
-Program path: /Users/mmelvin0x/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/target/deploy/valhalla.so...
-Program Id: 57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU
+Program path: /valhalla/target/deploy/valhalla.so...
+Program Id: 8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP
 
 Deploy success
-$ anchor run init-config --provider.cluster devnet
-$ /Users/mmelvin0x/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/node_modules/.bin/ts-node ./scripts/init.ts
+$ anchor run init --provider.cluster devnet
+$ /valhalla/node_modules/.bin/ts-node ./scripts/init.ts
 👨‍💻 Deployer: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
-🔐 Config: 4V5oNGoFVDDX392EwADUYTSv8pq4PBiGELvTLcyMd3dx
-✅ Initialization Transaction: 5XKZY7Teq6h4LH2HgsKWdUecPLhTFXh7QnV8QDEv9iKjiBXzyJERyULf7zHuz8mdNfoBP8rTQhQoPurVyaxS59r4
+🔐 Config: 2f1VmTtJwEqy9n9q2Qwzay3KBH8NeQwsZrWLQAwCd1cc
+✅ Initialization Transaction: 2BNReMpuMJJ3kMXkBUkgQzCrhDVPmU8hN5FiyPJoB4LQNnD5uGdpbZ8B1PPNMBLyyc16cgP1Awb5wZzvSM4HbbVt
 🐸 Admin: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
 💰 SOL Treasury: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
 💰 Token Treasury:: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
-🫡 Reward Mint: BP2ski3AuSejY7TPvWfc3UuBxVcSL4D9WwPNLsEVX6eh
-❤️‍🩹 SOL Fee: 0.025
-❤️‍🩹 Token Fee BPS: 10
-🪙 Reward Token Amount: 10000000000
-$ /Users/mmelvin0x/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/node_modules/.bin/solita
+🫡 Reward Mint: 4mE9Gmeemgs4YmZ1RkCZKWi7YWThRs2shoaXuca15pZP
+❤️‍🩹 SOL Fee: 0.05
+❤️‍🩹 Token Fee BPS: 50
+🪙 Reward Token Amount: 10000000
+$ /valhalla/node_modules/.bin/solita
     Finished release [optimized] target(s) in 0.12s
 warning: the following packages contain code that will be rejected by a future version of Rust: libc v0.2.151
-note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 3`
-IDL written to: /Users/mmelvin0x/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/target/idl/valhalla.json
-Generating TypeScript SDK to /Users/mmelvin0x/Workspace/MichaelMelvin_Sol_1Q24/capstone/valhalla/app/src/program
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 4`
+IDL written to: /valhalla/target/idl/valhalla.json
+Generating TypeScript SDK to /valhalla/app/src/program
 Writing instructions to directory: app/src/program/instructions
 Writing accounts to directory: app/src/program/accounts
 Writing types to directory: app/src/program/types
 Writing errors to directory: app/src/program/errors
 Success!
-$ cp ./target/idl/valhalla.json ./app/src/program/idl.json
-$ cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts
-✨  Done in 25.62s.
+$ cp ./target/idl/valhalla.json ./app/src/program/idl.json && cp ./target/types/valhalla.ts ./app/src/program/valhalla.ts && cp ./target/idl/valhalla.json ./server/src/program/idl.json && cp ./target/types/valhalla.ts ./server/src/program/valhalla.ts
+✨  Done in 40.59s.
+ ~/Workspace/valhalla/ [refactor*] yarn solita
+yarn run v1.22.21
+$ /valhalla/node_modules/.bin/solita
+    Finished release [optimized] target(s) in 0.11s
+warning: the following packages contain code that will be rejected by a future version of Rust: libc v0.2.151
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 5`
+IDL written to: /valhalla/target/idl/valhalla.json
+Generating TypeScript SDK to /valhalla/server/src/program
+Writing instructions to directory: server/src/program/instructions
+Writing accounts to directory: server/src/program/accounts
+Writing types to directory: server/src/program/types
+Writing errors to directory: server/src/program/errors
+Success!
+✨  Done in 0.70s.
 ```

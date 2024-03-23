@@ -20,6 +20,7 @@ export type CreateConfigInstructionArgs = {
   uri: string
   decimals: number
   devFee: beet.bignum
+  autopayMultiplier: beet.bignum
   tokenFeeBasisPoints: beet.bignum
   governanceTokenAmount: beet.bignum
 }
@@ -40,6 +41,7 @@ export const createConfigStruct = new beet.FixableBeetArgsStruct<
     ['uri', beet.utf8String],
     ['decimals', beet.u8],
     ['devFee', beet.u64],
+    ['autopayMultiplier', beet.u64],
     ['tokenFeeBasisPoints', beet.u64],
     ['governanceTokenAmount', beet.u64],
   ],
@@ -92,7 +94,7 @@ export const createConfigInstructionDiscriminator = [
 export function createCreateConfigInstruction(
   accounts: CreateConfigInstructionAccounts,
   args: CreateConfigInstructionArgs,
-  programId = new web3.PublicKey('57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU')
+  programId = new web3.PublicKey('8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP')
 ) {
   const [data] = createConfigStruct.serialize({
     instructionDiscriminator: createConfigInstructionDiscriminator,

@@ -10,7 +10,7 @@ import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
 
 export default function GovernanceFeature() {
-  const { wallet, connection, program } = useProgram();
+  const { connection, program } = useProgram();
   const { config, setConfig } = useValhallaStore();
 
   useEffect(() => {

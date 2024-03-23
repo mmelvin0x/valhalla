@@ -33,9 +33,9 @@ pub mod valhalla {
     /// * `dev_fee` - The fee value for the configuration.
     /// * `autopay_multiplier` - The multiplier for the autopay fee.
     /// * `token_fee_basis_points` - The basis points of the token fee.
-    /// * `governance_token_amount` - The amount of reward tokens to be minted.
-    /// * `dev_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dev treasury.
-    /// * `dao_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dao treasury.
+    /// * `governance_token_amount` - The amount of governance tokens to be minted on disburse.
+    /// * `dev_treasury_governance_token_amount` - The amount of governance tokens to be minted for the dev treasury.
+    /// * `dao_treasury_governance_token_amount` - The amount of governance tokens to be minted for the dao treasury.
     ///
     /// # Errors
     ///
@@ -109,7 +109,7 @@ pub mod valhalla {
     /// # Arguments
     ///
     /// * `ctx` - The context for the transaction.
-    /// * `governance_token_amount` - The amount of governance tokens to be minted.
+    /// * `governance_token_amount` - The amount of governance tokens to be minted on disburse.
     ///
     /// # Errors
     ///

@@ -20,12 +20,6 @@ export enum Authority {
   Both,
 }
 
-export enum Autopay {
-  None,
-  NotRegistered,
-  Registered,
-}
-
 export const decimals = 6;
 export const feeBasisPoints = 100;
 export const maxFee = 100 * 10 ** decimals;

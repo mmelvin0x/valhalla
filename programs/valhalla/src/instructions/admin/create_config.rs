@@ -18,6 +18,7 @@ use crate::{constants, errors::ValhallaError, state::Config};
     decimals: u8,
     dev_fee: u64,
     token_fee_basis_points: u64,
+    create_governance_token_amount: u64,
     governance_token_amount: u64
 )]
 pub struct CreateConfig<'info> {

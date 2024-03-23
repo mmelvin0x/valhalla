@@ -1,15 +1,14 @@
+import { Config, Vault } from "program";
 import {
   FaArrowAltCircleDown,
   FaArrowAltCircleUp,
   FaCalendar,
-  FaCoins,
-  FaUserLock,
 } from "react-icons/fa";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useEffect, useMemo, useState } from "react";
 
 import Image from "next/image";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { ODIN_MINT_ADDRESS } from "utils/constants";
+import { ValhallaConfig } from "models/models";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import useProgram from "program/useProgram";
 import { useValhallaStore } from "stores/useValhallaStore";
@@ -19,8 +18,8 @@ interface DashboardStatsProps {
 }
 
 export default function DashboardStats({ disburseMany }: DashboardStatsProps) {
-  const { connection, wallet } = useProgram();
-  const { vaults } = useValhallaStore();
+  const { connection, wallet, program } = useProgram();
+  const { vaults, config, setConfig } = useValhallaStore();
 
   const [odinBalance, setOdinBalance] = useState<number | null>(null);
   const [solBalance, setSolBalance] = useState<number | null>(null);
@@ -55,8 +54,21 @@ export default function DashboardStats({ disburseMany }: DashboardStatsProps) {
 
   useEffect(() => {
     (async () => {
+      const { account } = (await program.account.config.all())[0];
+      setConfig(
+        new ValhallaConfig(
+          account.admin,
+          account.devTreasury,
+          account.daoTreasury,
+          account.governanceTokenMintKey,
+          account.devFee,
+          account.tokenFeeBasisPoints,
+          account.governanceTokenAmount,
+        ),
+      );
+
       const userOdinTokenAccountKey = getAssociatedTokenAddressSync(
-        ODIN_MINT_ADDRESS,
+        new PublicKey(account.governanceTokenMintKey),
         wallet.publicKey,
       );
 

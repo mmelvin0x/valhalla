@@ -1,9 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token_interface::{
-        mint_to, transfer_checked, Mint, MintTo, TokenAccount, TokenInterface, TransferChecked,
-    },
+    token_interface::{transfer_checked, Mint, TokenAccount, TokenInterface, TransferChecked},
 };
 use solana_program::system_instruction;
 
@@ -76,30 +74,9 @@ pub struct CreateVault<'info> {
     )]
     pub creator_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
-    #[account(
-        init_if_needed,
-        payer = creator,
-        associated_token::mint = governance_token_mint,
-        associated_token::authority = creator,
-        associated_token::token_program = governance_token_program,
-    )]
-    pub creator_governance_ata: Box<InterfaceAccount<'info, TokenAccount>>,
-
-    #[account(
-        mut,
-        mint::decimals = 9,
-        mint::authority = governance_token_mint,
-        mint::token_program = governance_token_program,
-        seeds = [constants::GOVERNANCE_TOKEN_MINT_SEED],
-        bump,
-    )]
-    pub governance_token_mint: InterfaceAccount<'info, Mint>,
-
     pub mint: InterfaceAccount<'info, Mint>,
 
     pub token_program: Interface<'info, TokenInterface>,
-
-    pub governance_token_program: Interface<'info, TokenInterface>,
 
     pub associated_token_program: Program<'info, AssociatedToken>,
 
@@ -170,9 +147,6 @@ impl<'info> CreateVault<'info> {
             self.mint.to_account_info(),
         )?;
 
-        // Mint governance tokens to the creator
-        self.mint_governance_tokens(bumps)?;
-
         // Transfer sol fee to the dev treasury
         self.transfer_sol()
     }
@@ -224,28 +198,5 @@ impl<'info> CreateVault<'info> {
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
         transfer_checked(cpi_ctx, amount, self.mint.decimals)
-    }
-
-    fn mint_governance_tokens(&self, bumps: &CreateVaultBumps) -> Result<()> {
-        match self.vault.cancel_authority {
-            Authority::Neither => {
-                let signer_seeds: &[&[&[u8]]] = &[&[
-                    constants::GOVERNANCE_TOKEN_MINT_SEED,
-                    &[bumps.governance_token_mint],
-                ]];
-
-                let cpi_program = self.governance_token_program.to_account_info();
-                let cpi_accounts = MintTo {
-                    mint: self.governance_token_mint.to_account_info(),
-                    to: self.creator_governance_ata.to_account_info(),
-                    authority: self.governance_token_mint.to_account_info(),
-                };
-                let cpi_context =
-                    CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
-
-                mint_to(cpi_context, self.config.governance_token_amount)
-            }
-            _ => Ok(()),
-        }
     }
 }

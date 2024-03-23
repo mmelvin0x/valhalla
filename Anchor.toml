@@ -5,13 +5,13 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-valhalla = "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU"
+valhalla = "8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP"
 
 [programs.localnet]
-valhalla = "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU"
+valhalla = "8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP"
 
 [programs.mainnet]
-valhalla = "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU"
+valhalla = "8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP"
 
 [registry]
 url = "https://api.apr.dev"
@@ -21,10 +21,9 @@ cluster = "Localnet"
 wallet = "./.keys/id.json"
 
 [scripts]
-create-devnet-data = "yarn run ts-node ./scripts/create-devnet-data.ts"
-init-config = "yarn ts-node ./scripts/init.ts"
-mint-dev-tokens = "yarn run ts-node ./scripts/mint-dev-tokens.ts"
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/valhalla.ts"
+create-data = "yarn run ts-node ./scripts/create-data.ts"
+init = "yarn ts-node ./scripts/init.ts"
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/*.spec.ts"
 
 [test]
 startup_wait = 5000

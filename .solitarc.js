@@ -1,13 +1,13 @@
 const path = require("path");
 const programDir = path.join(__dirname, "programs", "valhalla");
 const idlDir = path.join(__dirname, "target", "idl");
-const sdkDir = path.join(__dirname, "app", "src", "program");
+const sdkDir = path.join(__dirname, "server", "src", "program");
 const binaryInstallDir = path.join(__dirname, ".crates");
 
 module.exports = {
   idlGenerator: "anchor",
   programName: "valhalla",
-  programId: "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU",
+  programId: "8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP",
   idlDir,
   sdkDir,
   binaryInstallDir,

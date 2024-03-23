@@ -14,13 +14,13 @@ import { confirm } from "../tests/utils/utils";
 import { getPDAs } from "../tests/utils/getPDAs";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU"
+  "8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP"
 );
 
 const devFee = new anchor.BN(0.05 * LAMPORTS_PER_SOL);
 const autopayMultiplier = new anchor.BN(5);
-const tokenFeeBasisPoints = new anchor.BN(10);
-const governanceTokenAmount = new anchor.BN(10 * LAMPORTS_PER_SOL);
+const tokenFeeBasisPoints = new anchor.BN(50);
+const governanceTokenAmount = new anchor.BN(0.01 * LAMPORTS_PER_SOL);
 const tokenName = "Odin";
 const tokenSymbol = "ODIN";
 const tokenURI =

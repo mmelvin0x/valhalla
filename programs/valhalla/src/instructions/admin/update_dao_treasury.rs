@@ -7,6 +7,8 @@ pub struct UpdateDaoTreasury<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
 
+    pub new_dao_treasury: SystemAccount<'info>,
+
     #[account(
         mut,
         seeds = [constants::CONFIG_SEED],
@@ -14,8 +16,6 @@ pub struct UpdateDaoTreasury<'info> {
         has_one = admin,
     )]
     pub config: Box<Account<'info, Config>>,
-
-    pub new_dao_treasury: SystemAccount<'info>,
 }
 
 impl<'info> UpdateDaoTreasury<'info> {

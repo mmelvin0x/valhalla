@@ -63,7 +63,7 @@ export const updateTokenFeeBasisPointsInstructionDiscriminator = [
 export function createUpdateTokenFeeBasisPointsInstruction(
   accounts: UpdateTokenFeeBasisPointsInstructionAccounts,
   args: UpdateTokenFeeBasisPointsInstructionArgs,
-  programId = new web3.PublicKey('57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU')
+  programId = new web3.PublicKey('8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP')
 ) {
   const [data] = updateTokenFeeBasisPointsStruct.serialize({
     instructionDiscriminator: updateTokenFeeBasisPointsInstructionDiscriminator,

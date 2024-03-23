@@ -11,7 +11,6 @@ import {
 } from "@solana/spl-token";
 import {
   Authority,
-  Autopay,
   confirm,
   getAuthority,
   getName,
@@ -95,7 +94,7 @@ describe("⚡️ Valhalla", () => {
             new anchor.BN(0.025 * LAMPORTS_PER_SOL),
             new anchor.BN(5),
             new anchor.BN(10001),
-            new anchor.BN(10 * LAMPORTS_PER_SOL)
+            new anchor.BN(0.01 * LAMPORTS_PER_SOL)
           )
           .accounts({
             admin: payer.publicKey,
@@ -505,18 +504,6 @@ describe("⚡️ Valhalla", () => {
         "Token treasury amount failed - 1"
       );
 
-      const creatorRewardAccountBefore = await getAccount(
-        provider.connection,
-        creatorGovernanceAta.address,
-        undefined,
-        TOKEN_PROGRAM_ID
-      );
-
-      expect(creatorRewardAccountBefore.amount).equals(
-        0n,
-        "Creator reward amount failed - 1"
-      );
-
       const tx = await program.methods
         .create(
           identifier,
@@ -538,11 +525,8 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorGovernanceAta: creatorGovernanceAta.address,
-          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -551,7 +535,6 @@ describe("⚡️ Valhalla", () => {
 
       await confirm(provider.connection, tx);
 
-      const configAccount = await program.account.config.fetch(config);
       const vaultAccount = await program.account.vault.fetch(vault);
 
       expect(vaultAccount.identifier.toString()).equals(
@@ -602,13 +585,6 @@ describe("⚡️ Valhalla", () => {
         TOKEN_2022_PROGRAM_ID
       );
 
-      const creatorRewardAccountAfter = await getAccount(
-        provider.connection,
-        creatorGovernanceAta.address,
-        undefined,
-        TOKEN_PROGRAM_ID
-      );
-
       expect(devTreasuryBalanceAfter).gt(
         devTreasuryBalanceBefore,
         "Sol treasury balance failed"
@@ -617,11 +593,6 @@ describe("⚡️ Valhalla", () => {
       expect(Number(treasuryAtaAfter.amount)).gt(
         Number(treasuryAtaBefore.amount),
         "Token treasury amount failed - 2"
-      );
-
-      expect(creatorRewardAccountAfter.amount.toString()).equals(
-        configAccount.governanceTokenAmount.toString(),
-        "Creator reward amount failed - 2"
       );
     });
 
@@ -735,12 +706,6 @@ describe("⚡️ Valhalla", () => {
       await confirm(provider.connection, tx);
 
       const vaultAccount = await program.account.vault.fetch(vault);
-      const userRewardAccount = await getAccount(
-        provider.connection,
-        userRewardAta.address,
-        undefined,
-        TOKEN_PROGRAM_ID
-      );
       const recipientAccount = await getAccount(
         provider.connection,
         recipientTokenAccount.address,
@@ -751,11 +716,6 @@ describe("⚡️ Valhalla", () => {
       expect(vaultAccount.numberOfPaymentsMade.toNumber()).gt(
         0,
         "Number of payments made failed"
-      );
-
-      expect(Number(userRewardAccount.amount) / LAMPORTS_PER_SOL).eq(
-        20,
-        "Creator reward amount failed - 3"
       );
 
       expect(Number(recipientAccount.amount)).gt(0, "Recipient amount failed");
@@ -800,11 +760,8 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorGovernanceAta: creatorGovernanceAta.address,
-          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -938,11 +895,8 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorGovernanceAta: creatorGovernanceAta.address,
-          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1076,11 +1030,8 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorGovernanceAta: creatorGovernanceAta.address,
-          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1176,11 +1127,8 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorGovernanceAta: creatorGovernanceAta.address,
-          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1278,11 +1226,8 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorGovernanceAta: creatorGovernanceAta.address,
-          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -1350,11 +1295,8 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
-          creatorGovernanceAta: creatorGovernanceAta.address,
-          governanceTokenMint,
           mint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
-          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })

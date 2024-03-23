@@ -20,6 +20,7 @@ export type ConfigArgs = {
   daoTreasury: web3.PublicKey
   governanceTokenMintKey: web3.PublicKey
   devFee: beet.bignum
+  autopayMultiplier: beet.bignum
   tokenFeeBasisPoints: beet.bignum
   governanceTokenAmount: beet.bignum
 }
@@ -39,6 +40,7 @@ export class Config implements ConfigArgs {
     readonly daoTreasury: web3.PublicKey,
     readonly governanceTokenMintKey: web3.PublicKey,
     readonly devFee: beet.bignum,
+    readonly autopayMultiplier: beet.bignum,
     readonly tokenFeeBasisPoints: beet.bignum,
     readonly governanceTokenAmount: beet.bignum
   ) {}
@@ -53,6 +55,7 @@ export class Config implements ConfigArgs {
       args.daoTreasury,
       args.governanceTokenMintKey,
       args.devFee,
+      args.autopayMultiplier,
       args.tokenFeeBasisPoints,
       args.governanceTokenAmount
     )
@@ -98,7 +101,7 @@ export class Config implements ConfigArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '57Q3oV1buV8fLdvStfg5wsgGotgWc9k6doJd4QJzDVmU'
+      '8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, configBeet)
@@ -176,6 +179,17 @@ export class Config implements ConfigArgs {
         }
         return x
       })(),
+      autopayMultiplier: (() => {
+        const x = <{ toNumber: () => number }>this.autopayMultiplier
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
       tokenFeeBasisPoints: (() => {
         const x = <{ toNumber: () => number }>this.tokenFeeBasisPoints
         if (typeof x.toNumber === 'function') {
@@ -219,6 +233,7 @@ export const configBeet = new beet.BeetStruct<
     ['daoTreasury', beetSolana.publicKey],
     ['governanceTokenMintKey', beetSolana.publicKey],
     ['devFee', beet.u64],
+    ['autopayMultiplier', beet.u64],
     ['tokenFeeBasisPoints', beet.u64],
     ['governanceTokenAmount', beet.u64],
   ],

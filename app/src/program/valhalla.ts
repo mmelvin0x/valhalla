@@ -50,10 +50,11 @@ export type Valhalla = {
         "* `uri` - The URI of the token.",
         "* `decimals` - The number of decimals for the token.",
         "* `dev_fee` - The fee value for the configuration.",
+        "* `autopay_multiplier` - The multiplier for the autopay fee.",
         "* `token_fee_basis_points` - The basis points of the token fee.",
-        "* `governance_token_amount` - The amount of reward tokens to be minted.",
-        "* `dev_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dev treasury.",
-        "* `dao_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dao treasury.",
+        "* `governance_token_amount` - The amount of governance tokens to be minted on disburse.",
+        "* `dev_treasury_governance_token_amount` - The amount of governance tokens to be minted for the dev treasury.",
+        "* `dao_treasury_governance_token_amount` - The amount of governance tokens to be minted for the dao treasury.",
         "",
         "# Errors",
         "",
@@ -138,6 +139,10 @@ export type Valhalla = {
           "type": "u64"
         },
         {
+          "name": "autopayMultiplier",
+          "type": "u64"
+        },
+        {
           "name": "tokenFeeBasisPoints",
           "type": "u64"
         },
@@ -199,13 +204,13 @@ export type Valhalla = {
           "isSigner": true
         },
         {
-          "name": "config",
-          "isMut": true,
+          "name": "newDaoTreasury",
+          "isMut": false,
           "isSigner": false
         },
         {
-          "name": "newDaoTreasury",
-          "isMut": false,
+          "name": "config",
+          "isMut": true,
           "isSigner": false
         }
       ],
@@ -252,7 +257,7 @@ export type Valhalla = {
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `governance_token_amount` - The amount of governance tokens to be minted.",
+        "* `governance_token_amount` - The amount of governance tokens to be minted on disburse.",
         "",
         "# Errors",
         "",
@@ -441,27 +446,12 @@ export type Valhalla = {
           "isSigner": false
         },
         {
-          "name": "creatorGovernanceAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceTokenMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "mint",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "governanceTokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -514,9 +504,7 @@ export type Valhalla = {
         },
         {
           "name": "autopay",
-          "type": {
-            "defined": "Autopay"
-          }
+          "type": "bool"
         }
       ]
     },
@@ -749,6 +737,10 @@ export type Valhalla = {
             "type": "u64"
           },
           {
+            "name": "autopayMultiplier",
+            "type": "u64"
+          },
+          {
             "name": "tokenFeeBasisPoints",
             "type": "u64"
           },
@@ -829,9 +821,7 @@ export type Valhalla = {
           },
           {
             "name": "autopay",
-            "type": {
-              "defined": "Autopay"
-            }
+            "type": "bool"
           },
           {
             "name": "tokenAccountBump",
@@ -858,23 +848,6 @@ export type Valhalla = {
           },
           {
             "name": "Both"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Autopay",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "None"
-          },
-          {
-            "name": "NotRegistered"
-          },
-          {
-            "name": "Registered"
           }
         ]
       }
@@ -976,10 +949,11 @@ export const IDL: Valhalla = {
         "* `uri` - The URI of the token.",
         "* `decimals` - The number of decimals for the token.",
         "* `dev_fee` - The fee value for the configuration.",
+        "* `autopay_multiplier` - The multiplier for the autopay fee.",
         "* `token_fee_basis_points` - The basis points of the token fee.",
-        "* `governance_token_amount` - The amount of reward tokens to be minted.",
-        "* `dev_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dev treasury.",
-        "* `dao_treasury_governance_token_amount` - The amount of reward tokens to be minted for the dao treasury.",
+        "* `governance_token_amount` - The amount of governance tokens to be minted on disburse.",
+        "* `dev_treasury_governance_token_amount` - The amount of governance tokens to be minted for the dev treasury.",
+        "* `dao_treasury_governance_token_amount` - The amount of governance tokens to be minted for the dao treasury.",
         "",
         "# Errors",
         "",
@@ -1064,6 +1038,10 @@ export const IDL: Valhalla = {
           "type": "u64"
         },
         {
+          "name": "autopayMultiplier",
+          "type": "u64"
+        },
+        {
           "name": "tokenFeeBasisPoints",
           "type": "u64"
         },
@@ -1125,13 +1103,13 @@ export const IDL: Valhalla = {
           "isSigner": true
         },
         {
-          "name": "config",
-          "isMut": true,
+          "name": "newDaoTreasury",
+          "isMut": false,
           "isSigner": false
         },
         {
-          "name": "newDaoTreasury",
-          "isMut": false,
+          "name": "config",
+          "isMut": true,
           "isSigner": false
         }
       ],
@@ -1178,7 +1156,7 @@ export const IDL: Valhalla = {
         "# Arguments",
         "",
         "* `ctx` - The context for the transaction.",
-        "* `governance_token_amount` - The amount of governance tokens to be minted.",
+        "* `governance_token_amount` - The amount of governance tokens to be minted on disburse.",
         "",
         "# Errors",
         "",
@@ -1367,27 +1345,12 @@ export const IDL: Valhalla = {
           "isSigner": false
         },
         {
-          "name": "creatorGovernanceAta",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "governanceTokenMint",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "mint",
           "isMut": false,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "governanceTokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -1440,9 +1403,7 @@ export const IDL: Valhalla = {
         },
         {
           "name": "autopay",
-          "type": {
-            "defined": "Autopay"
-          }
+          "type": "bool"
         }
       ]
     },
@@ -1675,6 +1636,10 @@ export const IDL: Valhalla = {
             "type": "u64"
           },
           {
+            "name": "autopayMultiplier",
+            "type": "u64"
+          },
+          {
             "name": "tokenFeeBasisPoints",
             "type": "u64"
           },
@@ -1755,9 +1720,7 @@ export const IDL: Valhalla = {
           },
           {
             "name": "autopay",
-            "type": {
-              "defined": "Autopay"
-            }
+            "type": "bool"
           },
           {
             "name": "tokenAccountBump",
@@ -1784,23 +1747,6 @@ export const IDL: Valhalla = {
           },
           {
             "name": "Both"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Autopay",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "None"
-          },
-          {
-            "name": "NotRegistered"
-          },
-          {
-            "name": "Registered"
           }
         ]
       }
