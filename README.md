@@ -94,3 +94,22 @@ Build the web app
 ```shell
 npm run build
 ```
+
+# Deployments
+
+## Mainnet Deployment
+
+N/A
+
+## Devnet Deployment
+
+👨‍💻 Deployer: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
+🔐 Config: HRQvumBMmxZcXgp81NSeWZsPMPYsbddvoRRrRm2FJeY5
+✅ Initialization Transaction: 2GCcgezyRJkafWv6cptbXy9gqkh1FADNguGFJjnwRyuGMgTBvBA2HygVv9WiKgAh7EjFKnDW2gvAJnSNrmJCopZd
+🐸 Admin: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
+💰 SOL Treasury: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
+💰 Token Treasury:: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
+🫡 Reward Mint: JBJLEeBBsQ9faSnE2rRHvG2U43YiHpKxd3pkKupGC43L
+❤️‍🩹 SOL Fee: 0.05
+❤️‍🩹 Token Fee BPS: 50
+🪙 Reward Token Amount: 10000000

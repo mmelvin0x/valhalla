@@ -6,7 +6,8 @@
     "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
     "@metaplex-foundation/umi": "^0.9.1",
     "@solana/web3.js": "1.90.0",
-    "project-name-generator": "^2.1.9"
+    "project-name-generator": "^2.1.9",
+    "ts-node": "^10.9.2"
   },
   "type": "commonjs",
   "main": "./index.cjs",

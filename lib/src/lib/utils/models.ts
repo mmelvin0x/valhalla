@@ -11,6 +11,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 
 import { Authority } from "../program/types";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
+import { PROGRAM_ID } from "../program";
 import { Vault } from "../program/accounts";
 import { displayTime } from "./formatters";
 import { getPDAs } from "./getPDAs";
@@ -109,7 +110,7 @@ export class ValhallaVault {
   }
 
   get totalVestingDuration(): number {
-    return this._totalVestingDuration.toNumber();
+    return this._totalVestingDuration.toNumber() * 1000;
   }
 
   get numberOfPaymentsMade(): number {
@@ -200,7 +201,7 @@ export class ValhallaVault {
   }
 
   async populate(connection: Connection, obj: ValhallaVault) {
-    const pdas = getPDAs(obj.identifier, obj.creator, obj.mint);
+    const pdas = getPDAs(PROGRAM_ID, obj.identifier, obj.creator, obj.mint);
     const accountInfo = await connection.getAccountInfo(obj.mint);
     this.tokenProgramId = accountInfo?.owner || null;
 

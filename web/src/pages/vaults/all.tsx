@@ -15,7 +15,7 @@ import {
 } from "@/src/components/grid/grid-configs";
 
 import { AgGridReact } from "ag-grid-react";
-import { Head } from "next/document";
+import Head from "next/head";
 import { searchAllVaults } from "@/src/utils/search";
 import { useMemo } from "react";
 import useProgram from "@/src/utils/useProgram";
@@ -82,7 +82,7 @@ export default function AllVaultsFeature() {
             <div className="card-title">All Vaults</div>
 
             <p className="prose">
-              Search and filter through all of Valhalla's vaults
+              Search and filter through all of Valhalla&apos;s vaults
             </p>
 
             <div className="min-h-[80vh] ag-theme-alpine">

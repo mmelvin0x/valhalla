@@ -50,7 +50,7 @@ export const updateDaoTreasuryInstructionDiscriminator = [
  */
 export function createUpdateDaoTreasuryInstruction(
   accounts: UpdateDaoTreasuryInstructionAccounts,
-  programId = new web3.PublicKey("8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP")
+  programId = new web3.PublicKey("CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC")
 ) {
   const [data] = updateDaoTreasuryStruct.serialize({
     instructionDiscriminator: updateDaoTreasuryInstructionDiscriminator,

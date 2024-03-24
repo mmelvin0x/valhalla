@@ -101,7 +101,7 @@ export class Config implements ConfigArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "8eqnKMrBM7kk73d7U4UDVzn9SFX9o8nE1woX6x6nAkgP"
+      "CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC"
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, configBeet);

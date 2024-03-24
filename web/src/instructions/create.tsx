@@ -6,12 +6,15 @@ import {
   NATIVE_MINT_2022,
   createAssociatedTokenAccountInstruction,
   createSyncNativeInstruction,
+  getAccount,
   getAssociatedTokenAddressSync,
+  getMint,
 } from "@solana/spl-token";
 import {
   Config,
   CreateInstructionAccounts,
   CreateInstructionArgs,
+  PROGRAM_ID,
   createCreateInstruction,
   getNameArg,
   getPDAs,
@@ -40,10 +43,10 @@ export const createVault = async (
   wallet: WalletContextState,
   connection: Connection,
   totalVestingDuration: number,
-  balance: number,
   today: Date
 ) => {
-  if (!vaultValid(values, helpers, balance, today)) return;
+  const isValid = await vaultValid(connection, values, helpers, today);
+  if (!isValid) return;
 
   let instructions: TransactionInstruction[] = [];
   for (const value of values) {
@@ -67,13 +70,24 @@ const isNativeMint = (mint: PublicKey) => {
   return mint.equals(NATIVE_MINT) || mint.equals(NATIVE_MINT_2022);
 };
 
-const vaultValid = (
+const vaultValid = async (
+  connection: Connection,
   values: FormikValues,
   helpers: FormikHelpers<ICreateForm>,
-  balance: number,
   today: Date
 ) => {
-  if (Number(values.amountToBeVested) > balance) {
+  const mint = await getMint(
+    connection,
+    new PublicKey(values.selectedToken.id)
+  );
+  const userAtaAddress = getAssociatedTokenAddressSync(
+    new PublicKey(values.selectedToken.id),
+    new PublicKey(values.recipient),
+    false
+  );
+  const userAta = await getAccount(connection, userAtaAddress);
+  const balance = Number(userAta.amount / BigInt(10 ** mint.decimals));
+  if (BigInt(values.amountToBeVested) > balance) {
     helpers.setFieldError("amountToBeVested", "Amount exceeds token balance");
 
     return false;
@@ -133,6 +147,7 @@ const getInstructions = async (
   const tokenProgramId = (await connection.getAccountInfo(mint))?.owner;
   const recipientKey = new PublicKey(values.recipient);
   const { config, vault, vaultAta } = getPDAs(
+    PROGRAM_ID,
     identifier,
     wallet.publicKey,
     mint

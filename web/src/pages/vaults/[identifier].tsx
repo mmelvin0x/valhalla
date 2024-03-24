@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
 import BlockCellRenderer from "@/src/components/grid/BlockCellRenderer";
-import { Head } from "next/document";
+import Head from "next/head";
 import Link from "next/link";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
 import LockDetails from "@/src/components/dashboard/LockDetails";
@@ -24,7 +24,7 @@ export default function VaultDetailFeature() {
   const { connection, wallet, connected } = useProgram();
   const router = useRouter();
   const [vault, setVault] = useState<ValhallaVault | null>(null);
-  const history = useGetSignatures({ address: vault?.key! });
+  const history = useGetSignatures({ address: vault?.key });
 
   const rowData = useMemo(() => history.data, [history]);
 
@@ -102,7 +102,7 @@ export default function VaultDetailFeature() {
         <section className="card">
           {connected ? (
             <div className="card-body">
-              {!!vault ? (
+              {vault ? (
                 <>
                   <div className="text-xl font-bold">
                     {vault.name} -{" "}

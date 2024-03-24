@@ -57,11 +57,10 @@ export const confirm = async (
 };
 
 export const getName = (name: string) => {
-  const nameArg = [];
+  const nameArg: number[] = [];
   const name_ = anchor.utils.bytes.utf8.encode(name);
   name_.forEach((byte, i) => {
     if (i < 32) {
-      // @ts-expect-error - Buffer is not an array
       nameArg.push(byte);
     }
   });

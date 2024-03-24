@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
 import DashboardStats from "../components/dashboard/DashboardStats";
-import { Head } from "next/document";
+import Head from "next/head";
 import { SubType } from "../utils/interfaces";
 import SubTypeTabs from "../components/dashboard/SubTypeTabs";
 import { ValhallaVault } from "@valhalla/lib";

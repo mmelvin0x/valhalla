@@ -39,7 +39,7 @@ import two from "../.keys/recipient.json";
 
 const NUM_VAULTS_TO_MAKE = 100;
 
-const second = new anchor.BN(60);
+const second = new anchor.BN(1);
 const minute = new anchor.BN(60 * second.toNumber());
 const hour = new anchor.BN(60 * minute.toNumber());
 const day = new anchor.BN(24 * hour.toNumber());
@@ -229,29 +229,35 @@ async function create(
   const identifier = new anchor.BN(randomBytes(8));
   const name = getName(generate({ words: 2 }).spaced.toLocaleUpperCase());
   const amountToBeVested = new anchor.BN(10_000_000 / 100);
-  const totalVestingDuration = new anchor.BN(60 * (i + 1));
   const startDate = new anchor.BN(Date.now() / 1000);
 
   let payoutInterval;
+  let totalVestingDuration;
   const intervalNum = getRandomNumberInRange(1, 6);
   switch (intervalNum) {
     case 1:
       payoutInterval = second;
+      totalVestingDuration = new anchor.BN(i + 1);
       break;
     case 2:
       payoutInterval = minute;
+      totalVestingDuration = new anchor.BN(60 * (i + 1));
       break;
     case 3:
       payoutInterval = hour;
+      totalVestingDuration = new anchor.BN(60 * 60 * (i + 1));
       break;
     case 4:
       payoutInterval = day;
+      totalVestingDuration = new anchor.BN(24 * 60 * 60 * (i + 1));
       break;
     case 5:
       payoutInterval = week;
+      totalVestingDuration = new anchor.BN(7 * 24 * 60 * 60 * (i + 1));
       break;
     default:
       payoutInterval = day;
+      totalVestingDuration = new anchor.BN(24 * 60 * 60 * (i + 1));
   }
 
   let cancelAuthority;

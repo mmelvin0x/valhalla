@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Authority } from "@valhalla/lib";
 import CreateForm from "../components/create/CreateForm";
-import { Head } from "next/document";
+import Head from "next/head";
 import { ICreateForm } from "../utils/interfaces";
 import { IconUsersPlus } from "@tabler/icons-react";
 import { PublicKey } from "@solana/web3.js";
@@ -68,7 +68,6 @@ export default function CreateFeature() {
           wallet,
           connection,
           totalVestingDuration,
-          balance,
           today.toDate()
         );
       } catch (e) {
@@ -80,20 +79,6 @@ export default function CreateFeature() {
       }
     },
   });
-
-  const balance = useMemo(
-    () =>
-      Number(
-        // @ts-ignore
-        formik.values.selectedToken?.token_info.balance
-          ? // @ts-ignore
-            formik.values.selectedToken?.token_info.balance /
-              // @ts-ignore
-              10 ** formik.values.selectedToken?.token_info.decimals
-          : 0
-      ),
-    [formik.values.selectedToken]
-  );
 
   const onAddRecipient = async () => {
     const errors = await formik.validateForm();

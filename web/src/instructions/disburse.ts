@@ -6,6 +6,7 @@ import {
 import {
   Config,
   DisburseInstructionAccounts,
+  PROGRAM_ID,
   ValhallaVault,
   createDisburseInstruction,
   getPDAs,
@@ -35,7 +36,12 @@ export const disburse = async (
   )
     return;
 
-  const { config } = getPDAs(vault.identifier, vault.creator, vault.mint);
+  const { config } = getPDAs(
+    PROGRAM_ID,
+    vault.identifier,
+    vault.creator,
+    vault.mint
+  );
   const configAccount = await Config.fromAccountAddress(connection, config);
 
   const userGovernanceAta = getAssociatedTokenAddressSync(
