@@ -1,11 +1,17 @@
 import AuthoritiesInput from "./AuthoritiesInput";
+import { FormikContextType } from "formik";
+import { ICreateForm } from "@/src/utils/interfaces";
 import PayoutIntervalInput from "./PayoutIntervalInput";
 import RecipientInput from "./RecipientInput";
 import SelectTokenInput from "./SelectTokenInput";
 import StartDateInput from "./StartDateInput";
 import VestingEndDateInput from "./VestingEndDateInput";
 
-export default function CreateForm({ formik }: { formik: any }) {
+export default function CreateForm({
+  formik,
+}: {
+  formik: FormikContextType<ICreateForm>;
+}) {
   return (
     <form onReset={formik.handleReset} className="flex flex-col">
       <div className="flex items-center gap-4 self-end">

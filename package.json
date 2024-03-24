@@ -53,6 +53,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "2.4.1",
+    "react-toastify": "^10.0.5",
     "sharp": "^0.33.3",
     "tslib": "^2.3.0",
     "winston": "^3.12.0",

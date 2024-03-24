@@ -12,8 +12,8 @@ import SubTypeTabs from "../components/dashboard/SubTypeTabs";
 import { ValhallaVault } from "@valhalla/lib";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { columnDefs } from "../components/grid/grid-configs";
-import { notify } from "../utils/notifications";
 import { searchMyVaults } from "../utils/search";
+import { toast } from "react-toastify";
 import useProgram from "../utils/useProgram";
 import { useValhallaStore } from "../stores/useValhallaStore";
 
@@ -44,10 +44,6 @@ export default function DashboardFeature() {
 
   const colDefs = useMemo<ColDef[]>(() => columnDefs(), []);
 
-  const disburseMany = async () => {
-    alert("Disburse Many: Implement me!");
-  };
-
   const getVaults = async (search = "") => {
     if (!wallet.publicKey) return;
 
@@ -63,11 +59,7 @@ export default function DashboardFeature() {
         recipient,
       });
     } catch (e) {
-      notify({
-        message: "Error",
-        description: "Failed to fetch vesting schedules",
-        type: "error",
-      });
+      toast.error("Failed to fetch vesting schedules");
     }
   };
 
@@ -99,7 +91,7 @@ export default function DashboardFeature() {
 
       {wallet.connected ? (
         <main className="grid grid-cols-1 gap-8 m-8">
-          <DashboardStats disburseMany={disburseMany} />
+          <DashboardStats />
 
           <div className="card">
             <div className="card-body">

@@ -26,7 +26,7 @@ import {
 
 import { MPL_TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
-import { Valhalla } from "../src";
+import { Valhalla } from "../target/types/valhalla";
 import { airdrop } from "./utils/airdrop";
 import { getPDAs } from "./utils/getPDAs";
 import { randomBytes } from "crypto";

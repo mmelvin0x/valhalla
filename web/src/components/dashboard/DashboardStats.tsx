@@ -8,11 +8,7 @@ import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import useProgram from "@/src/utils/useProgram";
 import { useValhallaStore } from "@/src/stores/useValhallaStore";
 
-interface DashboardStatsProps {
-  disburseMany: () => Promise<void>;
-}
-
-export default function DashboardStats({ disburseMany }: DashboardStatsProps) {
+export default function DashboardStats() {
   const { connection, wallet } = useProgram();
   const { vaults, setConfig } = useValhallaStore();
 
@@ -93,12 +89,9 @@ export default function DashboardStats({ disburseMany }: DashboardStatsProps) {
         <div className="stat">
           <div className="stat-title">Created Vault Unlocks</div>
           <div className="stat-value">{createdLocksCount}</div>
-          <div className="stat-figure hidden sm:block cursor-pointer rounded-full">
+          <div className="stat-figure hidden sm:block rounded-full">
             {nextCreatedVaultDisbursement <= new Date() && (
-              <IconSend
-                className="w-12 h-12 text-info animate-pulse"
-                onClick={disburseMany}
-              />
+              <IconSend className="w-12 h-12 text-info" />
             )}
 
             {nextCreatedVaultDisbursement > new Date() && (
@@ -115,12 +108,9 @@ export default function DashboardStats({ disburseMany }: DashboardStatsProps) {
         <div className="stat">
           <div className="stat-title">Receivable Vault Unlocks</div>
           <div className="stat-value">{receivableLocksCount}</div>
-          <div className="stat-figure hidden sm:block cursor-pointer rounded-full">
+          <div className="stat-figure hidden sm:block rounded-full">
             {nextReceivableVaultDisbursement <= new Date() && (
-              <IconReceipt
-                className="w-12 h-12 text-accent animate-pulse"
-                onClick={disburseMany}
-              />
+              <IconReceipt className="w-12 h-12 text-accent" />
             )}
 
             {nextReceivableVaultDisbursement > new Date() && (

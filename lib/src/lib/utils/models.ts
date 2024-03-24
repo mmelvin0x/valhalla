@@ -3,6 +3,7 @@ import * as anchor from "@coral-xyz/anchor";
 import {
   Account,
   Mint,
+  TOKEN_2022_PROGRAM_ID,
   getAccount,
   getAssociatedTokenAddressSync,
   getMint,
@@ -38,6 +39,7 @@ export class ValhallaVault {
 
   creatorAta: Account | null = null;
   recipientAta: Account | null = null;
+  recipientAtaAddress: PublicKey | null = null;
   vaultAta: Account | null = null;
   mintInfo: Mint | null = null;
   tokenProgramId: PublicKey | null = null;
@@ -65,6 +67,10 @@ export class ValhallaVault {
     this._cancelAuthority = obj.cancelAuthority;
   }
 
+  get isToken2022(): boolean {
+    return this.tokenProgramId?.equals(TOKEN_2022_PROGRAM_ID);
+  }
+
   get paymentsComplete(): boolean {
     return this._numberOfPaymentsMade.gte(this._totalNumberOfPayouts);
   }
@@ -82,6 +88,8 @@ export class ValhallaVault {
   }
 
   get canDisburse(): boolean {
+    if (this.paymentsComplete) return false;
+
     const currentTime = Math.floor(Date.now() / 1000);
     const startDate = this._startDate.toNumber();
     if (startDate > currentTime) return false;
@@ -166,8 +174,8 @@ export class ValhallaVault {
     return this.displayTime(this._payoutInterval.toNumber());
   }
 
-  get payoutIntervalAsNumber(): number {
-    return this._payoutInterval.toNumber();
+  get payoutIntervalAsNumberInMS(): number {
+    return this._payoutInterval.toNumber() * 1000;
   }
 
   get nextPayoutDate(): Date {
@@ -183,6 +191,12 @@ export class ValhallaVault {
 
   displayTime(seconds: number): string {
     return displayTime(seconds);
+  }
+
+  canClose(user: PublicKey | null): boolean {
+    if (!user) return false;
+
+    return this.paymentsComplete && user.equals(this.creator);
   }
 
   canCancel(user: PublicKey | null): boolean {
@@ -238,14 +252,15 @@ export class ValhallaVault {
       }
 
       try {
+        this.recipientAtaAddress = getAssociatedTokenAddressSync(
+          obj.mint,
+          obj.recipient,
+          false,
+          this.tokenProgramId
+        );
         this.recipientAta = await getAccount(
           connection,
-          getAssociatedTokenAddressSync(
-            obj.mint,
-            obj.recipient,
-            false,
-            this.tokenProgramId
-          ),
+          this.recipientAtaAddress,
           undefined,
           this.tokenProgramId
         );

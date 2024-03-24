@@ -16,7 +16,7 @@ import SelectTokenDialog from "../components/modals/SelectTokenDialog";
 import VestmentChart from "../components/VestmentChart";
 import axios from "axios";
 import { createVault } from "../instructions/create";
-import { notify } from "../utils/notifications";
+import { toast } from "react-toastify";
 import { useDates } from "../utils/useDates";
 import useProgram from "../utils/useProgram";
 import { vaultValidationSchema } from "../utils/vaultValidationSchema";
@@ -63,19 +63,16 @@ export default function CreateFeature() {
           JSON.parse(JSON.stringify(values)),
         ]);
         await createVault(
+          connection,
+          wallet,
           [...vaultsToCreate, values],
           helpers,
-          wallet,
-          connection,
           totalVestingDuration,
           today.toDate()
         );
       } catch (e) {
-        notify({
-          message: "Error",
-          description: "Failed to create the vesting account",
-          type: "error",
-        });
+        console.log(e);
+        toast.error("Failed to create the vesting account!");
       }
     },
   });
@@ -104,7 +101,6 @@ export default function CreateFeature() {
       );
 
       setAssets(items);
-      formik.setFieldValue("selectedToken", items[0]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey]);

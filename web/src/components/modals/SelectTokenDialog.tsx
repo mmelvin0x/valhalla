@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 
 import AddressBadge from "../AddressBadge";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
+import { FormikContextType } from "formik";
+import { ICreateForm } from "@/src/utils/interfaces";
 import { IconCircleX } from "@tabler/icons-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface SelectTokenDialogProps {
   assets: DasApiAsset[];
-  formik: any;
+  formik: FormikContextType<ICreateForm>;
 }
 
 export default function SelectTokenDialog({
@@ -43,9 +45,9 @@ export default function SelectTokenDialog({
   };
 
   const formatTokenBalance = (asset: DasApiAsset) => {
-    // @ts-ignore
+    // @ts-expect-error token_info exists
     const balance = asset.token_info?.balance;
-    // @ts-ignore
+    // @ts-expect-error token_info exists
     const decimals = 10 ** asset.token_info?.decimals;
 
     return balance && decimals ? (balance / decimals).toLocaleString() : 0;
@@ -90,7 +92,7 @@ export default function SelectTokenDialog({
           <hr className="my-2" />
 
           <ul className="p-2 flex flex-col overflow-y-scroll">
-            {!!assetList?.length ? (
+            {assetList?.length ? (
               assetList
                 .filter((it) => it.id)
                 .map((asset: DasApiAsset) => (
@@ -106,13 +108,13 @@ export default function SelectTokenDialog({
                       >
                         <div className="avatar mx-auto">
                           <div className="rounded-full w-8 h-8">
-                            {/* @ts-ignore */}
+                            {/* @ts-expect-error same */}
                             {asset.content.links?.image ? (
                               <>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   className="rounded-full"
-                                  // @ts-ignore
+                                  // @ts-expect-error same
                                   src={asset.content.links?.image}
                                   alt={""}
                                 />
@@ -145,12 +147,12 @@ export default function SelectTokenDialog({
                           <div>
                             <span>{formatTokenBalance(asset)}</span>
                           </div>
-                          {/* @ts-ignore */}
+                          {/* @ts-expect-error same */}
                           {!!asset.token_info.price_info && (
                             <div>
-                              {/* @ts-ignore */}
+                              {/* @ts-expect-error same */}
                               {asset.token_info.price_info.price_per_token}{" "}
-                              {/* @ts-ignore */}
+                              {/* @ts-expect-error same */}
                               {asset.token_info.price_info.currency}
                             </div>
                           )}

@@ -20,7 +20,7 @@ export const vaultValidationSchema = () => {
     payoutInterval: Yup.number().required("Required"),
     selectedToken: Yup.object().required("Required"),
     amountToBeVested: Yup.number()
-      .min(1, "Must be at least 1")
+      .min(0.0000000001, "Cannot deposit 0 tokens")
       .required("Required"),
     cancelAuthority: Yup.number().required("Required"),
   });

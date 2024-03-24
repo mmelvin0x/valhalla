@@ -62,8 +62,6 @@ export default function AllVaultsFeature() {
     );
 
     setAllVaults(vaults);
-
-    console.log(vaults);
   };
 
   return (

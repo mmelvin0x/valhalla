@@ -4,6 +4,8 @@ import ActionButtons from "../lock/ActionButtons";
 import BalanceDisplay from "../lock/BalanceDisplay";
 import CreatorDisplay from "../lock/CreatorDisplay";
 import EndDateDisplay from "../lock/EndDateDisplay";
+import { FormikContextType } from "formik";
+import { ICreateForm } from "@/src/utils/interfaces";
 import NextPayoutDateDisplay from "../lock/NextPayoutDateDisplay";
 import RecipientDisplay from "../lock/RecipientDisplay";
 import StartDateDisplay from "../lock/StartDateDisplay";
@@ -26,8 +28,21 @@ export default function LockDetails({
   const { wallet, connection } = useProgram();
 
   return (
-    <section className="grid grid-cols-12 gap-4 p-4">
-      <div className="grid grid-cols-2 gap-4 col-span-5">
+    <section className="flex flex-col gap-8 p-4">
+      <VestmentChart
+        totalVestingDuration={vault.totalVestingDuration}
+        amountToBeVested={vault.initialDeposit}
+        payoutInterval={vault.payoutIntervalAsNumberInMS}
+        startDate={vault.startDate}
+        vestingEndDate={vault.endDate}
+        formik={
+          {
+            values: vault,
+          } as unknown as FormikContextType<ICreateForm>
+        }
+      />
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <ActionButtons
           vault={vault}
           disburse={disburse}
@@ -61,7 +76,9 @@ export default function LockDetails({
         </div>
 
         <div className="flex flex-col">
-          <span className="text-lg font-bold">Token</span>
+          <span className="text-lg font-bold flex">
+            {vault.isToken2022 ? "Token 2022" : "SPL Token"}
+          </span>
           <TokenMintDisplay connection={connection} mint={vault.mint} />
         </div>
 
@@ -93,7 +110,7 @@ export default function LockDetails({
         </div>
 
         <div className="flex flex-col">
-          <span className="text-lg font-bold">Cancel</span>
+          <span className="text-lg font-bold">Cancel Authority</span>
           {vault.cancelAuthority}
         </div>
 
@@ -105,17 +122,6 @@ export default function LockDetails({
             <IconCircleX className="text-error w-6 h-6" />
           )}
         </div>
-      </div>
-
-      <div className="flex flex-col col-span-7">
-        <VestmentChart
-          totalVestingDuration={vault.totalVestingDuration}
-          amountToBeVested={vault.initialDeposit}
-          payoutInterval={vault.payoutIntervalAsNumber}
-          startDate={vault.startDate}
-          vestingEndDate={vault.endDate}
-          formik={{ values: vault }}
-        />
       </div>
     </section>
   );

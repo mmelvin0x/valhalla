@@ -2,6 +2,7 @@ import { ColDef, GridOptions } from "ag-grid-community";
 
 import ActionsCellRenderer from "./ActionsCellRenderer";
 import AutopayCellRenderer from "./AutopayCellRenderer";
+import DisburseCellRenderer from "./DisburseCellRenderer";
 import ExplorerCellRenderer from "./ExplorerCellRenderer";
 
 export const vaultGridOptions = (): GridOptions => ({
@@ -39,8 +40,20 @@ export const columnDefs = (): ColDef[] => [
     cellRenderer: AutopayCellRenderer,
   },
   {
+    headerName: "Disbursable",
+    field: "canDisburse",
+    width: 175,
+    minWidth: 175,
+    maxWidth: 175,
+    tooltipField: "canDisburse",
+    cellRenderer: DisburseCellRenderer,
+  },
+  {
     headerName: "Mint",
     field: "mint",
+    width: 135,
+    minWidth: 135,
+    maxWidth: 135,
     tooltipField: "mint",
     cellRenderer: ExplorerCellRenderer,
   },
@@ -71,16 +84,25 @@ export const columnDefs = (): ColDef[] => [
   {
     headerName: "Payout Interval",
     field: "payoutInterval",
+    width: 175,
+    minWidth: 175,
+    maxWidth: 175,
     tooltipField: "payoutInterval",
   },
   {
     headerName: "Total Payouts",
     field: "totalNumberOfPayouts",
+    width: 170,
+    minWidth: 170,
+    maxWidth: 170,
     tooltipField: "totalNumberOfPayouts",
   },
   {
     headerName: "Payments Made",
     field: "numberOfPaymentsMade",
+    width: 180,
+    minWidth: 180,
+    maxWidth: 180,
     tooltipField: "numberOfPaymentsMade",
   },
   {
@@ -91,12 +113,18 @@ export const columnDefs = (): ColDef[] => [
   {
     headerName: "Creator",
     field: "creator",
+    width: 135,
+    minWidth: 135,
+    maxWidth: 135,
     tooltipField: "creator",
     cellRenderer: ExplorerCellRenderer,
   },
   {
     headerName: "Recipient",
     field: "recipient",
+    width: 135,
+    minWidth: 135,
+    maxWidth: 135,
     tooltipField: "recipient",
     cellRenderer: ExplorerCellRenderer,
   },

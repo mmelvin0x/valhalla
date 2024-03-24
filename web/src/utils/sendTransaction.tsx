@@ -5,25 +5,27 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 
+import { ExplorerLink } from "../components/ExplorerLink";
 import { WalletContextState } from "@solana/wallet-adapter-react";
-import { notify } from "./notifications";
 import { shortenSignature } from "@valhalla/lib";
+import { toast } from "react-toastify";
 
 export const sendTransaction = async (
   connection: Connection,
   payer: WalletContextState,
-  instructions: TransactionInstruction[]
+  instructions: TransactionInstruction[],
+  toastId: string
 ) => {
   if (!payer.publicKey) return;
 
-  const latestBlockhash = await connection.getLatestBlockhash();
-  const messageV0 = new TransactionMessage({
-    payerKey: payer.publicKey,
-    recentBlockhash: latestBlockhash.blockhash,
-    instructions,
-  }).compileToV0Message();
-
   try {
+    const latestBlockhash = await connection.getLatestBlockhash();
+    const messageV0 = new TransactionMessage({
+      payerKey: payer.publicKey,
+      recentBlockhash: latestBlockhash.blockhash,
+      instructions,
+    }).compileToV0Message();
+
     const tx = new VersionedTransaction(messageV0);
     const txid = await payer.sendTransaction(tx, connection);
     const confirmation = await connection.confirmTransaction({
@@ -33,24 +35,34 @@ export const sendTransaction = async (
     });
 
     if (confirmation.value.err) {
-      notify({
-        message: "Transaction Failed",
-        description: `Transaction ${shortenSignature(txid)} failed (${
-          confirmation.value.err
-        })`,
+      toast.update(toastId, {
         type: "error",
+        render: (
+          <ExplorerLink
+            address={txid}
+            label={`Transaction failed: ${shortenSignature(txid)}`}
+            type="tx"
+          />
+        ),
       });
     }
 
-    notify({
-      message: "Transaction sent",
-      description: `Transaction ${shortenSignature(txid)} has been sent`,
+    toast.update(toastId, {
       type: "success",
+      render: (
+        <ExplorerLink
+          address={txid}
+          label={`Transaction sent: ${shortenSignature(txid)}`}
+          type="tx"
+        />
+      ),
     });
 
     return txid;
   } catch (error) {
-    console.error("Error sending transaction:", error);
-    throw error;
+    toast.update(toastId, {
+      type: "error",
+      render: `Transaction failed: ${(error as Error).message}`,
+    });
   }
 };

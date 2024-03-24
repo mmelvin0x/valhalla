@@ -12,6 +12,8 @@ import {
 } from "chart.js";
 
 import { Bar } from "react-chartjs-2";
+import { FormikContextType } from "formik";
+import { ICreateForm } from "../utils/interfaces";
 import { shortenNumber } from "@valhalla/lib";
 import { useMemo } from "react";
 
@@ -40,7 +42,7 @@ export default function VestmentChart({
   payoutInterval: number;
   startDate: Date;
   vestingEndDate: Date;
-  formik: any;
+  formik: FormikContextType<ICreateForm>;
 }) {
   const numPayments = useMemo(() => {
     return payoutInterval
@@ -53,28 +55,19 @@ export default function VestmentChart({
   const labels = useMemo(() => {
     const start = new Date(startDate);
     const endDate = new Date(vestingEndDate);
-    const numberOfPayments = payoutInterval
-      ? Math.ceil(totalVestingDuration / payoutInterval)
-      : 1;
-    if (numberOfPayments < 2) {
+
+    if (numPayments < 2) {
       return [endDate.toLocaleDateString()];
     }
 
     const labels = [];
-    for (let i = 0; i < numberOfPayments; i++) {
+    for (let i = 0; i < numPayments; i++) {
       const date = new Date(start.getTime() + payoutInterval * i);
       labels.push(date.toLocaleDateString());
     }
 
     return labels;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    payoutInterval,
-    startDate,
-    totalVestingDuration,
-    vestingEndDate,
-    formik.values,
-  ]);
+  }, [numPayments, payoutInterval, startDate, vestingEndDate]);
 
   const amountPerPayout = useMemo(() => {
     return {
@@ -111,7 +104,6 @@ export default function VestmentChart({
 
   return (
     <Bar
-      className="w-full h-full"
       options={{
         responsive: true,
         plugins: {

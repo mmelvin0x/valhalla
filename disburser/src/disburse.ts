@@ -7,7 +7,6 @@ import {
 import { type Connection } from "@solana/web3.js";
 import type NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import WinstonLogger from "./logger";
-import { getMintWithCorrectTokenProgram } from "./getMintWithCorrectTokenProgram";
 import { getValhallaConfig } from "./getValhallaConfig";
 import { sendTransaction } from "./sendTransactions";
 import {
@@ -16,6 +15,7 @@ import {
   canDisburseVault,
   Vault,
   getPDAs,
+  getMintWithCorrectTokenProgram,
 } from "@valhalla/lib";
 
 export async function disburse(

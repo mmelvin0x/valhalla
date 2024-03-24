@@ -12,7 +12,7 @@ export default function StartDateInput({
 }: {
   disabled: boolean;
   values: FormikValues;
-  handler: ChangeEventHandler<any>;
+  handler: ChangeEventHandler<HTMLInputElement>;
   errors: FormikErrors<ICreateForm>;
 }) {
   const { startDate } = values;

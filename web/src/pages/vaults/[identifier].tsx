@@ -13,6 +13,8 @@ import LoadingSpinner from "@/src/components/LoadingSpinner";
 import LockDetails from "@/src/components/dashboard/LockDetails";
 import SignatureCellRenderer from "@/src/components/grid/SignatureCellRenderer";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { cancel as _cancel } from "@/src/instructions/cancel";
+import { close as _close } from "@/src/instructions/close";
 import { disburse as _disburse } from "@/src/instructions/disburse";
 import { getExplorerUrl } from "@/src/utils/explorer";
 import { getVaultByIdentifier } from "@/src/utils/search";
@@ -63,12 +65,29 @@ export default function VaultDetailFeature() {
   };
 
   const disburse = async (vault: ValhallaVault) => {
-    await _disburse(connection, wallet.publicKey!, vault, wallet);
+    await _disburse(connection, vault, wallet);
+    await getVault();
   };
 
-  const cancel = async (vault: ValhallaVault) => {};
+  const cancel = async (vault: ValhallaVault) => {
+    const txId = await _cancel(connection, vault, wallet);
 
-  const close = async (vault: ValhallaVault) => {};
+    if (!txId) {
+      await getVault();
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
+  const close = async (vault: ValhallaVault) => {
+    const txId = await _close(connection, vault, wallet);
+
+    if (!txId) {
+      await getVault();
+    } else {
+      router.push("/dashboard");
+    }
+  };
 
   const getVault = async () => {
     if (router.query.identifier && wallet.publicKey) {
@@ -77,8 +96,11 @@ export default function VaultDetailFeature() {
         router.query.identifier as string
       );
 
-      await vault.populate(connection, vault);
+      if (!vault) {
+        router.push("/dashboard");
+      }
 
+      await vault.populate(connection, vault);
       setVault(vault);
     }
   };
@@ -89,7 +111,7 @@ export default function VaultDetailFeature() {
   }, [wallet.publicKey, router.query.identifier]);
 
   return (
-    <div className="m-8">
+    <div className="m-8 mt-0">
       <Head>
         <title>Valhalla | Token Vesting Solutions</title>
         <meta
@@ -97,6 +119,10 @@ export default function VaultDetailFeature() {
           content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
         />
       </Head>
+
+      <Link href="/dashboard" className="btn btn-sm btn-info mb-8">
+        Back to Dashboard
+      </Link>
 
       <main className="grid grid-cols-1 gap-8">
         <section className="card">
@@ -137,12 +163,6 @@ export default function VaultDetailFeature() {
                   <LoadingSpinner />
                 </div>
               )}
-
-              <div className="card-actions justify-end">
-                <Link href="/dashboard" className="btn btn-sm btn-info">
-                  Back to Dashboard
-                </Link>
-              </div>
             </div>
           ) : (
             <div className="card-body items-center gap-4 p-8">

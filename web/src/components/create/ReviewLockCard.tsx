@@ -1,9 +1,9 @@
 import { Authority, shortenNumber } from "@valhalla/lib";
+import { IconCircleCheck, IconCoin } from "@tabler/icons-react";
 
 import CancelAuthorityDisplay from "../lock/CancelAuthorityDisplay";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import EndDateDisplay from "../lock/EndDateDisplay";
-import { IconCoin } from "@tabler/icons-react";
 import Link from "next/link";
 import PayoutIntervalDisplay from "../lock/PayoutIntervalDisplay";
 import { PublicKey } from "@solana/web3.js";
@@ -41,8 +41,13 @@ export default function ReviewLockCard({
   const { connection } = useProgram();
 
   const displayAmount = useMemo(
-    () => shortenNumber(amountToBeVested, 4),
-    [amountToBeVested]
+    () =>
+      shortenNumber(amountToBeVested, 4) == "0"
+        ? `${amountToBeVested} ${
+            selectedToken?.content.metadata.symbol ?? "UNK"
+          }`
+        : shortenNumber(amountToBeVested, 4),
+    [amountToBeVested, selectedToken?.content.metadata.symbol]
   );
 
   const numPayments = useMemo(
@@ -59,11 +64,11 @@ export default function ReviewLockCard({
       display:
         !!numPayments && !!amountToBeVested
           ? `${(amountToBeVested / numPayments).toFixed(4)} ${
-              selectedToken?.content.metadata.symbol ?? ""
+              selectedToken?.content.metadata.symbol ?? "UNK"
             }`
           : "",
     }),
-    [numPayments, amountToBeVested]
+    [amountToBeVested, numPayments, selectedToken?.content.metadata.symbol]
   );
 
   const mint = useMemo(
@@ -76,7 +81,7 @@ export default function ReviewLockCard({
       <div className="flex flex-col">
         <div className="font-bold">Token</div>
         <div className="flex items-center gap-2">
-          {!!selectedToken ? (
+          {selectedToken ? (
             <>
               <div className="avatar">
                 <Link
@@ -86,15 +91,17 @@ export default function ReviewLockCard({
                   )}
                   className="rounded-full w-12 h-12 link"
                 >
-                  {/* @ts-ignore */}
+                  {/* @ts-expect-error image does exist */}
                   {selectedToken?.content.links?.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       className="rounded-full"
-                      // @ts-ignore
+                      // @ts-expect-error image does exist
                       src={selectedToken?.content.links?.image}
                       alt={""}
                     />
                   ) : (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img className="rounded-full" src={"/LP.png"} alt={""} />
                   )}
                 </Link>
@@ -118,7 +125,12 @@ export default function ReviewLockCard({
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="font-bold">Payouts</div>
+        <div className="flex items-center gap-2">
+          <span className="font-bold">Payouts</span>
+          <div className="flex text-xs">
+            Autopay <IconCircleCheck className="text-success w-4 h-4" />
+          </div>
+        </div>
         <div className="font-bold">
           {numPayments} x {amountPerPayout.display}
         </div>
@@ -146,7 +158,7 @@ export default function ReviewLockCard({
       <div className="flex flex-col gap-2">
         <div className="font-bold">Payout Date</div>
         <div className="font-bold">
-          <EndDateDisplay vestingEndDate={vestingEndDate.getTime()} />
+          <EndDateDisplay vestingEndDate={vestingEndDate} />
         </div>
       </div>
 

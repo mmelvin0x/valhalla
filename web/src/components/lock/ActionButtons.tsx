@@ -18,27 +18,23 @@ export default function ActionButtons({
     <div className="flex flex-wrap gap-2 col-span-2">
       <button
         className="btn btn-sm btn-accent"
-        disabled={!vault.canDisburse}
+        disabled={!vault.canDisburse || vault.paymentsComplete}
         onClick={() => disburse(vault)}
       >
         {vault.canDisburse ? "Disburse" : "Locked"}
       </button>
 
-      <button
-        className="btn btn-sm btn-error"
-        disabled={!vault.canCancel(userKey)}
-        onClick={() => cancel(vault)}
-      >
-        Cancel
-      </button>
+      {vault.canCancel(userKey) && (
+        <button className="btn btn-sm btn-error" onClick={() => cancel(vault)}>
+          Cancel
+        </button>
+      )}
 
-      <button
-        className="btn btn-sm btn-error"
-        disabled={!vault.paymentsComplete}
-        onClick={() => close(vault)}
-      >
-        Close
-      </button>
+      {vault.canClose(userKey) && (
+        <button className="btn btn-sm btn-error" onClick={() => close(vault)}>
+          Close
+        </button>
+      )}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import "react-toastify/dist/ReactToastify.css";
+
 import { Aclonica } from "next/font/google";
 import { AppProps } from "next/app";
 import { ContextProvider } from "../contexts/ContextProvider";
@@ -5,9 +7,9 @@ import { FC } from "react";
 import { Footer } from "../components/Footer";
 import Head from "next/head";
 import Image from "next/image";
-import Notifications from "../components/notifications/Notification";
 import { QueryProvider } from "../contexts/QueryProvider";
 import SideDrawer from "../components/SideDrawer";
+import { ToastContainer } from "react-toastify";
 import logo64 from "../assets/logo64.png";
 import { useRouter } from "next/router";
 
@@ -55,7 +57,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                   router.pathname === "/" ? "" : "max-w-screen-xl mx-auto"
                 }`}
               >
-                <div className="navbar fixed z-10">
+                <div className="navbar z-10">
                   <div className="navbar-start">
                     <label
                       htmlFor="my-drawer-2"
@@ -73,9 +75,15 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                   </div>
                 </div>
 
-                <Notifications />
                 <Component {...pageProps} />
               </div>
+
+              <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                rtl={false}
+                pauseOnHover
+              />
 
               <Footer />
             </div>

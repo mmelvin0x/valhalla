@@ -12,7 +12,7 @@ export default function PayoutIntervalInput({
 }: {
   disabled: boolean;
   values: FormikValues;
-  handler: ChangeEventHandler<any>;
+  handler: ChangeEventHandler<HTMLSelectElement>;
   errors: FormikErrors<ICreateForm>;
 }) {
   const { payoutInterval } = values;

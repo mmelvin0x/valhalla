@@ -10,31 +10,27 @@ import {
   ValhallaVault,
   createDisburseInstruction,
   getPDAs,
-  shortenSignature,
 } from "@valhalla/lib";
-import {
-  Connection,
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
-} from "@solana/web3.js";
 
+import { Connection } from "@solana/web3.js";
 import { WalletContextState } from "@solana/wallet-adapter-react";
-import { notify } from "../utils/notifications";
+import { sendTransaction } from "../utils/sendTransaction";
+import { toast } from "react-toastify";
 
 export const disburse = async (
   connection: Connection,
-  userKey: PublicKey,
   vault: ValhallaVault,
   wallet: WalletContextState
 ) => {
   if (
     !wallet.publicKey ||
     !vault.vaultAta ||
-    !vault.recipientAta ||
+    !vault.recipientAtaAddress ||
     !vault.tokenProgramId
-  )
+  ) {
+    toast.error("Missing wallet or vault data");
     return;
+  }
 
   const { config } = getPDAs(
     PROGRAM_ID,
@@ -46,14 +42,14 @@ export const disburse = async (
 
   const userGovernanceAta = getAssociatedTokenAddressSync(
     configAccount.governanceTokenMintKey,
-    userKey,
+    wallet.publicKey,
     false,
     TOKEN_PROGRAM_ID,
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
   const accounts: DisburseInstructionAccounts = {
-    signer: userKey,
+    signer: wallet.publicKey,
     creator: vault.creator,
     recipient: vault.recipient,
     vault: vault.key,
@@ -62,7 +58,7 @@ export const disburse = async (
     devTreasury: configAccount.devTreasury,
     config,
     signerGovernanceAta: userGovernanceAta,
-    recipientAta: vault.recipientAta.address,
+    recipientAta: vault.recipientAtaAddress,
     governanceTokenMint: configAccount.governanceTokenMintKey,
     governanceTokenProgram: TOKEN_PROGRAM_ID,
     tokenProgram: vault.tokenProgramId,
@@ -71,34 +67,6 @@ export const disburse = async (
 
   const instructions = [createDisburseInstruction(accounts)];
 
-  const latestBlockhash = await connection.getLatestBlockhash();
-  const messageV0 = new TransactionMessage({
-    instructions,
-    payerKey: wallet.publicKey,
-    recentBlockhash: latestBlockhash.blockhash,
-  }).compileToV0Message();
-
-  const tx = new VersionedTransaction(messageV0);
-  const txid = await wallet.sendTransaction(tx, connection);
-  const confirmation = await connection.confirmTransaction({
-    signature: txid,
-    blockhash: latestBlockhash.blockhash,
-    lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-  });
-
-  if (confirmation.value.err) {
-    notify({
-      message: "Transaction Failed",
-      description: `Transaction ${shortenSignature(txid)} failed (${
-        confirmation.value.err
-      })`,
-      type: "error",
-    });
-  }
-
-  notify({
-    message: "Transaction sent",
-    description: `Transaction ${shortenSignature(txid)} has been sent`,
-    type: "success",
-  });
+  toast.info(`Tx 1/1: Disbursing vault`, { toastId: "disburse" });
+  await sendTransaction(connection, wallet, instructions, "disburse");
 };

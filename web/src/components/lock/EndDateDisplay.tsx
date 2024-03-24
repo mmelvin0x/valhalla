@@ -1,13 +1,13 @@
-import { IconCalendarExclamation } from "@tabler/icons-react";
+import { useMemo } from "react";
 
 export default function EndDateDisplay({
   vestingEndDate,
 }: {
-  vestingEndDate: number;
+  vestingEndDate: Date | string | number;
 }) {
-  return (
-    <div className="flex items-center gap-1">
-      {new Date(vestingEndDate).toLocaleString()} <IconCalendarExclamation />
-    </div>
+  const date = useMemo(
+    () => new Date(vestingEndDate).toLocaleString(),
+    [vestingEndDate]
   );
+  return <div className="flex items-center gap-1">{date}</div>;
 }

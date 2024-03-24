@@ -8,7 +8,6 @@ import {
   createSyncNativeInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
-  getMint,
 } from "@solana/spl-token";
 import {
   Config,
@@ -16,6 +15,7 @@ import {
   CreateInstructionArgs,
   PROGRAM_ID,
   createCreateInstruction,
+  getMintWithCorrectTokenProgram,
   getNameArg,
   getPDAs,
 } from "@valhalla/lib";
@@ -27,26 +27,35 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
-import { FormikHelpers, FormikValues } from "formik";
 
+import { FormikHelpers } from "formik";
 import { ICreateForm } from "../utils/interfaces";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { isPublicKey } from "@metaplex-foundation/umi";
-import { notify } from "../utils/notifications";
 import { randomBytes } from "crypto";
 import router from "next/router";
 import { sendTransaction } from "../utils/sendTransaction";
+import { toast } from "react-toastify";
 
 export const createVault = async (
+  connection: Connection,
+  wallet: WalletContextState,
   values: ICreateForm[],
   helpers: FormikHelpers<ICreateForm>,
-  wallet: WalletContextState,
-  connection: Connection,
   totalVestingDuration: number,
   today: Date
 ) => {
-  const isValid = await vaultValid(connection, values, helpers, today);
-  if (!isValid) return;
+  const isValid = [];
+  for (let i = 0; i < values.length; i++) {
+    isValid.push(
+      await vaultValid(connection, wallet, values[i], helpers, today)
+    );
+  }
+
+  if (!isValid.every((val) => val)) {
+    toast.error("There is an issue with the vaults. Please check the form.");
+    return;
+  }
 
   let instructions: TransactionInstruction[] = [];
   for (const value of values) {
@@ -61,8 +70,8 @@ export const createVault = async (
     ];
   }
 
-  await sendTransaction(connection, wallet, instructions);
-
+  toast.info(`Tx 1/1: Creating vault`, { toastId: "create" });
+  await sendTransaction(connection, wallet, instructions, "create");
   router.push(`/dashboard`);
 };
 
@@ -72,48 +81,53 @@ const isNativeMint = (mint: PublicKey) => {
 
 const vaultValid = async (
   connection: Connection,
-  values: FormikValues,
+  wallet: WalletContextState,
+  value: ICreateForm,
   helpers: FormikHelpers<ICreateForm>,
   today: Date
 ) => {
-  const mint = await getMint(
-    connection,
-    new PublicKey(values.selectedToken.id)
-  );
-  const userAtaAddress = getAssociatedTokenAddressSync(
-    new PublicKey(values.selectedToken.id),
-    new PublicKey(values.recipient),
-    false
-  );
-  const userAta = await getAccount(connection, userAtaAddress);
-  const balance = Number(userAta.amount / BigInt(10 ** mint.decimals));
-  if (BigInt(values.amountToBeVested) > balance) {
-    helpers.setFieldError("amountToBeVested", "Amount exceeds token balance");
-
+  if (!value.selectedToken) {
+    helpers.setFieldError("selectedToken", "Token is required");
     return false;
   }
 
-  if (values.vestingEndDate <= values.startDate) {
+  if (value.vestingEndDate <= value.startDate) {
     helpers.setFieldError("vestingEndDate", "Invalid Date");
     return false;
   }
 
-  if (values.startDate < today) {
+  if (value.startDate < today) {
     helpers.setFieldError("startDate", "Invalid Date");
     return false;
   }
 
-  if (!isPublicKey(values.recipient)) {
+  if (!isPublicKey(value.recipient)) {
     helpers.setFieldError("recipient", "Invalid Address");
     return false;
   }
 
-  if (!isPublicKey(values.selectedToken?.id)) {
-    notify({
-      message: "Invalid token",
-      description: "Token not found",
-      type: "error",
-    });
+  let balance = 0;
+  const { mint, tokenProgramId } = await getMintWithCorrectTokenProgram(
+    connection,
+    { mint: new PublicKey(value.selectedToken.id) }
+  );
+  if (isNativeMint(mint.address)) {
+    balance =
+      (await connection.getBalance(wallet.publicKey!)) / LAMPORTS_PER_SOL;
+  } else {
+    const userAtaAddress = getAssociatedTokenAddressSync(
+      new PublicKey(value.selectedToken.id),
+      new PublicKey(value.recipient),
+      false,
+      tokenProgramId,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    const userAta = await getAccount(connection, userAtaAddress);
+    balance = Number(userAta.amount / BigInt(10 ** mint.decimals));
+  }
+
+  if (+value.amountToBeVested > balance) {
+    helpers.setFieldError("amountToBeVested", "Amount exceeds token balance");
 
     return false;
   }

@@ -14,23 +14,21 @@ export default function SelectTokenInput({
 }: {
   disabled: boolean;
   values: FormikValues;
-  handler: ChangeEventHandler<any>;
+  handler: ChangeEventHandler<HTMLInputElement>;
   errors: FormikErrors<ICreateForm>;
   setFieldValue: (
     field: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
-    shouldValidate?: boolean
-  ) => Promise<void> | Promise<FormikErrors<ICreateForm>>;
+    shouldValidate?: boolean | undefined
+  ) => Promise<void | FormikErrors<ICreateForm>>;
 }) {
   const { amountToBeVested, selectedToken } = values;
 
   const balance = useMemo(
     () =>
-      // @ts-ignore
       (selectedToken?.token_info.balance
-        ? // @ts-ignore
-          selectedToken?.token_info.balance /
-          // @ts-ignore
+        ? selectedToken?.token_info.balance /
           10 ** selectedToken?.token_info.decimals
         : 0
       ).toLocaleString(),
@@ -39,11 +37,8 @@ export default function SelectTokenInput({
 
   const balanceAsNumber = useMemo(
     () =>
-      // @ts-ignore
       selectedToken?.token_info.balance
-        ? // @ts-ignore
-          selectedToken?.token_info.balance /
-          // @ts-ignore
+        ? selectedToken?.token_info.balance /
           10 ** selectedToken?.token_info.decimals
         : 0,
     [selectedToken]

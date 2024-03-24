@@ -18,8 +18,6 @@ import logo512 from "../assets/logo512.png";
 import payments from "../assets/payments.png";
 import ship from "../assets/ship.png";
 import team00 from "../assets/team-00.png";
-import team01 from "../assets/team-01.png";
-import team02 from "../assets/team-02.png";
 import useProgram from "../utils/useProgram";
 import vesting from "../assets/vesting.png";
 
@@ -441,7 +439,7 @@ export default function HomeFeature() {
               />
 
               <h4>Michael</h4>
-              <p className="prose text-center">Founder | CEO | Dev Lead</p>
+              <p className="prose text-center">Founder | CEO | DEV</p>
 
               <Link
                 href={"https://twitter.com/mmelvin0x"}
@@ -449,49 +447,6 @@ export default function HomeFeature() {
                 className="link flex gap-1"
               >
                 <IconBrandTwitter size={24} /> @mmelvin0x
-              </Link>
-            </div>
-
-            <div className="flex flex-col gap-4 items-center w-80">
-              <Image
-                placeholder="blur"
-                src={team01}
-                width={200}
-                height={200}
-                alt={"Team Placeholder"}
-              />
-              <h4>Ethan</h4>
-              <p className="prose text-center">
-                Co-Founder | Marketing | Operations
-              </p>
-              <Link
-                href={"https://twitter.com/_KIZG"}
-                target="_blank"
-                className="link flex gap-1"
-              >
-                <IconBrandTwitter size={24} /> @_KIZG
-              </Link>
-            </div>
-
-            <div className="flex flex-col gap-4 items-center w-80">
-              <Image
-                placeholder="blur"
-                src={team02}
-                width={200}
-                height={200}
-                alt={"Team Placeholder"}
-              />
-
-              <h4>Yat</h4>
-              <p className="prose text-center">
-                Co-Founder | Legal | Operations
-              </p>
-              <Link
-                href={"https://twitter.com/Yat_Sultan"}
-                target="_blank"
-                className="link flex gap-1"
-              >
-                <IconBrandTwitter size={24} /> @Yat_Sultan
               </Link>
             </div>
           </div>
