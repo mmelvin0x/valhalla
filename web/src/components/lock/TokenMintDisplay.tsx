@@ -11,8 +11,12 @@ export default function TokenMintDisplay({
   mint,
 }: {
   connection: Connection;
-  mint: PublicKey;
+  mint: PublicKey | null;
 }) {
+  if (!mint) {
+    return null;
+  }
+
   return (
     <Link
       className="link link-secondary flex items-center gap-1"

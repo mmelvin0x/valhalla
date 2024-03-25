@@ -24,7 +24,7 @@ export default function SubTypeTabs({
         <div className="flex items-center gap-2">
           <span className="hidden sm:block">Created</span> <IconArrowUp />
         </div>
-        <div className="badge badge-info">{list.created.length}</div>
+        <div className="badge badge-secondary">{list.created.length}</div>
       </div>
 
       <div
@@ -36,7 +36,7 @@ export default function SubTypeTabs({
         <div className="flex items-center gap-2">
           <span className="hidden sm:block">Receivable</span> <IconArrowDown />
         </div>
-        <div className="badge badge-info">{list.recipient.length}</div>
+        <div className="badge badge-secondary">{list.recipient.length}</div>
       </div>
     </div>
   );

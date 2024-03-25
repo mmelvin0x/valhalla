@@ -1,6 +1,7 @@
+import { ValhallaVault } from "./models";
 import { Vault } from "../program";
 
-export function canDisburseVault(vault: Vault): boolean {
+export function canDisburseVault(vault: Vault | ValhallaVault): boolean {
   const currentTime = Math.floor(Date.now() / 1000);
   const payoutInterval = Number(vault.payoutInterval);
   const lastPaymentTimestamp = Number(vault.lastPaymentTimestamp);

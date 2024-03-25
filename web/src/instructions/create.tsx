@@ -1,5 +1,3 @@
-import * as anchor from "@coral-xyz/anchor";
-
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   NATIVE_MINT,
@@ -28,12 +26,12 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 
+import BN from "bn.js";
 import { FormikHelpers } from "formik";
 import { ICreateForm } from "../utils/interfaces";
 import { WalletContextState } from "@solana/wallet-adapter-react";
 import { isPublicKey } from "@metaplex-foundation/umi";
 import { randomBytes } from "crypto";
-import router from "next/router";
 import { sendTransaction } from "../utils/sendTransaction";
 import { toast } from "react-toastify";
 
@@ -44,7 +42,7 @@ export const createVault = async (
   helpers: FormikHelpers<ICreateForm>,
   totalVestingDuration: number,
   today: Date
-) => {
+): Promise<BN> => {
   const isValid = [];
   for (let i = 0; i < values.length; i++) {
     isValid.push(
@@ -54,25 +52,34 @@ export const createVault = async (
 
   if (!isValid.every((val) => val)) {
     toast.error("There is an issue with the vaults. Please check the form.");
-    return;
+    return new BN(0);
   }
 
+  const identifier = new BN(randomBytes(8));
   let instructions: TransactionInstruction[] = [];
-  for (const value of values) {
-    instructions = [
-      ...instructions,
-      ...(await getInstructions(
+
+  try {
+    for (const value of values) {
+      const ix = await getInstructions(
         connection,
         wallet,
         value,
-        totalVestingDuration
-      )),
-    ];
-  }
+        totalVestingDuration,
+        identifier
+      );
 
-  toast.info(`Tx 1/1: Creating vault`, { toastId: "create" });
-  await sendTransaction(connection, wallet, instructions, "create");
-  router.push(`/dashboard`);
+      instructions = [...instructions, ...ix];
+    }
+
+    toast.info(`Tx 1/1: Creating vault`, { toastId: "create" });
+    await sendTransaction(connection, wallet, instructions, "create");
+
+    return identifier;
+  } catch (error) {
+    console.error(error);
+    toast.error("Error creating vault. Please try again.");
+    return new BN(0);
+  }
 };
 
 const isNativeMint = (mint: PublicKey) => {
@@ -86,6 +93,8 @@ const vaultValid = async (
   helpers: FormikHelpers<ICreateForm>,
   today: Date
 ) => {
+  if (!wallet.publicKey) return;
+
   if (!value.selectedToken) {
     helpers.setFieldError("selectedToken", "Token is required");
     return false;
@@ -111,18 +120,26 @@ const vaultValid = async (
     connection,
     { mint: new PublicKey(value.selectedToken.id) }
   );
+
   if (isNativeMint(mint.address)) {
     balance =
-      (await connection.getBalance(wallet.publicKey!)) / LAMPORTS_PER_SOL;
+      (await connection.getBalance(wallet.publicKey)) / LAMPORTS_PER_SOL;
   } else {
     const userAtaAddress = getAssociatedTokenAddressSync(
       new PublicKey(value.selectedToken.id),
-      new PublicKey(value.recipient),
+      wallet.publicKey,
       false,
       tokenProgramId,
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
-    const userAta = await getAccount(connection, userAtaAddress);
+
+    const userAta = await getAccount(
+      connection,
+      userAtaAddress,
+      "confirmed",
+      tokenProgramId
+    );
+
     balance = Number(userAta.amount / BigInt(10 ** mint.decimals));
   }
 
@@ -139,13 +156,13 @@ const getInstructions = async (
   connection: Connection,
   wallet: WalletContextState,
   values: ICreateForm,
-  totalVestingDuration: number
+  totalVestingDuration: number,
+  identifier: BN
 ): Promise<TransactionInstruction[]> => {
   if (!values.selectedToken || !wallet.publicKey) {
     return [];
   }
 
-  const identifier = new anchor.BN(randomBytes(8));
   const createInstructionArgs: CreateInstructionArgs = {
     identifier,
     name: getNameArg(values.name),

@@ -129,6 +129,14 @@ export const columnDefs = (): ColDef[] => [
     cellRenderer: ExplorerCellRenderer,
   },
   {
+    headerName: "Identifier",
+    field: "identifier",
+    width: 135,
+    minWidth: 135,
+    maxWidth: 135,
+    tooltipField: "identifier",
+  },
+  {
     headerName: "",
     field: "",
     filter: false,

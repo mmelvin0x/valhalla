@@ -23,10 +23,10 @@ export default function AuthoritiesInput({
         <span className="label-text font-bold">
           Cancel Authority{" "}
           <span
-            className="tooltip tooltip-sm tooltip-info"
+            className="tooltip tooltip-sm tooltip-secondary"
             data-tip="Decides who can cancel the vesting account."
           >
-            <IconUserQuestion className="text-info" />
+            <IconUserQuestion className="text-secondary" />
           </span>
         </span>
       </label>

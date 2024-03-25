@@ -34,7 +34,7 @@ export default function GovernanceFeature() {
   }, []);
 
   return (
-    <div className="m-8">
+    <div className="m-8 mt-0">
       <Head>
         <title>Valhalla | Token Vesting Solutions</title>
         <meta

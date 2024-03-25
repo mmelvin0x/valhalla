@@ -5,6 +5,7 @@ import { ColDef, GridOptions } from "ag-grid-community";
 import { useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
+import ConnectWalletToContinue from "../components/ConnectWalletToContinue";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import Head from "next/head";
 import { SubType } from "../utils/interfaces";
@@ -78,6 +79,10 @@ export default function DashboardFeature() {
       recipient: vaults.recipient,
     });
   }, [subType, vaults.created, vaults.recipient]);
+
+  if (!wallet?.publicKey) {
+    return <ConnectWalletToContinue />;
+  }
 
   return (
     <>

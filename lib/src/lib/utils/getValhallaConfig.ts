@@ -3,7 +3,7 @@ import {
   type GetProgramAccountsResponse,
   type PublicKey,
 } from "@solana/web3.js";
-import { Config, configDiscriminator } from "@valhalla/lib";
+import { Config, configDiscriminator } from "../program";
 
 export async function getValhallaConfig(
   connection: Connection

@@ -17,22 +17,24 @@ import { Vault } from "../program/accounts";
 import { displayTime } from "./formatters";
 import { getPDAs } from "./getPDAs";
 
+import BN = require("bn.js");
+
 export class ValhallaVault {
   key: PublicKey;
-  identifier: anchor.BN;
+  identifier: BN;
   name: string;
   creator: PublicKey;
   recipient: PublicKey;
   mint: PublicKey;
   autopay: boolean;
-  _totalVestingDuration: anchor.BN = new anchor.BN(0);
-  _createdTimestamp: anchor.BN = new anchor.BN(0);
-  _startDate: anchor.BN = new anchor.BN(0);
-  _lastPaymentTimestamp: anchor.BN = new anchor.BN(0);
-  _initialDepositAmount: anchor.BN = new anchor.BN(0);
-  _totalNumberOfPayouts: anchor.BN = new anchor.BN(0);
-  _payoutInterval: anchor.BN = new anchor.BN(0);
-  _numberOfPaymentsMade: anchor.BN = new anchor.BN(0);
+  _totalVestingDuration: BN = new BN(0);
+  _createdTimestamp: BN = new BN(0);
+  _startDate: BN = new BN(0);
+  _lastPaymentTimestamp: BN = new BN(0);
+  _initialDepositAmount: BN = new BN(0);
+  _totalNumberOfPayouts: BN = new BN(0);
+  _payoutInterval: BN = new BN(0);
+  _numberOfPaymentsMade: BN = new BN(0);
   _cancelAuthority: Authority;
 
   das: DasApiAsset | null = null;
@@ -50,20 +52,20 @@ export class ValhallaVault {
     public connection: anchor.web3.Connection
   ) {
     this.key = publicKey;
-    this.identifier = new anchor.BN(obj.identifier);
+    this.identifier = new BN(obj.identifier);
     this.name = anchor.utils.bytes.utf8.decode(new Uint8Array(obj.name));
     this.creator = obj.creator;
     this.recipient = obj.recipient;
     this.mint = obj.mint;
     this.autopay = obj.autopay;
-    this._totalVestingDuration = new anchor.BN(obj.totalVestingDuration);
-    this._createdTimestamp = new anchor.BN(obj.createdTimestamp);
-    this._startDate = new anchor.BN(obj.startDate);
-    this._lastPaymentTimestamp = new anchor.BN(obj.lastPaymentTimestamp);
-    this._initialDepositAmount = new anchor.BN(obj.initialDepositAmount);
-    this._payoutInterval = new anchor.BN(obj.payoutInterval);
-    this._totalNumberOfPayouts = new anchor.BN(obj.totalNumberOfPayouts);
-    this._numberOfPaymentsMade = new anchor.BN(obj.numberOfPaymentsMade);
+    this._totalVestingDuration = new BN(obj.totalVestingDuration);
+    this._createdTimestamp = new BN(obj.createdTimestamp);
+    this._startDate = new BN(obj.startDate);
+    this._lastPaymentTimestamp = new BN(obj.lastPaymentTimestamp);
+    this._initialDepositAmount = new BN(obj.initialDepositAmount);
+    this._payoutInterval = new BN(obj.payoutInterval);
+    this._totalNumberOfPayouts = new BN(obj.totalNumberOfPayouts);
+    this._numberOfPaymentsMade = new BN(obj.numberOfPaymentsMade);
     this._cancelAuthority = obj.cancelAuthority;
   }
 
@@ -134,8 +136,8 @@ export class ValhallaVault {
     return this._initialDepositAmount.toNumber() / Math.pow(10, this.decimals);
   }
 
-  get vaultAtaBalance(): anchor.BN {
-    return new anchor.BN(this.vaultAta?.amount.toString());
+  get vaultAtaBalance(): BN {
+    return new BN(this.vaultAta?.amount.toString());
   }
 
   get vaultAtaBalanceAsNumberPerDecimals(): number {
@@ -144,7 +146,7 @@ export class ValhallaVault {
         this.vaultAta &&
         this.vaultAtaBalance &&
         this.vaultAtaBalance
-          .div(new anchor.BN(Math.pow(10, this.decimals)))
+          .div(new BN(Math.pow(10, this.decimals)))
           .toNumber()) ||
       0
     );
@@ -277,20 +279,20 @@ export class ValhallaConfig {
   devTreasury: PublicKey;
   daoTreasury: PublicKey;
   governanceTokenMintKey: PublicKey;
-  devFee: anchor.BN;
-  autopayMultiplier: anchor.BN;
-  tokenFeeBasisPoints: anchor.BN;
-  governanceTokenAmount: anchor.BN;
+  devFee: BN;
+  autopayMultiplier: BN;
+  tokenFeeBasisPoints: BN;
+  governanceTokenAmount: BN;
 
   constructor(
     admin: PublicKey,
     devTreasury: PublicKey,
     daoTreasury: PublicKey,
     governanceTokenMintKey: PublicKey,
-    devFee: anchor.BN,
-    autopayMultiplier: anchor.BN,
-    tokenFeeBasisPoints: anchor.BN,
-    governanceTokenAmount: anchor.BN
+    devFee: BN,
+    autopayMultiplier: BN,
+    tokenFeeBasisPoints: BN,
+    governanceTokenAmount: BN
   ) {
     this.admin = admin;
     this.devTreasury = devTreasury;

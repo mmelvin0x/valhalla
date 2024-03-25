@@ -1,9 +1,9 @@
-import { getVaultByIdentifier, searchMyVaults } from "@/src/utils/search";
+import { ValhallaVault, getVaultByIdentifier } from "@valhalla/lib";
 
 import { ICellRendererParams } from "ag-grid-community";
 import { IconCircleX } from "@tabler/icons-react";
-import { ValhallaVault } from "@valhalla/lib";
 import { disburse as _disburse } from "@/src/instructions/disburse";
+import { searchMyVaults } from "@/src/utils/search";
 import { toast } from "react-toastify";
 import { useMemo } from "react";
 import useProgram from "@/src/utils/useProgram";
@@ -46,7 +46,7 @@ const DisburseCellRenderer = (params: ICellRendererParams) => {
   return (
     <div className="h-10 flex flex-col items-center justify-center">
       {vault.canDisburse ? (
-        <button className="btn btn-success btn-xs mt-1" onClick={disburse}>
+        <button className="btn btn-primary btn-xs mt-1" onClick={disburse}>
           Disburse
         </button>
       ) : (

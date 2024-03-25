@@ -6,7 +6,7 @@ import { ValhallaVault } from "@valhalla/lib";
 const ActionsCellRenderer = (params: ICellRendererParams<ValhallaVault>) => {
   return (
     <Link
-      className="btn btn-outline btn-info btn-sm btn-circle mt-1"
+      className="btn btn-outline btn-secondary btn-sm btn-circle mt-1"
       href={`/vaults/${params.data?.identifier}`}
     >
       <IconEyeSearch />

@@ -91,7 +91,7 @@ export default function DashboardStats() {
           <div className="stat-value">{createdLocksCount}</div>
           <div className="stat-figure hidden sm:block rounded-full">
             {nextCreatedVaultDisbursement <= new Date() && (
-              <IconSend className="w-12 h-12 text-info" />
+              <IconSend className="w-12 h-12 text-secondary" />
             )}
 
             {nextCreatedVaultDisbursement > new Date() && (

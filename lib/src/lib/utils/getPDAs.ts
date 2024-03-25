@@ -1,7 +1,5 @@
-import * as anchor from "@coral-xyz/anchor";
-import type * as beet from "@metaplex-foundation/beet";
-
 import { PublicKey } from "@solana/web3.js";
+import BN = require("bn.js");
 
 export const CONFIG_SEED = Buffer.from("config");
 export const VAULT_SEED = Buffer.from("vault");
@@ -15,7 +13,7 @@ export interface ValhallaPDAs {
 
 export function getPDAs(
   programId: PublicKey,
-  identifier?: beet.bignum,
+  identifier?: BN,
   creator?: PublicKey,
   mint?: PublicKey
 ): ValhallaPDAs {
@@ -32,7 +30,7 @@ export function getPDAs(
 
   const [vault] = PublicKey.findProgramAddressSync(
     [
-      new anchor.BN(identifier).toArrayLike(Buffer, "le", 8),
+      new BN(identifier).toArrayLike(Buffer, "le", 8),
       creator.toBuffer(),
       mint.toBuffer(),
       VAULT_SEED,

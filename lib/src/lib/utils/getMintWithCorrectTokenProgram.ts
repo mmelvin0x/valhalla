@@ -6,10 +6,11 @@ import {
   getMint,
 } from "@solana/spl-token";
 import { Vault } from "../program";
+import { ValhallaVault } from "./models";
 
 export async function getMintWithCorrectTokenProgram(
   connection: Connection,
-  vault: Partial<Vault>
+  vault: Partial<Vault | ValhallaVault>
 ): Promise<{ mint: Mint; tokenProgramId: PublicKey }> {
   try {
     return {

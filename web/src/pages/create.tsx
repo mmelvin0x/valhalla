@@ -6,6 +6,8 @@ import { FormikHelpers, useFormik } from "formik";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Authority } from "@valhalla/lib";
+import BN from "bn.js";
+import ConnectWalletToContinue from "../components/ConnectWalletToContinue";
 import CreateForm from "../components/create/CreateForm";
 import Head from "next/head";
 import { ICreateForm } from "../utils/interfaces";
@@ -16,12 +18,15 @@ import SelectTokenDialog from "../components/modals/SelectTokenDialog";
 import VestmentChart from "../components/VestmentChart";
 import axios from "axios";
 import { createVault } from "../instructions/create";
+import { schedule } from "../utils/schedule";
 import { toast } from "react-toastify";
 import { useDates } from "../utils/useDates";
 import useProgram from "../utils/useProgram";
+import { useRouter } from "next/router";
 import { vaultValidationSchema } from "../utils/vaultValidationSchema";
 
 export default function CreateFeature() {
+  const router = useRouter();
   const { wallet, connection } = useProgram();
   const { today, tomorrow, oneDayInMilliseconds } = useDates();
 
@@ -39,7 +44,7 @@ export default function CreateFeature() {
       selectedToken: assets[0],
       amountToBeVested: "",
       cancelAuthority: Authority.Neither,
-      autopay: false,
+      autopay: true,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -62,7 +67,8 @@ export default function CreateFeature() {
           ...vaultsToCreate,
           JSON.parse(JSON.stringify(values)),
         ]);
-        await createVault(
+
+        const identifier = await createVault(
           connection,
           wallet,
           [...vaultsToCreate, values],
@@ -70,8 +76,16 @@ export default function CreateFeature() {
           totalVestingDuration,
           today.toDate()
         );
+
+        if (values.autopay) {
+          await schedule(identifier);
+        }
+
+        if (identifier.gt(new BN(0))) {
+          router.push(`/vault/${identifier.toString()}`);
+        }
       } catch (e) {
-        console.log(e);
+        console.error(e);
         toast.error("Failed to create the vesting account!");
       }
     },
@@ -119,8 +133,12 @@ export default function CreateFeature() {
     }
   }, [onPageLoad, wallet?.publicKey, wallet?.signTransaction]);
 
+  if (!wallet?.publicKey) {
+    return <ConnectWalletToContinue />;
+  }
+
   return (
-    <div className="m-8">
+    <div className="m-8 mt-0">
       <Head>
         <title>Valhalla | Token Vesting Solutions</title>
         <meta
@@ -155,7 +173,7 @@ export default function CreateFeature() {
             <div className="card-body">
               <ReviewLockCard
                 isSubmitting={formik.isSubmitting}
-                creator={wallet.publicKey!}
+                creator={wallet.publicKey}
                 recipient={
                   formik.values.recipient
                     ? new PublicKey(formik.values.recipient)
@@ -171,6 +189,7 @@ export default function CreateFeature() {
                 amountToBeVested={Number(formik.values.amountToBeVested)}
                 payoutInterval={Number(formik.values.payoutInterval)}
                 cancelAuthority={formik.values.cancelAuthority}
+                autopay={formik.values.autopay}
               />
             </div>
           </aside>
@@ -193,7 +212,7 @@ export default function CreateFeature() {
 
                 <div className="flex gap-2">
                   <button
-                    className="btn btn-info"
+                    className="btn btn-error"
                     type="button"
                     onClick={formik.handleReset}
                     disabled={formik.isSubmitting}

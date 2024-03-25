@@ -2,7 +2,11 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import { ColDef, GridOptions } from "ag-grid-community";
-import { ValhallaVault, shortenAddress } from "@valhalla/lib";
+import {
+  ValhallaVault,
+  getVaultByIdentifier,
+  shortenAddress,
+} from "@valhalla/lib";
 import { useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
@@ -17,7 +21,6 @@ import { cancel as _cancel } from "@/src/instructions/cancel";
 import { close as _close } from "@/src/instructions/close";
 import { disburse as _disburse } from "@/src/instructions/disburse";
 import { getExplorerUrl } from "@/src/utils/explorer";
-import { getVaultByIdentifier } from "@/src/utils/search";
 import { useGetSignatures } from "@/src/utils/useGetSignatures";
 import useProgram from "@/src/utils/useProgram";
 import { useRouter } from "next/router";
@@ -120,7 +123,7 @@ export default function VaultDetailFeature() {
         />
       </Head>
 
-      <Link href="/dashboard" className="btn btn-sm btn-info mb-8">
+      <Link href="/dashboard" className="btn btn-sm btn-secondary mb-8">
         Back to Dashboard
       </Link>
 

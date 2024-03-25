@@ -16,6 +16,7 @@ import {
 
 import { AgGridReact } from "ag-grid-react";
 import Head from "next/head";
+import Link from "next/link";
 import { searchAllVaults } from "@/src/utils/search";
 import { useMemo } from "react";
 import useProgram from "@/src/utils/useProgram";
@@ -65,7 +66,7 @@ export default function AllVaultsFeature() {
   };
 
   return (
-    <div className="m-8">
+    <div className="m-8 mt-0">
       <Head>
         <title>Valhalla | Token Vesting Solutions</title>
         <meta
@@ -73,6 +74,10 @@ export default function AllVaultsFeature() {
           content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
         />
       </Head>
+
+      <Link href="/dashboard" className="btn btn-sm btn-secondary mb-8">
+        Back to Dashboard
+      </Link>
 
       <main className="grid grid-cols-1 gap-8">
         <section className="card">

@@ -1,12 +1,27 @@
 import * as anchor from "@coral-xyz/anchor";
-import * as beet from "@metaplex-foundation/beet";
 
 import { PublicKey } from "@solana/web3.js";
 import { isPublicKey } from "@metaplex-foundation/umi";
 
-export function cronFromPayoutInterval(payoutInterval: beet.bignum): string {
-  return `*/${payoutInterval.toString()} * * * * *`;
-}
+import BN = require("bn.js");
+
+export const secondsToCronString = (seconds: BN) => {
+  // Convert seconds to minutes; if less than 60 seconds, run every minute
+  const sixty = new BN(60);
+  const minutes = Math.max(Math.floor(seconds.div(sixty).toNumber()), 1);
+
+  // Generate cron string
+  // For inputs resulting in an interval of more than 60 minutes or not evenly dividing into 60,
+  // it defaults to every minute due to cron limitations.
+  let cronString;
+  if (minutes <= 60 && 60 % minutes === 0) {
+    cronString = `*/${minutes} * * * *`;
+  } else {
+    cronString = "* * * * *";
+  }
+
+  return cronString;
+};
 
 export const toClosestHour = (date: Date) => {
   const d = new Date(date);

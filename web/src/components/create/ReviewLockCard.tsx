@@ -25,6 +25,7 @@ interface ReviewLockCardProps {
   vestingEndDate: Date;
   cancelAuthority: Authority;
   isSubmitting: boolean;
+  autopay: boolean;
 }
 
 export default function ReviewLockCard({
@@ -37,6 +38,7 @@ export default function ReviewLockCard({
   startDate,
   cancelAuthority,
   vestingEndDate,
+  autopay,
 }: ReviewLockCardProps) {
   const { connection } = useProgram();
 
@@ -108,7 +110,7 @@ export default function ReviewLockCard({
               </div>
               <div className="text-xl font-bold flex flex-col">
                 {selectedToken?.content.metadata.symbol}
-                <TokenMintDisplay connection={connection} mint={mint!} />
+                <TokenMintDisplay connection={connection} mint={mint} />
               </div>
             </>
           ) : (
@@ -127,9 +129,11 @@ export default function ReviewLockCard({
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <span className="font-bold">Payouts</span>
-          <div className="flex text-xs">
-            Autopay <IconCircleCheck className="text-success w-4 h-4" />
-          </div>
+          {autopay && (
+            <div className="flex text-xs">
+              Autopay <IconCircleCheck className="text-success w-4 h-4" />
+            </div>
+          )}
         </div>
         <div className="font-bold">
           {numPayments} x {amountPerPayout.display}
