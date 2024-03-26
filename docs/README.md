@@ -21,7 +21,7 @@ layout:
     visible: true
 ---
 
-# 👋 Welcome to A Product
+# 👋 Welcome to Valhalla
 
 {% hint style="info" %}
 **Pro tip:** we are Token 2022 compatible
@@ -29,7 +29,7 @@ layout:
 
 ## Overview
 
-Valhalla.so is a cutting-edge platform leveraging the Solana blockchain to offer specialized tools for managing digital assets. It provides users with advanced functionalities such as token vesting, token locks, and scheduled payments, tailored to enhance the experience of developers, investors, and crypto enthusiasts. With Valhalla.so, users can efficiently control the distribution and allocation of their crypto tokens, ensuring market stability and asset security. The platform's focus on user-friendly interfaces and robust technology makes it an ideal choice for anyone looking to harness the full potential of decentralized finance. Whether for startup equity, employee retention, or investment strategies, Valhalla.so stands as a beacon in the evolving world of cryptocurrency management.
+Valhalla.so is a platform leveraging the Solana blockchain to offer specialized tools for managing digital assets. We provide users with advanced functionalities such as token vesting, token locks, and scheduled payments, tailored to enhance the experience of developers, investors, and crypto enthusiasts. With Valhalla.so, users can efficiently control the distribution and allocation of their crypto tokens, ensuring market stability and asset security. Whether for startup equity, employee retention, or investment strategies, Valhalla.so stands as a beacon in the evolving world of cryptocurrency management.
 
 ## Quick links
 

@@ -1,6 +1,6 @@
 # Table of contents
 
-* [👋 Welcome to A Product](README.md)
+* [👋 Welcome to Valhalla](README.md)
 
 ## Overview
 
@@ -19,5 +19,5 @@
 ## Use Cases
 
 * [💰 For Investors](use-cases/for-investors.md)
-* [🏗 For Founders](use-cases/for-founders.md)
-* [👨💻 For Degens](use-cases/for-degens.md)
+* [🏗️ For Founders](use-cases/for-founders.md)
+* [👨‍💻 For Degens](use-cases/for-degens.md)
