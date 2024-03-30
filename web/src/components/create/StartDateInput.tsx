@@ -19,27 +19,31 @@ export default function StartDateInput({
   const { today } = useDates();
 
   return (
-    <div className="form-control w-full">
-      <label htmlFor="" className="label">
-        <span className="label-text font-bold">Start Date</span>
-      </label>
-
-      <input
-        type="date"
-        className={`input  input-bordered ${errors.startDate && "input-error"}`}
-        name="startDate"
-        placeholder="Date the first tokens will be unlocked"
-        min={today.startOf("day").toString()}
-        value={startDate}
-        onChange={handler}
-        disabled={disabled}
-      />
-
-      {!!errors.startDate && (
+    <>
+      <div className="form-control w-full">
         <label htmlFor="" className="label">
-          <span className="text-error label-text-alt">Invalid Date</span>
+          <span className="label-text font-bold">Start Date</span>
         </label>
-      )}
-    </div>
+
+        <input
+          type="datetime-local"
+          className={`input  input-bordered ${
+            errors.startDate && "input-error"
+          }`}
+          name="startDate"
+          placeholder="Date the first tokens will be unlocked"
+          min={today.startOf("day").toString()}
+          value={startDate}
+          onChange={handler}
+          disabled={disabled}
+        />
+
+        {!!errors.startDate && (
+          <label htmlFor="" className="label">
+            <span className="text-error label-text-alt">Invalid Date</span>
+          </label>
+        )}
+      </div>
+    </>
   );
 }

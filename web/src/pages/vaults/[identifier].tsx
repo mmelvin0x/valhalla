@@ -7,7 +7,7 @@ import {
   getVaultByIdentifier,
   shortenAddress,
 } from "@valhalla/lib";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
 import BlockCellRenderer from "@/src/components/grid/BlockCellRenderer";
@@ -28,6 +28,8 @@ import { useRouter } from "next/router";
 export default function VaultDetailFeature() {
   const { connection, wallet, connected } = useProgram();
   const router = useRouter();
+  const [, updateState] = useState<unknown>();
+  const forceUpdate = useCallback(() => updateState({}), []);
   const [vault, setVault] = useState<ValhallaVault | null>(null);
   const history = useGetSignatures({ address: vault?.key });
 
@@ -70,6 +72,7 @@ export default function VaultDetailFeature() {
   const disburse = async (vault: ValhallaVault) => {
     await _disburse(connection, vault, wallet);
     await getVault();
+    await forceUpdate();
   };
 
   const cancel = async (vault: ValhallaVault) => {

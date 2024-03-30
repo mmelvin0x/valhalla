@@ -79,7 +79,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
               </div>
 
               <ToastContainer
-                position="top-right"
+                position="bottom-left"
                 autoClose={5000}
                 rtl={false}
                 pauseOnHover

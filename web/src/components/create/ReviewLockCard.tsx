@@ -42,6 +42,8 @@ export default function ReviewLockCard({
 }: ReviewLockCardProps) {
   const { connection } = useProgram();
 
+  const authority = useMemo(() => cancelAuthority, [cancelAuthority]);
+
   const displayAmount = useMemo(
     () =>
       shortenNumber(amountToBeVested, 4) == "0"
@@ -178,7 +180,7 @@ export default function ReviewLockCard({
         <div className="font-bold">
           <CancelAuthorityDisplay
             connection={connection}
-            authority={cancelAuthority}
+            authority={authority}
             creator={creator}
             recipient={recipient}
           />

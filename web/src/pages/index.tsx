@@ -252,7 +252,7 @@ export default function HomeFeature() {
           </div>
         </section>
 
-        <section className="my-20 px-8">
+        {/* <section className="my-20 px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto">
             <Image
               placeholder="blur"
@@ -281,7 +281,7 @@ export default function HomeFeature() {
               </p>
             </div>
           </div>
-        </section>
+        </section> */}
 
         <section className="my-20 px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -422,7 +422,7 @@ export default function HomeFeature() {
         </div>
       </section>
 
-      <section className="mt-20 px-8 py-20 bg-gradient-to-t from-primary/80 to-base-100">
+      {/* <section className="mt-20 px-8 py-20 bg-gradient-to-t from-primary/80 to-base-100">
         <h2 className="text-center mb-20">Meet the Team</h2>
         <div className="flex flex-wrap items-center justify-center gap-8">
           <div className="flex flex-col gap-4 items-center w-80">
@@ -467,9 +467,9 @@ export default function HomeFeature() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
-      <section className="px-8 py-20 bg-gradient-to-b from-primary/80 to-base-100">
+      <section className="px-8 py-20 bg-gradient-to-b from-primary/0 to-base-100">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto items-center max-w-screen-lg">
           <Image
             placeholder="blur"

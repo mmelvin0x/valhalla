@@ -3,6 +3,7 @@ import { NameRegistryState, getDomainKeySync } from "@bonfida/spl-name-service";
 
 import { ChangeEventHandler } from "react";
 import { ICreateForm } from "@/src/utils/interfaces";
+import { IconCirclePlus } from "@tabler/icons-react";
 import { PublicKey } from "@solana/web3.js";
 import useProgram from "@/src/utils/useProgram";
 
@@ -36,26 +37,37 @@ export default function RecipientInput({
   };
 
   return (
-    <div className="form-control">
-      <label htmlFor="" className="label">
-        <span className="label-text font-bold">Recipient</span>
-      </label>
-
-      <input
-        type="text"
-        name="recipient"
-        className={`input  input-bordered ${errors.recipient && "input-error"}`}
-        placeholder={"Public Key of the recipient"}
-        value={recipient}
-        onChange={handler}
-        disabled={disabled}
-      />
-
-      {!!errors.recipient && (
+    <>
+      <div className="form-control">
         <label htmlFor="" className="label">
-          <span className="text-error label-text-alt">{errors.recipient}</span>
+          <span className="label-text font-bold self-end">Recipient</span>
+          <span className="label-text font-bold flex items-center gap-1">
+            <button disabled className="btn btn-success btn-sm">
+              Add Recipient? <IconCirclePlus />
+            </button>
+          </span>
         </label>
-      )}
-    </div>
+
+        <input
+          type="text"
+          name="recipient"
+          className={`input  input-bordered ${
+            errors.recipient && "input-error"
+          }`}
+          placeholder={"Public Key of the recipient"}
+          value={recipient}
+          onChange={handler}
+          disabled={disabled}
+        />
+
+        {!!errors.recipient && (
+          <label htmlFor="" className="label">
+            <span className="text-error label-text-alt">
+              {errors.recipient}
+            </span>
+          </label>
+        )}
+      </div>
+    </>
   );
 }

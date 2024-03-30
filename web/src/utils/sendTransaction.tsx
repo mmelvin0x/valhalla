@@ -15,8 +15,8 @@ export const sendTransaction = async (
   payer: WalletContextState,
   instructions: TransactionInstruction[],
   toastId: string
-) => {
-  if (!payer.publicKey) return;
+): Promise<string> => {
+  if (!payer.publicKey) return "";
 
   try {
     const latestBlockhash = await connection.getLatestBlockhash();
@@ -64,5 +64,7 @@ export const sendTransaction = async (
       type: "error",
       render: `Transaction failed: ${(error as Error).message}`,
     });
+
+    return "";
   }
 };

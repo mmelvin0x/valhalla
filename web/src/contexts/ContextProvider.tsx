@@ -12,11 +12,12 @@ import dynamic from "next/dynamic";
 const ReactUIWalletModalProviderDynamic = dynamic(
   async () =>
     (await import("@solana/wallet-adapter-react-ui")).WalletModalProvider,
-  { ssr: false },
+  { ssr: false }
 );
 
 const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const network = process.env.NEXT_PUBLIC_NETWORK! as WalletAdapterNetwork;
+  const network = (process.env.NEXT_PUBLIC_NETWORK ||
+    "devnet") as WalletAdapterNetwork;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(() => [] as Adapter[], []);
 

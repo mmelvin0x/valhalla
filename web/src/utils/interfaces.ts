@@ -11,6 +11,7 @@ export interface ICreateForm {
   amountToBeVested: string | number;
   cancelAuthority: Authority;
   autopay: boolean;
+  startImmediately: boolean;
 }
 
 export enum SubType {

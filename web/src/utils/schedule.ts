@@ -11,12 +11,6 @@ export const schedule = async (identifier: BN) => {
       identifier: identifier.toString(),
     });
 
-    console.log(
-      "%c🤪 ~ file: schedule.ts:10 [schedule] -> data : ",
-      "color: #10ed29",
-      response
-    );
-
     toast.success(response.data?.message);
   } catch (e) {
     toast.error("Failed to schedule vault!");

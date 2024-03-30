@@ -42,7 +42,7 @@ export const createVault = async (
   helpers: FormikHelpers<ICreateForm>,
   totalVestingDuration: number,
   today: Date
-): Promise<BN> => {
+): Promise<{ identifier: BN; txId: string }> => {
   const isValid = [];
   for (let i = 0; i < values.length; i++) {
     isValid.push(
@@ -52,7 +52,7 @@ export const createVault = async (
 
   if (!isValid.every((val) => val)) {
     toast.error("There is an issue with the vaults. Please check the form.");
-    return new BN(0);
+    return { identifier: new BN(0), txId: "" };
   }
 
   const identifier = new BN(randomBytes(8));
@@ -72,13 +72,18 @@ export const createVault = async (
     }
 
     toast.info(`Tx 1/1: Creating vault`, { toastId: "create" });
-    await sendTransaction(connection, wallet, instructions, "create");
+    const txId = await sendTransaction(
+      connection,
+      wallet,
+      instructions,
+      "create"
+    );
 
-    return identifier;
+    return { identifier, txId };
   } catch (error) {
     console.error(error);
     toast.error("Error creating vault. Please try again.");
-    return new BN(0);
+    return { identifier: new BN(0), txId: "" };
   }
 };
 
@@ -102,11 +107,6 @@ const vaultValid = async (
 
   if (value.vestingEndDate <= value.startDate) {
     helpers.setFieldError("vestingEndDate", "Invalid Date");
-    return false;
-  }
-
-  if (value.startDate < today) {
-    helpers.setFieldError("startDate", "Invalid Date");
     return false;
   }
 
@@ -170,7 +170,7 @@ const getInstructions = async (
     totalVestingDuration: Math.round(Number(totalVestingDuration / 1000)),
     startDate: Math.round(new Date(values.startDate).getTime() / 1000),
     payoutInterval: Math.round(values.payoutInterval / 1000),
-    cancelAuthority: values.cancelAuthority,
+    cancelAuthority: +values.cancelAuthority,
     autopay: values.autopay,
   };
 

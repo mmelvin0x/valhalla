@@ -70,14 +70,29 @@ export default function CreateForm({
         setFieldValue={formik.setFieldValue}
       />
 
-      <StartDateInput
-        disabled={formik.isSubmitting}
-        values={formik.values}
-        handler={(e) => {
-          formik.handleChange(e);
-        }}
-        errors={formik.errors}
-      />
+      <div className="flex items-center gap-2">
+        <label htmlFor="" className="label">
+          <span className="label-text font-bold">Start Immediately?</span>
+        </label>
+
+        <input
+          type="checkbox"
+          className="toggle"
+          name="startImmediately"
+          checked={formik.values.startImmediately}
+          onChange={formik.handleChange}
+          disabled={formik.isSubmitting}
+        />
+      </div>
+
+      {!formik.values.startImmediately && (
+        <StartDateInput
+          disabled={formik.isSubmitting}
+          values={formik.values}
+          handler={formik.handleChange}
+          errors={formik.errors}
+        />
+      )}
 
       <VestingEndDateInput
         disabled={formik.isSubmitting}

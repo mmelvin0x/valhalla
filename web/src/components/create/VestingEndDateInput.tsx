@@ -21,7 +21,7 @@ export default function VestingEndDateInput({
       </label>
 
       <input
-        type="date"
+        type="datetime-local"
         className={`input  input-bordered ${
           errors.vestingEndDate && "input-error"
         }`}

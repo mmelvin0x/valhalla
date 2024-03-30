@@ -13,17 +13,19 @@ import {
 } from "@solana/web3.js";
 import {
   PROGRAM_ID,
-  ValhallaVault,
+  Vault,
   canDisburseVault,
   createDisburseInstruction,
   getMintWithCorrectTokenProgram,
   getPDAs,
   getValhallaConfig,
-  getVaultByIdentifier,
   secondsToCronString,
+  sleep,
+  vaultDiscriminator,
 } from "@valhalla/lib";
 import express, { Request, Response } from "express";
 
+import { BN } from "bn.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import cron from "node-cron";
@@ -43,36 +45,156 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.post("/schedule", async (req: Request, res: Response) => {
-  console.log(req.body);
+const scheduledVaults = new Map<string, cron.ScheduledTask>();
+
+/**
+ * Health check endpoint
+ */
+app.get("/health", (_req: Request, res: Response) => {
+  res.status(200).send("OK");
+});
+
+/**
+ * Unschedule a vault
+ * @param identifier - The vault identifier
+ */
+app.delete("/schedule", async (req: Request, res: Response) => {
   const { identifier } = req.body;
-  const vault = await getVaultByIdentifier(connection, identifier);
 
-  if (!vault) {
-    return res.status(404).json({ error: "Vault not found!" });
+  if (!scheduledVaults.has(identifier)) {
+    res.status(400).send(`Vault ${identifier} not scheduled`);
+    return;
   }
 
-  if (!vault.autopay) {
-    return res.status(400).json({ error: "Vault is not autopay!" });
+  const task = scheduledVaults.get(identifier);
+  task.stop();
+  scheduledVaults.delete(identifier);
+
+  res.status(200).send(`Vault ${identifier} unscheduled`);
+});
+
+/**
+ * Schedule a vault for autopay
+ * @param identifier - The vault identifier
+ */
+app.post("/schedule", async (req: Request, res: Response) => {
+  const { identifier } = req.body;
+
+  if (scheduledVaults.has(identifier)) {
+    res.status(400).send(`Vault ${identifier} already scheduled`);
+    return;
   }
 
+  const gpaBuilder = Vault.gpaBuilder();
+  gpaBuilder.addFilter("accountDiscriminator", vaultDiscriminator);
+  gpaBuilder.addFilter("identifier", new BN(identifier));
+  const response = await gpaBuilder.run(connection);
+  if (response.length === 0) {
+    res.status(404).send(`Vault ${identifier} not found`);
+    return;
+  }
+
+  const [vault] = Vault.fromAccountInfo(response[0].account);
+  const interval = secondsToCronString(Number(vault.payoutInterval));
   console.log(
-    `Scheduling vault ${vault.identifier} for disbursement on an interval of ${vault.payoutInterval}.`
+    "%c🤪 ~ file: main.ts:135 [] -> interval : ",
+    "color: #810ded",
+    interval
   );
-  const interval = secondsToCronString(vault._payoutInterval);
-  cron.schedule(interval, async (): Promise<void> => {
+
+  if (!cron.validate(interval)) {
+    res.status(400).send(`Invalid interval for vault ${identifier}`);
+    return;
+  }
+
+  console.log(`Scheduling vault ${identifier}...`);
+
+  try {
+    console.log(`Disbursing vault ${vault.identifier}...`);
     await disburse(vault);
     console.log(
       `Disbursed vault ${vault.identifier} at ${new Date().toLocaleString()}`
     );
-  });
+  } catch (error) {
+    console.error(
+      `Error disbursing vault ${vault.identifier.toString()}`,
+      error
+    );
+  }
 
-  return res.status(200).json({ message: `Scheduled vault for autopay!` });
+  const task = cron.schedule(
+    interval,
+    async (): Promise<void> => {
+      try {
+        await disburse(vault);
+      } catch (error) {
+        console.error(
+          `Error disbursing vault ${vault.identifier.toString()}`,
+          error
+        );
+      }
+    },
+    { name: vault.identifier.toString(), scheduled: false }
+  );
+
+  scheduledVaults.set(vault.identifier.toString(), task);
+  task.start();
+
+  return res.status(201).json(vault.pretty());
 });
 
-const disburse = async (vault: ValhallaVault) => {
-  if (!canDisburseVault(vault)) {
-    console.log(`Vault ${vault.identifier} is locked!`);
+app.post("/repair", async (_req: Request, res: Response) => {
+  const gpaBuilder = Vault.gpaBuilder();
+  gpaBuilder.addFilter("autopay", true);
+  gpaBuilder.addFilter("accountDiscriminator", vaultDiscriminator);
+  const response = await gpaBuilder.run(connection);
+  const vaults = response.map(
+    (account) => Vault.fromAccountInfo(account.account)[0]
+  );
+
+  console.log(`Repairing ${vaults.length} vaults...`);
+
+  let count = 0;
+  for (const vault of vaults) {
+    if (!scheduledVaults.has(vault.identifier.toString())) {
+      const interval = secondsToCronString(Number(vault.payoutInterval));
+      const task = cron.schedule(
+        interval,
+        async (): Promise<void> => {
+          try {
+            await disburse(vault);
+          } catch (error) {
+            console.error(
+              `Error disbursing vault ${vault.identifier.toString()}`,
+              error
+            );
+          }
+        },
+        { name: vault.identifier.toString(), scheduled: false }
+      );
+
+      scheduledVaults.set(vault.identifier.toString(), task);
+      task.start();
+      count++;
+
+      console.log(`Scheduled vault ${vault.identifier}...`);
+      await sleep(1000);
+    }
+  }
+
+  res.status(200).json({ count });
+});
+
+const disburse = async (vault: Vault) => {
+  const canDisburse = await canDisburseVault(connection, vault);
+  if (!canDisburse) {
+    console.log(
+      `Vault ${
+        vault.identifier
+      } is locked or empty! - ${new Date().toLocaleString()}`
+    );
+
+    return;
   }
 
   const { config, key } = await getValhallaConfig(connection);
@@ -82,13 +204,13 @@ const disburse = async (vault: ValhallaVault) => {
   );
   const { vault: vaultKey, vaultAta } = getPDAs(
     PROGRAM_ID,
-    vault.identifier,
+    new BN(vault.identifier),
     vault.creator,
     vault.mint
   );
 
   const signerGovernanceAta = getAssociatedTokenAddressSync(
-    vault.mint,
+    config.governanceTokenMintKey,
     payer.publicKey,
     false,
     TOKEN_PROGRAM_ID,
@@ -124,12 +246,12 @@ const disburse = async (vault: ValhallaVault) => {
   const tx = await sendAndConfirmTransaction(connection, transaction, [payer]);
 
   if (tx.length === 0) {
-    console.error(`Error disbursing vault ${vault.identifier.toString()}\n`);
+    console.error(`Error disbursing vault ${vault.identifier.toString()}`);
     return;
   }
 
   console.info(
-    `Disbursed vault ${vault.identifier.toString()} at ${new Date().toLocaleString()}. Tx: ${tx}\n`
+    `Disbursed vault ${vault.identifier.toString()} at ${new Date().toLocaleString()}. Tx: ${tx}`
   );
 };
 

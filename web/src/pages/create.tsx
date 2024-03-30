@@ -11,11 +11,12 @@ import ConnectWalletToContinue from "../components/ConnectWalletToContinue";
 import CreateForm from "../components/create/CreateForm";
 import Head from "next/head";
 import { ICreateForm } from "../utils/interfaces";
-import { IconUsersPlus } from "@tabler/icons-react";
+// import { IconUsersPlus } from "@tabler/icons-react";
 import { PublicKey } from "@solana/web3.js";
 import ReviewLockCard from "../components/create/ReviewLockCard";
 import SelectTokenDialog from "../components/modals/SelectTokenDialog";
 import VestmentChart from "../components/VestmentChart";
+import WaitForTransactionModal from "../components/modals/WaitForTransactionModal";
 import axios from "axios";
 import { createVault } from "../instructions/create";
 import { schedule } from "../utils/schedule";
@@ -29,6 +30,8 @@ export default function CreateFeature() {
   const router = useRouter();
   const { wallet, connection } = useProgram();
   const { today, tomorrow, oneDayInMilliseconds } = useDates();
+  const [txId, setTxId] = useState<string>("");
+  const [identifier, setIdentifier] = useState<BN>(new BN(0));
 
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
   const [totalVestingDuration, setVestingDuration] = useState<number>(0);
@@ -45,6 +48,7 @@ export default function CreateFeature() {
       amountToBeVested: "",
       cancelAuthority: Authority.Neither,
       autopay: true,
+      startImmediately: true,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -68,7 +72,7 @@ export default function CreateFeature() {
           JSON.parse(JSON.stringify(values)),
         ]);
 
-        const identifier = await createVault(
+        const { identifier, txId = "" } = await createVault(
           connection,
           wallet,
           [...vaultsToCreate, values],
@@ -76,6 +80,9 @@ export default function CreateFeature() {
           totalVestingDuration,
           today.toDate()
         );
+
+        setTxId(txId);
+        setIdentifier(identifier);
 
         if (values.autopay) {
           await schedule(identifier);
@@ -87,6 +94,9 @@ export default function CreateFeature() {
       } catch (e) {
         console.error(e);
         toast.error("Failed to create the vesting account!");
+      } finally {
+        setVaultsToCreate([]);
+        helpers.setSubmitting(false);
       }
     },
   });
@@ -108,16 +118,25 @@ export default function CreateFeature() {
 
   const onPageLoad = useCallback(async () => {
     if (!formik.values.selectedToken && wallet?.publicKey) {
-      const {
-        data: { items },
-      } = await axios.get<DasApiAssetList>(
+      const { data } = await axios.get<DasApiAssetList>(
         `/api/getTokensByOwner/?owner=${wallet.publicKey.toString()}`
       );
 
-      setAssets(items);
+      if (data.error) {
+        toast.error(data.error as string);
+        return;
+      }
+
+      setAssets(data.items);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.publicKey]);
+
+  useEffect(() => {
+    if (formik.isSubmitting) {
+      (document.getElementById("tx_modal") as HTMLDialogElement).showModal();
+    }
+  }, [formik.isSubmitting]);
 
   useEffect(() => {
     setVestingDuration(
@@ -196,39 +215,24 @@ export default function CreateFeature() {
 
           <aside className="card">
             <div className="card-body">
-              <div className="flex justify-between mt-4">
-                <div className="flex items-center gap-1">
-                  <button
-                    className="btn btn-circle btn-success"
-                    type="button"
-                    title="Add another recipient"
-                    disabled={formik.isSubmitting}
-                    onClick={onAddRecipient}
-                  >
-                    <IconUsersPlus />
-                  </button>
-                  Add a recipient?
-                </div>
+              <div className="flex gap-4">
+                <button
+                  className="btn btn-error"
+                  type="button"
+                  onClick={formik.handleReset}
+                  disabled={formik.isSubmitting}
+                >
+                  Reset
+                </button>
 
-                <div className="flex gap-2">
-                  <button
-                    className="btn btn-error"
-                    type="button"
-                    onClick={formik.handleReset}
-                    disabled={formik.isSubmitting}
-                  >
-                    Reset
-                  </button>
-
-                  <button
-                    className="btn btn-accent"
-                    type="button"
-                    onClick={() => formik.handleSubmit()}
-                    disabled={formik.isSubmitting}
-                  >
-                    Create
-                  </button>
-                </div>
+                <button
+                  className="btn flex-1 btn-accent"
+                  type="button"
+                  onClick={() => formik.handleSubmit()}
+                  disabled={formik.isSubmitting}
+                >
+                  Create
+                </button>
               </div>
             </div>
           </aside>
@@ -236,6 +240,10 @@ export default function CreateFeature() {
       </main>
 
       <SelectTokenDialog assets={assets} formik={formik} />
+      <WaitForTransactionModal
+        tx={txId}
+        route={txId && identifier.gt(new BN(0)) ? `/vaults/${identifier}` : ""}
+      />
     </div>
   );
 }

@@ -10,42 +10,48 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<DasApiAssetList>,
+  res: NextApiResponse<DasApiAssetList | { error: string }>
 ) {
-  const { owner } = req.query;
-  const url = `${process.env.RPC_URL}/?api-key=${process.env.RPC_API_KEY}`;
-  const { data } = await axios.post(url, {
-    jsonrpc: "2.0",
-    id: "my-id",
-    method: "searchAssets",
-    params: {
-      ownerAddress: owner,
-      tokenType: "fungible",
-    },
-  });
+  try {
+    const { owner } = req.query;
+    const url = `${process.env.RPC_URL}/?api-key=${process.env.RPC_API_KEY}`;
+    const { data } = await axios.post(url, {
+      jsonrpc: "2.0",
+      id: "my-id",
+      method: "searchAssets",
+      params: {
+        ownerAddress: owner,
+        tokenType: "fungible",
+      },
+    });
 
-  await sleep(4000);
+    await sleep(4000);
 
-  const { data: wSol } = await axios.post(url, {
-    jsonrpc: "2.0",
-    id: "my-id",
-    method: "getAsset",
-    params: {
-      id: NATIVE_MINT.toBase58(),
-    },
-  });
+    const { data: wSol } = await axios.post(url, {
+      jsonrpc: "2.0",
+      id: "my-id",
+      method: "getAsset",
+      params: {
+        id: NATIVE_MINT.toBase58(),
+      },
+    });
 
-  const connection = new Connection(
-    clusterApiUrl(process.env.NETWORK as Cluster),
-    "confirmed",
-  );
-  const balance = await connection.getBalance(new PublicKey(owner as string));
-  wSol.result.content.metadata.symbol = "SOL";
-  wSol.result.content.links.image = "/sol.png";
-  wSol.result.token_info.balance = balance;
+    const connection = new Connection(
+      clusterApiUrl(process.env.NETWORK as Cluster),
+      "confirmed"
+    );
+    const balance = await connection.getBalance(new PublicKey(owner as string));
+    wSol.result.content.metadata.symbol = "SOL";
+    wSol.result.content.links.image = "/sol.png";
+    wSol.result.token_info.balance = balance;
 
-  data.result.total += 1;
-  data.result.items.unshift(wSol.result);
+    data.result.total += 1;
+    data.result.items.unshift(wSol.result);
 
-  return res.status(200).json(data.result);
+    return res.status(200).json(data.result);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error: "There was an error fetching your wallet." });
+  }
 }

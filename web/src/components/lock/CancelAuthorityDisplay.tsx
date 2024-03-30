@@ -17,7 +17,7 @@ export default function CancelAuthorityDisplay({
   creator: PublicKey;
   recipient: PublicKey | null;
 }) {
-  switch (authority) {
+  switch (+authority) {
     case Authority.Creator:
       return (
         <Link
