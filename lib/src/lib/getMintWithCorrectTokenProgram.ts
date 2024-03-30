@@ -5,7 +5,7 @@ import {
   TOKEN_PROGRAM_ID,
   getMint,
 } from "@solana/spl-token";
-import { Vault } from "../program";
+import { Vault } from "./program";
 import { ValhallaVault } from "./models";
 
 export async function getMintWithCorrectTokenProgram(

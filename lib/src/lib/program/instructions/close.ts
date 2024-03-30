@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as splToken from "@solana/spl-token";
-import * as web3 from "@solana/web3.js";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -15,12 +15,11 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export const closeStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */;
+  instructionDiscriminator: number[] /* size: 8 */
 }>(
-  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
-  "CloseInstructionArgs"
-);
-
+  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
+  'CloseInstructionArgs'
+)
 /**
  * Accounts required by the _close_ instruction
  *
@@ -33,16 +32,16 @@ export const closeStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type CloseInstructionAccounts = {
-  creator: web3.PublicKey;
-  vault: web3.PublicKey;
-  vaultAta: web3.PublicKey;
-  mint: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-};
+  creator: web3.PublicKey
+  vault: web3.PublicKey
+  vaultAta: web3.PublicKey
+  mint: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+}
 
 export const closeInstructionDiscriminator = [
   98, 165, 201, 177, 108, 65, 206, 96,
-];
+]
 
 /**
  * Creates a _Close_ instruction.
@@ -54,11 +53,11 @@ export const closeInstructionDiscriminator = [
  */
 export function createCloseInstruction(
   accounts: CloseInstructionAccounts,
-  programId = new web3.PublicKey("CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC")
+  programId = new web3.PublicKey('CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC')
 ) {
   const [data] = closeStruct.serialize({
     instructionDiscriminator: closeInstructionDiscriminator,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.creator,
@@ -85,12 +84,12 @@ export function createCloseInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

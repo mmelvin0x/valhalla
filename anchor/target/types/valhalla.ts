@@ -446,7 +446,22 @@ export type Valhalla = {
           "isSigner": false
         },
         {
+          "name": "creatorGovernanceAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "governanceTokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -1345,7 +1360,22 @@ export const IDL: Valhalla = {
           "isSigner": false
         },
         {
+          "name": "creatorGovernanceAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "governanceTokenProgram",
           "isMut": false,
           "isSigner": false
         },

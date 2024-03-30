@@ -5,8 +5,8 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -14,12 +14,11 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export const updateDaoTreasuryStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */;
+  instructionDiscriminator: number[] /* size: 8 */
 }>(
-  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
-  "UpdateDaoTreasuryInstructionArgs"
-);
-
+  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
+  'UpdateDaoTreasuryInstructionArgs'
+)
 /**
  * Accounts required by the _updateDaoTreasury_ instruction
  *
@@ -31,14 +30,14 @@ export const updateDaoTreasuryStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type UpdateDaoTreasuryInstructionAccounts = {
-  admin: web3.PublicKey;
-  newDaoTreasury: web3.PublicKey;
-  config: web3.PublicKey;
-};
+  admin: web3.PublicKey
+  newDaoTreasury: web3.PublicKey
+  config: web3.PublicKey
+}
 
 export const updateDaoTreasuryInstructionDiscriminator = [
   50, 210, 233, 46, 9, 38, 87, 196,
-];
+]
 
 /**
  * Creates a _UpdateDaoTreasury_ instruction.
@@ -50,11 +49,11 @@ export const updateDaoTreasuryInstructionDiscriminator = [
  */
 export function createUpdateDaoTreasuryInstruction(
   accounts: UpdateDaoTreasuryInstructionAccounts,
-  programId = new web3.PublicKey("CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC")
+  programId = new web3.PublicKey('CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC')
 ) {
   const [data] = updateDaoTreasuryStruct.serialize({
     instructionDiscriminator: updateDaoTreasuryInstructionDiscriminator,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -71,12 +70,12 @@ export function createUpdateDaoTreasuryInstruction(
       isWritable: true,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

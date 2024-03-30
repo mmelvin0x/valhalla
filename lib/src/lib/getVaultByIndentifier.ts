@@ -1,4 +1,4 @@
-import { Vault, vaultDiscriminator } from "../program";
+import { Vault, vaultDiscriminator } from "./program";
 
 import { Connection } from "@solana/web3.js";
 import { ValhallaVault } from "./models";

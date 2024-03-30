@@ -5,11 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as splToken from "@solana/spl-token";
-import * as web3 from "@solana/web3.js";
-
-import { Authority, authorityBeet } from "../types/Authority";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
+import { Authority, authorityBeet } from '../types/Authority'
 
 /**
  * @category Instructions
@@ -17,16 +16,15 @@ import { Authority, authorityBeet } from "../types/Authority";
  * @category generated
  */
 export type CreateInstructionArgs = {
-  identifier: beet.bignum;
-  name: number[] /* size: 32 */;
-  amountToBeVested: beet.bignum;
-  totalVestingDuration: beet.bignum;
-  startDate: beet.bignum;
-  payoutInterval: beet.bignum;
-  cancelAuthority: Authority;
-  autopay: boolean;
-};
-
+  identifier: beet.bignum
+  name: number[] /* size: 32 */
+  amountToBeVested: beet.bignum
+  totalVestingDuration: beet.bignum
+  startDate: beet.bignum
+  payoutInterval: beet.bignum
+  cancelAuthority: Authority
+  autopay: boolean
+}
 /**
  * @category Instructions
  * @category Create
@@ -34,22 +32,22 @@ export type CreateInstructionArgs = {
  */
 export const createStruct = new beet.BeetArgsStruct<
   CreateInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */;
+    instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["identifier", beet.u64],
-    ["name", beet.uniformFixedSizeArray(beet.u8, 32)],
-    ["amountToBeVested", beet.u64],
-    ["totalVestingDuration", beet.u64],
-    ["startDate", beet.u64],
-    ["payoutInterval", beet.u64],
-    ["cancelAuthority", authorityBeet],
-    ["autopay", beet.bool],
+    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['identifier', beet.u64],
+    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
+    ['amountToBeVested', beet.u64],
+    ['totalVestingDuration', beet.u64],
+    ['startDate', beet.u64],
+    ['payoutInterval', beet.u64],
+    ['cancelAuthority', authorityBeet],
+    ['autopay', beet.bool],
   ],
-  "CreateInstructionArgs"
-);
+  'CreateInstructionArgs'
+)
 /**
  * Accounts required by the _create_ instruction
  *
@@ -62,29 +60,35 @@ export const createStruct = new beet.BeetArgsStruct<
  * @property [_writable_] vaultAta
  * @property [_writable_] daoTreasuryAta
  * @property [_writable_] creatorAta
+ * @property [_writable_] creatorGovernanceAta
  * @property [] mint
+ * @property [_writable_] governanceTokenMint
+ * @property [] governanceTokenProgram
  * @property [] associatedTokenProgram
  * @category Instructions
  * @category Create
  * @category generated
  */
 export type CreateInstructionAccounts = {
-  creator: web3.PublicKey;
-  recipient: web3.PublicKey;
-  devTreasury: web3.PublicKey;
-  daoTreasury: web3.PublicKey;
-  config: web3.PublicKey;
-  vault: web3.PublicKey;
-  vaultAta: web3.PublicKey;
-  daoTreasuryAta: web3.PublicKey;
-  creatorAta: web3.PublicKey;
-  mint: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  associatedTokenProgram: web3.PublicKey;
-  systemProgram?: web3.PublicKey;
-};
+  creator: web3.PublicKey
+  recipient: web3.PublicKey
+  devTreasury: web3.PublicKey
+  daoTreasury: web3.PublicKey
+  config: web3.PublicKey
+  vault: web3.PublicKey
+  vaultAta: web3.PublicKey
+  daoTreasuryAta: web3.PublicKey
+  creatorAta: web3.PublicKey
+  creatorGovernanceAta: web3.PublicKey
+  mint: web3.PublicKey
+  governanceTokenMint: web3.PublicKey
+  governanceTokenProgram: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+  associatedTokenProgram: web3.PublicKey
+  systemProgram?: web3.PublicKey
+}
 
-export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119];
+export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
 
 /**
  * Creates a _Create_ instruction.
@@ -99,12 +103,12 @@ export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119];
 export function createCreateInstruction(
   accounts: CreateInstructionAccounts,
   args: CreateInstructionArgs,
-  programId = new web3.PublicKey("CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC")
+  programId = new web3.PublicKey('CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC')
 ) {
   const [data] = createStruct.serialize({
     instructionDiscriminator: createInstructionDiscriminator,
     ...args,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.creator,
@@ -152,7 +156,22 @@ export function createCreateInstruction(
       isSigner: false,
     },
     {
+      pubkey: accounts.creatorGovernanceAta,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
       pubkey: accounts.mint,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.governanceTokenMint,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.governanceTokenProgram,
       isWritable: false,
       isSigner: false,
     },
@@ -171,12 +190,12 @@ export function createCreateInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

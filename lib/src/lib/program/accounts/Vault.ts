@@ -5,10 +5,10 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
-import * as beetSolana from "@metaplex-foundation/beet-solana";
-import { Authority, authorityBeet } from "../types/Authority";
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
+import * as beetSolana from '@metaplex-foundation/beet-solana'
+import { Authority, authorityBeet } from '../types/Authority'
 
 /**
  * Arguments used to create {@link Vault}
@@ -16,25 +16,25 @@ import { Authority, authorityBeet } from "../types/Authority";
  * @category generated
  */
 export type VaultArgs = {
-  identifier: beet.bignum;
-  name: number[] /* size: 32 */;
-  creator: web3.PublicKey;
-  recipient: web3.PublicKey;
-  mint: web3.PublicKey;
-  totalVestingDuration: beet.bignum;
-  createdTimestamp: beet.bignum;
-  startDate: beet.bignum;
-  lastPaymentTimestamp: beet.bignum;
-  initialDepositAmount: beet.bignum;
-  totalNumberOfPayouts: beet.bignum;
-  payoutInterval: beet.bignum;
-  numberOfPaymentsMade: beet.bignum;
-  cancelAuthority: Authority;
-  autopay: boolean;
-  tokenAccountBump: number;
-};
+  identifier: beet.bignum
+  name: number[] /* size: 32 */
+  creator: web3.PublicKey
+  recipient: web3.PublicKey
+  mint: web3.PublicKey
+  totalVestingDuration: beet.bignum
+  createdTimestamp: beet.bignum
+  startDate: beet.bignum
+  lastPaymentTimestamp: beet.bignum
+  initialDepositAmount: beet.bignum
+  totalNumberOfPayouts: beet.bignum
+  payoutInterval: beet.bignum
+  numberOfPaymentsMade: beet.bignum
+  cancelAuthority: Authority
+  autopay: boolean
+  tokenAccountBump: number
+}
 
-export const vaultDiscriminator = [211, 8, 232, 43, 2, 152, 117, 119];
+export const vaultDiscriminator = [211, 8, 232, 43, 2, 152, 117, 119]
 /**
  * Holds the data for the {@link Vault} Account and provides de/serialization
  * functionality for that data
@@ -83,7 +83,7 @@ export class Vault implements VaultArgs {
       args.cancelAuthority,
       args.autopay,
       args.tokenAccountBump
-    );
+    )
   }
 
   /**
@@ -94,7 +94,7 @@ export class Vault implements VaultArgs {
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
   ): [Vault, number] {
-    return Vault.deserialize(accountInfo.data, offset);
+    return Vault.deserialize(accountInfo.data, offset)
   }
 
   /**
@@ -111,11 +111,11 @@ export class Vault implements VaultArgs {
     const accountInfo = await connection.getAccountInfo(
       address,
       commitmentOrConfig
-    );
+    )
     if (accountInfo == null) {
-      throw new Error(`Unable to find Vault account at ${address}`);
+      throw new Error(`Unable to find Vault account at ${address}`)
     }
-    return Vault.fromAccountInfo(accountInfo, 0)[0];
+    return Vault.fromAccountInfo(accountInfo, 0)[0]
   }
 
   /**
@@ -126,10 +126,10 @@ export class Vault implements VaultArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      "CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC"
+      'CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC'
     )
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, vaultBeet);
+    return beetSolana.GpaBuilder.fromStruct(programId, vaultBeet)
   }
 
   /**
@@ -137,7 +137,7 @@ export class Vault implements VaultArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [Vault, number] {
-    return vaultBeet.deserialize(buf, offset);
+    return vaultBeet.deserialize(buf, offset)
   }
 
   /**
@@ -148,7 +148,7 @@ export class Vault implements VaultArgs {
     return vaultBeet.serialize({
       accountDiscriminator: vaultDiscriminator,
       ...this,
-    });
+    })
   }
 
   /**
@@ -156,7 +156,7 @@ export class Vault implements VaultArgs {
    * {@link Vault}
    */
   static get byteSize() {
-    return vaultBeet.byteSize;
+    return vaultBeet.byteSize
   }
 
   /**
@@ -172,7 +172,7 @@ export class Vault implements VaultArgs {
     return connection.getMinimumBalanceForRentExemption(
       Vault.byteSize,
       commitment
-    );
+    )
   }
 
   /**
@@ -180,7 +180,7 @@ export class Vault implements VaultArgs {
    * hold {@link Vault} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === Vault.byteSize;
+    return buf.byteLength - offset === Vault.byteSize
   }
 
   /**
@@ -190,112 +190,112 @@ export class Vault implements VaultArgs {
   pretty() {
     return {
       identifier: (() => {
-        const x = <{ toNumber: () => number }>this.identifier;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.identifier
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       name: this.name,
       creator: this.creator.toBase58(),
       recipient: this.recipient.toBase58(),
       mint: this.mint.toBase58(),
       totalVestingDuration: (() => {
-        const x = <{ toNumber: () => number }>this.totalVestingDuration;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.totalVestingDuration
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       createdTimestamp: (() => {
-        const x = <{ toNumber: () => number }>this.createdTimestamp;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.createdTimestamp
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       startDate: (() => {
-        const x = <{ toNumber: () => number }>this.startDate;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.startDate
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       lastPaymentTimestamp: (() => {
-        const x = <{ toNumber: () => number }>this.lastPaymentTimestamp;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.lastPaymentTimestamp
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       initialDepositAmount: (() => {
-        const x = <{ toNumber: () => number }>this.initialDepositAmount;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.initialDepositAmount
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       totalNumberOfPayouts: (() => {
-        const x = <{ toNumber: () => number }>this.totalNumberOfPayouts;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.totalNumberOfPayouts
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       payoutInterval: (() => {
-        const x = <{ toNumber: () => number }>this.payoutInterval;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.payoutInterval
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
       numberOfPaymentsMade: (() => {
-        const x = <{ toNumber: () => number }>this.numberOfPaymentsMade;
-        if (typeof x.toNumber === "function") {
+        const x = <{ toNumber: () => number }>this.numberOfPaymentsMade
+        if (typeof x.toNumber === 'function') {
           try {
-            return x.toNumber();
+            return x.toNumber()
           } catch (_) {
-            return x;
+            return x
           }
         }
-        return x;
+        return x
       })(),
-      cancelAuthority: "Authority." + Authority[this.cancelAuthority],
+      cancelAuthority: 'Authority.' + Authority[this.cancelAuthority],
       autopay: this.autopay,
       tokenAccountBump: this.tokenAccountBump,
-    };
+    }
   }
 }
 
@@ -306,28 +306,28 @@ export class Vault implements VaultArgs {
 export const vaultBeet = new beet.BeetStruct<
   Vault,
   VaultArgs & {
-    accountDiscriminator: number[] /* size: 8 */;
+    accountDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["identifier", beet.u64],
-    ["name", beet.uniformFixedSizeArray(beet.u8, 32)],
-    ["creator", beetSolana.publicKey],
-    ["recipient", beetSolana.publicKey],
-    ["mint", beetSolana.publicKey],
-    ["totalVestingDuration", beet.u64],
-    ["createdTimestamp", beet.u64],
-    ["startDate", beet.u64],
-    ["lastPaymentTimestamp", beet.u64],
-    ["initialDepositAmount", beet.u64],
-    ["totalNumberOfPayouts", beet.u64],
-    ["payoutInterval", beet.u64],
-    ["numberOfPaymentsMade", beet.u64],
-    ["cancelAuthority", authorityBeet],
-    ["autopay", beet.bool],
-    ["tokenAccountBump", beet.u8],
+    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['identifier', beet.u64],
+    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
+    ['creator', beetSolana.publicKey],
+    ['recipient', beetSolana.publicKey],
+    ['mint', beetSolana.publicKey],
+    ['totalVestingDuration', beet.u64],
+    ['createdTimestamp', beet.u64],
+    ['startDate', beet.u64],
+    ['lastPaymentTimestamp', beet.u64],
+    ['initialDepositAmount', beet.u64],
+    ['totalNumberOfPayouts', beet.u64],
+    ['payoutInterval', beet.u64],
+    ['numberOfPaymentsMade', beet.u64],
+    ['cancelAuthority', authorityBeet],
+    ['autopay', beet.bool],
+    ['tokenAccountBump', beet.u8],
   ],
   Vault.fromArgs,
-  "Vault"
-);
+  'Vault'
+)

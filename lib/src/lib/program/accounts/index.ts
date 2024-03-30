@@ -1,7 +1,7 @@
-export * from "./Config";
-export * from "./Vault";
+export * from './Config'
+export * from './Vault'
 
-import { Config } from "./Config";
-import { Vault } from "./Vault";
+import { Config } from './Config'
+import { Vault } from './Vault'
 
-export const accountProviders = { Config, Vault };
+export const accountProviders = { Config, Vault }

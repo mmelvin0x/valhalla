@@ -1,4 +1,4 @@
-import { PROGRAM_ID, Vault } from "../program";
+import { PROGRAM_ID, Vault } from "./program";
 
 import { BN } from "bn.js";
 import { Connection } from "@solana/web3.js";

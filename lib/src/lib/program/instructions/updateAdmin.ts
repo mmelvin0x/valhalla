@@ -5,8 +5,8 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -14,12 +14,11 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export const updateAdminStruct = new beet.BeetArgsStruct<{
-  instructionDiscriminator: number[] /* size: 8 */;
+  instructionDiscriminator: number[] /* size: 8 */
 }>(
-  [["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)]],
-  "UpdateAdminInstructionArgs"
-);
-
+  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
+  'UpdateAdminInstructionArgs'
+)
 /**
  * Accounts required by the _updateAdmin_ instruction
  *
@@ -31,14 +30,14 @@ export const updateAdminStruct = new beet.BeetArgsStruct<{
  * @category generated
  */
 export type UpdateAdminInstructionAccounts = {
-  admin: web3.PublicKey;
-  newAdmin: web3.PublicKey;
-  config: web3.PublicKey;
-};
+  admin: web3.PublicKey
+  newAdmin: web3.PublicKey
+  config: web3.PublicKey
+}
 
 export const updateAdminInstructionDiscriminator = [
   161, 176, 40, 213, 60, 184, 179, 228,
-];
+]
 
 /**
  * Creates a _UpdateAdmin_ instruction.
@@ -50,11 +49,11 @@ export const updateAdminInstructionDiscriminator = [
  */
 export function createUpdateAdminInstruction(
   accounts: UpdateAdminInstructionAccounts,
-  programId = new web3.PublicKey("CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC")
+  programId = new web3.PublicKey('CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC')
 ) {
   const [data] = updateAdminStruct.serialize({
     instructionDiscriminator: updateAdminInstructionDiscriminator,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -71,12 +70,12 @@ export function createUpdateAdminInstruction(
       isWritable: true,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }
