@@ -24,7 +24,9 @@ export interface OptimizedTransactionResponse {
  * @param instructions {TransactionInstruction[]} The instructions to be batched into transactions
  * @param signerKey {PublicKey} The public key of the signer
  * @param lookupTables {AddressLookupTableAccount[]} The lookup tables
- * @returns
+ * @returns {Promise<OptimizedTransactionResponse>} The optimized transactions
+ *
+ * @see https://github.com/anselsol/solana-tx-packer/blob/main/src/index.ts#L6
  */
 export async function buildOptimalTransactions(
   connection: Connection,

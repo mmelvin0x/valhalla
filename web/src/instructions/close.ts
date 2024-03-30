@@ -57,5 +57,6 @@ export const close = async (
   toast.update("close", {
     render: `Tx ${vault.isToken2022 ? "2/2" : "1/1"}: Closing vault`,
   });
+
   return await sendTransaction(connection, wallet, instructions, "close");
 };

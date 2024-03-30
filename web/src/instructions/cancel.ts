@@ -65,5 +65,6 @@ export const cancel = async (
     type: "info",
     render: `Tx ${vault.isToken2022 ? "2/2" : "1/1"}: Cancelling vault`,
   });
+
   return await sendTransaction(connection, wallet, instructions, "cancel");
 };

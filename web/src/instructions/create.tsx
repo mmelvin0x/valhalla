@@ -2,6 +2,7 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   NATIVE_MINT,
   NATIVE_MINT_2022,
+  TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   createSyncNativeInstruction,
   getAccount,
@@ -176,7 +177,7 @@ const getInstructions = async (
 
   const mint = new PublicKey(values.selectedToken.id);
   const tokenProgramId = (await connection.getAccountInfo(mint))?.owner;
-  const recipientKey = new PublicKey(values.recipient);
+  const recipient = new PublicKey(values.recipient);
   const { config, vault, vaultAta } = getPDAs(
     PROGRAM_ID,
     identifier,
@@ -184,7 +185,8 @@ const getInstructions = async (
     mint
   );
 
-  const configAccount = await Config.fromAccountAddress(connection, config);
+  const { devTreasury, daoTreasury, governanceTokenMintKey } =
+    await Config.fromAccountAddress(connection, config);
 
   const creatorAta = getAssociatedTokenAddressSync(
     mint,
@@ -193,26 +195,36 @@ const getInstructions = async (
     tokenProgramId
   );
 
+  const creatorGovernanceAta = getAssociatedTokenAddressSync(
+    governanceTokenMintKey,
+    wallet.publicKey,
+    false,
+    TOKEN_PROGRAM_ID
+  );
+
   const daoTreasuryAta = getAssociatedTokenAddressSync(
     mint,
-    configAccount.daoTreasury,
+    daoTreasury,
     false,
     tokenProgramId
   );
 
   const createInstructionAccounts: CreateInstructionAccounts = {
     creator: wallet.publicKey,
-    recipient: recipientKey,
-    devTreasury: configAccount.devTreasury,
-    daoTreasury: configAccount.daoTreasury,
+    recipient,
+    devTreasury,
+    daoTreasury,
     config,
     vault,
     vaultAta,
     daoTreasuryAta,
     creatorAta,
     mint,
+    creatorGovernanceAta,
+    governanceTokenMint: governanceTokenMintKey,
     tokenProgram: tokenProgramId,
     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+    governanceTokenProgram: TOKEN_PROGRAM_ID,
     systemProgram: SystemProgram.programId,
   };
 
