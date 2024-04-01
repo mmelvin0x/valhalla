@@ -49,3 +49,4 @@ test-ledger
 .crates
 target
 .env
+.cargo

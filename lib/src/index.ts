@@ -7,3 +7,4 @@ export * from "./lib/getVaultByIndentifier";
 export * from "./lib/models";
 export * from "./lib/sleep";
 export * from "./lib/optimizeTransaction";
+export * from "./lib/getValhallaConfig";
