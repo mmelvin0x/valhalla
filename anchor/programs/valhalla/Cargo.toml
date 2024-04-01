@@ -1,0 +1,22 @@
+[package]
+name = "valhalla"
+version = "0.1.0"
+description = "Token Vesting"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "valhalla"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = {version = "0.29.0", features = ["init-if-needed"]}
+anchor-spl = { version = "0.29.0", features = ["token", "metadata"]}
+solana-program = "1.16.20"
+mpl-token-metadata = {version = "1.13.2", features = ["no-entrypoint"]}

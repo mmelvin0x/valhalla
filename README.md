@@ -1,22 +1,115 @@
-Sat Jan 27 2024 01:00 AM
+# valhalla
 
-```bash
- ~/Projects/valhalla/ [main*] yarn deploy:devnet:init:data
-yarn run v1.22.21
-$ anchor deploy --provider.cluster devnet && yarn init-locker:devnet && yarn solita && yarn copy:idl && yarn copy:types && anchor run create-devnet-data --provider.cluster devnet
-Deploying cluster: https://api.devnet.solana.com
-Upgrade authority: ./.keys/id.json
-Deploying program "valhalla"...
-Program path: /Users/mmelvin0x/Projects/valhalla/target/deploy/valhalla.so...
-Program Id: AX3N5z4zvC1E3bYwjh16QniLDuyRVEM3ZFKxfWsrSJ7p
+This project is generated with the [create-solana-dapp](https://github.com/solana-developers/create-solana-dapp) generator.
 
-Deploy success
-$ anchor run init-locker --provider.cluster devnet
-$ /Users/mmelvin0x/Projects/valhalla/node_modules/.bin/ts-node ./scripts/init.ts
-👨‍💻 Deployer: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
-🔐 Config: EiWk492dAfp3jFBUMa47cPJZZ3x2aEvnrzBr3WWyEUV4
-✅ Initialization Transaction: 3Qari9RmRu8wfqX9HB8WQ46VDY3Di9EUi2dTeNGdAsGB4TH1B7t8w6RZvk2xDNuayjx1YXWo9Sc92ztpnxsj8t3n
-🐸 Admin: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
-💰 Treasury: 5q3JmFVTcvn2GHo5zurZbTs1p8c2zsivFLeZAHz78ppb
-❤️‍🩹 Fee: 0.25
+## Getting Started
+
+### Prerequisites
+
+- Node v18.18.0 or higher
+
+- Rust v1.70.0 or higher
+- Anchor CLI 0.29.0 or higher
+- Solana CLI 1.17.0 or higher
+
+### Installation
+
+#### Clone the repo
+
+```shell
+git clone <repo-url>
+cd <repo-name>
 ```
+
+#### Install Dependencies
+
+```shell
+npm install
+```
+
+#### Start the web app
+
+```
+npm run dev
+```
+
+## Apps
+
+### anchor
+
+This is a Solana program written in Rust using the Anchor framework.
+
+#### Commands
+
+You can use any normal anchor commands. Either move to the `anchor` directory and run the `anchor` command or prefix the command with `npm run`, eg: `npm run anchor`.
+
+#### Sync the program id:
+
+Running this command will create a new keypair in the `anchor/target/deploy` directory and save the address to the Anchor config file and update the `declare_id!` macro in the `./src/lib.rs` file of the program.
+
+You will manually need to update the constant in `anchor/lib/basic-exports.ts` to match the new program id.
+
+```shell
+npm run anchor keys sync
+```
+
+#### Build the program:
+
+```shell
+npm run anchor-build
+```
+
+#### Start the test validator with the program deployed:
+
+```shell
+npm run anchor-localnet
+```
+
+#### Run the tests
+
+```shell
+npm run anchor-test
+```
+
+#### Deploy to Devnet
+
+```shell
+npm run anchor deploy --provider.cluster devnet
+```
+
+### web
+
+This is a React app that uses the Anchor generated client to interact with the Solana program.
+
+#### Commands
+
+Start the web app
+
+```shell
+npm run dev
+```
+
+Build the web app
+
+```shell
+npm run build
+```
+
+# Deployments
+
+## Mainnet Deployment
+
+N/A
+
+## Devnet Deployment
+
+👨‍💻 Deployer: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
+🔐 Config: HRQvumBMmxZcXgp81NSeWZsPMPYsbddvoRRrRm2FJeY5
+✅ Initialization Transaction: 2GCcgezyRJkafWv6cptbXy9gqkh1FADNguGFJjnwRyuGMgTBvBA2HygVv9WiKgAh7EjFKnDW2gvAJnSNrmJCopZd
+🐸 Admin: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
+💰 SOL Treasury: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
+💰 Token Treasury:: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
+🫡 Reward Mint: JBJLEeBBsQ9faSnE2rRHvG2U43YiHpKxd3pkKupGC43L
+❤️‍🩹 SOL Fee: 0.05
+❤️‍🩹 Token Fee BPS: 50
+🪙 Reward Token Amount: 10000000

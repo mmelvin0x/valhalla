@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-image: linear-gradient(
+      to bottom,
+      rgba(94, 129, 172, 0.95),
+      rgba(236, 239, 244, 0.95)
+    ),
+    url("/bg.png");
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+.footer,
+.navlinks,
+.stats,
+.card {
+  @apply bg-base-100;
+}
+
+h1 {
+  @apply text-5xl;
+}
+
+h2 {
+  @apply text-4xl;
+}
+
+h3 {
+  @apply text-3xl;
+}
+
+h4 {
+  @apply text-2xl;
+}
+
+h5 {
+  @apply text-xl;
+}
+
+h6 {
+  @apply text-lg;
+}
+
+.stat-actions
+  > .wallet-adapter-dropdown
+  > button.wallet-adapter-button-trigger {
+  @apply btn btn-accent;
+  @apply btn-sm;
+}
+
+button.wallet-adapter-button-trigger {
+  @apply btn btn-accent;
+}
+
+button.wallet-adapter-button-trigger:hover {
+  @apply text-base-100;
+}
+
+.animate-spin {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
