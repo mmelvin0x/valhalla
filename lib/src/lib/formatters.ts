@@ -11,7 +11,7 @@ export const getCronStringFromVault = (interval: number): string => {
   const week = day * 7;
   const month = day * 30; // Approximation for month
 
-  let cronString;
+  let cronString = "";
 
   switch (interval) {
     case minute:
@@ -28,9 +28,6 @@ export const getCronStringFromVault = (interval: number): string => {
       break;
     case month:
       cronString = "0 0 1 */1 *"; // Every month
-      break;
-    default:
-      cronString = null; // For intervals not matching specific cases
       break;
   }
 

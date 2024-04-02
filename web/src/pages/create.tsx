@@ -85,10 +85,6 @@ export default function CreateFeature() {
         setTxId(txId);
         setIdentifier(identifier);
 
-        if (values.autopay) {
-          await schedule(identifier);
-        }
-
         if (identifier.gt(new anchor.BN(0))) {
           router.push(`/vault/${identifier.toString()}`);
         }
