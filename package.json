@@ -64,7 +64,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.3",
     "@nx/esbuild": "18.1.2",
-    "@nx/eslint": "18.1.2",
+    "@nx/eslint": "^18.2.1",
     "@nx/eslint-plugin": "18.1.2",
     "@nx/express": "18.1.2",
     "@nx/jest": "18.1.2",
