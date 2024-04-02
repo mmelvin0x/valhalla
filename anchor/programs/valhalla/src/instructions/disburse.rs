@@ -33,7 +33,7 @@ pub struct DisburseVault<'info> {
         ],
         bump,
     )]
-    pub vault: Account<'info, Vault>,
+    pub vault: Box<Account<'info, Vault>>,
 
     #[account(
         mut,
@@ -46,7 +46,7 @@ pub struct DisburseVault<'info> {
         token::authority = vault_ata,
         token::token_program = token_program,
     )]
-    pub vault_ata: InterfaceAccount<'info, TokenAccount>,
+    pub vault_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         init_if_needed,
@@ -55,7 +55,7 @@ pub struct DisburseVault<'info> {
         associated_token::authority = signer,
         associated_token::token_program = governance_token_program,
     )]
-    pub signer_governance_ata: InterfaceAccount<'info, TokenAccount>,
+    pub signer_governance_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         init_if_needed,
@@ -64,7 +64,7 @@ pub struct DisburseVault<'info> {
         associated_token::authority = creator,
         associated_token::token_program = governance_token_program,
     )]
-    pub creator_governance_ata: InterfaceAccount<'info, TokenAccount>,
+    pub creator_governance_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(
         init_if_needed,
@@ -73,7 +73,7 @@ pub struct DisburseVault<'info> {
         associated_token::authority = recipient,
         associated_token::token_program = token_program,
     )]
-    pub recipient_ata: InterfaceAccount<'info, TokenAccount>,
+    pub recipient_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     pub mint: InterfaceAccount<'info, Mint>,
 
