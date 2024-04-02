@@ -1,11 +1,8 @@
 import { FormikErrors, FormikValues } from "formik";
-import { NameRegistryState, getDomainKeySync } from "@bonfida/spl-name-service";
 
 import { ChangeEventHandler } from "react";
 import { ICreateForm } from "@/src/utils/interfaces";
 import { IconCirclePlus } from "@tabler/icons-react";
-import { PublicKey } from "@solana/web3.js";
-import useProgram from "@/src/utils/useProgram";
 
 export default function RecipientInput({
   values,
@@ -15,26 +12,10 @@ export default function RecipientInput({
 }: {
   disabled: boolean;
   values: FormikValues;
-  handler: ChangeEventHandler<any>;
+  handler: ChangeEventHandler<HTMLInputElement>;
   errors: FormikErrors<ICreateForm>;
 }) {
   const { recipient } = values;
-  const { connection } = useProgram();
-
-  // TODO: Add support for .sol addresses
-  const getPublicKeyFromSolDomain = async (
-    domain: string
-  ): Promise<PublicKey | null> => {
-    try {
-      const { pubkey } = getDomainKeySync(domain);
-      const owner = (await NameRegistryState.retrieve(connection, pubkey))
-        .registry.owner;
-
-      return owner;
-    } catch (err) {
-      return null;
-    }
-  };
 
   return (
     <>

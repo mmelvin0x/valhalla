@@ -13,7 +13,7 @@ export default function AuthoritiesInput({
 }: {
   disabled: boolean;
   values: FormikValues;
-  handler: ChangeEventHandler<any>;
+  handler: ChangeEventHandler<HTMLSelectElement>;
   errors: FormikErrors<ICreateForm>;
 }) {
   const { cancelAuthority } = values;

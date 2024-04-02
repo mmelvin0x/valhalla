@@ -1,5 +1,4 @@
 import {
-  IconBrandTwitter,
   IconCalendarDollar,
   IconCalendarDue,
   IconCircleKey,
@@ -12,13 +11,10 @@ import Link from "next/link";
 import SocialBar from "../components/SocialBar";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import dashboard from "../assets/dashboard.png";
-import locks from "../assets/locks.png";
 import logo128 from "../assets/logo128.png";
 import logo512 from "../assets/logo512.png";
 import payments from "../assets/payments.png";
 import ship from "../assets/ship.png";
-import team00 from "../assets/team-00.png";
-import team01 from "../assets/team-01.png";
 import useProgram from "../utils/useProgram";
 import vesting from "../assets/vesting.png";
 

@@ -11,7 +11,7 @@ export default function VestingEndDateInput({
 }: {
   disabled: boolean;
   values: FormikValues;
-  handler: ChangeEventHandler<any>;
+  handler: ChangeEventHandler<HTMLInputElement>;
   errors: FormikErrors<ICreateForm>;
 }) {
   return (

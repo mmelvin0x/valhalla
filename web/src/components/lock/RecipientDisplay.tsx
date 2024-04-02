@@ -2,6 +2,7 @@ import { ValhallaVault, shortenAddress } from "@valhalla/lib";
 
 import Image from "next/image";
 import Link from "next/link";
+import { PublicKey } from "@solana/web3.js";
 import { ReactNode } from "react";
 import { getExplorerUrl } from "@/src/utils/explorer";
 import solscan from "../../assets/solscan.png";
@@ -10,11 +11,12 @@ export default function RecipientDisplay({
   recipient,
   connection,
 }: Partial<ValhallaVault>): ReactNode {
+  recipient = new PublicKey(recipient || "");
   return (
     <Link
       className="link link-secondary flex items-center gap-1"
       target="_blank"
-      href={getExplorerUrl(connection?.rpcEndpoint, recipient!)}
+      href={getExplorerUrl(connection?.rpcEndpoint, recipient)}
     >
       {shortenAddress(recipient)}{" "}
       <Image
