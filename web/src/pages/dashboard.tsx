@@ -2,12 +2,14 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import { ColDef, GridOptions } from "ag-grid-community";
+import { IconEyeSearch, IconLockPlus } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
 import ConnectWalletToContinue from "../components/ConnectWalletToContinue";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import Head from "next/head";
+import Link from "next/link";
 import { SubType } from "../utils/interfaces";
 import SubTypeTabs from "../components/dashboard/SubTypeTabs";
 import { ValhallaVault } from "@valhalla/lib";
@@ -100,8 +102,18 @@ export default function DashboardFeature() {
 
           <div className="card">
             <div className="card-body">
-              <div className="card-title">
+              <div className="card-title flex items-between">
                 <span className="flex-1">Accounts</span>
+
+                <div className="flex gap-2">
+                  <Link href="/vaults/all" className="btn btn-sm btn-secondary">
+                    <IconEyeSearch /> View all vaults
+                  </Link>
+
+                  <Link href="/create" className="btn btn-sm btn-primary">
+                    <IconLockPlus /> Create a vault
+                  </Link>
+                </div>
               </div>
 
               <SubTypeTabs

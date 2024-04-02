@@ -33,7 +33,7 @@ export default function WaitForTransactionModal({
 
         <form method="dialog" className="absolute top-0 right-0 m-1">
           {/* if there is a button in form, it will close the modal */}
-          <button className="btn btn-circle btn-sm" onClick={onModalClose}>
+          <button className="btn btn-circle btn-sm">
             <IconCircleX className="w-6 h-6" />
           </button>
         </form>
@@ -60,12 +60,12 @@ export default function WaitForTransactionModal({
               </div>
 
               <div className="flex items-center gap-2 self-end">
-                <button
-                  onClick={onModalClose}
-                  className="btn btn-sm btn-primary self-end"
-                >
-                  Done
-                </button>
+                <form method="dialog" className="absolute top-0 right-0 m-1">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-error self-end">
+                    <IconCircleX className="w-6 h-6" />
+                  </button>
+                </form>
 
                 {route && (
                   <button
