@@ -178,7 +178,9 @@ app.post("/repair", async (_req: Request, res: Response) => {
       task.start();
       count++;
 
-      console.log(`Scheduled vault ${vault.identifier}...`);
+      console.log(
+        `Scheduled vault ${vault.identifier} on an interval of ${interval} seconds...`
+      );
       await sleep(1000);
     }
   }
@@ -252,7 +254,7 @@ const disburse = async (vault: Vault) => {
   }
 
   console.info(
-    `Disbursed vault ${vault.identifier.toString()} at ${new Date().toLocaleString()}. Tx: ${tx}`
+    `Disbursed vault ${vault.identifier.toString()} with interval ${vault.payoutInterval.toString()} seconds - ${new Date().toLocaleString()} - Tx: ${tx}`
   );
 };
 
