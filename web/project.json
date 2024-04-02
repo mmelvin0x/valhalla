@@ -24,8 +24,7 @@
       "options": {
         "buildTarget": "web:build",
         "dev": true,
-        "port": 3000,
-        "proxyConfig": "web/proxy.conf.json"
+        "port": 3000
       },
       "configurations": {
         "development": {

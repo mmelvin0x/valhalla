@@ -8,8 +8,9 @@
     "anchor:build": "nx run anchor:anchor build",
     "anchor:test": "nx run anchor:anchor test",
     "lib:test": "nx run lib:test",
-    "web": "nx serve web",
+    "web:dev": "nx serve web",
     "web:build": "nx build web",
+    "web:start": "nx run web:serve:production",
     "scheduler": "nx run scheduler:serve",
     "scheduler:build": "nx run scheduler:build"
   },
