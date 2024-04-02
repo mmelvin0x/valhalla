@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@bonfida/spl-name-service": "^2.3.1",
+    "@clockwork-xyz/sdk": "^0.3.4",
     "@coral-xyz/anchor": "^0.29.0",
     "@metaplex-foundation/beet": "^0.7.2",
     "@metaplex-foundation/beet-solana": "^0.4.1",

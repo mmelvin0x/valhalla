@@ -32,13 +32,11 @@ export default function PayoutIntervalInput({
         onChange={handler}
         disabled={disabled}
       >
-        <option value={Number(1000 * 60 * 60)}>Hourly</option>
-        <option value={Number(60 * 60 * 24 * 1000)}>Daily</option>
-        <option value={Number(60 * 60 * 24 * 1000 * 2)}>Every 2 days</option>
-        <option value={Number(60 * 60 * 24 * 7 * 1000)}>Weekly</option>
-        <option value={thirtyDays}>Monthly</option>
-        <option value={thirtyDays * 4}>Quarterly</option>
-        <option value={thirtyDays * 12}>Annually</option>
+        <option value={Number(1000 * 60 * 60)}>Every Minute</option>
+        <option value={Number(1000 * 60 * 60)}>Every Hour</option>
+        <option value={Number(60 * 60 * 24 * 1000)}>Every Day</option>
+        <option value={Number(60 * 60 * 24 * 7 * 1000)}>Once a Week</option>
+        <option value={thirtyDays}>Once a Month</option>
       </select>
       {!!errors.payoutInterval && (
         <label htmlFor="" className="label">

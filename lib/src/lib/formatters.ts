@@ -3,8 +3,38 @@ import * as anchor from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { isPublicKey } from "@metaplex-foundation/umi";
 
-export const secondsToCronString = (seconds: number): string => {
-  return `*/${seconds} * * * *`;
+export const getCronStringFromVault = (interval: number): string => {
+  // Define the constants for time in seconds
+  const minute = 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+  const week = day * 7;
+  const month = day * 30; // Approximation for month
+
+  let cronString;
+
+  switch (interval) {
+    case minute:
+      cronString = "*/1 * * * *"; // Every minute
+      break;
+    case hour:
+      cronString = "0 */1 * * *"; // Every hour
+      break;
+    case day:
+      cronString = "0 0 */1 * *"; // Every day
+      break;
+    case week:
+      cronString = "0 0 * * */1"; // Every week
+      break;
+    case month:
+      cronString = "0 0 1 */1 *"; // Every month
+      break;
+    default:
+      cronString = null; // For intervals not matching specific cases
+      break;
+  }
+
+  return cronString;
 };
 
 export const toClosestHour = (date: Date) => {

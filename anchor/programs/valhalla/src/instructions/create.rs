@@ -5,7 +5,7 @@ use anchor_spl::{
         mint_to, transfer_checked, Mint, MintTo, TokenAccount, TokenInterface, TransferChecked,
     },
 };
-use solana_program::system_instruction;
+use solana_program::{rent::Rent, system_instruction};
 
 use crate::{
     constants,
@@ -185,8 +185,16 @@ impl<'info> CreateVault<'info> {
         let to = self.dev_treasury.to_account_info();
 
         let fee = if self.vault.autopay {
-            self.config
-                .dev_fee
+            let clock_fee_per_tx: u64 = 1000; // 1000 lamports per tx for clockwork
+            let token_account_creation_fee: u64 = self.creator_ata.get_lamports();
+            let max_tx_needed = self.vault.total_number_of_payouts;
+            let total_fee = clock_fee_per_tx
+                .checked_add(token_account_creation_fee)
+                .unwrap();
+
+            total_fee
+                .checked_mul(max_tx_needed)
+                .unwrap()
                 .checked_mul(self.config.autopay_multiplier)
                 .unwrap()
         } else {

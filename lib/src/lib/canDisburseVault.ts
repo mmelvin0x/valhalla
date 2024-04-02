@@ -8,6 +8,12 @@ import { getAccount } from "@solana/spl-token";
 import { getMintWithCorrectTokenProgram } from "./getMintWithCorrectTokenProgram";
 import { getPDAs } from "./getPDAs";
 
+export const hasStartDatePassed = async (startDateInSeconds: number) => {
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  return startDateInSeconds <= currentTime;
+};
+
 export async function canDisburseVault(
   connection: Connection,
   vault: Vault | ValhallaVault
