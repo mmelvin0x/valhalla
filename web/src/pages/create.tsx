@@ -102,21 +102,6 @@ export default function CreateFeature() {
     },
   });
 
-  const onAddRecipient = async () => {
-    const errors = await formik.validateForm();
-
-    if (!Object.keys(errors).length) {
-      setVaultsToCreate([
-        ...vaultsToCreate,
-        JSON.parse(JSON.stringify(formik.values)) as ICreateForm,
-      ]);
-
-      formik.setFieldValue("name", "");
-      formik.setFieldValue("recipient", "");
-      formik.setFieldValue("amountToBeVested", "");
-    }
-  };
-
   const onPageLoad = useCallback(async () => {
     if (!formik.values.selectedToken && wallet?.publicKey) {
       const { data } = await axios.get<DasApiAssetList>(
