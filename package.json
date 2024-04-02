@@ -8,11 +8,12 @@
     "anchor:build": "nx run anchor:anchor build",
     "anchor:test": "nx run anchor:anchor test",
     "lib:test": "nx run lib:test",
-    "web:dev": "nx serve web",
-    "web:build": "nx build web",
+    "web:dev": "nx run web:serve:development",
+    "web:build": "nx run web:build:production",
     "web:start": "nx run web:serve:production",
     "scheduler": "nx run scheduler:serve",
-    "scheduler:build": "nx run scheduler:build"
+    "scheduler:build": "nx run scheduler:build:production",
+    "scheduler:start": "nx run scheduler:serve:production"
   },
   "dependencies": {
     "@bonfida/spl-name-service": "^2.3.1",
