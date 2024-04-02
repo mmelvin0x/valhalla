@@ -1,8 +1,9 @@
-import BN from "bn.js";
+import * as anchor from "@coral-xyz/anchor";
+
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export const schedule = async (identifier: BN) => {
+export const schedule = async (identifier: anchor.BN) => {
   const url =
     process.env.NEXT_PUBLIC_SCHEDULER_API_URL || "http://localhost:3001";
 

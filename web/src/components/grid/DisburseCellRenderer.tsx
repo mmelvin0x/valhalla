@@ -18,7 +18,10 @@ const DisburseCellRenderer = (params: ICellRendererParams) => {
   );
 
   const disburse = async () => {
+    if (!vault.identifier) return;
+
     const fullVault = await getVaultByIdentifier(connection, vault.identifier);
+
     await fullVault.populate(connection, fullVault);
     await _disburse(connection, fullVault, wallet);
     await getVaults();

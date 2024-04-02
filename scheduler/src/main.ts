@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -25,7 +27,6 @@ import {
 } from "@valhalla/lib";
 import express, { Request, Response } from "express";
 
-import { BN } from "bn.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import cron from "node-cron";
@@ -87,7 +88,7 @@ app.post("/schedule", async (req: Request, res: Response) => {
 
   const gpaBuilder = Vault.gpaBuilder();
   gpaBuilder.addFilter("accountDiscriminator", vaultDiscriminator);
-  gpaBuilder.addFilter("identifier", new BN(identifier));
+  gpaBuilder.addFilter("identifier", new anchor.BN(identifier));
   const response = await gpaBuilder.run(connection);
   if (response.length === 0) {
     res.status(404).send(`Vault ${identifier} not found`);
@@ -204,7 +205,7 @@ const disburse = async (vault: Vault) => {
   );
   const { vault: vaultKey, vaultAta } = getPDAs(
     PROGRAM_ID,
-    new BN(vault.identifier),
+    new anchor.BN(vault.identifier),
     vault.creator,
     vault.mint
   );

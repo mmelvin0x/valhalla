@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import { Config, PROGRAM_ID, ValhallaConfig, getPDAs } from "@valhalla/lib";
 import { IconCalendarDollar, IconReceipt, IconSend } from "@tabler/icons-react";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
@@ -54,10 +56,10 @@ export default function DashboardStats() {
             config.devTreasury,
             config.daoTreasury,
             config.governanceTokenMintKey,
-            config.devFee,
-            config.autopayMultiplier,
-            config.tokenFeeBasisPoints,
-            config.governanceTokenAmount
+            new anchor.BN(config.devFee),
+            new anchor.BN(config.autopayMultiplier),
+            new anchor.BN(config.tokenFeeBasisPoints),
+            new anchor.BN(config.governanceTokenAmount)
           )
         );
 

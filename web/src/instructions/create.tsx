@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   NATIVE_MINT,
@@ -27,7 +29,6 @@ import {
   TransactionInstruction,
 } from "@solana/web3.js";
 
-import BN from "bn.js";
 import { FormikHelpers } from "formik";
 import { ICreateForm } from "../utils/interfaces";
 import { WalletContextState } from "@solana/wallet-adapter-react";
@@ -43,7 +44,7 @@ export const createVault = async (
   helpers: FormikHelpers<ICreateForm>,
   totalVestingDuration: number,
   today: Date
-): Promise<{ identifier: BN; txId: string }> => {
+): Promise<{ identifier: anchor.BN; txId: string }> => {
   const isValid = [];
   for (let i = 0; i < values.length; i++) {
     isValid.push(
@@ -53,10 +54,10 @@ export const createVault = async (
 
   if (!isValid.every((val) => val)) {
     toast.error("There is an issue with the vaults. Please check the form.");
-    return { identifier: new BN(0), txId: "" };
+    return { identifier: new anchor.BN(0), txId: "" };
   }
 
-  const identifier = new BN(randomBytes(8));
+  const identifier = new anchor.BN(randomBytes(8));
   let instructions: TransactionInstruction[] = [];
 
   try {
@@ -84,7 +85,7 @@ export const createVault = async (
   } catch (error) {
     console.error(error);
     toast.error("Error creating vault. Please try again.");
-    return { identifier: new BN(0), txId: "" };
+    return { identifier: new anchor.BN(0), txId: "" };
   }
 };
 
@@ -158,7 +159,7 @@ const getInstructions = async (
   wallet: WalletContextState,
   values: ICreateForm,
   totalVestingDuration: number,
-  identifier: BN
+  identifier: anchor.BN
 ): Promise<TransactionInstruction[]> => {
   if (!values.selectedToken || !wallet.publicKey) {
     return [];

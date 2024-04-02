@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import { Config, PROGRAM_ID, ValhallaConfig, getPDAs } from "@valhalla/lib";
 
 import Head from "next/head";
@@ -23,15 +25,28 @@ export default function GovernanceFeature() {
           config.devTreasury,
           config.daoTreasury,
           config.governanceTokenMintKey,
-          config.devFee,
-          config.autopayMultiplier,
-          config.tokenFeeBasisPoints,
-          config.governanceTokenAmount
+          new anchor.BN(config.devFee),
+          new anchor.BN(config.autopayMultiplier),
+          new anchor.BN(config.tokenFeeBasisPoints),
+          new anchor.BN(config.governanceTokenAmount)
         )
       );
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!config)
+    return (
+      <div className="m-8 mt-0">
+        <Head>
+          <title>Valhalla | Token Vesting Solutions</title>
+          <meta
+            name="description"
+            content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
+          />
+        </Head>
+      </div>
+    );
 
   return (
     <div className="m-8 mt-0">
@@ -71,7 +86,7 @@ export default function GovernanceFeature() {
                   className="link link-primary"
                   href={getExplorerUrl(
                     connection.rpcEndpoint,
-                    config?.governanceTokenMintKey!
+                    config?.governanceTokenMintKey
                   )}
                 >
                   $ODIN
@@ -81,7 +96,7 @@ export default function GovernanceFeature() {
                   className="link link-primary"
                   href={getExplorerUrl(
                     connection.rpcEndpoint,
-                    config?.governanceTokenMintKey!
+                    config?.governanceTokenMintKey
                   )}
                 >
                   $ODIN
@@ -109,7 +124,7 @@ export default function GovernanceFeature() {
                       className="link link-primary"
                       href={getExplorerUrl(
                         connection.rpcEndpoint,
-                        config?.governanceTokenMintKey!
+                        config.governanceTokenMintKey
                       )}
                     >
                       $ODIN
@@ -132,7 +147,7 @@ export default function GovernanceFeature() {
                     className="link link-primary"
                     href={getExplorerUrl(
                       connection.rpcEndpoint,
-                      config?.governanceTokenMintKey!
+                      config?.governanceTokenMintKey
                     )}
                   >
                     $ODIN
@@ -146,7 +161,7 @@ export default function GovernanceFeature() {
                     className="link link-primary"
                     href={getExplorerUrl(
                       connection.rpcEndpoint,
-                      config?.governanceTokenMintKey!
+                      config.governanceTokenMintKey
                     )}
                   >
                     $ODIN
@@ -165,7 +180,7 @@ export default function GovernanceFeature() {
                   className="link link-primary"
                   href={getExplorerUrl(
                     connection.rpcEndpoint,
-                    config?.governanceTokenMintKey!
+                    config.governanceTokenMintKey
                   )}
                 >
                   $ODIN
@@ -196,14 +211,14 @@ export default function GovernanceFeature() {
                   <div className="timeline-end timeline-box">
                     <ul>
                       <li>
-                        Dev Team - {config?.devFee} SOL{" "}
+                        Dev Team - {config.devFee.toString()} SOL{" "}
                         <span className="text-xs">
                           (starting minimum, can be increased by vote)
                         </span>
                       </li>
                       <li>
-                        DAO Treasury - {config?.tokenFeeBasisPoints!} of the
-                        vested amount{" "}
+                        DAO Treasury - {config.tokenFeeBasisPoints.toString()}{" "}
+                        of the vested amount{" "}
                         <span className="text-xs">(adjustable by vote)</span>
                       </li>
                     </ul>
@@ -232,7 +247,7 @@ export default function GovernanceFeature() {
                           className="link link-primary"
                           href={getExplorerUrl(
                             connection.rpcEndpoint,
-                            config?.governanceTokenMintKey!
+                            config.governanceTokenMintKey
                           )}
                         >
                           $ODIN
@@ -244,7 +259,7 @@ export default function GovernanceFeature() {
                           className="link link-primary"
                           href={getExplorerUrl(
                             connection.rpcEndpoint,
-                            config?.governanceTokenMintKey!
+                            config.governanceTokenMintKey
                           )}
                         >
                           $ODIN
@@ -262,12 +277,12 @@ export default function GovernanceFeature() {
                     <IconArrowRight />
                   </div>
                   <div className="timeline-end timeline-box">
-                    {config?.governanceTokenAmount}{" "}
+                    {config?.governanceTokenAmount.toString()}{" "}
                     <Link
                       className="link link-primary"
                       href={getExplorerUrl(
                         connection.rpcEndpoint,
-                        config?.governanceTokenMintKey!
+                        config.governanceTokenMintKey
                       )}
                     >
                       $ODIN
@@ -286,12 +301,12 @@ export default function GovernanceFeature() {
                     <IconArrowRight />
                   </div>
                   <div className="timeline-end timeline-box">
-                    {config?.governanceTokenAmount}{" "}
+                    {config.governanceTokenAmount.toString()}{" "}
                     <Link
                       className="link link-primary"
                       href={getExplorerUrl(
                         connection.rpcEndpoint,
-                        config?.governanceTokenMintKey!
+                        config.governanceTokenMintKey
                       )}
                     >
                       $ODIN

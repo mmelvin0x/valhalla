@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import {
   DasApiAsset,
   DasApiAssetList,
@@ -6,7 +8,6 @@ import { FormikHelpers, useFormik } from "formik";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Authority } from "@valhalla/lib";
-import BN from "bn.js";
 import ConnectWalletToContinue from "../components/ConnectWalletToContinue";
 import CreateForm from "../components/create/CreateForm";
 import Head from "next/head";
@@ -31,7 +32,7 @@ export default function CreateFeature() {
   const { wallet, connection } = useProgram();
   const { today, tomorrow, oneDayInMilliseconds } = useDates();
   const [txId, setTxId] = useState<string>("");
-  const [identifier, setIdentifier] = useState<BN>(new BN(0));
+  const [identifier, setIdentifier] = useState<anchor.BN>(new anchor.BN(0));
 
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
   const [totalVestingDuration, setVestingDuration] = useState<number>(0);
@@ -88,7 +89,7 @@ export default function CreateFeature() {
           await schedule(identifier);
         }
 
-        if (identifier.gt(new BN(0))) {
+        if (identifier.gt(new anchor.BN(0))) {
           router.push(`/vault/${identifier.toString()}`);
         }
       } catch (e) {
@@ -242,7 +243,9 @@ export default function CreateFeature() {
       <SelectTokenDialog assets={assets} formik={formik} />
       <WaitForTransactionModal
         tx={txId}
-        route={txId && identifier.gt(new BN(0)) ? `/vaults/${identifier}` : ""}
+        route={
+          txId && identifier.gt(new anchor.BN(0)) ? `/vaults/${identifier}` : ""
+        }
       />
     </div>
   );

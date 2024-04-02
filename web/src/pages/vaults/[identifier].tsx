@@ -1,6 +1,8 @@
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
+import * as anchor from "@coral-xyz/anchor";
+
 import { ColDef, GridOptions } from "ag-grid-community";
 import {
   ValhallaVault,
@@ -99,7 +101,7 @@ export default function VaultDetailFeature() {
     if (router.query.identifier && wallet.publicKey) {
       const vault = await getVaultByIdentifier(
         connection,
-        router.query.identifier as string
+        new anchor.BN(router.query.identifier as string)
       );
 
       if (!vault) {

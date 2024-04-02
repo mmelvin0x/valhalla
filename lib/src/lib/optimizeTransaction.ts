@@ -238,8 +238,8 @@ async function batchInstructionsToTxsWithPriorityFee(
         // yes it's ugly to throw and catch, but .serialize can _also_ throw this error
         throw new Error("Transaction too large");
       }
-    } catch (e: unknown) {
-      if (e.toString().includes("Transaction too large")) {
+    } catch (e) {
+      if ((e as Error).toString().includes("Transaction too large")) {
         currentTxInstructions.pop();
         const tx = new Transaction({
           feePayer: walletPubkey,

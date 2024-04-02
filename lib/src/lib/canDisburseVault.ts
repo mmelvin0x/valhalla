@@ -1,6 +1,7 @@
+import * as anchor from "@coral-xyz/anchor";
+
 import { PROGRAM_ID, Vault } from "./program";
 
-import { BN } from "bn.js";
 import { Connection } from "@solana/web3.js";
 import { ValhallaVault } from "./models";
 import { getAccount } from "@solana/spl-token";
@@ -22,7 +23,7 @@ export async function canDisburseVault(
 
   const { vaultAta } = getPDAs(
     PROGRAM_ID,
-    new BN(vault.identifier),
+    new anchor.BN(vault.identifier),
     vault.creator,
     vault.mint
   );
