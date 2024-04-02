@@ -578,6 +578,11 @@ export type Valhalla = {
           "isSigner": false
         },
         {
+          "name": "creatorGovernanceAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "recipientAta",
           "isMut": true,
           "isSigner": false
@@ -1488,6 +1493,11 @@ export const IDL: Valhalla = {
         },
         {
           "name": "signerGovernanceAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "creatorGovernanceAta",
           "isMut": true,
           "isSigner": false
         },

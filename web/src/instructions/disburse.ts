@@ -48,6 +48,14 @@ export const disburse = async (
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
+  const creatorGovernanceAta = getAssociatedTokenAddressSync(
+    configAccount.governanceTokenMintKey,
+    vault.creator,
+    false,
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
   const accounts: DisburseInstructionAccounts = {
     signer: wallet.publicKey,
     creator: vault.creator,
@@ -59,6 +67,7 @@ export const disburse = async (
     config,
     signerGovernanceAta: userGovernanceAta,
     recipientAta: vault.recipientAtaAddress,
+    creatorGovernanceAta,
     governanceTokenMint: configAccount.governanceTokenMintKey,
     governanceTokenProgram: TOKEN_PROGRAM_ID,
     tokenProgram: vault.tokenProgramId,

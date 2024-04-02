@@ -14,6 +14,7 @@ import { Authority } from "./program/types";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
 import { PROGRAM_ID } from "./program";
 import { Vault } from "./program/accounts";
+import axios from "axios";
 import { displayTime } from "./formatters";
 import { getPDAs } from "./getPDAs";
 
@@ -270,6 +271,17 @@ export class ValhallaVault {
       } catch (e) {
         console.error(e);
         this.recipientAta = null;
+      }
+
+      try {
+        const { data } = await axios.get<DasApiAsset>(
+          `/api/getToken?mint=${obj.mint.toBase58()}`
+        );
+
+        this.das = data;
+      } catch (e) {
+        console.error(e);
+        this.das = null;
       }
     }
   }

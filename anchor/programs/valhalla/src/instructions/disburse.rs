@@ -60,6 +60,15 @@ pub struct DisburseVault<'info> {
     #[account(
         init_if_needed,
         payer = signer,
+        associated_token::mint = governance_token_mint,
+        associated_token::authority = creator,
+        associated_token::token_program = governance_token_program,
+    )]
+    pub creator_governance_ata: InterfaceAccount<'info, TokenAccount>,
+
+    #[account(
+        init_if_needed,
+        payer = signer,
         associated_token::mint = mint,
         associated_token::authority = recipient,
         associated_token::token_program = token_program,
@@ -144,10 +153,16 @@ impl<'info> DisburseVault<'info> {
             &[bumps.governance_token_mint],
         ]];
 
+        let to = if self.vault.autopay {
+            self.creator_governance_ata.to_account_info()
+        } else {
+            self.signer_governance_ata.to_account_info()
+        };
+
         let cpi_program = self.governance_token_program.to_account_info();
         let cpi_accounts = MintTo {
+            to,
             mint: self.governance_token_mint.to_account_info(),
-            to: self.signer_governance_ata.to_account_info(),
             authority: self.governance_token_mint.to_account_info(),
         };
         let cpi_context = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);

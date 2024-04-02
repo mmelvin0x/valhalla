@@ -36,7 +36,6 @@ export const columnDefs = (): ColDef[] => [
     width: 135,
     minWidth: 135,
     maxWidth: 135,
-    tooltipField: "autopay",
     cellRenderer: AutopayCellRenderer,
   },
   {
@@ -45,7 +44,12 @@ export const columnDefs = (): ColDef[] => [
     width: 175,
     minWidth: 175,
     maxWidth: 175,
-    tooltipField: "canDisburse",
+    tooltipValueGetter: (params) =>
+      params.value && params.data.autopay
+        ? "Disburses with autopay"
+        : params.value && !params.data.autopay
+        ? "Disbursable"
+        : "Locked",
     cellRenderer: DisburseCellRenderer,
   },
   {

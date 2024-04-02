@@ -1,7 +1,14 @@
+import {
+  IconCircleX,
+  IconLockCancel,
+  IconLockOpen,
+  IconSend,
+  IconUserCancel,
+} from "@tabler/icons-react";
 import { ValhallaVault, getVaultByIdentifier } from "@valhalla/lib";
 
 import { ICellRendererParams } from "ag-grid-community";
-import { IconCircleX } from "@tabler/icons-react";
+import Link from "next/link";
 import { disburse as _disburse } from "@/src/instructions/disburse";
 import { searchMyVaults } from "@/src/utils/search";
 import { toast } from "react-toastify";
@@ -46,15 +53,30 @@ const DisburseCellRenderer = (params: ICellRendererParams) => {
     }
   };
 
+  if (!vault.canDisburse) {
+    return (
+      <div className="h-10 flex flex-col items-center justify-center">
+        <IconLockCancel className="text-error" />
+      </div>
+    );
+  }
+
+  if (vault.autopay) {
+    return (
+      <div className="h-10 flex flex-col items-center justify-center">
+        <IconUserCancel className="text-error" />
+      </div>
+    );
+  }
+
   return (
     <div className="h-10 flex flex-col items-center justify-center">
-      {vault.canDisburse ? (
-        <button className="btn btn-primary btn-xs mt-1" onClick={disburse}>
-          Disburse
-        </button>
-      ) : (
-        <IconCircleX className="text-error" />
-      )}
+      <button
+        className="btn btn-outline btn-primary btn-sm btn-circle mt-1"
+        onClick={disburse}
+      >
+        <IconSend />
+      </button>
     </div>
   );
 };

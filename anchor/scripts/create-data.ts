@@ -292,9 +292,6 @@ async function create(
   const intervalNum = getRandomNumberInRange(1, 6);
   switch (intervalNum) {
     case 1:
-      payoutInterval = second;
-      totalVestingDuration = new anchor.BN(i + 1);
-      break;
     case 2:
       payoutInterval = minute;
       totalVestingDuration = new anchor.BN(60 * (i + 1));

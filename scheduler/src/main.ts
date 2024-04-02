@@ -10,8 +10,8 @@ import {
   Connection,
   Keypair,
   Transaction,
-  TransactionInstruction,
   clusterApiUrl,
+  sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import {
   PROGRAM_ID,
@@ -27,8 +27,6 @@ import {
 } from "@valhalla/lib";
 import express, { Request, Response } from "express";
 
-import { ClockworkProvider } from "@clockwork-xyz/sdk";
-import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import bodyParser from "body-parser";
 import cors from "cors";
 import cron from "node-cron";
@@ -44,13 +42,6 @@ const payer = Keypair.fromSecretKey(
 );
 
 const connection = new Connection(clusterApiUrl(network), "confirmed");
-const provider = new anchor.AnchorProvider(
-  connection,
-  new NodeWallet(payer),
-  anchor.AnchorProvider.defaultOptions()
-);
-
-const clockworkProvider = ClockworkProvider.fromAnchorProvider(provider);
 
 const app = express();
 app.use(cors());
@@ -65,22 +56,7 @@ app.get("/health", (_req: Request, res: Response) => {
   res.status(200).send("OK");
 });
 
-app.post("/repair", async (_req: Request, res: Response) => {
-  const gpaBuilder = Vault.gpaBuilder();
-  gpaBuilder.addFilter("autopay", true);
-  gpaBuilder.addFilter("accountDiscriminator", vaultDiscriminator);
-  const response = await gpaBuilder.run(connection);
-  const vaults = response.map(
-    (account) => Vault.fromAccountInfo(account.account)[0]
-  );
-
-  const count = 0;
-  console.log(`Repairing ${vaults.length} vaults...`);
-
-  res.status(200).json({ count });
-});
-
-const disburse = async (vault: Vault): Promise<TransactionInstruction> => {
+const disburse = async (vault: Vault): Promise<void> => {
   const { config, key } = await getValhallaConfig(connection);
   const { tokenProgramId } = await getMintWithCorrectTokenProgram(
     connection,
@@ -101,6 +77,14 @@ const disburse = async (vault: Vault): Promise<TransactionInstruction> => {
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
+  const creatorGovernanceAta = getAssociatedTokenAddressSync(
+    config.governanceTokenMintKey,
+    vault.creator,
+    false,
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
   const recipientAta = getAssociatedTokenAddressSync(
     vault.mint,
     vault.recipient,
@@ -109,7 +93,7 @@ const disburse = async (vault: Vault): Promise<TransactionInstruction> => {
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
-  return createDisburseInstruction({
+  const instruction = createDisburseInstruction({
     signer: payer.publicKey,
     creator: vault.creator,
     recipient: vault.recipient,
@@ -120,11 +104,24 @@ const disburse = async (vault: Vault): Promise<TransactionInstruction> => {
     signerGovernanceAta,
     recipientAta,
     mint: vault.mint,
+    creatorGovernanceAta,
     governanceTokenMint: config.governanceTokenMintKey,
     tokenProgram: tokenProgramId,
     governanceTokenProgram: TOKEN_PROGRAM_ID,
     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
   });
+
+  const transaction = new Transaction().add(instruction);
+  const tx = await sendAndConfirmTransaction(connection, transaction, [payer]);
+
+  if (tx.length === 0) {
+    console.error(`Error disbursing vault ${vault.identifier.toString()}`);
+    return;
+  }
+
+  console.info(
+    `Disbursed vault ${vault.identifier.toString()} with interval ${vault.payoutInterval.toString()} seconds - ${new Date().toLocaleString()} - Tx: ${tx}`
+  );
 };
 
 app.listen(port, async () => {
@@ -139,60 +136,67 @@ app.listen(port, async () => {
   const response = await gpaBuilder.run(connection);
 
   // Checks for new vaults every 15 minutes
-  cron.schedule("*/15 * * * *", async () => {
-    console.log("Checking for vaults...");
-    const vaults = response
-      .map((account) => Vault.fromAccountInfo(account.account)[0])
-      .map((vault) => {
-        scheduledVaults.set(vault.identifier.toString(), false);
-        return vault;
-      });
+  cron.schedule(
+    "*/15 * * * *",
+    async () => {
+      console.log("Checking for vaults...");
+      const vaults = response
+        .map((account) => Vault.fromAccountInfo(account.account)[0])
+        .map((vault) => {
+          scheduledVaults.set(vault.identifier.toString(), false);
+          return vault;
+        });
 
-    for (let i = 0; i < vaults.length; i++) {
-      if (
-        !scheduledVaults.get(vaults[i].identifier.toString()) &&
-        hasStartDatePassed(Number(vaults[i].startDate))
-      ) {
-        const threadId = vaults[i].identifier.toString();
-        const [thread] = clockworkProvider.getThreadPDA(
-          provider.wallet.publicKey,
-          threadId
-        );
+      for (let i = 0; i < vaults.length; i++) {
+        if (scheduledVaults.get(vaults[i].identifier.toString())) {
+          continue;
+        }
 
-        const trigger = {
-          cron: {
-            schedule: getCronStringFromVault(Number(vaults[i].payoutInterval)),
-            skippable: false,
-          },
-        };
-
-        try {
-          const ix = await clockworkProvider.threadCreate(
-            provider.wallet.publicKey,
-            threadId,
-            [await disburse(vaults[i])],
-            trigger
+        if (!hasStartDatePassed(Number(vaults[i].startDate))) {
+          console.log(
+            `Vault ${vaults[i].identifier} has not started yet. Skipping...`
           );
 
-          const tx = new Transaction().add(ix);
-          const sig = await clockworkProvider.anchorProvider.sendAndConfirm(tx);
+          continue;
+        }
 
-          console.log(`Thread Created: ${sig}`);
-          console.log(`Thread ID: ${threadId}`);
-          console.log(`Thread PDA: ${thread}`);
-          console.log(`Interval: Every ${vaults[i].payoutInterval} seconds`);
-          console.log();
+        if (
+          cron.validate(
+            getCronStringFromVault(Number(vaults[i].payoutInterval))
+          )
+        ) {
+          try {
+            cron.schedule(
+              getCronStringFromVault(Number(vaults[i].payoutInterval)),
+              async () => {
+                await disburse(vaults[i]);
+              },
+              {
+                recoverMissedExecutions: true,
+                runOnInit: true,
+              }
+            );
 
-          scheduledVaults.set(vaults[i].identifier.toString(), true);
-          await sleep(1000);
-        } catch (e) {
-          if (e.logs?.[3].includes("already in use")) {
             scheduledVaults.set(vaults[i].identifier.toString(), true);
-          } else {
-            console.error(e);
+            await sleep(5000);
+          } catch (e) {
+            if (e.logs?.[3].includes("already in use")) {
+              scheduledVaults.set(vaults[i].identifier.toString(), true);
+            } else {
+              console.error(e);
+            }
           }
+        } else {
+          console.error(
+            `Invalid cron string for vault ${vaults[
+              i
+            ].identifier.toString()}: ${getCronStringFromVault(
+              Number(vaults[i].payoutInterval)
+            )}`
+          );
         }
       }
-    }
-  });
+    },
+    { runOnInit: true }
+  );
 });

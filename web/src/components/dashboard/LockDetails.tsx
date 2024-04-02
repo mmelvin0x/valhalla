@@ -12,6 +12,7 @@ import StartDateDisplay from "../lock/StartDateDisplay";
 import TokenMintDisplay from "../lock/TokenMintDisplay";
 import { ValhallaVault } from "@valhalla/lib";
 import VestmentChart from "../VestmentChart";
+import { useEffect } from "react";
 import useProgram from "@/src/utils/useProgram";
 
 export default function LockDetails({
@@ -26,6 +27,13 @@ export default function LockDetails({
   close: (vault: ValhallaVault) => Promise<void>;
 }) {
   const { wallet, connection } = useProgram();
+
+  useEffect(() => {
+    (async () => {
+      await vault.populate(connection, vault);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <section className="flex flex-col gap-8 p-4">

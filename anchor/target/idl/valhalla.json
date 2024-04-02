@@ -578,6 +578,11 @@
           "isSigner": false
         },
         {
+          "name": "creatorGovernanceAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "recipientAta",
           "isMut": true,
           "isSigner": false
@@ -911,6 +916,6 @@
     }
   ],
   "metadata": {
-    "address": "FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX"
+    "address": "5AAFQF16iab69Zy2m2u9bSNBQRGWaByA7ZXAxaXeTTN4"
   }
 }
