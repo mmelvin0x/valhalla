@@ -49,9 +49,7 @@ export default async function handler(
     data.result.items.unshift(wSol.result);
 
     return res.status(200).json(data.result);
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ error: "There was an error fetching your wallet." });
+  } catch (error: any) {
+    return res.status(500).json({ error });
   }
 }
