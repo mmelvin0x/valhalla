@@ -97,11 +97,6 @@ app.post("/schedule", async (req: Request, res: Response) => {
 
   const [vault] = Vault.fromAccountInfo(response[0].account);
   const interval = secondsToCronString(Number(vault.payoutInterval));
-  console.log(
-    "%c🤪 ~ file: main.ts:135 [] -> interval : ",
-    "color: #810ded",
-    interval
-  );
 
   if (!cron.validate(interval)) {
     res.status(400).send(`Invalid interval for vault ${identifier}`);
@@ -182,6 +177,8 @@ app.post("/repair", async (_req: Request, res: Response) => {
         `Scheduled vault ${vault.identifier} on an interval of ${interval} seconds...`
       );
       await sleep(1000);
+    } else {
+      console.log(`Vault ${vault.identifier} already scheduled`);
     }
   }
 
