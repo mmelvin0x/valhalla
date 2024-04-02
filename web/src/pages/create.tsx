@@ -167,8 +167,8 @@ export default function CreateFeature() {
         />
       </Head>
 
-      <main className="flex flex-wrap gap-8">
-        <section className="card flex-1">
+      <main className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <section className="card">
           <div className="card-body justify-between">
             <div className="card-title">Configure an account</div>
             <CreateForm formik={formik} />
