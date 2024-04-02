@@ -19,13 +19,9 @@ export async function getMintWithCorrectTokenProgram(
       tokenProgramId: TOKEN_PROGRAM_ID,
     };
   } catch (error) {
+    const mint = new PublicKey(vault.mint || "");
     return {
-      mint: await getMint(
-        connection,
-        vault.mint,
-        undefined,
-        TOKEN_2022_PROGRAM_ID
-      ),
+      mint: await getMint(connection, mint, undefined, TOKEN_2022_PROGRAM_ID),
       tokenProgramId: TOKEN_2022_PROGRAM_ID,
     };
   }
