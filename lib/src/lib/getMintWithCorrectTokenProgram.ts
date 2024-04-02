@@ -13,7 +13,7 @@ export async function getMintWithCorrectTokenProgram(
   vault: Partial<Vault | ValhallaVault>
 ): Promise<{ mint: Mint; tokenProgramId: PublicKey }> {
   try {
-    const mint = new PublicKey(vault.mint);
+    const mint = new PublicKey(vault.mint || "");
     return {
       mint: await getMint(connection, mint),
       tokenProgramId: TOKEN_PROGRAM_ID,
