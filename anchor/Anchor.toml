@@ -5,13 +5,13 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-valhalla = "CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC"
+valhalla = "FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX"
 
 [programs.localnet]
-valhalla = "CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC"
+valhalla = "FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX"
 
 [programs.mainnet]
-valhalla = "CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC"
+valhalla = "FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX"
 
 [registry]
 url = "https://api.apr.dev"
@@ -26,7 +26,7 @@ init = "yarn ts-node ./scripts/init.ts"
 test = "../node_modules/.bin/nx run anchor:jest"
 
 [test]
-startup_wait = 5000
+startup_wait = 7000
 shutdown_wait = 2000
 upgradeable = false
 

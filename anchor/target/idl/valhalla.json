@@ -446,7 +446,22 @@
           "isSigner": false
         },
         {
+          "name": "creatorGovernanceAta",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "governanceTokenMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "governanceTokenProgram",
           "isMut": false,
           "isSigner": false
         },
@@ -896,6 +911,6 @@
     }
   ],
   "metadata": {
-    "address": "CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC"
+    "address": "FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX"
   }
 }

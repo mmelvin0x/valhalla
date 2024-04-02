@@ -495,6 +495,18 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
+      creatorGovernanceAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator,
+        governanceTokenMint,
+        creator.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
       const devTreasuryBalanceBefore = await provider.connection.getBalance(
         payer.publicKey
       );
@@ -529,8 +541,11 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           mint,
+          governanceTokenMint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -725,6 +740,18 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
+      creatorGovernanceAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator,
+        governanceTokenMint,
+        creator.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
       const tx = await program.methods
         .create(
           identifier,
@@ -746,8 +773,11 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           mint,
+          governanceTokenMint,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
@@ -860,6 +890,18 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
+      creatorGovernanceAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator,
+        governanceTokenMint,
+        creator.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
       const tx = await program.methods
         .create(
           identifier,
@@ -881,7 +923,10 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           mint,
+          governanceTokenMint,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -995,6 +1040,18 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
+      creatorGovernanceAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator,
+        governanceTokenMint,
+        creator.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
       const tx = await program.methods
         .create(
           identifier,
@@ -1016,7 +1073,10 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           mint,
+          governanceTokenMint,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -1092,6 +1152,18 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
+      creatorGovernanceAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator,
+        governanceTokenMint,
+        creator.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
       const tx = await program.methods
         .create(
           identifier,
@@ -1113,7 +1185,10 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           mint,
+          governanceTokenMint,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -1191,6 +1266,18 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
+      creatorGovernanceAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator,
+        governanceTokenMint,
+        creator.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
       let tx = await program.methods
         .create(
           identifier,
@@ -1212,7 +1299,10 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           mint,
+          governanceTokenMint,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -1260,6 +1350,18 @@ describe("⚡️ Valhalla", () => {
         mint
       );
 
+      creatorGovernanceAta = await getOrCreateAssociatedTokenAccount(
+        provider.connection,
+        creator,
+        governanceTokenMint,
+        creator.publicKey,
+        false,
+        undefined,
+        undefined,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
       let tx = await program.methods
         .create(
           identifier,
@@ -1281,7 +1383,10 @@ describe("⚡️ Valhalla", () => {
           vaultAta,
           daoTreasuryAta: treasuryTokenAccount.address,
           creatorAta: creatorTokenAccount.address,
+          creatorGovernanceAta: creatorGovernanceAta.address,
           mint,
+          governanceTokenMint,
+          governanceTokenProgram: TOKEN_PROGRAM_ID,
           tokenProgram: TOKEN_2022_PROGRAM_ID,
           associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,

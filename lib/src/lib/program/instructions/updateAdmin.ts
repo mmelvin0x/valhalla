@@ -49,7 +49,7 @@ export const updateAdminInstructionDiscriminator = [
  */
 export function createUpdateAdminInstruction(
   accounts: UpdateAdminInstructionAccounts,
-  programId = new web3.PublicKey('CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC')
+  programId = new web3.PublicKey('FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX')
 ) {
   const [data] = updateAdminStruct.serialize({
     instructionDiscriminator: updateAdminInstructionDiscriminator,

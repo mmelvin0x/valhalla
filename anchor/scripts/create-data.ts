@@ -37,7 +37,7 @@ import one from "../.keys/creator.json";
 import { randomBytes } from "crypto";
 import two from "../.keys/recipient.json";
 
-const NUM_VAULTS_TO_MAKE = 100;
+const NUM_VAULTS_TO_MAKE = 10;
 
 const second = new anchor.BN(1);
 const minute = new anchor.BN(60 * second.toNumber());
@@ -58,6 +58,9 @@ async function spl() {
 
   const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
 
+  const { config } = getPDAs(program.programId, new anchor.BN(0));
+  const configAccount = await program.account.config.fetch(config);
+
   const mintUserOne = await mintSplTokens(connection, userOne, 10_000_000);
   const mintUserTwo = await mintSplTokens(connection, userTwo, 10_000_000);
 
@@ -74,6 +77,7 @@ async function spl() {
     mintUserTwo,
     userTwo.publicKey
   );
+
   const daoTreasuryAtaUserOne = await getOrCreateAssociatedTokenAccount(
     provider.connection,
     userOne,
@@ -88,6 +92,20 @@ async function spl() {
     wallet.publicKey
   );
 
+  const userOneGovernanceAta = await getOrCreateAssociatedTokenAccount(
+    provider.connection,
+    userOne,
+    configAccount.governanceTokenMintKey,
+    userOne.publicKey
+  );
+
+  const userTwoGovernanceAta = await getOrCreateAssociatedTokenAccount(
+    provider.connection,
+    userTwo,
+    configAccount.governanceTokenMintKey,
+    userTwo.publicKey
+  );
+
   console.log(`Creating SPL vaults...`);
   for (let i = 0; i < NUM_VAULTS_TO_MAKE; i++) {
     const creator = i % 2 === 0 ? userOne : userTwo;
@@ -97,14 +115,18 @@ async function spl() {
       i % 2 === 0 ? daoTreasuryAtaUserOne : daoTreasuryAtaUserTwo;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
     const autopay = i % 3 === 0;
+    const creatorGovernanceAta =
+      i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
 
     await create(
       connection,
       creator,
       recipient,
       creatorAta,
+      creatorGovernanceAta,
       daoTreasuryAta,
       mint,
+      configAccount.governanceTokenMintKey,
       autopay,
       i,
       program,
@@ -124,7 +146,11 @@ async function token2022() {
   const wallet = provider.wallet as NodeWallet;
   const userOne = Keypair.fromSecretKey(new Uint8Array(one));
   const userTwo = Keypair.fromSecretKey(new Uint8Array(two));
+
   const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
+
+  const { config } = getPDAs(program.programId, new anchor.BN(0));
+  const configAccount = await program.account.config.fetch(config);
 
   const mintUserOne = await mintToken2022Tokens(
     connection,
@@ -185,6 +211,30 @@ async function token2022() {
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
 
+  const userOneGovernanceAta = await getOrCreateAssociatedTokenAccount(
+    provider.connection,
+    userOne,
+    configAccount.governanceTokenMintKey,
+    userOne.publicKey,
+    false,
+    undefined,
+    undefined,
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
+  const userTwoGovernanceAta = await getOrCreateAssociatedTokenAccount(
+    provider.connection,
+    userTwo,
+    configAccount.governanceTokenMintKey,
+    userTwo.publicKey,
+    false,
+    undefined,
+    undefined,
+    TOKEN_PROGRAM_ID,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
+
   console.log(`Creating Token 2022 vaults...`);
   for (let i = 0; i < NUM_VAULTS_TO_MAKE; i++) {
     const creator = i % 2 === 0 ? userOne : userTwo;
@@ -194,14 +244,18 @@ async function token2022() {
       i % 2 === 0 ? daoTreasuryAtaUserOne : daoTreasuryAtaUserTwo;
     const mint = i % 2 === 0 ? mintUserOne : mintUserTwo;
     const autopay = i % 2 === 0 ? true : false;
+    const creatorGovernanceAta =
+      i % 2 === 0 ? userOneGovernanceAta : userTwoGovernanceAta;
 
     await create(
       connection,
       creator,
       recipient,
       creatorAta,
+      creatorGovernanceAta,
       daoTreasuryAta,
       mint,
+      configAccount.governanceTokenMintKey,
       autopay,
       i,
       program,
@@ -218,8 +272,10 @@ async function create(
   creator: Keypair,
   recipient: Keypair,
   creatorAta: Account,
+  creatorGovernanceAta: Account,
   daoTreasuryAta: Account,
   mint: PublicKey,
+  governanceTokenMint: PublicKey,
   autopay: boolean,
   i: number,
   program: anchor.Program<Valhalla>,
@@ -302,7 +358,10 @@ async function create(
       vaultAta: pdas.vaultAta,
       daoTreasuryAta: daoTreasuryAta.address,
       creatorAta: creatorAta.address,
+      creatorGovernanceAta: creatorGovernanceAta.address,
       mint,
+      governanceTokenMint,
+      governanceTokenProgram: TOKEN_PROGRAM_ID,
       tokenProgram,
       systemProgram: SystemProgram.programId,
     })

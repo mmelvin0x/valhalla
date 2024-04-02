@@ -63,7 +63,7 @@ export const updateDevFeeInstructionDiscriminator = [
 export function createUpdateDevFeeInstruction(
   accounts: UpdateDevFeeInstructionAccounts,
   args: UpdateDevFeeInstructionArgs,
-  programId = new web3.PublicKey('CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC')
+  programId = new web3.PublicKey('FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX')
 ) {
   const [data] = updateDevFeeStruct.serialize({
     instructionDiscriminator: updateDevFeeInstructionDiscriminator,

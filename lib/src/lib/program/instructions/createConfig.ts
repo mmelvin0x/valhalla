@@ -94,7 +94,7 @@ export const createConfigInstructionDiscriminator = [
 export function createCreateConfigInstruction(
   accounts: CreateConfigInstructionAccounts,
   args: CreateConfigInstructionArgs,
-  programId = new web3.PublicKey('CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC')
+  programId = new web3.PublicKey('FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX')
 ) {
   const [data] = createConfigStruct.serialize({
     instructionDiscriminator: createConfigInstructionDiscriminator,

@@ -63,7 +63,7 @@ export const updateGovernanceTokenAmountInstructionDiscriminator = [
 export function createUpdateGovernanceTokenAmountInstruction(
   accounts: UpdateGovernanceTokenAmountInstructionAccounts,
   args: UpdateGovernanceTokenAmountInstructionArgs,
-  programId = new web3.PublicKey('CaynZZxoLCM8zJjnrC1KGv3R4X2BCzaSynkVRSJgbLdC')
+  programId = new web3.PublicKey('FuPeiYYSevDpgLjfVckWewukMrLWrkwYPaZfU1uwgnyX')
 ) {
   const [data] = updateGovernanceTokenAmountStruct.serialize({
     instructionDiscriminator:
