@@ -32,7 +32,7 @@ export default function PayoutIntervalInput({
         onChange={handler}
         disabled={disabled}
       >
-        <option value={Number(1000 * 60 * 60)}>Every Minute</option>
+        <option value={Number(1000 * 60)}>Every Minute</option>
         <option value={Number(1000 * 60 * 60)}>Every Hour</option>
         <option value={Number(60 * 60 * 24 * 1000)}>Every Day</option>
         <option value={Number(60 * 60 * 24 * 7 * 1000)}>Once a Week</option>

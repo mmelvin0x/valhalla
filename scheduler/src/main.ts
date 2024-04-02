@@ -16,13 +16,11 @@ import {
 import {
   PROGRAM_ID,
   Vault,
-  canDisburseVault,
   createDisburseInstruction,
   getCronStringFromVault,
   getMintWithCorrectTokenProgram,
   getPDAs,
   getValhallaConfig,
-  getVaultByIdentifier,
   hasStartDatePassed,
   sleep,
   vaultDiscriminator,

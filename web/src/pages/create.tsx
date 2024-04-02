@@ -20,15 +20,12 @@ import VestmentChart from "../components/VestmentChart";
 import WaitForTransactionModal from "../components/modals/WaitForTransactionModal";
 import axios from "axios";
 import { createVault } from "../instructions/create";
-import { schedule } from "../utils/schedule";
 import { toast } from "react-toastify";
 import { useDates } from "../utils/useDates";
 import useProgram from "../utils/useProgram";
-import { useRouter } from "next/router";
 import { vaultValidationSchema } from "../utils/vaultValidationSchema";
 
 export default function CreateFeature() {
-  const router = useRouter();
   const { wallet, connection } = useProgram();
   const { today, tomorrow, oneDayInMilliseconds } = useDates();
   const [txId, setTxId] = useState<string>("");
@@ -84,10 +81,6 @@ export default function CreateFeature() {
 
         setTxId(txId);
         setIdentifier(identifier);
-
-        if (identifier.gt(new anchor.BN(0))) {
-          router.push(`/vault/${identifier.toString()}`);
-        }
       } catch (e) {
         console.error(e);
         toast.error("Failed to create the vesting account!");
