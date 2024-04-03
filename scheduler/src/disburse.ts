@@ -14,10 +14,9 @@ import {
   getPDAs,
   getValhallaConfig,
 } from "@valhalla/lib";
-import { Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
 import { connection, payer } from "./network";
 
-export const disburse = async (vault: Vault): Promise<void> => {
+export const disburse = async (vault: Vault) => {
   const { config, key } = await getValhallaConfig(connection);
   const { tokenProgramId } = await getMintWithCorrectTokenProgram(
     connection,
@@ -73,15 +72,6 @@ export const disburse = async (vault: Vault): Promise<void> => {
   };
 
   const instruction = createDisburseInstruction(accounts);
-  const transaction = new Transaction().add(instruction);
-  const tx = await sendAndConfirmTransaction(connection, transaction, [payer]);
 
-  if (tx.length === 0) {
-    console.error(`Error disbursing vault ${vault.identifier.toString()}`);
-    return;
-  }
-
-  console.info(
-    `Disbursed vault ${vault.identifier.toString()} with interval ${vault.payoutInterval.toString()} seconds - ${new Date().toLocaleString()} - Tx: ${tx}`
-  );
+  return instruction;
 };

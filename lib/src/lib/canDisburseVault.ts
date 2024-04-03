@@ -19,13 +19,11 @@ export async function canDisburseVault(
   vault: Vault | ValhallaVault
 ): Promise<boolean> {
   const currentTime = Math.floor(Date.now() / 1000);
-  const payoutInterval = Number(vault.payoutInterval);
-  const lastPaymentTimestamp = Number(vault.lastPaymentTimestamp);
   const totalNumberOfPayouts = Number(vault.totalNumberOfPayouts);
+  const numberOfPaymentsMade = Number(vault.numberOfPaymentsMade);
   const startDate = Number(vault.startDate);
-  const endDate = totalNumberOfPayouts * payoutInterval;
 
-  if (endDate > currentTime) return false;
+  if (numberOfPaymentsMade === totalNumberOfPayouts) return false;
 
   const { vaultAta } = getPDAs(
     PROGRAM_ID,
@@ -48,9 +46,5 @@ export async function canDisburseVault(
 
   const balance = Number(ata.amount);
 
-  return (
-    balance > 0 &&
-    startDate <= currentTime &&
-    lastPaymentTimestamp + payoutInterval <= currentTime
-  );
+  return balance > 0 && startDate <= currentTime;
 }

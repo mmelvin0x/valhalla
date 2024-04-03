@@ -47,6 +47,10 @@ export const cancel = async (
     }
   }
 
+  if (vault.autopay) {
+    // Close the clockwork thread
+  }
+
   const accounts: CancelInstructionAccounts = {
     signer: wallet.publicKey,
     creator: vault.creator,

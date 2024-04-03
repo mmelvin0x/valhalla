@@ -1,12 +1,18 @@
-import { cronSchedule, network, payer, port } from "./network";
+import {
+  PROGRAM_ID,
+  Vault,
+  hasStartDatePassed,
+  vaultDiscriminator,
+} from "@valhalla/lib";
+import { connection, cronSchedule, network, payer, port } from "./network";
 import express, { Request, Response } from "express";
 
-import { PROGRAM_ID } from "@valhalla/lib";
 import bodyParser from "body-parser";
-import { checkVaults } from "./checkVaults";
+import { checkEmptyVault } from "./checkEmptyVault";
 import cors from "cors";
 import cron from "node-cron";
 import dotenv from "dotenv";
+import { scheduleAutoPay } from "./scheduleAutopay";
 
 dotenv.config();
 
@@ -14,7 +20,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-let scheduledVaults = new Map<string, boolean>();
+const scheduledVaults = new Map<string, string>();
 
 /**
  * Health check endpoint
@@ -30,13 +36,32 @@ app.listen(port, async () => {
   console.log(`Program ID: ${PROGRAM_ID.toBase58()}`);
 
   // Checks for new vaults every 15 minutes
-  cron
-    .schedule(
-      cronSchedule,
-      async () => {
-        scheduledVaults = await checkVaults(scheduledVaults);
-      },
-      { runOnInit: true }
-    )
-    .start();
+  const mainThread = cron.schedule(
+    cronSchedule,
+    async () => {
+      try {
+        const gpaBuilder = Vault.gpaBuilder();
+        gpaBuilder.addFilter("autopay", true);
+        gpaBuilder.addFilter("accountDiscriminator", vaultDiscriminator);
+        const vaults = (await gpaBuilder.run(connection))
+          .map((account) => Vault.fromAccountInfo(account.account)[0])
+          .filter((it) => !scheduledVaults.has(it.identifier.toString()))
+          .filter((it) => hasStartDatePassed(Number(it.startDate)));
+
+        console.log("Found vaults: ", vaults.length);
+
+        for (let i = 0; i < vaults.length; i++) {
+          const isEmpty = await checkEmptyVault(vaults[i]);
+          if (!isEmpty) {
+            await scheduleAutoPay(vaults[i], scheduledVaults);
+          }
+        }
+      } catch (e) {
+        console.log("Error in main thread: ", e);
+      }
+    },
+    { runOnInit: true }
+  );
+
+  mainThread.start();
 });
