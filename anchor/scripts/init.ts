@@ -14,7 +14,7 @@ import { confirm } from "../tests/utils/utils";
 import { getPDAs } from "../tests/utils/getPDAs";
 
 const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "5AAFQF16iab69Zy2m2u9bSNBQRGWaByA7ZXAxaXeTTN4"
+  "Dtdv1BrRm8VrDC5ixxS7qcJKULF4xD3m1vCB1fcw8BSY"
 );
 
 const devFee = new anchor.BN(0.05 * LAMPORTS_PER_SOL);

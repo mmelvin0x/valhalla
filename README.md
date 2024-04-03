@@ -104,12 +104,12 @@ N/A
 ## Devnet Deployment
 
 👨‍💻 Deployer: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
-🔐 Config: HRQvumBMmxZcXgp81NSeWZsPMPYsbddvoRRrRm2FJeY5
-✅ Initialization Transaction: 2GCcgezyRJkafWv6cptbXy9gqkh1FADNguGFJjnwRyuGMgTBvBA2HygVv9WiKgAh7EjFKnDW2gvAJnSNrmJCopZd
+🔐 Config: 6qDBNEF3jeyvN2yY2d8fPZM3or5V7r1BREcqTtiTpEZd
+✅ Initialization Transaction: nb4o2x2FgfUQWGKYFARkTREjKE3hT8PGRWz8G1iqybjzgoKfPdN1P2tSKxi8HWVSLH7v7JHiFBYiLf12k8Xuq3x
 🐸 Admin: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
 💰 SOL Treasury: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
 💰 Token Treasury:: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
-🫡 Reward Mint: JBJLEeBBsQ9faSnE2rRHvG2U43YiHpKxd3pkKupGC43L
+🫡 Reward Mint: 9GScv5s5BjTx1PVVLz6EDepbH6zhcqkmyGX6rwdUNptN
 ❤️‍🩹 SOL Fee: 0.05
 ❤️‍🩹 Token Fee BPS: 50
-🪙 Reward Token Amount: 10000000
+🪙 Reward Token Amount: 1000000000
