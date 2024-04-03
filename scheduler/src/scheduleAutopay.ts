@@ -80,6 +80,7 @@ export const scheduleAutopay = async (vault: Vault): Promise<Thread | null> => {
 
     await sleep(2500);
     return await clockworkProvider.getThreadAccount(thread);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (!error.logs?.[3]) {
       console.error("Error creating thread: ", error);

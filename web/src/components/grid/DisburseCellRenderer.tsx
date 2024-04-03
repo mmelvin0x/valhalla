@@ -1,14 +1,7 @@
-import {
-  IconCircleX,
-  IconLockCancel,
-  IconLockOpen,
-  IconSend,
-  IconUserCancel,
-} from "@tabler/icons-react";
+import { IconLockCancel, IconSend, IconUserCancel } from "@tabler/icons-react";
 import { ValhallaVault, getValhallaVaultByIdentifier } from "@valhalla/lib";
 
 import { ICellRendererParams } from "ag-grid-community";
-import Link from "next/link";
 import { disburse as _disburse } from "@/src/instructions/disburse";
 import { searchMyVaults } from "@/src/utils/search";
 import { toast } from "react-toastify";

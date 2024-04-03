@@ -1,6 +1,5 @@
 import {
   PROGRAM_ID,
-  ValhallaVault,
   Vault,
   hasStartDatePassed,
   sleep,
