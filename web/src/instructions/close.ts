@@ -6,6 +6,7 @@ import {
 
 import { Connection } from "@solana/web3.js";
 import { WalletContextState } from "@solana/wallet-adapter-react";
+import axios from "axios";
 import { createHarvestWithheldTokensToMintInstruction } from "@solana/spl-token";
 import { sendTransaction } from "../utils/sendTransaction";
 import { toast } from "react-toastify";
@@ -42,6 +43,13 @@ export const close = async (
       toast.error(`Error: ${(e as Error).message}`);
       console.error(e);
     }
+  }
+
+  if (vault.autopay) {
+    await axios.delete(
+      process.env.NEXT_PUBLIC_SCHEDULER_URL +
+        `/close-thread/${vault.identifier.toString()}`
+    );
   }
 
   const accounts: CloseInstructionAccounts = {

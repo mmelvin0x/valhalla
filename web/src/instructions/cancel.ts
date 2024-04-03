@@ -10,6 +10,7 @@ import {
 
 import { Connection } from "@solana/web3.js";
 import { WalletContextState } from "@solana/wallet-adapter-react";
+import axios from "axios";
 import { sendTransaction } from "../utils/sendTransaction";
 import { toast } from "react-toastify";
 
@@ -48,7 +49,10 @@ export const cancel = async (
   }
 
   if (vault.autopay) {
-    // Close the clockwork thread
+    await axios.delete(
+      process.env.NEXT_PUBLIC_SCHEDULER_URL +
+        `/close-thread/${vault.identifier.toString()}`
+    );
   }
 
   const accounts: CancelInstructionAccounts = {

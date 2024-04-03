@@ -5,9 +5,18 @@ import {
   sleep,
   vaultDiscriminator,
 } from "@valhalla/lib";
-import { connection, cronSchedule, network, payer, port } from "./network";
+import {
+  clockworkProvider,
+  connection,
+  cronSchedule,
+  network,
+  payer,
+  port,
+  provider,
+} from "./network";
 import express, { Request, Response } from "express";
 
+import { Transaction } from "@solana/web3.js";
 import bodyParser from "body-parser";
 import { checkEmptyVault } from "./checkEmptyVault";
 import cors from "cors";
@@ -27,6 +36,34 @@ const scheduledVaults = new Map<string, string>();
  * Health check endpoint
  */
 app.get("/health", (_req: Request, res: Response) => {
+  res.status(200).send("OK");
+});
+
+app.delete("/close-thread/:identifier", async (req: Request, res: Response) => {
+  const identifier = req.params.identifier;
+  const threadId = scheduledVaults.get(identifier);
+  const [thread] = clockworkProvider.getThreadPDA(
+    provider.wallet.publicKey,
+    threadId
+  );
+
+  if (!thread) {
+    return res.status(404).send("Thread not found");
+  }
+
+  const threadCloseIx = await clockworkProvider.threadDelete(
+    provider.wallet.publicKey,
+    thread,
+    provider.wallet.publicKey
+  );
+
+  const tx = new Transaction().add(threadCloseIx);
+  const sig = await clockworkProvider.anchorProvider.sendAndConfirm(tx);
+  scheduledVaults.delete(identifier);
+  console.log(
+    `Vault ${identifier} autopay disbursement thread created: ${sig}`
+  );
+
   res.status(200).send("OK");
 });
 
