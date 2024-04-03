@@ -7,5 +7,12 @@
     "types": ["node"]
   },
   "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "../scheduler/src/scheduleAutopay.ts",
+    "../scheduler/src/network.ts",
+    "src/lib/getVaultByIndentifier.ts",
+    "../scheduler/src/disburse.ts",
+    "../scheduler/src/checkEmptyVault.ts"
+  ]
 }

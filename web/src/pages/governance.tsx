@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getExplorerUrl } from "../utils/explorer";
 import { useEffect } from "react";
-import useProgram from "../utils/useProgram";
+import useProgram from "../hooks/useProgram";
 import { useValhallaStore } from "../stores/useValhallaStore";
 
 export default function GovernanceFeature() {

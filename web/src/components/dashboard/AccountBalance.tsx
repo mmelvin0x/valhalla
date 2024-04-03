@@ -1,6 +1,6 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
-import { useGetBalance } from "@/src/utils/useGetBalance";
+import { useGetBalance } from "@/src/hooks/useGetBalance";
 
 export function AccountBalance({
   address,

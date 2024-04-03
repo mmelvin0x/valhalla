@@ -1,5 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
-import { useGetTokenAccountBalance } from "@/src/utils/useGetTokenAccountBalance";
+import { useGetTokenAccountBalance } from "@/src/hooks/useGetTokenAccountBalance";
 
 export function AccountTokenBalance({ address }: { address: PublicKey }) {
   const query = useGetTokenAccountBalance({ address });

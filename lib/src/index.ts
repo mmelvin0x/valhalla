@@ -3,7 +3,6 @@ export * from "./lib/canDisburseVault";
 export * from "./lib/formatters";
 export * from "./lib/getMintWithCorrectTokenProgram";
 export * from "./lib/getPDAs";
-export * from "./lib/getVaultByIndentifier";
 export * from "./lib/models";
 export * from "./lib/sleep";
 export * from "./lib/optimizeTransaction";

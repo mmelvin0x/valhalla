@@ -1,5 +1,6 @@
 import {
   PROGRAM_ID,
+  ValhallaVault,
   Vault,
   hasStartDatePassed,
   sleep,
@@ -22,7 +23,8 @@ import { checkEmptyVault } from "./checkEmptyVault";
 import cors from "cors";
 import cron from "node-cron";
 import dotenv from "dotenv";
-import { scheduleAutoPay } from "./scheduleAutopay";
+import { getVaultByIdentifier } from "lib/src/lib/getVaultByIndentifier";
+import { scheduleAutopay } from "./scheduleAutopay";
 
 dotenv.config();
 
@@ -39,7 +41,34 @@ app.get("/health", (_req: Request, res: Response) => {
   res.status(200).send("OK");
 });
 
-app.delete("/close-thread/:identifier", async (req: Request, res: Response) => {
+app.post("/threads", async (req: Request, res: Response) => {
+  try {
+    const identifier = req.body.identifier;
+    if (!identifier) {
+      return res.status(400).send("Missing identifier");
+    }
+
+    const vault = await getVaultByIdentifier(connection, identifier);
+    if (!vault) {
+      return res.status(404).send("Vault not found");
+    }
+
+    const isEmpty = await checkEmptyVault(vault);
+    if (!isEmpty) {
+      const thread = await scheduleAutopay(vault);
+      if (!thread) {
+        return res.status(500).send("Error creating thread");
+      }
+
+      return res.status(201).json({ thread, vault: vault.pretty() });
+    }
+  } catch (e) {
+    console.log("Error creating thread: ", e);
+    res.status(500).send("Internal server error");
+  }
+});
+
+app.delete("/threads/:identifier", async (req: Request, res: Response) => {
   const identifier = req.params.identifier;
   const threadId = scheduledVaults.get(identifier);
   const [thread] = clockworkProvider.getThreadPDA(
@@ -91,7 +120,7 @@ app.listen(port, async () => {
         for (let i = 0; i < vaults.length; i++) {
           const isEmpty = await checkEmptyVault(vaults[i]);
           if (!isEmpty) {
-            await scheduleAutoPay(vaults[i], scheduledVaults);
+            await scheduleAutopay(vaults[i]);
           }
 
           await sleep(5000);

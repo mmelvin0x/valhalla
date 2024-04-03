@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import Image from "next/image";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-import useProgram from "@/src/utils/useProgram";
+import useProgram from "@/src/hooks/useProgram";
 import { useValhallaStore } from "@/src/stores/useValhallaStore";
 
 export default function DashboardStats() {

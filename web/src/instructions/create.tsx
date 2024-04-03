@@ -31,7 +31,9 @@ import {
 
 import { FormikHelpers } from "formik";
 import { ICreateForm } from "../utils/interfaces";
+import { Thread } from "@clockwork-xyz/sdk";
 import { WalletContextState } from "@solana/wallet-adapter-react";
+import axios from "axios";
 import { isPublicKey } from "@metaplex-foundation/umi";
 import { randomBytes } from "crypto";
 import { sendTransaction } from "../utils/sendTransaction";
@@ -40,20 +42,15 @@ import { toast } from "react-toastify";
 export const createVault = async (
   connection: Connection,
   wallet: WalletContextState,
-  values: ICreateForm[],
+  values: ICreateForm,
   helpers: FormikHelpers<ICreateForm>,
   totalVestingDuration: number,
   today: Date
 ): Promise<{ identifier: anchor.BN; txId: string }> => {
-  const isValid = [];
-  for (let i = 0; i < values.length; i++) {
-    isValid.push(
-      await vaultValid(connection, wallet, values[i], helpers, today)
-    );
-  }
+  const isValid = await vaultValid(connection, wallet, values, helpers, today);
 
-  if (!isValid.every((val) => val)) {
-    toast.error("There is an issue with the vaults. Please check the form.");
+  if (!isValid) {
+    toast.error("There is an issue with the vault. Please check the form.");
     return { identifier: new anchor.BN(0), txId: "" };
   }
 
@@ -61,17 +58,15 @@ export const createVault = async (
   let instructions: TransactionInstruction[] = [];
 
   try {
-    for (const value of values) {
-      const ix = await getInstructions(
-        connection,
-        wallet,
-        value,
-        totalVestingDuration,
-        identifier
-      );
+    const ix = await getInstructions(
+      connection,
+      wallet,
+      values,
+      totalVestingDuration,
+      identifier
+    );
 
-      instructions = [...instructions, ...ix];
-    }
+    instructions = [...instructions, ...ix];
 
     toast.info(`Tx 1/1: Creating vault`, { toastId: "create" });
     const txId = await sendTransaction(
@@ -80,6 +75,17 @@ export const createVault = async (
       instructions,
       "create"
     );
+
+    if (values.autopay) {
+      const { data } = await axios.post<Thread>(
+        `${process.env.NEXT_PUBLIC_SCHEDULER_URL}/threads`,
+        {
+          identifier: identifier.toString(),
+        }
+      );
+
+      console.log("Thread", data);
+    }
 
     return { identifier, txId };
   } catch (error) {

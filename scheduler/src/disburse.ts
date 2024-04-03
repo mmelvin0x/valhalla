@@ -8,15 +8,16 @@ import {
 import {
   DisburseInstructionAccounts,
   PROGRAM_ID,
+  ValhallaVault,
   Vault,
   createDisburseInstruction,
   getMintWithCorrectTokenProgram,
   getPDAs,
   getValhallaConfig,
 } from "@valhalla/lib";
-import { connection, payer } from "./network";
+import { connection, provider } from "./network";
 
-export const disburse = async (vault: Vault) => {
+export const disburse = async (vault: Vault | ValhallaVault) => {
   const { config, key } = await getValhallaConfig(connection);
   const { tokenProgramId } = await getMintWithCorrectTokenProgram(
     connection,
@@ -31,7 +32,7 @@ export const disburse = async (vault: Vault) => {
 
   const signerGovernanceAta = getAssociatedTokenAddressSync(
     config.governanceTokenMintKey,
-    payer.publicKey,
+    provider.wallet.publicKey,
     false,
     TOKEN_PROGRAM_ID,
     ASSOCIATED_TOKEN_PROGRAM_ID
@@ -54,7 +55,7 @@ export const disburse = async (vault: Vault) => {
   );
 
   const accounts: DisburseInstructionAccounts = {
-    signer: payer.publicKey,
+    signer: provider.wallet.publicKey,
     creator: vault.creator,
     recipient: vault.recipient,
     devTreasury: config.devTreasury,

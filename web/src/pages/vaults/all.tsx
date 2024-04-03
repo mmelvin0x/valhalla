@@ -19,7 +19,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { searchAllVaults } from "@/src/utils/search";
 import { useMemo } from "react";
-import useProgram from "@/src/utils/useProgram";
+import useProgram from "@/src/hooks/useProgram";
 import { useValhallaStore } from "@/src/stores/useValhallaStore";
 
 export default function AllVaultsFeature() {

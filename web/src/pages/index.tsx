@@ -15,7 +15,7 @@ import logo128 from "../assets/logo128.png";
 import logo512 from "../assets/logo512.png";
 import payments from "../assets/payments.png";
 import ship from "../assets/ship.png";
-import useProgram from "../utils/useProgram";
+import useProgram from "../hooks/useProgram";
 import vesting from "../assets/vesting.png";
 
 export default function HomeFeature() {

@@ -13,7 +13,7 @@ import TokenMintDisplay from "../lock/TokenMintDisplay";
 import { ValhallaVault } from "@valhalla/lib";
 import VestmentChart from "../VestmentChart";
 import { useEffect } from "react";
-import useProgram from "@/src/utils/useProgram";
+import useProgram from "@/src/hooks/useProgram";
 
 export default function LockDetails({
   vault,

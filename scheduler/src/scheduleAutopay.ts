@@ -5,19 +5,19 @@ import {
   getMinimumBalanceForRentExemptAccount,
   getMinimumBalanceForRentExemptAccountWithExtensions,
 } from "@solana/spl-token";
+import { Thread, TriggerInput } from "@clockwork-xyz/sdk";
 import {
   Vault,
   getCronStringFromVault,
   getMintWithCorrectTokenProgram,
+  sleep,
 } from "@valhalla/lib";
 import { clockworkProvider, connection, provider } from "./network";
 
+import { BN } from "@coral-xyz/anchor";
 import { disburse } from "./disburse";
 
-export const scheduleAutoPay = async (
-  vault: Vault,
-  scheduledVaults: Map<string, string>
-) => {
+export const scheduleAutopay = async (vault: Vault): Promise<Thread | null> => {
   const interval = getCronStringFromVault(Number(vault.payoutInterval));
   const threadId = vault.identifier.toString();
   const [thread] = clockworkProvider.getThreadPDA(
@@ -28,7 +28,7 @@ export const scheduleAutoPay = async (
   try {
     const existingThread = await clockworkProvider.getThreadAccount(thread);
     if (existingThread) {
-      return;
+      return existingThread;
     }
   } catch (error) {
     console.log(
@@ -36,8 +36,9 @@ export const scheduleAutoPay = async (
     );
   }
 
-  const trigger = {
+  const trigger: TriggerInput = {
     cron: { schedule: interval, skippable: false },
+    timestamp: { unix_ts: new BN(vault.payoutInterval) },
   };
 
   let rent = 0;
@@ -73,13 +74,17 @@ export const scheduleAutoPay = async (
 
     const tx = new Transaction().add(ix);
     const sig = await clockworkProvider.anchorProvider.sendAndConfirm(tx);
-    scheduledVaults.set(vault.identifier.toString(), threadId);
     console.log(
       `Vault ${vault.identifier.toString()} autopay disbursement thread created: ${sig}`
     );
-  } catch (error) {
+
+    await sleep(2500);
+    return await clockworkProvider.getThreadAccount(thread);
+  } catch (error: any) {
     if (!error.logs?.[3]) {
       console.error("Error creating thread: ", error);
     }
+
+    return null;
   }
 };

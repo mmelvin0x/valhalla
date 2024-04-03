@@ -8,7 +8,7 @@ import logo128 from "../assets/logo128.png";
 import router from "next/router";
 import { routes } from "../utils/routes";
 import { useMemo } from "react";
-import useProgram from "../utils/useProgram";
+import useProgram from "../hooks/useProgram";
 
 export default function SideDrawer() {
   const { wallet } = useProgram();

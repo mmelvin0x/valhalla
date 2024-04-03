@@ -76,6 +76,8 @@ export const disburse = async (
 
   const instructions = [createDisburseInstruction(accounts)];
 
-  toast.info(`Tx 1/1: Disbursing vault`, { toastId: "disburse" });
+  toast.info(`Tx 1/1: Disbursing vault`, {
+    toastId: "disburse",
+  });
   await sendTransaction(connection, wallet, instructions, "disburse");
 };

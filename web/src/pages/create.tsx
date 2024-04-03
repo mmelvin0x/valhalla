@@ -21,8 +21,8 @@ import WaitForTransactionModal from "../components/modals/WaitForTransactionModa
 import axios from "axios";
 import { createVault } from "../instructions/create";
 import { toast } from "react-toastify";
-import { useDates } from "../utils/useDates";
-import useProgram from "../utils/useProgram";
+import { useDates } from "../hooks/useDates";
+import useProgram from "../hooks/useProgram";
 import { vaultValidationSchema } from "../utils/vaultValidationSchema";
 
 export default function CreateFeature() {
@@ -33,7 +33,6 @@ export default function CreateFeature() {
 
   const [assets, setAssets] = useState<DasApiAsset[]>([]);
   const [totalVestingDuration, setVestingDuration] = useState<number>(0);
-  const [vaultsToCreate, setVaultsToCreate] = useState<ICreateForm[]>([]);
 
   const initialValues: ICreateForm = useMemo(
     () => ({
@@ -65,15 +64,10 @@ export default function CreateFeature() {
       helpers: FormikHelpers<ICreateForm>
     ) => {
       try {
-        setVaultsToCreate([
-          ...vaultsToCreate,
-          JSON.parse(JSON.stringify(values)),
-        ]);
-
         const { identifier, txId = "" } = await createVault(
           connection,
           wallet,
-          [...vaultsToCreate, values],
+          values,
           helpers,
           totalVestingDuration,
           today.toDate()
@@ -85,7 +79,6 @@ export default function CreateFeature() {
         console.error(e);
         toast.error("Failed to create the vesting account!");
       } finally {
-        setVaultsToCreate([]);
         helpers.setSubmitting(false);
       }
     },

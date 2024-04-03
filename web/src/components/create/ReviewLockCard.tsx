@@ -12,7 +12,7 @@ import StartDateDisplay from "../lock/StartDateDisplay";
 import TokenMintDisplay from "../lock/TokenMintDisplay";
 import { getExplorerUrl } from "@/src/utils/explorer";
 import { useMemo } from "react";
-import useProgram from "@/src/utils/useProgram";
+import useProgram from "@/src/hooks/useProgram";
 
 interface ReviewLockCardProps {
   creator: PublicKey;

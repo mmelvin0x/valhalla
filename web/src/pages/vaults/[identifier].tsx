@@ -6,7 +6,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { ColDef, GridOptions } from "ag-grid-community";
 import {
   ValhallaVault,
-  getVaultByIdentifier,
+  getValhallaVaultByIdentifier,
   shortenAddress,
 } from "@valhalla/lib";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -23,8 +23,8 @@ import { cancel as _cancel } from "@/src/instructions/cancel";
 import { close as _close } from "@/src/instructions/close";
 import { disburse as _disburse } from "@/src/instructions/disburse";
 import { getExplorerUrl } from "@/src/utils/explorer";
-import { useGetSignatures } from "@/src/utils/useGetSignatures";
-import useProgram from "@/src/utils/useProgram";
+import { useGetSignatures } from "@/src/hooks/useGetSignatures";
+import useProgram from "@/src/hooks/useProgram";
 import { useRouter } from "next/router";
 
 export default function VaultDetailFeature() {
@@ -99,7 +99,7 @@ export default function VaultDetailFeature() {
 
   const getVault = async () => {
     if (router.query.identifier && wallet.publicKey) {
-      const vault = await getVaultByIdentifier(
+      const vault = await getValhallaVaultByIdentifier(
         connection,
         new anchor.BN(router.query.identifier as string)
       );

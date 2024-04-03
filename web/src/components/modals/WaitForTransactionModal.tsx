@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getExplorerUrl } from "@/src/utils/explorer";
 import logo from "@/src/assets/logo256.png";
-import useProgram from "@/src/utils/useProgram";
+import useProgram from "@/src/hooks/useProgram";
 import { useRouter } from "next/router";
 
 export default function WaitForTransactionModal({

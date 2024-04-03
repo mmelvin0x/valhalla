@@ -1,7 +1,7 @@
 //@ts-check
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { composePlugins, withNx } = require('@nx/next');
+const { composePlugins, withNx } = require("@nx/next");
 
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
@@ -10,9 +10,10 @@ const nextConfig = {
   webpack: (config) => {
     config.externals = [
       ...(config.externals || []),
-      'bigint',
-      'node-gyp-build',
+      "bigint",
+      "node-gyp-build",
     ];
+
     return config;
   },
   nx: {

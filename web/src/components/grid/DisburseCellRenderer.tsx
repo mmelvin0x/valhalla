@@ -5,7 +5,7 @@ import {
   IconSend,
   IconUserCancel,
 } from "@tabler/icons-react";
-import { ValhallaVault, getVaultByIdentifier } from "@valhalla/lib";
+import { ValhallaVault, getValhallaVaultByIdentifier } from "@valhalla/lib";
 
 import { ICellRendererParams } from "ag-grid-community";
 import Link from "next/link";
@@ -13,7 +13,7 @@ import { disburse as _disburse } from "@/src/instructions/disburse";
 import { searchMyVaults } from "@/src/utils/search";
 import { toast } from "react-toastify";
 import { useMemo } from "react";
-import useProgram from "@/src/utils/useProgram";
+import useProgram from "@/src/hooks/useProgram";
 import { useValhallaStore } from "@/src/stores/useValhallaStore";
 
 const DisburseCellRenderer = (params: ICellRendererParams) => {
@@ -27,7 +27,10 @@ const DisburseCellRenderer = (params: ICellRendererParams) => {
   const disburse = async () => {
     if (!vault.identifier) return;
 
-    const fullVault = await getVaultByIdentifier(connection, vault.identifier);
+    const fullVault = await getValhallaVaultByIdentifier(
+      connection,
+      vault.identifier
+    );
 
     await fullVault.populate(connection, fullVault);
     await _disburse(connection, fullVault, wallet);

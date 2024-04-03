@@ -50,8 +50,9 @@ export const cancel = async (
 
   if (vault.autopay) {
     await axios.delete(
-      process.env.NEXT_PUBLIC_SCHEDULER_URL +
-        `/close-thread/${vault.identifier.toString()}`
+      `${
+        process.env.NEXT_PUBLIC_SCHEDULER_URL
+      }/threads/${vault.identifier.toString()}`
     );
   }
 
