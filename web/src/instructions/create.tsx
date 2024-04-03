@@ -175,9 +175,9 @@ const getInstructions = async (
     identifier,
     name: getNameArg(values.name),
     amountToBeVested: Number(values.amountToBeVested),
-    totalVestingDuration: Math.round(Number(totalVestingDuration / 1000)),
-    startDate: Math.round(new Date(values.startDate).getTime() / 1000),
-    payoutInterval: Math.round(values.payoutInterval / 1000),
+    totalVestingDuration: Math.ceil(Number(totalVestingDuration / 1000)),
+    startDate: Math.ceil(new Date(values.startDate).getTime() / 1000),
+    payoutInterval: Math.ceil(values.payoutInterval / 1000),
     cancelAuthority: +values.cancelAuthority,
     autopay: values.autopay,
   };

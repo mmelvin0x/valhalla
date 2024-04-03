@@ -1,6 +1,7 @@
 import {
   PROGRAM_ID,
   Vault,
+  getVaultByIdentifier,
   hasStartDatePassed,
   sleep,
   vaultDiscriminator,
@@ -22,7 +23,6 @@ import { checkEmptyVault } from "./checkEmptyVault";
 import cors from "cors";
 import cron from "node-cron";
 import dotenv from "dotenv";
-import { getVaultByIdentifier } from "lib/src/lib/getVaultByIndentifier";
 import { scheduleAutopay } from "./scheduleAutopay";
 
 dotenv.config();

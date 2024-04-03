@@ -38,10 +38,22 @@ export default function SelectTokenInput({
   const balanceAsNumber = useMemo(
     () =>
       selectedToken?.token_info.balance
-        ? selectedToken?.token_info.balance /
-          10 ** selectedToken?.token_info.decimals
+        ? Number(
+            (
+              selectedToken?.token_info.balance /
+              10 ** selectedToken?.token_info.decimals
+            ).toFixed(selectedToken?.token_info?.decimals)
+          )
         : 0,
     [selectedToken]
+  );
+
+  const half = useMemo(
+    () =>
+      Number(
+        (balanceAsNumber / 2).toFixed(selectedToken?.token_info?.decimals)
+      ),
+    [balanceAsNumber, selectedToken?.token_info?.decimals]
   );
 
   return (
@@ -52,18 +64,14 @@ export default function SelectTokenInput({
           <button
             type="button"
             className="btn btn-xs"
-            onClick={() =>
-              setFieldValue("amountToBeVested", Math.round(balanceAsNumber / 2))
-            }
+            onClick={() => setFieldValue("amountToBeVested", half)}
           >
             Half
           </button>
           <button
             type="button"
             className="btn btn-xs"
-            onClick={() =>
-              setFieldValue("amountToBeVested", Math.round(balanceAsNumber))
-            }
+            onClick={() => setFieldValue("amountToBeVested", balanceAsNumber)}
           >
             Max
           </button>

@@ -57,22 +57,38 @@ export default function ReviewLockCard({
   const numPayments = useMemo(
     () =>
       !!totalVestingDuration && !!payoutInterval
-        ? Math.round(totalVestingDuration / payoutInterval)
+        ? Math.ceil(totalVestingDuration / payoutInterval)
         : 1,
     [totalVestingDuration, payoutInterval]
   );
 
   const amountPerPayout = useMemo(
     () => ({
-      amount: Math.round(amountToBeVested / numPayments),
+      amount: Number(
+        (amountToBeVested / numPayments).toFixed(
+          // @ts-expect-error token_info does exist
+          selectedToken?.token_info?.decimals
+        )
+      ),
       display:
         !!numPayments && !!amountToBeVested
-          ? `${(amountToBeVested / numPayments).toFixed(4)} ${
+          ? `${Number(
+              (amountToBeVested / numPayments).toFixed(
+                // @ts-expect-error token_info does exist
+                selectedToken?.token_info?.decimals
+              )
+            ).toLocaleString()} ${
               selectedToken?.content.metadata.symbol ?? "UNK"
             }`
           : "",
     }),
-    [amountToBeVested, numPayments, selectedToken?.content.metadata.symbol]
+    [
+      amountToBeVested,
+      numPayments,
+      selectedToken?.content.metadata.symbol,
+      // @ts-expect-error token_info does exist
+      selectedToken?.token_info?.decimals,
+    ]
   );
 
   const mint = useMemo(
