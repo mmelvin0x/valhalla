@@ -2,6 +2,7 @@ import {
   PROGRAM_ID,
   Vault,
   hasStartDatePassed,
+  sleep,
   vaultDiscriminator,
 } from "@valhalla/lib";
 import { connection, cronSchedule, network, payer, port } from "./network";
@@ -55,6 +56,8 @@ app.listen(port, async () => {
           if (!isEmpty) {
             await scheduleAutoPay(vaults[i], scheduledVaults);
           }
+
+          await sleep(5000);
         }
       } catch (e) {
         console.log("Error in main thread: ", e);
