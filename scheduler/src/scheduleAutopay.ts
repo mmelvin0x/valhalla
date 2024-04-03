@@ -37,7 +37,7 @@ export const scheduleAutopay = async (vault: Vault): Promise<Thread | null> => {
   }
 
   const trigger: TriggerInput = {
-    cron: { schedule: interval, skippable: false },
+    cron: { schedule: interval, skippable: true },
     timestamp: { unix_ts: new BN(vault.payoutInterval) },
   };
 

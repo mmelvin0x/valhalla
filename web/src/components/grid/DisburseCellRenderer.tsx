@@ -1,4 +1,4 @@
-import { IconLockCancel, IconSend, IconUserCancel } from "@tabler/icons-react";
+import { IconLockCancel, IconSend } from "@tabler/icons-react";
 import { ValhallaVault, getValhallaVaultByIdentifier } from "@valhalla/lib";
 
 import { ICellRendererParams } from "ag-grid-community";
@@ -51,29 +51,19 @@ const DisburseCellRenderer = (params: ICellRendererParams) => {
 
   if (!vault.canDisburse) {
     return (
-      <div className="h-10 flex flex-col items-center justify-center">
-        <IconLockCancel className="text-error" />
-      </div>
-    );
-  }
-
-  if (vault.autopay) {
-    return (
-      <div className="h-10 flex flex-col items-center justify-center">
-        <IconUserCancel className="text-error" />
-      </div>
+      <button
+        disabled
+        className="btn btn-error btn-xs flex items-center gap-2 mt-2"
+      >
+        <IconLockCancel size={"1rem"} className="text-error" /> Locked
+      </button>
     );
   }
 
   return (
-    <div className="h-10 flex flex-col items-center justify-center">
-      <button
-        className="btn btn-outline btn-primary btn-sm btn-circle mt-1"
-        onClick={disburse}
-      >
-        <IconSend />
-      </button>
-    </div>
+    <button className="btn btn-accent btn-xs mt-2" onClick={disburse}>
+      <IconSend size={"1rem"} /> Disburse
+    </button>
   );
 };
 
