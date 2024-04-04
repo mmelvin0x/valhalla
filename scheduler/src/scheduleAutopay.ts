@@ -17,7 +17,9 @@ import { clockworkProvider, connection, provider } from "./network";
 import { BN } from "@coral-xyz/anchor";
 import { disburse } from "./disburse";
 
-export const scheduleAutopay = async (vault: Vault): Promise<Thread | null> => {
+export const scheduleAutopay = async (
+  vault: Vault
+): Promise<{ threadId: string; thread: Thread | null }> => {
   const interval = getCronStringFromVault(Number(vault.payoutInterval));
   const threadId = vault.identifier.toString();
   const [thread] = clockworkProvider.getThreadPDA(
@@ -28,7 +30,7 @@ export const scheduleAutopay = async (vault: Vault): Promise<Thread | null> => {
   try {
     const existingThread = await clockworkProvider.getThreadAccount(thread);
     if (existingThread) {
-      return existingThread;
+      return { thread: existingThread, threadId };
     }
   } catch (error) {
     console.log(
@@ -78,8 +80,10 @@ export const scheduleAutopay = async (vault: Vault): Promise<Thread | null> => {
       `Vault ${vault.identifier.toString()} autopay disbursement thread created: ${sig}`
     );
 
-    await sleep(2500);
-    return await clockworkProvider.getThreadAccount(thread);
+    await sleep(5000);
+    const theThread = await clockworkProvider.getThreadAccount(thread);
+
+    return { thread: theThread, threadId };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (!error.logs?.[3]) {

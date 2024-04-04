@@ -2,11 +2,7 @@ import * as anchor from "@coral-xyz/anchor";
 
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  NATIVE_MINT,
-  NATIVE_MINT_2022,
   TOKEN_PROGRAM_ID,
-  createAssociatedTokenAccountInstruction,
-  createSyncNativeInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
@@ -19,17 +15,16 @@ import {
   getMintWithCorrectTokenProgram,
   getNameArg,
   getPDAs,
+  sleep,
 } from "@valhalla/lib";
 import {
   Connection,
-  LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
 
-import { FormikHelpers } from "formik";
 import { ICreateForm } from "../utils/interfaces";
 import { Thread } from "@clockwork-xyz/sdk";
 import { WalletContextState } from "@solana/wallet-adapter-react";
@@ -42,32 +37,51 @@ import { toast } from "react-toastify";
 export const createVault = async (
   connection: Connection,
   wallet: WalletContextState,
-  values: ICreateForm,
-  helpers: FormikHelpers<ICreateForm>,
-  totalVestingDuration: number,
-  today: Date
-): Promise<{ identifier: anchor.BN; txId: string }> => {
-  const isValid = await vaultValid(connection, wallet, values, helpers, today);
+  vaultsToCreate: ICreateForm[],
+  totalVestingDuration: number
+): Promise<{ txIds: string[] }> => {
+  for (let i = 0; i < vaultsToCreate.length; i++) {
+    const isValid = await vaultValid(
+      connection,
+      wallet,
+      vaultsToCreate[i],
+      vaultsToCreate
+    );
 
-  if (!isValid) {
-    toast.error("There is an issue with the vault. Please check the form.");
-    return { identifier: new anchor.BN(0), txId: "" };
+    if (!isValid) {
+      toast.error("There is an issue with the vault. Please check the form.");
+      return { txIds: [] };
+    }
   }
 
-  const identifier = new anchor.BN(randomBytes(8));
+  const txIds = [];
   let instructions: TransactionInstruction[] = [];
-
-  try {
+  for (let i = 0; i < vaultsToCreate.length; i++) {
+    const identifier = new anchor.BN(randomBytes(8));
+    vaultsToCreate[i].identifier = identifier;
     const ix = await getInstructions(
       connection,
       wallet,
-      values,
+      vaultsToCreate[i],
       totalVestingDuration,
       identifier
     );
 
     instructions = [...instructions, ...ix];
+  }
 
+  const size = instructions.reduce(
+    (acc, ix) => acc + ix.data.BYTES_PER_ELEMENT * ix.data.byteLength,
+    0
+  );
+
+  if (size > 1232) {
+    // TODO: Chunk and send transactions
+    toast.error(
+      "The transaction is too large. Please reduce the number of recipients to a maximum of 10."
+    );
+    return { txIds: [] };
+  } else {
     toast.info(`Tx 1/1: Creating vault`, { toastId: "create" });
     const txId = await sendTransaction(
       connection,
@@ -76,84 +90,77 @@ export const createVault = async (
       "create"
     );
 
-    if (values.autopay) {
-      const { data } = await axios.post<Thread>(
-        `${process.env.NEXT_PUBLIC_SCHEDULER_URL}/threads`,
-        {
-          identifier: identifier.toString(),
-        }
-      );
+    txIds.push(txId);
 
-      console.log("Thread", data);
+    for (let i = 0; i < vaultsToCreate.length; i++) {
+      if (vaultsToCreate[i].autopay) {
+        const { data } = await axios.post<Thread>(
+          `${process.env.NEXT_PUBLIC_SCHEDULER_URL}/threads`,
+          {
+            identifier: vaultsToCreate[i].identifier?.toString(),
+          }
+        );
+
+        await sleep(500);
+        console.log("Thread", data);
+      }
     }
 
-    return { identifier, txId };
-  } catch (error) {
-    console.error(error);
-    toast.error("Error creating vault. Please try again.");
-    return { identifier: new anchor.BN(0), txId: "" };
+    return { txIds };
   }
-};
-
-const isNativeMint = (mint: PublicKey) => {
-  return mint.equals(NATIVE_MINT) || mint.equals(NATIVE_MINT_2022);
 };
 
 const vaultValid = async (
   connection: Connection,
   wallet: WalletContextState,
   value: ICreateForm,
-  helpers: FormikHelpers<ICreateForm>,
-  today: Date
+  vaultsToCreate: ICreateForm[]
 ) => {
   if (!wallet.publicKey) return;
 
   if (!value.selectedToken) {
-    helpers.setFieldError("selectedToken", "Token is required");
+    toast.error("You have not selected a token!");
     return false;
   }
 
-  if (value.vestingEndDate <= value.startDate) {
-    helpers.setFieldError("vestingEndDate", "Invalid Date");
+  if (new Date(value.vestingEndDate) <= new Date(value.startDate)) {
+    toast.error("The vesting end date must be after the start date.");
     return false;
   }
 
   if (!isPublicKey(value.recipient)) {
-    helpers.setFieldError("recipient", "Invalid Address");
+    toast.error("The recipient address is not valid.");
     return false;
   }
 
-  let balance = 0;
   const { mint, tokenProgramId } = await getMintWithCorrectTokenProgram(
     connection,
     { mint: new PublicKey(value.selectedToken.id) }
   );
 
-  if (isNativeMint(mint.address)) {
-    balance =
-      (await connection.getBalance(wallet.publicKey)) / LAMPORTS_PER_SOL;
-  } else {
-    const userAtaAddress = getAssociatedTokenAddressSync(
-      new PublicKey(value.selectedToken.id),
-      wallet.publicKey,
-      false,
-      tokenProgramId,
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    );
+  const userAtaAddress = getAssociatedTokenAddressSync(
+    new PublicKey(value.selectedToken.id),
+    wallet.publicKey,
+    false,
+    tokenProgramId,
+    ASSOCIATED_TOKEN_PROGRAM_ID
+  );
 
-    const userAta = await getAccount(
-      connection,
-      userAtaAddress,
-      "confirmed",
-      tokenProgramId
-    );
+  const userAta = await getAccount(
+    connection,
+    userAtaAddress,
+    "confirmed",
+    tokenProgramId
+  );
 
-    balance = Number(userAta.amount / BigInt(10 ** mint.decimals));
-  }
+  const balance = Number(userAta.amount / BigInt(10 ** mint.decimals));
+  const totalAmountVested = vaultsToCreate.reduce(
+    (acc, vault) => acc + +vault.amountToBeVested,
+    0
+  );
 
-  if (+value.amountToBeVested > balance) {
-    helpers.setFieldError("amountToBeVested", "Amount exceeds token balance");
-
+  if (totalAmountVested > balance) {
+    toast.error("You do not have enough tokens to create this account.");
     return false;
   }
 
@@ -235,42 +242,7 @@ const getInstructions = async (
     systemProgram: SystemProgram.programId,
   };
 
-  let instructions: TransactionInstruction[] = [];
-  if (isNativeMint(mint)) {
-    const associatedToken = getAssociatedTokenAddressSync(
-      mint,
-      wallet.publicKey,
-      false,
-      tokenProgramId,
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    );
-
-    const ix = new Transaction().add(
-      createAssociatedTokenAccountInstruction(
-        wallet.publicKey,
-        associatedToken,
-        wallet.publicKey,
-        mint,
-        tokenProgramId,
-        ASSOCIATED_TOKEN_PROGRAM_ID
-      ),
-      SystemProgram.transfer({
-        fromPubkey: wallet.publicKey,
-        toPubkey: associatedToken,
-        lamports: Number(values.amountToBeVested) * LAMPORTS_PER_SOL,
-      }),
-      createSyncNativeInstruction(associatedToken, tokenProgramId)
-    ).instructions;
-
-    instructions = ix;
-  }
-
-  const createLockInstruction = createCreateInstruction(
-    createInstructionAccounts,
-    createInstructionArgs
-  );
-
-  instructions.push(createLockInstruction);
-
-  return instructions;
+  return [
+    createCreateInstruction(createInstructionAccounts, createInstructionArgs),
+  ];
 };

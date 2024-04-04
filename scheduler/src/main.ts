@@ -119,7 +119,12 @@ app.listen(port, async () => {
         for (let i = 0; i < vaults.length; i++) {
           const isEmpty = await checkEmptyVault(vaults[i]);
           if (!isEmpty) {
-            await scheduleAutopay(vaults[i]);
+            const { thread, threadId } = await scheduleAutopay(vaults[i]);
+            if (!thread || !threadId) {
+              console.log("Error creating thread");
+            } else {
+              scheduledVaults.set(vaults[i].identifier.toString(), threadId);
+            }
           }
 
           await sleep(5000);

@@ -1,82 +1,19 @@
-import { ChangeEventHandler, useMemo } from "react";
 import { FormikErrors, FormikValues } from "formik";
 
-import { ICreateForm } from "@/src/utils/interfaces";
 import { PublicKey } from "@solana/web3.js";
 import { shortenAddress } from "@valhalla/lib";
 
 export default function SelectTokenInput({
   values,
-  handler,
   errors,
-  setFieldValue,
-  disabled,
 }: {
-  disabled: boolean;
+  errors: FormikErrors<FormikValues>;
   values: FormikValues;
-  handler: ChangeEventHandler<HTMLInputElement>;
-  errors: FormikErrors<ICreateForm>;
-  setFieldValue: (
-    field: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: any,
-    shouldValidate?: boolean | undefined
-  ) => Promise<void | FormikErrors<ICreateForm>>;
 }) {
-  const { amountToBeVested, selectedToken } = values;
-
-  const balance = useMemo(
-    () =>
-      (selectedToken?.token_info.balance
-        ? selectedToken?.token_info.balance /
-          10 ** selectedToken?.token_info.decimals
-        : 0
-      ).toLocaleString(),
-    [selectedToken]
-  );
-
-  const balanceAsNumber = useMemo(
-    () =>
-      selectedToken?.token_info.balance
-        ? Number(
-            (
-              selectedToken?.token_info.balance /
-              10 ** selectedToken?.token_info.decimals
-            ).toFixed(selectedToken?.token_info?.decimals)
-          )
-        : 0,
-    [selectedToken]
-  );
-
-  const half = useMemo(
-    () =>
-      Number(
-        (balanceAsNumber / 2).toFixed(selectedToken?.token_info?.decimals)
-      ),
-    [balanceAsNumber, selectedToken?.token_info?.decimals]
-  );
+  const { selectedToken } = values;
 
   return (
     <div className="form-control flex flex-col">
-      <label htmlFor="" className="label">
-        <span className="label-text font-bold">Select a Token</span>
-        <span className="label-text-alt flex gap-1">
-          <button
-            type="button"
-            className="btn btn-xs"
-            onClick={() => setFieldValue("amountToBeVested", half)}
-          >
-            Half
-          </button>
-          <button
-            type="button"
-            className="btn btn-xs"
-            onClick={() => setFieldValue("amountToBeVested", balanceAsNumber)}
-          >
-            Max
-          </button>
-        </span>
-      </label>
       <ul
         className={`select  items-center select-bordered mb-2 ${
           errors.selectedToken ? "select-error" : ""
@@ -115,26 +52,6 @@ export default function SelectTokenInput({
           <div className="text-xs">select token</div>
         )}
       </ul>
-
-      <div className="w-full">
-        <input
-          type="number"
-          name="amountToBeVested"
-          placeholder="Amount"
-          className={`input  input-bordered w-full ${
-            errors.amountToBeVested && "input-error"
-          }`}
-          value={amountToBeVested}
-          onChange={handler}
-          disabled={disabled}
-        />
-        <label className="label">
-          <span className="label-text-alt text-error">
-            {errors.amountToBeVested}
-          </span>
-          <span className="label-text-alt">Balance: {balance}</span>
-        </label>
-      </div>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { IconCircleX } from "@tabler/icons-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 interface SelectTokenDialogProps {
-  assets: DasApiAsset[];
+  assets: (DasApiAsset & { token_info: any })[];
   formik: FormikContextType<ICreateForm>;
 }
 

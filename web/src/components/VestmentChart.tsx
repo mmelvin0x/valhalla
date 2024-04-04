@@ -104,6 +104,7 @@ export default function VestmentChart({
 
   return (
     <Bar
+      className="flex-1"
       options={{
         responsive: true,
         plugins: {
