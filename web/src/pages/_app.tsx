@@ -4,6 +4,7 @@ import { Aclonica, Poppins } from "next/font/google";
 
 import { AppProps } from "next/app";
 import { ContextProvider } from "../contexts/ContextProvider";
+import { DefaultSeo } from "next-seo";
 import { FC } from "react";
 import { Footer } from "../components/Footer";
 import Head from "next/head";
@@ -31,13 +32,36 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
 
   return (
     <QueryProvider>
-      <Head>
-        <title>Valhalla | Token Vesting Solutions</title>
-        <meta
-          name="description"
-          content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
-        />
-      </Head>
+      <DefaultSeo
+        defaultTitle="Valhalla"
+        description="Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla."
+        titleTemplate="%s | Valhalla"
+        robotsProps={{}}
+        themeColor="#10172a"
+        openGraph={{
+          type: "website",
+          locale: "en_US",
+          url: "https://valhalla.so",
+          title: "Valhalla | Incentivized Vesting",
+          description:
+            "Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla.",
+          siteName: "Valhalla",
+          images: [
+            {
+              url: "https://github.com/mmelvin0x/valhalla/blob/main/web/public/assets/twittercard.png?raw=true",
+              width: 1120,
+              height: 630,
+              alt: "OG Image",
+              type: "image/jpeg",
+            },
+          ],
+        }}
+        twitter={{
+          handle: "@Valhalla_so",
+          site: "@Valhalla_so",
+          cardType: "summary_large_image",
+        }}
+      />
 
       <style jsx global>
         {`

@@ -13,6 +13,7 @@ import { ExplorerLink } from "../components/ExplorerLink";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { NextSeo } from "next-seo";
 import SocialBar from "../components/SocialBar";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import dashboard from "../assets/dashboard.png";
@@ -47,13 +48,11 @@ export default function HomeFeature() {
 
   return (
     <main>
-      <Head>
-        <title>Valhalla - Token Vesting Solutions</title>
-        <meta
-          name="description"
-          content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
-        />
-      </Head>
+      <NextSeo
+        title="Incentivized Vesting"
+        description="Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla."
+        canonical={`https://valhalla.so`}
+      />
 
       {/* Hero Section */}
       <div className="h-screen hero-bg">
@@ -137,14 +136,12 @@ export default function HomeFeature() {
               <div className="stat-figure">
                 <IconCalendarDollar className="text-secondary" size={48} />
               </div>
-              <div className="stat-desc">
-                Vest and build trust in your project
-              </div>
+              <div className="stat-desc">Build trust in your project</div>
             </div>
 
             <div className="stat">
-              <div className="stat-title">Token 2022 & SPL Compatible</div>
-              <div className="stat-value">Compatibile</div>
+              <div className="stat-title">Token 2022 & SPL</div>
+              <div className="stat-value">Support</div>
               <div className="stat-figure">
                 <IconLayersIntersect2 className="text-accent" size={48} />
               </div>
@@ -247,7 +244,7 @@ export default function HomeFeature() {
           </section>
 
           {/* Dashboards */}
-          <section className="grid grid-cols-1 gap-8">
+          <section className="grid grid-cols-1 items-center gap-8">
             <Image
               placeholder="blur"
               className="mx-auto rounded"
@@ -268,6 +265,18 @@ export default function HomeFeature() {
                 Valhalla accounts, providing users with a clear, real-time
                 overview of their various activities
               </p>
+
+              <div className="flex gap-2 self-end">
+                <Link
+                  target="_blank"
+                  href={"https://discord.gg/valhalla_so"}
+                  className="btn btn-primary"
+                >
+                  Book a Demo
+                </Link>
+
+                <WalletMultiButton />
+              </div>
             </div>
           </section>
         </div>

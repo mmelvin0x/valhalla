@@ -10,6 +10,7 @@ import ConnectWalletToContinue from "../components/ConnectWalletToContinue";
 import DashboardStats from "../components/dashboard/DashboardStats";
 import Head from "next/head";
 import Link from "next/link";
+import { NextSeo } from "next-seo";
 import { SubType } from "../utils/interfaces";
 import SubTypeTabs from "../components/dashboard/SubTypeTabs";
 import { ValhallaVault } from "@valhalla/lib";
@@ -88,13 +89,11 @@ export default function DashboardFeature() {
 
   return (
     <>
-      <Head>
-        <title>Valhalla | Token Vesting Solutions</title>
-        <meta
-          name="description"
-          content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
-        />
-      </Head>
+      <NextSeo
+        title="Your Dashboard"
+        description="Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla."
+        canonical={`https://valhalla.so/vaults/dashboard`}
+      />
 
       {wallet.connected ? (
         <main className="grid grid-cols-1 gap-8 m-8">
@@ -110,7 +109,10 @@ export default function DashboardFeature() {
                     <IconEyeSearch /> View all vaults
                   </Link>
 
-                  <Link href="/create" className="btn btn-sm btn-primary">
+                  <Link
+                    href="/vaults/create"
+                    className="btn btn-sm btn-primary"
+                  >
                     <IconLockPlus /> Create a vault
                   </Link>
                 </div>

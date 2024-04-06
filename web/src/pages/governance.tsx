@@ -14,6 +14,7 @@ import { IconArrowRight } from "@tabler/icons-react";
 import Image from "next/image";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Link from "next/link";
+import { NextSeo } from "next-seo";
 import { getExplorerUrl } from "../utils/explorer";
 import useProgram from "../hooks/useProgram";
 import { useValhallaStore } from "../stores/useValhallaStore";
@@ -53,23 +54,21 @@ export default function GovernanceFeature() {
   if (!config)
     return (
       <div className="m-8 mt-0">
-        <Head>
-          <title>Valhalla | Token Vesting Solutions</title>
-          <meta
-            name="description"
-            content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
-          />
-        </Head>
+        <NextSeo
+          title="Governance"
+          description="Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla."
+          canonical={`https://valhalla.so/governance`}
+        />
       </div>
     );
 
   return (
     <div className="m-8 mt-0">
       <Head>
-        <title>Valhalla | Token Vesting Solutions</title>
+        <title>Valhalla - Incentivized Vesting</title>
         <meta
           name="description"
-          content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
+          content="Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla."
         />
       </Head>
 

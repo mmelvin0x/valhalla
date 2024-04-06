@@ -5,25 +5,26 @@ import {
 import { FormikHelpers, useFormik } from "formik";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import AuthoritiesInput from "../components/create/AuthoritiesInput";
+import AuthoritiesInput from "../../components/create/AuthoritiesInput";
 import { Authority } from "@valhalla/lib";
-import ConnectWalletToContinue from "../components/ConnectWalletToContinue";
+import ConnectWalletToContinue from "../../components/ConnectWalletToContinue";
 import Head from "next/head";
-import { ICreateForm } from "../utils/interfaces";
-import PayoutIntervalInput from "../components/create/PayoutIntervalInput";
+import { ICreateForm } from "../../utils/interfaces";
+import { NextSeo } from "next-seo";
+import PayoutIntervalInput from "../../components/create/PayoutIntervalInput";
 import { PublicKey } from "@solana/web3.js";
-import RecipientInput from "../components/create/RecipientInput";
-import ReviewLockCard from "../components/create/ReviewLockCard";
-import SelectTokenDialog from "../components/modals/SelectTokenDialog";
-import SelectTokenInput from "../components/create/SelectTokenInput";
-import StartDateInput from "../components/create/StartDateInput";
-import VestingEndDateInput from "../components/create/VestingEndDateInput";
-import VestmentChart from "../components/VestmentChart";
+import RecipientInput from "../../components/create/RecipientInput";
+import ReviewLockCard from "../../components/create/ReviewLockCard";
+import SelectTokenDialog from "../../components/modals/SelectTokenDialog";
+import SelectTokenInput from "../../components/create/SelectTokenInput";
+import StartDateInput from "../../components/create/StartDateInput";
+import VestingEndDateInput from "../../components/create/VestingEndDateInput";
+import VestmentChart from "../../components/VestmentChart";
 import axios from "axios";
-import { createVault } from "../instructions/create";
+import { createVault } from "../../instructions/create";
 import { toast } from "react-toastify";
-import { useDates } from "../hooks/useDates";
-import useProgram from "../hooks/useProgram";
+import { useDates } from "../../hooks/useDates";
+import useProgram from "../../hooks/useProgram";
 import { useRouter } from "next/router";
 
 export default function CreateFeature() {
@@ -181,13 +182,11 @@ export default function CreateFeature() {
 
   return (
     <div className="m-8">
-      <Head>
-        <title>Valhalla | Token Vesting Solutions</title>
-        <meta
-          name="description"
-          content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
-        />
-      </Head>
+      <NextSeo
+        title="Create Vaults"
+        description="Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla."
+        canonical={`https://valhalla.so/vaults/create`}
+      />
 
       <main
         className={

@@ -18,7 +18,7 @@ export const routes = (wallet: WalletContextState) => [
     ),
   },
   {
-    pathname: `/create`,
+    pathname: `/vaults/create`,
     content: (
       <>
         <IconLockCog className="inline" />

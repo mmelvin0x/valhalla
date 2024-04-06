@@ -4,6 +4,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import * as anchor from "@coral-xyz/anchor";
 
 import { ColDef, GridOptions } from "ag-grid-community";
+import { DefaultSeo, NextSeo } from "next-seo";
 import {
   ValhallaVault,
   getValhallaVaultByIdentifier,
@@ -13,12 +14,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AgGridReact } from "ag-grid-react";
 import BlockCellRenderer from "@/src/components/grid/BlockCellRenderer";
-import Head from "next/head";
+import ConnectWalletToContinue from "@/src/components/ConnectWalletToContinue";
 import Link from "next/link";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
 import LockDetails from "@/src/components/dashboard/LockDetails";
 import SignatureCellRenderer from "@/src/components/grid/SignatureCellRenderer";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { cancel as _cancel } from "@/src/instructions/cancel";
 import { close as _close } from "@/src/instructions/close";
 import { disburse as _disburse } from "@/src/instructions/disburse";
@@ -120,66 +120,63 @@ export default function VaultDetailFeature() {
 
   return (
     <div className="m-8 mt-0">
-      <Head>
-        <title>Valhalla | Token Vesting Solutions</title>
-        <meta
-          name="description"
-          content="Token Vesting and Locks on Solana. Lock your tokens until Valhalla."
-        />
-      </Head>
+      <NextSeo
+        title="Vault Details"
+        description="Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla."
+        canonical={`https://valhalla.so/vaults/${router.query.identifier}`}
+      />
 
-      <Link href="/dashboard" className="btn btn-sm btn-secondary my-8">
-        Back to Dashboard
-      </Link>
+      {connected ? (
+        <>
+          <Link href="/dashboard" className="btn btn-sm btn-secondary my-8">
+            Back to Dashboard
+          </Link>
 
-      <main className="grid grid-cols-1 gap-8">
-        <section className="card">
-          {connected ? (
-            <div className="card-body">
-              {vault ? (
-                <>
-                  <div className="text-xl font-bold">
-                    {vault.name} -{" "}
-                    <Link
-                      className="link link-primary"
-                      href={getExplorerUrl(connection.rpcEndpoint, vault.key)}
-                      rel="noopener norefferer"
-                    >
-                      {shortenAddress(vault.key)}
-                    </Link>
-                  </div>
+          <main className="grid grid-cols-1 gap-8">
+            <section className="card">
+              <div className="card-body">
+                {vault ? (
+                  <>
+                    <div className="text-xl font-bold">
+                      {vault.name} -{" "}
+                      <Link
+                        className="link link-primary"
+                        href={getExplorerUrl(connection.rpcEndpoint, vault.key)}
+                        rel="noopener norefferer"
+                      >
+                        {shortenAddress(vault.key)}
+                      </Link>
+                    </div>
 
-                  <LockDetails
-                    vault={vault}
-                    disburse={disburse}
-                    cancel={cancel}
-                    close={close}
-                  />
-
-                  <span className="text-lg mt-4 font-bold">History</span>
-                  <div className="h-[40vh] ag-theme-alpine">
-                    <AgGridReact
-                      gridOptions={gridOptions}
-                      defaultColDef={defaultColDef}
-                      columnDefs={colDefs}
-                      rowData={rowData}
+                    <LockDetails
+                      vault={vault}
+                      disburse={disburse}
+                      cancel={cancel}
+                      close={close}
                     />
+
+                    <span className="text-lg mt-4 font-bold">History</span>
+                    <div className="h-[40vh] ag-theme-alpine">
+                      <AgGridReact
+                        gridOptions={gridOptions}
+                        defaultColDef={defaultColDef}
+                        columnDefs={colDefs}
+                        rowData={rowData}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <LoadingSpinner />
                   </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-center">
-                  <LoadingSpinner />
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="card-body items-center gap-4 p-8">
-              <p className="prose">Connect your wallet to get started.</p>
-              <WalletMultiButton />
-            </div>
-          )}
-        </section>
-      </main>
+                )}
+              </div>
+            </section>
+          </main>
+        </>
+      ) : (
+        <ConnectWalletToContinue />
+      )}
     </div>
   );
 }
