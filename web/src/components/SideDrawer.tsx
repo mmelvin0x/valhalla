@@ -44,7 +44,7 @@ export default function SideDrawer() {
         {links.map(({ pathname, content }) => (
           <li key={pathname}>
             <Link
-              href={wallet?.connected ? pathname : "/"}
+              href={pathname}
               className={`flex items-center gap-2 link link-hover font-bold text-lg ${
                 router?.pathname === pathname ? "link link-primary" : ""
               }`}

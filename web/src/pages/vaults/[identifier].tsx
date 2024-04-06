@@ -128,7 +128,7 @@ export default function VaultDetailFeature() {
         />
       </Head>
 
-      <Link href="/dashboard" className="btn btn-sm btn-secondary mb-8">
+      <Link href="/dashboard" className="btn btn-sm btn-secondary my-8">
         Back to Dashboard
       </Link>
 

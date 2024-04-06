@@ -1,13 +1,20 @@
 import * as anchor from "@coral-xyz/anchor";
 
-import { Config, PROGRAM_ID, ValhallaConfig, getPDAs } from "@valhalla/lib";
+import {
+  Config,
+  PROGRAM_ID,
+  ValhallaConfig,
+  getMintWithCorrectTokenProgram,
+  getPDAs,
+} from "@valhalla/lib";
+import { useEffect, useState } from "react";
 
 import Head from "next/head";
 import { IconArrowRight } from "@tabler/icons-react";
 import Image from "next/image";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Link from "next/link";
 import { getExplorerUrl } from "../utils/explorer";
-import { useEffect } from "react";
 import useProgram from "../hooks/useProgram";
 import { useValhallaStore } from "../stores/useValhallaStore";
 
@@ -15,10 +22,18 @@ export default function GovernanceFeature() {
   const { connection } = useProgram();
   const { config, setConfig } = useValhallaStore();
 
+  const [decimals, setDecimals] = useState<number>(1);
+
   useEffect(() => {
     (async () => {
       const { config: configKey } = getPDAs(PROGRAM_ID);
       const config = await Config.fromAccountAddress(connection, configKey);
+      const { mint } = await getMintWithCorrectTokenProgram(connection, {
+        mint: config.governanceTokenMintKey,
+      });
+
+      setDecimals(mint.decimals);
+
       setConfig(
         new ValhallaConfig(
           config.admin,
@@ -58,19 +73,10 @@ export default function GovernanceFeature() {
         />
       </Head>
 
-      <main className="grid grid-cols-1 gap-8">
+      <main className="grid grid-cols-1 gap-8 my-8">
         <section className="card">
           <div className="card-body">
             <h1 className="text-4xl font-bold text-center mb-4">Governance</h1>
-            <div className="text-center mb-8">
-              <Image
-                src="/hero.webp"
-                alt="Valhalla.so Overview"
-                width={1024}
-                height={1024}
-                priority
-              />
-            </div>
 
             {/* Governance */}
             <section className="mb-8">
@@ -79,8 +85,8 @@ export default function GovernanceFeature() {
               </h2>
               <p>
                 A Solana-based decentralized application (dApp) designed for
-                token vesting, compatible with the token 2022 standard, and
-                governed by a Decentralized Autonomous Organization (DAO)
+                token vesting, compatible with the Token 2022 & SPL standards,
+                and governed by a Decentralized Autonomous Organization (DAO)
                 through the{" "}
                 <Link
                   className="link link-primary"
@@ -211,14 +217,22 @@ export default function GovernanceFeature() {
                   <div className="timeline-end timeline-box">
                     <ul>
                       <li>
-                        Dev Team - {config.devFee.toString()} SOL{" "}
+                        Dev Team -{" "}
+                        {(
+                          config.devFee.toNumber() / LAMPORTS_PER_SOL
+                        ).toLocaleString()}{" "}
+                        SOL{" "}
                         <span className="text-xs">
                           (starting minimum, can be increased by vote)
                         </span>
                       </li>
                       <li>
-                        DAO Treasury - {config.tokenFeeBasisPoints.toString()}{" "}
-                        of the vested amount{" "}
+                        DAO Treasury -{" "}
+                        {(
+                          (100 * config.tokenFeeBasisPoints.toNumber()) /
+                          10_000
+                        ).toLocaleString()}
+                        % of the vested amount{" "}
                         <span className="text-xs">(adjustable by vote)</span>
                       </li>
                     </ul>
@@ -233,51 +247,16 @@ export default function GovernanceFeature() {
               <h2 className="text-3xl font-bold mb-4">Token Distribution</h2>
               <ul className="timeline timeline-vertical">
                 <li>
-                  <div className="timeline-start font-bold">
-                    Initial Distribution
-                  </div>
-                  <div className="timeline-middle">
-                    <IconArrowRight />
-                  </div>
-                  <div className="timeline-end timeline-box">
-                    <ul>
-                      <li>
-                        Liquidity - 9,000,000{" "}
-                        <Link
-                          className="link link-primary"
-                          href={getExplorerUrl(
-                            connection.rpcEndpoint,
-                            config.governanceTokenMintKey
-                          )}
-                        >
-                          $ODIN
-                        </Link>
-                      </li>
-                      <li>
-                        Bootstrap the DAO - 1,000,000{" "}
-                        <Link
-                          className="link link-primary"
-                          href={getExplorerUrl(
-                            connection.rpcEndpoint,
-                            config.governanceTokenMintKey
-                          )}
-                        >
-                          $ODIN
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                  <hr />
-                </li>
-
-                <li>
                   <hr />
                   <div className="timeline-start font-bold">Create a Vault</div>
                   <div className="timeline-middle">
                     <IconArrowRight />
                   </div>
                   <div className="timeline-end timeline-box">
-                    {config?.governanceTokenAmount.toString()}{" "}
+                    {(
+                      Number(config?.governanceTokenAmount) /
+                      10 ** decimals
+                    ).toLocaleString()}{" "}
                     <Link
                       className="link link-primary"
                       href={getExplorerUrl(
@@ -301,7 +280,10 @@ export default function GovernanceFeature() {
                     <IconArrowRight />
                   </div>
                   <div className="timeline-end timeline-box">
-                    {config.governanceTokenAmount.toString()}{" "}
+                    {(
+                      Number(config.governanceTokenAmount) /
+                      10 ** decimals
+                    ).toLocaleString()}{" "}
                     <Link
                       className="link link-primary"
                       href={getExplorerUrl(

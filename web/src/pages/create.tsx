@@ -33,6 +33,7 @@ export default function CreateFeature() {
   const [step, setStep] = useState<number>(0);
 
   const [vaultsToCreate, setVaultsToCreate] = useState<ICreateForm[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [assets, setAssets] = useState<(DasApiAsset & { token_info: any })[]>(
     []
   );
@@ -154,6 +155,7 @@ export default function CreateFeature() {
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setAssets(data.items as (DasApiAsset & { token_info: any })[]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,7 +180,7 @@ export default function CreateFeature() {
   }
 
   return (
-    <div className="m-8 mt-0">
+    <div className="m-8">
       <Head>
         <title>Valhalla | Token Vesting Solutions</title>
         <meta

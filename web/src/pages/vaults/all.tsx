@@ -8,6 +8,7 @@ import {
   GridReadyEvent,
   PaginationChangedEvent,
 } from "ag-grid-community";
+import { IconDashboard, IconLockPlus } from "@tabler/icons-react";
 import {
   columnDefs,
   vaultDefaultColDef,
@@ -66,7 +67,7 @@ export default function AllVaultsFeature() {
   };
 
   return (
-    <div className="m-8 mt-0">
+    <div className="m-8">
       <Head>
         <title>Valhalla | Token Vesting Solutions</title>
         <meta
@@ -75,18 +76,22 @@ export default function AllVaultsFeature() {
         />
       </Head>
 
-      <Link href="/dashboard" className="btn btn-sm btn-secondary mb-8">
-        Back to Dashboard
-      </Link>
-
       <main className="grid grid-cols-1 gap-8">
         <section className="card">
           <div className="card-body">
-            <div className="card-title">All Vaults</div>
+            <div className="card-title flex items-between">
+              <span className="flex-1">Accounts</span>
 
-            <p className="prose">
-              Search and filter through all of Valhalla&apos;s vaults
-            </p>
+              <div className="flex gap-2">
+                <Link href="/vaults/all" className="btn btn-sm btn-secondary">
+                  <IconDashboard /> Dashboard
+                </Link>
+
+                <Link href="/create" className="btn btn-sm btn-primary">
+                  <IconLockPlus /> Create a vault
+                </Link>
+              </div>
+            </div>
 
             <div className="min-h-[80vh] ag-theme-alpine">
               <AgGridReact

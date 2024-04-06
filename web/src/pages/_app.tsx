@@ -1,21 +1,26 @@
 import "react-toastify/dist/ReactToastify.css";
 
-import { Aclonica } from "next/font/google";
+import { Aclonica, Poppins } from "next/font/google";
+
 import { AppProps } from "next/app";
 import { ContextProvider } from "../contexts/ContextProvider";
 import { FC } from "react";
 import { Footer } from "../components/Footer";
 import Head from "next/head";
-import Image from "next/image";
+import { IconMenu2 } from "@tabler/icons-react";
 import { QueryProvider } from "../contexts/QueryProvider";
 import SideDrawer from "../components/SideDrawer";
 import { ToastContainer } from "react-toastify";
-import logo64 from "../assets/logo64.png";
 import { useRouter } from "next/router";
 
 const aclonica = Aclonica({
   subsets: ["latin"],
   weight: "400",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 require("../styles/globals.css");
@@ -36,6 +41,10 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
 
       <style jsx global>
         {`
+          body {
+            font-family: ${poppins.style.fontFamily}, sans-serif;
+          }
+
           h1,
           h2,
           h3,
@@ -57,20 +66,13 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
                   router.pathname === "/" ? "" : "max-w-screen-xl mx-auto"
                 }`}
               >
-                <div className="navbar z-10">
+                <div className="navbar z-10 absolute w-40">
                   <div className="navbar-start">
                     <label
                       htmlFor="my-drawer-2"
                       className="btn flex items-center gap-1 cursor-pointer drawer-button xl:hidden"
                     >
-                      <Image
-                        placeholder="blur"
-                        src={logo64}
-                        alt="logo"
-                        width={36}
-                        height={36}
-                      />{" "}
-                      <h3>Valhalla</h3>
+                      <IconMenu2 className="text-primary" />
                     </label>
                   </div>
                 </div>

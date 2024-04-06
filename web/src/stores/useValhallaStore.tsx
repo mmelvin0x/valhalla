@@ -1,6 +1,12 @@
 import { ValhallaConfig, ValhallaVault } from "@valhalla/lib";
 
+import { ReactNode } from "react";
 import { create } from "zustand";
+
+interface TransactionModalConfig {
+  type: "error" | "info" | "success";
+  message: ReactNode;
+}
 
 interface ValhallaStore {
   config: ValhallaConfig | null;
@@ -16,6 +22,10 @@ interface ValhallaStore {
   }) => void;
 
   setAllVaults: (models: Array<ValhallaVault>) => void;
+
+  transactionModalConfig: TransactionModalConfig | null;
+
+  setTransactionModalConfig: (config: TransactionModalConfig) => void;
 }
 
 export const useValhallaStore = create<ValhallaStore>((set) => ({
@@ -32,4 +42,9 @@ export const useValhallaStore = create<ValhallaStore>((set) => ({
   }) => set({ vaults: models }),
 
   setAllVaults: (models: Array<ValhallaVault>) => set({ allVaults: models }),
+
+  transactionModalConfig: null,
+
+  setTransactionModalConfig: (config: TransactionModalConfig) =>
+    set({ transactionModalConfig: config }),
 }));

@@ -13,11 +13,18 @@ body {
   background-attachment: fixed;
 }
 
+.hero-bg {
+  background-image: url("../../public/ship.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
 .footer,
 .navlinks,
 .stats,
 .card {
-  @apply bg-base-100;
+  @apply bg-base-300;
 }
 
 h1 {

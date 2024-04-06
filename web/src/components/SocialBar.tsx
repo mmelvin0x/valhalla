@@ -32,7 +32,7 @@ export default function SocialBar({
         <Link
           target="_blank"
           rel="noreferrer"
-          href="https://telegram.com/valhalla"
+          href="#"
           className="btn btn-ghost btn-circle"
         >
           <IconBrandTelegram className={iconClassName} />
@@ -40,7 +40,7 @@ export default function SocialBar({
         <Link
           target="_blank"
           rel="noreferrer"
-          href="https://medium.com/valhalla"
+          href="https://medium.com/valhalla_so"
           className="btn btn-ghost btn-circle"
         >
           <IconBrandMedium className={iconClassName} />
@@ -48,7 +48,7 @@ export default function SocialBar({
         <Link
           target="_blank"
           rel="noreferrer"
-          href="https://discord.com/valhalla"
+          href="#"
           className="btn btn-ghost btn-circle"
         >
           <IconBrandDiscord className={iconClassName} />
