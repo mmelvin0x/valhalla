@@ -10,7 +10,6 @@ import {
 import { ValhallaConfig, getValhallaConfig } from "@valhalla/lib";
 
 import { ExplorerLink } from "../components/ExplorerLink";
-import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { NextSeo } from "next-seo";
@@ -266,16 +265,40 @@ export default function HomeFeature() {
                 overview of their various activities
               </p>
 
-              <div className="flex gap-2 self-end">
-                <Link
-                  target="_blank"
-                  href={"https://discord.gg/valhalla_so"}
-                  className="btn btn-primary"
-                >
-                  Book a Demo
-                </Link>
+              <div className="flex items-center justify-center gap-2">
+                {connected ? (
+                  <div className="flex gap-2">
+                    <Link
+                      target="_blank"
+                      href={"https://discord.gg/valhalla_so"}
+                      className="btn btn-primary"
+                    >
+                      Book a Demo
+                    </Link>
 
-                <WalletMultiButton />
+                    <Link className="btn btn-accent" href={`/dashboard`}>
+                      Your Dashboard
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <p className="text-center font-bold">
+                      Connect your wallet to get started
+                    </p>
+
+                    <div className="flex gap-2">
+                      <Link
+                        target="_blank"
+                        href={"https://discord.gg/valhalla_so"}
+                        className="btn btn-primary"
+                      >
+                        Book a Demo
+                      </Link>
+
+                      <WalletMultiButton />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </section>

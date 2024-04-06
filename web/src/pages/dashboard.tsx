@@ -8,7 +8,6 @@ import { useEffect, useMemo, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import ConnectWalletToContinue from "../components/ConnectWalletToContinue";
 import DashboardStats from "../components/dashboard/DashboardStats";
-import Head from "next/head";
 import Link from "next/link";
 import { NextSeo } from "next-seo";
 import { SubType } from "../utils/interfaces";

@@ -8,7 +8,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import AuthoritiesInput from "../../components/create/AuthoritiesInput";
 import { Authority } from "@valhalla/lib";
 import ConnectWalletToContinue from "../../components/ConnectWalletToContinue";
-import Head from "next/head";
 import { ICreateForm } from "../../utils/interfaces";
 import { NextSeo } from "next-seo";
 import PayoutIntervalInput from "../../components/create/PayoutIntervalInput";

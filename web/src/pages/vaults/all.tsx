@@ -17,7 +17,6 @@ import {
 
 import { AgGridReact } from "ag-grid-react";
 import ConnectWalletToContinue from "@/src/components/ConnectWalletToContinue";
-import Head from "next/head";
 import Link from "next/link";
 import { NextSeo } from "next-seo";
 import { searchAllVaults } from "@/src/utils/search";

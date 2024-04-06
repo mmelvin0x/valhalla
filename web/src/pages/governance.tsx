@@ -11,7 +11,6 @@ import { useEffect, useState } from "react";
 
 import Head from "next/head";
 import { IconArrowRight } from "@tabler/icons-react";
-import Image from "next/image";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Link from "next/link";
 import { NextSeo } from "next-seo";

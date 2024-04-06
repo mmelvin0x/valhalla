@@ -7,7 +7,6 @@ import { ContextProvider } from "../contexts/ContextProvider";
 import { DefaultSeo } from "next-seo";
 import { FC } from "react";
 import { Footer } from "../components/Footer";
-import Head from "next/head";
 import { IconMenu2 } from "@tabler/icons-react";
 import { QueryProvider } from "../contexts/QueryProvider";
 import SideDrawer from "../components/SideDrawer";
@@ -36,7 +35,6 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
         defaultTitle="Valhalla"
         description="Token 2022 & SPL compatible token vesting on Solana. We incentivize token vesting by rewarding users with $ODIN when they disburse a vault. The $ODIN token serves as the governance token for Valhalla DAO. Get $ODIN - control Valhalla."
         titleTemplate="%s | Valhalla"
-        robotsProps={{}}
         themeColor="#10172a"
         openGraph={{
           type: "website",

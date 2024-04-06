@@ -4,7 +4,6 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import * as anchor from "@coral-xyz/anchor";
 
 import { ColDef, GridOptions } from "ag-grid-community";
-import { DefaultSeo, NextSeo } from "next-seo";
 import {
   ValhallaVault,
   getValhallaVaultByIdentifier,
@@ -18,6 +17,7 @@ import ConnectWalletToContinue from "@/src/components/ConnectWalletToContinue";
 import Link from "next/link";
 import LoadingSpinner from "@/src/components/LoadingSpinner";
 import LockDetails from "@/src/components/dashboard/LockDetails";
+import { NextSeo } from "next-seo";
 import SignatureCellRenderer from "@/src/components/grid/SignatureCellRenderer";
 import { cancel as _cancel } from "@/src/instructions/cancel";
 import { close as _close } from "@/src/instructions/close";
