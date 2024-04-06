@@ -56,21 +56,37 @@ export default function HomeFeature() {
       </Head>
 
       {/* Hero Section */}
-      <div className="hero h-screen hero-bg">
-        <div className="hero-content text-center px-12 py-8 rounded-lg bg-gradient-to-b from-primary/0 to-base-300/90">
-          <div className="max-w-xl">
-            <h1 className="text-7xl md:text-9xl text-accent drop-shadow-lg">
-              Valhalla
-            </h1>
+      <div className="h-screen hero-bg">
+        <div className="text-center py-8 bg-gradient-to-b from-primary/10 to-base-300 flex flex-col justify-end w-full h-full">
+          <h1 className="text-7xl md:text-9xl text-accent drop-shadow-lg">
+            Valhalla
+          </h1>
 
-            <p className="pt-2 text-3xl font-bold">Incentivized Vesting</p>
+          <p className="pt-2 text-3xl font-bold">Incentivized Vesting</p>
 
-            <p className="pb-2 text-3xl font-bold">
-              Token 2022 & SPL Compatible
-            </p>
+          <p className="pb-2 text-3xl font-bold">Token 2022 & SPL Compatible</p>
 
-            <div className="flex items-center justify-center gap-2">
-              {connected ? (
+          <div className="flex items-center justify-center gap-2">
+            {connected ? (
+              <div className="flex gap-2">
+                <Link
+                  target="_blank"
+                  href={"https://discord.gg/valhalla_so"}
+                  className="btn btn-primary"
+                >
+                  Book a Demo
+                </Link>
+
+                <Link className="btn btn-accent" href={`/dashboard`}>
+                  Your Dashboard
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <p className="text-center font-bold">
+                  Connect your wallet to get started
+                </p>
+
                 <div className="flex gap-2">
                   <Link
                     target="_blank"
@@ -80,38 +96,18 @@ export default function HomeFeature() {
                     Book a Demo
                   </Link>
 
-                  <Link className="btn btn-accent" href={`/dashboard`}>
-                    Your Dashboard
-                  </Link>
+                  <WalletMultiButton />
                 </div>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <p className="text-center font-bold">
-                    Connect your wallet to get started
-                  </p>
-
-                  <div className="flex gap-2">
-                    <Link
-                      target="_blank"
-                      href={"https://discord.gg/valhalla_so"}
-                      className="btn btn-primary"
-                    >
-                      Book a Demo
-                    </Link>
-
-                    <WalletMultiButton />
-                  </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
+
+          {/* Social bar */}
+          <section className="py-10">
+            <SocialBar />
+          </section>
         </div>
       </div>
-
-      {/* Social bar */}
-      <section className="py-10 bg-base-300 -mt-3">
-        <SocialBar />
-      </section>
 
       {/* What Tease Section */}
       <section className="my-40 px-8">
@@ -205,6 +201,76 @@ export default function HomeFeature() {
             </div>
           </div>
         </div>
+
+        {/* ODIN */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 my-40 px-8 md:px-20">
+          <section className="grid grid-cols-1">
+            <div className="flex flex-col gap-12">
+              <div className="grid grid-cols-1 gap-8">
+                <Image
+                  className="mx-auto rounded"
+                  src={"/odin.png"}
+                  width={256}
+                  height={256}
+                  alt="ODIN"
+                />
+
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 my-4">
+                    <h4 className="text-primary">Governance</h4>
+                    <h3>$ODIN</h3>
+                  </div>
+
+                  <p className="prose">
+                    Valhalla.so&apos;s vaults can be disbursed by anyone -
+                    earning them $ODIN! The $ODIN token serves as the governance
+                    token for Valhalla DAO.
+                  </p>
+
+                  <div className="flex items-center justify-between">
+                    <ExplorerLink
+                      className="link link-primary"
+                      label="View $ODIN"
+                      address={config?.governanceTokenMintKey.toBase58() || ""}
+                    />
+                    <Link
+                      target="_blank"
+                      href={"https://discord.gg/valhalla_so"}
+                      className="btn btn-primary"
+                    >
+                      Learn More
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Dashboards */}
+          <section className="grid grid-cols-1 gap-8">
+            <Image
+              placeholder="blur"
+              className="mx-auto rounded"
+              src={dashboard}
+              width={1440 / 2}
+              height={945 / 2}
+              alt="Dashboard image"
+            />
+
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 my-4">
+                <h4 className="text-primary">See all of your accounts</h4>
+                <h3>Valhalla Dashboard</h3>
+              </div>
+
+              <p className="prose">
+                Valhalla.so&apos;s dashboard allows for managing all of your
+                Valhalla accounts, providing users with a clear, real-time
+                overview of their various activities
+              </p>
+            </div>
+          </section>
+        </div>
       </section>
 
       {/* Second CTA */}
@@ -214,16 +280,16 @@ export default function HomeFeature() {
         </h3>
         {connected ? (
           <div className="flex gap-2">
-            <Link className="btn btn-accent" href={`/dashboard`}>
-              Your Dashboard
-            </Link>
-
             <Link
               target="_blank"
               href={"https://discord.gg/valhalla_so"}
               className="btn btn-primary"
             >
               Book a Demo
+            </Link>
+
+            <Link className="btn btn-accent" href={`/dashboard`}>
+              Your Dashboard
             </Link>
           </div>
         ) : (
@@ -301,124 +367,6 @@ export default function HomeFeature() {
           </div>
         </div>
       </section>
-
-      {/* Valhalla Awaits */}
-      <section className="px-8 py-20 flex flex-col items-center gap-8 bg-base-300">
-        <h2>Valhalla Awaits</h2>
-
-        <p className="prose max-w-screen-lg">
-          Ready to take control of your crypto journey? Start with Valhalla.so
-          today! Our platform offers innovative tools for token vesting, locks,
-          and scheduled payments, designed to optimize your digital asset
-          management. Whether you&apos;re a developer, investor, or crypto
-          enthusiast, Valhalla.so provides the perfect blend of security,
-          efficiency, and ease of use.
-        </p>
-
-        {connected ? (
-          <div className="flex gap-2">
-            <Link className="btn btn-accent" href={`/dashboard`}>
-              Your Dashboard
-            </Link>
-
-            <Link
-              target="_blank"
-              href={"https://discord.gg/valhalla_so"}
-              className="btn btn-primary"
-            >
-              Book a Demo
-            </Link>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <p className="prose text-center">
-              Connect your wallet to get started
-            </p>
-
-            <div className="flex gap-2">
-              <Link
-                target="_blank"
-                href={"https://discord.gg/valhalla_so"}
-                className="btn btn-primary"
-              >
-                Book a Demo
-              </Link>
-
-              <WalletMultiButton />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* ODIN */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 my-40 px-8 md:px-20">
-        <section className="grid grid-cols-1">
-          <div className="flex flex-col gap-12">
-            <div className="grid grid-cols-1 gap-8">
-              <Image
-                className="mx-auto rounded"
-                src={"/odin.png"}
-                width={256}
-                height={256}
-                alt="ODIN"
-              />
-
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-col gap-2 my-4">
-                  <h4 className="text-primary">Governance</h4>
-                  <h3>$ODIN</h3>
-                </div>
-
-                <p className="prose">
-                  Valhalla.so&apos;s vaults can be disbursed by anyone - earning
-                  them $ODIN! The $ODIN token serves as the governance token for
-                  Valhalla DAO.
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <ExplorerLink
-                    className="link link-primary"
-                    label="View $ODIN"
-                    address={config?.governanceTokenMintKey.toBase58() || ""}
-                  />
-                  <Link
-                    target="_blank"
-                    href={"https://discord.gg/valhalla_so"}
-                    className="btn btn-primary"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Dashboards */}
-        <section className="grid grid-cols-1 gap-8">
-          <Image
-            placeholder="blur"
-            className="mx-auto rounded"
-            src={dashboard}
-            width={1440 / 2}
-            height={945 / 2}
-            alt="Dashboard image"
-          />
-
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-2 my-4">
-              <h4 className="text-primary">See all of your accounts</h4>
-              <h3>Valhalla Dashboard</h3>
-            </div>
-
-            <p className="prose">
-              Valhalla.so&apos;s dashboard allows for managing all of your
-              Valhalla accounts, providing users with a clear, real-time
-              overview of their various activities
-            </p>
-          </div>
-        </section>
-      </div>
 
       {/* Last CTA */}
       <section className="bg-gradient-to-b from-primary/0 to-base-300">
