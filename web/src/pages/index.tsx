@@ -55,14 +55,18 @@ export default function HomeFeature() {
 
       {/* Hero Section */}
       <div className="h-screen hero-bg">
-        <div className="text-center py-8 bg-gradient-to-b from-primary/10 to-base-300 flex flex-col justify-end w-full h-full">
-          <h1 className="text-7xl md:text-9xl text-accent drop-shadow-lg">
+        <div className="text-center py-8 bg-gradient-to-b from-primary/0 to-base-300/50 flex flex-col justify-end w-full h-full">
+          <h1 className="text-7xl md:text-9xl text-accent drop-shadow-[0px_2px_5px_rgba(0,0,0,0.9)]">
             Valhalla
           </h1>
 
-          <p className="pt-2 text-3xl font-bold">Incentivized Vesting</p>
+          <p className="pt-2 text-3xl font-bold text-base-300 drop-shadow-[0px_2px_5px_rgba(0,0,0,0.9)]">
+            Incentivized Vesting
+          </p>
 
-          <p className="pb-2 text-3xl font-bold">Token 2022 & SPL Compatible</p>
+          <p className="pb-2 text-3xl font-bold text-base-300 drop-shadow-[0px_2px_5px_rgba(0,0,0,0.9)]">
+            Token 2022 & SPL Compatible
+          </p>
 
           <div className="flex items-center justify-center gap-2">
             {connected ? (
@@ -81,7 +85,7 @@ export default function HomeFeature() {
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <p className="text-center font-bold">
+                <p className="text-center font-bold drop-shadow-[0px_5px_5px_rgba(0,0,0,0.9)]">
                   Connect your wallet to get started
                 </p>
 
@@ -412,7 +416,7 @@ export default function HomeFeature() {
             />
           </div>
           <div className="card-body flex flex-col items-center gap-4">
-            <h3 className="card-title">
+            <h3 className="card-title text-center">
               Ready to create your first Valhalla vesting schedule?
             </h3>
             {connected ? (

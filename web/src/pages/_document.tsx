@@ -18,6 +18,15 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <link rel="shortcut icon" href="/favicon.png" />
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.2.0/styles/ag-grid.css"
+          />
+
+          <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/ag-grid-community@31.2.0/styles/ag-theme-quartz.css"
+          />
         </Head>
         <body>
           <Main />

@@ -1,6 +1,3 @@
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
-
 import {
   ColDef,
   FilterChangedEvent,
@@ -96,7 +93,7 @@ export default function AllVaultsFeature() {
                 </div>
               </div>
 
-              <div className="min-h-[80vh] ag-theme-alpine">
+              <div className="min-h-[80vh] ag-theme-quartz">
                 <AgGridReact
                   gridOptions={gridOptions}
                   defaultColDef={defaultColDef}

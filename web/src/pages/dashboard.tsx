@@ -1,6 +1,3 @@
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
-
 import { ColDef, GridOptions } from "ag-grid-community";
 import { IconEyeSearch, IconLockPlus } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
@@ -123,7 +120,7 @@ export default function DashboardFeature() {
                 list={currentList}
               />
 
-              <div className="min-h-[60vh] ag-theme-alpine">
+              <div className="min-h-[60vh] ag-theme-quartz">
                 {subType === SubType.Created ? (
                   <AgGridReact
                     gridOptions={gridOptions}

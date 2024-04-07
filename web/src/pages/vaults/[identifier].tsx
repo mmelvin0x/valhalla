@@ -1,6 +1,3 @@
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
-
 import * as anchor from "@coral-xyz/anchor";
 
 import { ColDef, GridOptions } from "ag-grid-community";
@@ -156,7 +153,7 @@ export default function VaultDetailFeature() {
                     />
 
                     <span className="text-lg mt-4 font-bold">History</span>
-                    <div className="h-[40vh] ag-theme-alpine">
+                    <div className="h-[40vh] ag-theme-quartz">
                       <AgGridReact
                         gridOptions={gridOptions}
                         defaultColDef={defaultColDef}
