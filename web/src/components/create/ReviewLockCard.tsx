@@ -117,8 +117,6 @@ export default function ReviewLockCard({
     [selectedToken]
   );
 
-  useEffect(() => console.log(vaultsToCreate), [vaultsToCreate]);
-
   return (
     <div className={`grid grid-cols-2 gap-4`}>
       <div className="flex flex-col">

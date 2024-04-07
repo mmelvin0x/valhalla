@@ -49,7 +49,7 @@ export default function CreateFeature() {
       selectedToken: assets[0],
       amountToBeVested: "",
       cancelAuthority: Authority.Neither,
-      autopay: true,
+      autopay: false,
       startImmediately: true,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,7 +73,7 @@ export default function CreateFeature() {
           totalVestingDuration
         );
 
-        console.log(txIds);
+        console.info(txIds);
         router.push("/dashboard");
       } catch (e) {
         console.error(e);

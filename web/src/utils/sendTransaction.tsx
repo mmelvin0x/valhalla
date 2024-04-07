@@ -4,7 +4,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { shortenSignature, sleep, withPriorityFees } from "@valhalla/lib";
+import { shortenSignature, sleep } from "@valhalla/lib";
 
 import { ExplorerLink } from "../components/ExplorerLink";
 import { WalletContextState } from "@solana/wallet-adapter-react";
@@ -18,11 +18,11 @@ export const sendTransaction = async (
 ): Promise<string> => {
   if (!payer.publicKey) return "";
 
-  instructions = await withPriorityFees({
-    connection,
-    computeUnits: 90_000,
-    instructions,
-  });
+  // instructions = await withPriorityFees({
+  //   connection,
+  //   computeUnits: 90_000,
+  //   instructions,
+  // });
 
   const latestBlockhash = await connection.getLatestBlockhash();
   const messageV0 = new TransactionMessage({

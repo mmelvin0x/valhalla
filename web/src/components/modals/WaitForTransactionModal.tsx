@@ -1,34 +1,32 @@
+import { ExplorerLink } from "../ExplorerLink";
 import { IconCircleX } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getExplorerUrl } from "@/src/utils/explorer";
 import logo from "@/src/assets/logo256.png";
+import { shortenSignature } from "@valhalla/lib";
 import useProgram from "@/src/hooks/useProgram";
 import { useRouter } from "next/router";
 
 export default function WaitForTransactionModal({
-  tx,
+  txIds,
   route,
 }: {
-  tx?: string;
-  route?: string;
+  route: string;
+  txIds: string[];
 }) {
   const { connection } = useProgram();
   const router = useRouter();
 
   const onModalClose = () => {
-    if (route) {
-      router.push(route);
-    } else {
-      router.push("/dashboard");
-    }
+    router.push(route);
   };
 
   return (
     <dialog id="tx_modal" className="modal modal-bottom sm:modal-middle">
       <div className="modal-box min-h-96 relative">
         <h4 className="">
-          {tx ? "Transaction Complete!" : "Transaction Pending"}
+          {txIds.length ? "Transaction Complete!" : "Transaction Pending"}
         </h4>
 
         <form method="dialog" className="absolute top-0 right-0 m-1">
@@ -41,22 +39,26 @@ export default function WaitForTransactionModal({
         <div className="flex flex-col items-center gap-4">
           <Image src={logo} width={256} height={256} alt="Valhalla Logo" />
 
-          {!tx && (
+          {!txIds.length && (
             <p className="animate-bounce">
               Your transaction is being processed...
             </p>
           )}
 
-          {!!tx && (
+          {!!txIds.length && (
             <div className="flex flex-col gap-4 w-full">
               <div className="flex items-center gap-1 self-center">
-                <span>View your transaction</span>{" "}
-                <Link
-                  className="link link-primary"
-                  href={getExplorerUrl(connection.rpcEndpoint, tx, "tx")}
-                >
-                  here.
-                </Link>
+                <span>View your transaction{txIds.length > 1 ? "s" : ""}</span>{" "}
+                {txIds.map((tx) => {
+                  return (
+                    <ExplorerLink
+                      key={tx}
+                      label={shortenSignature(tx)}
+                      type="tx"
+                      address={tx}
+                    />
+                  );
+                })}
               </div>
 
               <div className="flex items-center gap-2 self-end">
