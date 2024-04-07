@@ -81,7 +81,6 @@ export const createVault = async (
     );
     return { txIds: [] };
   } else {
-    console.log("instructions", instructions);
     toast.info(`Tx 1/1: Creating vault`, { toastId: "create" });
     const txId = await sendTransaction(
       connection,
@@ -145,22 +144,12 @@ const vaultValid = async (
     tokenProgramId,
     ASSOCIATED_TOKEN_PROGRAM_ID
   );
-  console.log(
-    "%c🤪 ~ file: create.tsx:146 [vaultValid/userAtaAddress] -> userAtaAddress : ",
-    "color: #70221",
-    userAtaAddress
-  );
 
   const userAta = await getAccount(
     connection,
     userAtaAddress,
     "confirmed",
     tokenProgramId
-  );
-  console.log(
-    "%c🤪 ~ file: create.tsx:154 [vaultValid/userAta] -> userAta : ",
-    "color: #ca54f",
-    userAta
   );
 
   const balance = Number(userAta.amount / BigInt(10 ** mint.decimals));
