@@ -2,10 +2,13 @@ import * as anchor from "@coral-xyz/anchor";
 
 import {
   IconCalendarDollar,
+  IconChartCandle,
   IconCircleKey,
   IconLayersIntersect2,
+  IconShieldCheck,
   IconUserDollar,
   IconUserShield,
+  IconUsersGroup,
 } from "@tabler/icons-react";
 import { ValhallaConfig, getValhallaConfig } from "@valhalla/lib";
 
@@ -55,40 +58,25 @@ export default function HomeFeature() {
 
       {/* Hero Section */}
       <div className="h-screen hero-bg">
-        <div className="text-center py-8 bg-gradient-to-b from-primary/0 to-base-300/50 flex flex-col justify-end w-full h-full">
-          <h1 className="text-7xl md:text-9xl text-accent drop-shadow-[0px_2px_5px_rgba(0,0,0,0.9)]">
-            Valhalla
-          </h1>
+        <div className="text-center pt-8 bg-gradient-to-b from-primary/0 to-base-300/50 flex flex-col justify-center w-full h-full">
+          <div className="mt-12">
+            <h1 className="text-7xl md:text-9xl text-accent drop-shadow-[0px_2px_5px_rgba(0,0,0,0.9)]">
+              Valhalla
+            </h1>
 
-          <p className="pt-2 text-3xl font-bold text-base-300 drop-shadow-[0px_2px_5px_rgba(0,0,0,0.9)]">
-            Incentivized Vesting
-          </p>
+            <p className="pt-2 text-3xl font-bold text-base-100 drop-shadow-[0px_2px_2px_rgba(0,0,0,0.9)]">
+              Incentivized Vesting
+            </p>
 
-          <p className="pb-2 text-3xl font-bold text-base-300 drop-shadow-[0px_2px_5px_rgba(0,0,0,0.9)]">
-            Token 2022 & SPL Compatible
-          </p>
+            <p className="pb-2 text-3xl font-bold text-base-100 drop-shadow-[0px_2px_2px_rgba(0,0,0,0.9)]">
+              Token 2022 & SPL Compatible
+            </p>
+          </div>
 
-          <div className="flex items-center justify-center gap-2">
-            {connected ? (
-              <div className="flex gap-2">
-                <Link
-                  target="_blank"
-                  href={"https://discord.gg/valhalla_so"}
-                  className="btn btn-primary"
-                >
-                  Book a Demo
-                </Link>
-
-                <Link className="btn btn-accent" href={`/dashboard`}>
-                  Your Dashboard
-                </Link>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                <p className="text-center font-bold drop-shadow-[0px_5px_5px_rgba(0,0,0,0.9)]">
-                  Connect your wallet to get started
-                </p>
-
+          {/* Social bar */}
+          <section className="flex flex-col gap-6 py-10">
+            <div className="flex items-center justify-center gap-2">
+              {connected ? (
                 <div className="flex gap-2">
                   <Link
                     target="_blank"
@@ -98,15 +86,27 @@ export default function HomeFeature() {
                     Book a Demo
                   </Link>
 
-                  <WalletMultiButton />
+                  <Link className="btn btn-accent" href={`/dashboard`}>
+                    Your Dashboard
+                  </Link>
                 </div>
-              </div>
-            )}
-          </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <Link
+                      target="_blank"
+                      href={"https://discord.gg/valhalla_so"}
+                      className="btn btn-primary"
+                    >
+                      Book a Demo
+                    </Link>
 
-          {/* Social bar */}
-          <section className="py-10">
-            <SocialBar />
+                    <WalletMultiButton />
+                  </div>
+                </div>
+              )}
+            </div>
+            <SocialBar className="font-bold text-base-100 drop-shadow-[0px_2px_2px_rgba(0,0,0,0.9)]" />
           </section>
         </div>
       </div>
@@ -355,8 +355,9 @@ export default function HomeFeature() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           <div className="card">
             <div className="card-body">
-              <div className="card-title">
-                <IconCircleKey className="text-accent" /> Market Stability
+              <div className="card-title text-3xl">
+                <IconChartCandle className="text-primary" size={50} /> Market
+                Stability
               </div>
               <p className="prose">
                 Vesting tokens are released gradually, preventing sudden market
@@ -367,8 +368,9 @@ export default function HomeFeature() {
 
           <div className="card">
             <div className="card-body">
-              <div className="card-title">
-                <IconUserShield className="text-accent" /> Team Incentivization
+              <div className="card-title text-3xl">
+                <IconUsersGroup className="text-secondary" size={50} /> Team
+                Incentivization
               </div>
               <p className="prose">
                 Vesting schedules incentivize team members to remain committed
@@ -379,8 +381,9 @@ export default function HomeFeature() {
 
           <div className="card">
             <div className="card-body">
-              <div className="card-title">
-                <IconUserDollar className="text-accent" /> Investor Confidence
+              <div className="card-title text-3xl">
+                <IconUserDollar className="text-accent" size={50} /> Investor
+                Confidence
               </div>
               <p className="prose">
                 Clear vesting timelines provide transparency in token
@@ -391,8 +394,9 @@ export default function HomeFeature() {
 
           <div className="card">
             <div className="card-body">
-              <div className="card-title">
-                <IconUserDollar className="text-accent" /> Regulatory Compliance
+              <div className="card-title text-3xl">
+                <IconShieldCheck className="text-accent" size={50} /> Regulatory
+                Compliance
               </div>
               <p className="prose">
                 Vesting schedules can help projects comply with regulatory
