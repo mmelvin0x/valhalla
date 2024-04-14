@@ -5,13 +5,13 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-valhalla = "Dtdv1BrRm8VrDC5ixxS7qcJKULF4xD3m1vCB1fcw8BSY"
+valhalla = "BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY"
 
 [programs.localnet]
-valhalla = "Dtdv1BrRm8VrDC5ixxS7qcJKULF4xD3m1vCB1fcw8BSY"
+valhalla = "BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY"
 
 [programs.mainnet]
-valhalla = "Dtdv1BrRm8VrDC5ixxS7qcJKULF4xD3m1vCB1fcw8BSY"
+valhalla = "BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY"
 
 [registry]
 url = "https://api.apr.dev"
@@ -32,8 +32,7 @@ upgradeable = false
 
 [test.validator]
 bind_address = "0.0.0.0"
-url = "https://api.devnet.solana.com"
-ledger = ".anchor/test-ledger"
+url = "https://api.mainnet-beta.solana.com"
 rpc_port = 8899
 
 [[test.validator.clone]]

@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from '@solana/web3.js'
-import * as beet from '@metaplex-foundation/beet'
-import * as beetSolana from '@metaplex-foundation/beet-solana'
+import * as web3 from "@solana/web3.js";
+import * as beet from "@metaplex-foundation/beet";
+import * as beetSolana from "@metaplex-foundation/beet-solana";
 
 /**
  * Arguments used to create {@link Config}
@@ -15,17 +15,17 @@ import * as beetSolana from '@metaplex-foundation/beet-solana'
  * @category generated
  */
 export type ConfigArgs = {
-  admin: web3.PublicKey
-  devTreasury: web3.PublicKey
-  daoTreasury: web3.PublicKey
-  governanceTokenMintKey: web3.PublicKey
-  devFee: beet.bignum
-  autopayMultiplier: beet.bignum
-  tokenFeeBasisPoints: beet.bignum
-  governanceTokenAmount: beet.bignum
-}
+  admin: web3.PublicKey;
+  devTreasury: web3.PublicKey;
+  daoTreasury: web3.PublicKey;
+  governanceTokenMintKey: web3.PublicKey;
+  devFee: beet.bignum;
+  autopayMultiplier: beet.bignum;
+  tokenFeeBasisPoints: beet.bignum;
+  governanceTokenAmount: beet.bignum;
+};
 
-export const configDiscriminator = [155, 12, 170, 224, 30, 250, 204, 130]
+export const configDiscriminator = [155, 12, 170, 224, 30, 250, 204, 130];
 /**
  * Holds the data for the {@link Config} Account and provides de/serialization
  * functionality for that data
@@ -58,7 +58,7 @@ export class Config implements ConfigArgs {
       args.autopayMultiplier,
       args.tokenFeeBasisPoints,
       args.governanceTokenAmount
-    )
+    );
   }
 
   /**
@@ -69,7 +69,7 @@ export class Config implements ConfigArgs {
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0
   ): [Config, number] {
-    return Config.deserialize(accountInfo.data, offset)
+    return Config.deserialize(accountInfo.data, offset);
   }
 
   /**
@@ -86,11 +86,11 @@ export class Config implements ConfigArgs {
     const accountInfo = await connection.getAccountInfo(
       address,
       commitmentOrConfig
-    )
+    );
     if (accountInfo == null) {
-      throw new Error(`Unable to find Config account at ${address}`)
+      throw new Error(`Unable to find Config account at ${address}`);
     }
-    return Config.fromAccountInfo(accountInfo, 0)[0]
+    return Config.fromAccountInfo(accountInfo, 0)[0];
   }
 
   /**
@@ -101,10 +101,10 @@ export class Config implements ConfigArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'Dtdv1BrRm8VrDC5ixxS7qcJKULF4xD3m1vCB1fcw8BSY'
+      "BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY"
     )
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, configBeet)
+    return beetSolana.GpaBuilder.fromStruct(programId, configBeet);
   }
 
   /**
@@ -112,7 +112,7 @@ export class Config implements ConfigArgs {
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static deserialize(buf: Buffer, offset = 0): [Config, number] {
-    return configBeet.deserialize(buf, offset)
+    return configBeet.deserialize(buf, offset);
   }
 
   /**
@@ -123,7 +123,7 @@ export class Config implements ConfigArgs {
     return configBeet.serialize({
       accountDiscriminator: configDiscriminator,
       ...this,
-    })
+    });
   }
 
   /**
@@ -131,7 +131,7 @@ export class Config implements ConfigArgs {
    * {@link Config}
    */
   static get byteSize() {
-    return configBeet.byteSize
+    return configBeet.byteSize;
   }
 
   /**
@@ -147,7 +147,7 @@ export class Config implements ConfigArgs {
     return connection.getMinimumBalanceForRentExemption(
       Config.byteSize,
       commitment
-    )
+    );
   }
 
   /**
@@ -155,7 +155,7 @@ export class Config implements ConfigArgs {
    * hold {@link Config} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === Config.byteSize
+    return buf.byteLength - offset === Config.byteSize;
   }
 
   /**
@@ -169,50 +169,50 @@ export class Config implements ConfigArgs {
       daoTreasury: this.daoTreasury.toBase58(),
       governanceTokenMintKey: this.governanceTokenMintKey.toBase58(),
       devFee: (() => {
-        const x = <{ toNumber: () => number }>this.devFee
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.devFee;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       autopayMultiplier: (() => {
-        const x = <{ toNumber: () => number }>this.autopayMultiplier
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.autopayMultiplier;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       tokenFeeBasisPoints: (() => {
-        const x = <{ toNumber: () => number }>this.tokenFeeBasisPoints
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.tokenFeeBasisPoints;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
       governanceTokenAmount: (() => {
-        const x = <{ toNumber: () => number }>this.governanceTokenAmount
-        if (typeof x.toNumber === 'function') {
+        const x = <{ toNumber: () => number }>this.governanceTokenAmount;
+        if (typeof x.toNumber === "function") {
           try {
-            return x.toNumber()
+            return x.toNumber();
           } catch (_) {
-            return x
+            return x;
           }
         }
-        return x
+        return x;
       })(),
-    }
+    };
   }
 }
 
@@ -223,20 +223,20 @@ export class Config implements ConfigArgs {
 export const configBeet = new beet.BeetStruct<
   Config,
   ConfigArgs & {
-    accountDiscriminator: number[] /* size: 8 */
+    accountDiscriminator: number[] /* size: 8 */;
   }
 >(
   [
-    ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['admin', beetSolana.publicKey],
-    ['devTreasury', beetSolana.publicKey],
-    ['daoTreasury', beetSolana.publicKey],
-    ['governanceTokenMintKey', beetSolana.publicKey],
-    ['devFee', beet.u64],
-    ['autopayMultiplier', beet.u64],
-    ['tokenFeeBasisPoints', beet.u64],
-    ['governanceTokenAmount', beet.u64],
+    ["accountDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["admin", beetSolana.publicKey],
+    ["devTreasury", beetSolana.publicKey],
+    ["daoTreasury", beetSolana.publicKey],
+    ["governanceTokenMintKey", beetSolana.publicKey],
+    ["devFee", beet.u64],
+    ["autopayMultiplier", beet.u64],
+    ["tokenFeeBasisPoints", beet.u64],
+    ["governanceTokenAmount", beet.u64],
   ],
   Config.fromArgs,
-  'Config'
-)
+  "Config"
+);

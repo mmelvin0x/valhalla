@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from '@solana/spl-token'
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as beet from "@metaplex-foundation/beet";
+import * as splToken from "@solana/spl-token";
+import * as web3 from "@solana/web3.js";
 
 /**
  * @category Instructions
@@ -15,15 +15,15 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export type CreateConfigInstructionArgs = {
-  name: string
-  symbol: string
-  uri: string
-  decimals: number
-  devFee: beet.bignum
-  autopayMultiplier: beet.bignum
-  tokenFeeBasisPoints: beet.bignum
-  governanceTokenAmount: beet.bignum
-}
+  name: string;
+  symbol: string;
+  uri: string;
+  decimals: number;
+  devFee: beet.bignum;
+  autopayMultiplier: beet.bignum;
+  tokenFeeBasisPoints: beet.bignum;
+  governanceTokenAmount: beet.bignum;
+};
 /**
  * @category Instructions
  * @category CreateConfig
@@ -31,22 +31,22 @@ export type CreateConfigInstructionArgs = {
  */
 export const createConfigStruct = new beet.FixableBeetArgsStruct<
   CreateConfigInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */
+    instructionDiscriminator: number[] /* size: 8 */;
   }
 >(
   [
-    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['name', beet.utf8String],
-    ['symbol', beet.utf8String],
-    ['uri', beet.utf8String],
-    ['decimals', beet.u8],
-    ['devFee', beet.u64],
-    ['autopayMultiplier', beet.u64],
-    ['tokenFeeBasisPoints', beet.u64],
-    ['governanceTokenAmount', beet.u64],
+    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["name", beet.utf8String],
+    ["symbol", beet.utf8String],
+    ["uri", beet.utf8String],
+    ["decimals", beet.u8],
+    ["devFee", beet.u64],
+    ["autopayMultiplier", beet.u64],
+    ["tokenFeeBasisPoints", beet.u64],
+    ["governanceTokenAmount", beet.u64],
   ],
-  'CreateConfigInstructionArgs'
-)
+  "CreateConfigInstructionArgs"
+);
 /**
  * Accounts required by the _createConfig_ instruction
  *
@@ -64,22 +64,22 @@ export const createConfigStruct = new beet.FixableBeetArgsStruct<
  * @category generated
  */
 export type CreateConfigInstructionAccounts = {
-  admin: web3.PublicKey
-  metadata: web3.PublicKey
-  config: web3.PublicKey
-  devTreasury: web3.PublicKey
-  daoTreasury: web3.PublicKey
-  governanceTokenMint: web3.PublicKey
-  tokenMetadataProgram: web3.PublicKey
-  tokenProgram?: web3.PublicKey
-  associatedTokenProgram: web3.PublicKey
-  systemProgram?: web3.PublicKey
-  sysvarInstruction: web3.PublicKey
-}
+  admin: web3.PublicKey;
+  metadata: web3.PublicKey;
+  config: web3.PublicKey;
+  devTreasury: web3.PublicKey;
+  daoTreasury: web3.PublicKey;
+  governanceTokenMint: web3.PublicKey;
+  tokenMetadataProgram: web3.PublicKey;
+  tokenProgram?: web3.PublicKey;
+  associatedTokenProgram: web3.PublicKey;
+  systemProgram?: web3.PublicKey;
+  sysvarInstruction: web3.PublicKey;
+};
 
 export const createConfigInstructionDiscriminator = [
   201, 207, 243, 114, 75, 111, 47, 189,
-]
+];
 
 /**
  * Creates a _CreateConfig_ instruction.
@@ -94,12 +94,12 @@ export const createConfigInstructionDiscriminator = [
 export function createCreateConfigInstruction(
   accounts: CreateConfigInstructionAccounts,
   args: CreateConfigInstructionArgs,
-  programId = new web3.PublicKey('Dtdv1BrRm8VrDC5ixxS7qcJKULF4xD3m1vCB1fcw8BSY')
+  programId = new web3.PublicKey("BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY")
 ) {
   const [data] = createConfigStruct.serialize({
     instructionDiscriminator: createConfigInstructionDiscriminator,
     ...args,
-  })
+  });
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -156,12 +156,12 @@ export function createCreateConfigInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ]
+  ];
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  })
-  return ix
+  });
+  return ix;
 }

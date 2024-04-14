@@ -5,8 +5,8 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as beet from "@metaplex-foundation/beet";
+import * as web3 from "@solana/web3.js";
 
 /**
  * @category Instructions
@@ -14,8 +14,8 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export type UpdateTokenFeeBasisPointsInstructionArgs = {
-  tokenFeeBasisPoints: beet.bignum
-}
+  tokenFeeBasisPoints: beet.bignum;
+};
 /**
  * @category Instructions
  * @category UpdateTokenFeeBasisPoints
@@ -23,15 +23,15 @@ export type UpdateTokenFeeBasisPointsInstructionArgs = {
  */
 export const updateTokenFeeBasisPointsStruct = new beet.BeetArgsStruct<
   UpdateTokenFeeBasisPointsInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */
+    instructionDiscriminator: number[] /* size: 8 */;
   }
 >(
   [
-    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['tokenFeeBasisPoints', beet.u64],
+    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+    ["tokenFeeBasisPoints", beet.u64],
   ],
-  'UpdateTokenFeeBasisPointsInstructionArgs'
-)
+  "UpdateTokenFeeBasisPointsInstructionArgs"
+);
 /**
  * Accounts required by the _updateTokenFeeBasisPoints_ instruction
  *
@@ -42,13 +42,13 @@ export const updateTokenFeeBasisPointsStruct = new beet.BeetArgsStruct<
  * @category generated
  */
 export type UpdateTokenFeeBasisPointsInstructionAccounts = {
-  admin: web3.PublicKey
-  config: web3.PublicKey
-}
+  admin: web3.PublicKey;
+  config: web3.PublicKey;
+};
 
 export const updateTokenFeeBasisPointsInstructionDiscriminator = [
   242, 207, 78, 61, 81, 37, 216, 94,
-]
+];
 
 /**
  * Creates a _UpdateTokenFeeBasisPoints_ instruction.
@@ -63,12 +63,12 @@ export const updateTokenFeeBasisPointsInstructionDiscriminator = [
 export function createUpdateTokenFeeBasisPointsInstruction(
   accounts: UpdateTokenFeeBasisPointsInstructionAccounts,
   args: UpdateTokenFeeBasisPointsInstructionArgs,
-  programId = new web3.PublicKey('Dtdv1BrRm8VrDC5ixxS7qcJKULF4xD3m1vCB1fcw8BSY')
+  programId = new web3.PublicKey("BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY")
 ) {
   const [data] = updateTokenFeeBasisPointsStruct.serialize({
     instructionDiscriminator: updateTokenFeeBasisPointsInstructionDiscriminator,
     ...args,
-  })
+  });
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -80,12 +80,12 @@ export function createUpdateTokenFeeBasisPointsInstruction(
       isWritable: true,
       isSigner: false,
     },
-  ]
+  ];
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  })
-  return ix
+  });
+  return ix;
 }
