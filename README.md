@@ -103,13 +103,88 @@ N/A
 
 ## Devnet Deployment
 
+ ~/Workspace/valhalla/ [main] yarn anchor deploy -- --provider.cluster devnet
+yarn run v1.22.21
+warning From Yarn 1.0 onwards, scripts don't require "--" for options to be forwarded. In a future version, any explicit "--" will be forwarded as-is to the scripts.
+$ nx run anchor:anchor deploy --provider.cluster devnet
+
+> nx run anchor:anchor deploy --provider.cluster devnet
+
+Deploying cluster: https://api.devnet.solana.com
+Upgrade authority: ./.keys/id.json
+Deploying program "valhalla"...
+Program path: /Users/mmelvin0x/Workspace/valhalla/anchor/target/deploy/valhalla.so...
+Program Id: BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY
+
+Deploy success
+
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+NX Successfully ran target anchor for project anchor (58s)
+
+      With additional flags:
+        deploy
+        --provider={"cluster":"devnet"}
+
+✨ Done in 58.13s.
+ ~/Workspace/valhalla/ [main*] yarn anchor run init --provider.cluster devnet
+yarn run v1.22.21
+$ nx run anchor:anchor run init --provider.cluster devnet
+
+> nx run anchor:anchor run init --provider.cluster devnet
+
+warning package.json: No license field
+$ /Users/mmelvin0x/Workspace/valhalla/anchor/node_modules/.bin/ts-node ./scripts/init.ts
 👨‍💻 Deployer: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
-🔐 Config: 6qDBNEF3jeyvN2yY2d8fPZM3or5V7r1BREcqTtiTpEZd
-✅ Initialization Transaction: nb4o2x2FgfUQWGKYFARkTREjKE3hT8PGRWz8G1iqybjzgoKfPdN1P2tSKxi8HWVSLH7v7JHiFBYiLf12k8Xuq3x
+🔐 Config: 38wmZoG3WGwkjmHr39UnYYPfB8CyHFLnUWuLDYDSE2ku
+✅ Initialization Transaction: 2vuUUctEBFtxjM4bo5PqRJUUrYpayHjmp2MCwubm7UQ62E38X26UUkwEmr3U5A2ePHXhwyc9j9pHuoyCp4HSK4zS
 🐸 Admin: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
 💰 SOL Treasury: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
 💰 Token Treasury:: AUcxPLH8dQ7gDFTt6N4Cp57JQtqBnd3H9yrdyGKZpAtA
-🫡 Reward Mint: 9GScv5s5BjTx1PVVLz6EDepbH6zhcqkmyGX6rwdUNptN
+🫡 Reward Mint: Gb8Gx4TbGKnwaAkg3oF2crDdrHvx11CizPmkskoPy4YV
 ❤️‍🩹 SOL Fee: 0.05
 ❤️‍🩹 Token Fee BPS: 50
 🪙 Reward Token Amount: 1000000000
+
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+NX Successfully ran target anchor for project anchor (10s)
+
+      With additional flags:
+        run init
+        --provider={"cluster":"devnet"}
+
+✨ Done in 10.95s.
+ ~/Workspace/valhalla/ [main*] yarn anchor run create-data --provider.cluster devnet
+yarn run v1.22.21
+$ nx run anchor:anchor run create-data --provider.cluster devnet
+
+> nx run anchor:anchor run create-data --provider.cluster devnet
+
+warning package.json: No license field
+$ /Users/mmelvin0x/Workspace/valhalla/anchor/node_modules/.bin/ts-node ./scripts/create-data.ts
+User one: J7eKcBfEkVpt5iGGTGL7oXX9RcSBR7vGihkSisjpbyoB
+User two: GQg22KPsLhEysUHsKdz4RxEW5oWTFQa4A7oQgvsSP6x6
+Creating SPL vaults...
+Creating Token 2022 vaults...
+Created SPL vault 1/5
+Created Token 2022 vault 1/5
+Created SPL vault 2/5
+Created Token 2022 vault 2/5
+Created SPL vault 3/5
+Created Token 2022 vault 3/5
+Created SPL vault 4/5
+Created Token 2022 vault 4/5
+Created SPL vault 5/5
+Created Token 2022 vault 5/5
+
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+NX Successfully ran target anchor for project anchor (1m)
+
+      With additional flags:
+        run create-data
+        --provider={"cluster":"devnet"}
+
+✨ Done in 84.37s.
+ ~/Workspace/valhalla/ [main*]

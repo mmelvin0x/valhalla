@@ -5,8 +5,8 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -14,8 +14,8 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export type UpdateGovernanceTokenAmountInstructionArgs = {
-  governanceTokenAmount: beet.bignum;
-};
+  governanceTokenAmount: beet.bignum
+}
 /**
  * @category Instructions
  * @category UpdateGovernanceTokenAmount
@@ -23,15 +23,15 @@ export type UpdateGovernanceTokenAmountInstructionArgs = {
  */
 export const updateGovernanceTokenAmountStruct = new beet.BeetArgsStruct<
   UpdateGovernanceTokenAmountInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */;
+    instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["governanceTokenAmount", beet.u64],
+    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['governanceTokenAmount', beet.u64],
   ],
-  "UpdateGovernanceTokenAmountInstructionArgs"
-);
+  'UpdateGovernanceTokenAmountInstructionArgs'
+)
 /**
  * Accounts required by the _updateGovernanceTokenAmount_ instruction
  *
@@ -42,13 +42,13 @@ export const updateGovernanceTokenAmountStruct = new beet.BeetArgsStruct<
  * @category generated
  */
 export type UpdateGovernanceTokenAmountInstructionAccounts = {
-  admin: web3.PublicKey;
-  config: web3.PublicKey;
-};
+  admin: web3.PublicKey
+  config: web3.PublicKey
+}
 
 export const updateGovernanceTokenAmountInstructionDiscriminator = [
   87, 119, 105, 95, 233, 93, 222, 118,
-];
+]
 
 /**
  * Creates a _UpdateGovernanceTokenAmount_ instruction.
@@ -63,13 +63,13 @@ export const updateGovernanceTokenAmountInstructionDiscriminator = [
 export function createUpdateGovernanceTokenAmountInstruction(
   accounts: UpdateGovernanceTokenAmountInstructionAccounts,
   args: UpdateGovernanceTokenAmountInstructionArgs,
-  programId = new web3.PublicKey("BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY")
+  programId = new web3.PublicKey('BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY')
 ) {
   const [data] = updateGovernanceTokenAmountStruct.serialize({
     instructionDiscriminator:
       updateGovernanceTokenAmountInstructionDiscriminator,
     ...args,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -81,12 +81,12 @@ export function createUpdateGovernanceTokenAmountInstruction(
       isWritable: true,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

@@ -37,7 +37,7 @@ import one from "../.keys/creator.json";
 import { randomBytes } from "crypto";
 import two from "../.keys/recipient.json";
 
-const NUM_VAULTS_TO_MAKE = 10;
+const NUM_VAULTS_TO_MAKE = 5;
 
 const second = new anchor.BN(1);
 const minute = new anchor.BN(60 * second.toNumber());

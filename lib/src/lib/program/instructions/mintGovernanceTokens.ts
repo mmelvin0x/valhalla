@@ -5,9 +5,9 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as splToken from "@solana/spl-token";
-import * as web3 from "@solana/web3.js";
+import * as splToken from '@solana/spl-token'
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -15,8 +15,8 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export type MintGovernanceTokensInstructionArgs = {
-  amount: beet.bignum;
-};
+  amount: beet.bignum
+}
 /**
  * @category Instructions
  * @category MintGovernanceTokens
@@ -24,15 +24,15 @@ export type MintGovernanceTokensInstructionArgs = {
  */
 export const mintGovernanceTokensStruct = new beet.BeetArgsStruct<
   MintGovernanceTokensInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */;
+    instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["amount", beet.u64],
+    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['amount', beet.u64],
   ],
-  "MintGovernanceTokensInstructionArgs"
-);
+  'MintGovernanceTokensInstructionArgs'
+)
 /**
  * Accounts required by the _mintGovernanceTokens_ instruction
  *
@@ -47,19 +47,19 @@ export const mintGovernanceTokensStruct = new beet.BeetArgsStruct<
  * @category generated
  */
 export type MintGovernanceTokensInstructionAccounts = {
-  admin: web3.PublicKey;
-  receiver: web3.PublicKey;
-  config: web3.PublicKey;
-  governanceTokenMint: web3.PublicKey;
-  receiverTokenAccount: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  associatedTokenProgram: web3.PublicKey;
-  systemProgram?: web3.PublicKey;
-};
+  admin: web3.PublicKey
+  receiver: web3.PublicKey
+  config: web3.PublicKey
+  governanceTokenMint: web3.PublicKey
+  receiverTokenAccount: web3.PublicKey
+  tokenProgram?: web3.PublicKey
+  associatedTokenProgram: web3.PublicKey
+  systemProgram?: web3.PublicKey
+}
 
 export const mintGovernanceTokensInstructionDiscriminator = [
   34, 236, 35, 108, 203, 108, 129, 215,
-];
+]
 
 /**
  * Creates a _MintGovernanceTokens_ instruction.
@@ -74,12 +74,12 @@ export const mintGovernanceTokensInstructionDiscriminator = [
 export function createMintGovernanceTokensInstruction(
   accounts: MintGovernanceTokensInstructionAccounts,
   args: MintGovernanceTokensInstructionArgs,
-  programId = new web3.PublicKey("BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY")
+  programId = new web3.PublicKey('BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY')
 ) {
   const [data] = mintGovernanceTokensStruct.serialize({
     instructionDiscriminator: mintGovernanceTokensInstructionDiscriminator,
     ...args,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -121,12 +121,12 @@ export function createMintGovernanceTokensInstruction(
       isWritable: false,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }

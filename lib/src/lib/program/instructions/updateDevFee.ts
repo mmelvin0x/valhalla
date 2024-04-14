@@ -5,8 +5,8 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from "@metaplex-foundation/beet";
-import * as web3 from "@solana/web3.js";
+import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
@@ -14,8 +14,8 @@ import * as web3 from "@solana/web3.js";
  * @category generated
  */
 export type UpdateDevFeeInstructionArgs = {
-  devFee: beet.bignum;
-};
+  devFee: beet.bignum
+}
 /**
  * @category Instructions
  * @category UpdateDevFee
@@ -23,15 +23,15 @@ export type UpdateDevFeeInstructionArgs = {
  */
 export const updateDevFeeStruct = new beet.BeetArgsStruct<
   UpdateDevFeeInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */;
+    instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
-    ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
-    ["devFee", beet.u64],
+    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
+    ['devFee', beet.u64],
   ],
-  "UpdateDevFeeInstructionArgs"
-);
+  'UpdateDevFeeInstructionArgs'
+)
 /**
  * Accounts required by the _updateDevFee_ instruction
  *
@@ -42,13 +42,13 @@ export const updateDevFeeStruct = new beet.BeetArgsStruct<
  * @category generated
  */
 export type UpdateDevFeeInstructionAccounts = {
-  admin: web3.PublicKey;
-  config: web3.PublicKey;
-};
+  admin: web3.PublicKey
+  config: web3.PublicKey
+}
 
 export const updateDevFeeInstructionDiscriminator = [
   170, 152, 29, 116, 61, 77, 221, 81,
-];
+]
 
 /**
  * Creates a _UpdateDevFee_ instruction.
@@ -63,12 +63,12 @@ export const updateDevFeeInstructionDiscriminator = [
 export function createUpdateDevFeeInstruction(
   accounts: UpdateDevFeeInstructionAccounts,
   args: UpdateDevFeeInstructionArgs,
-  programId = new web3.PublicKey("BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY")
+  programId = new web3.PublicKey('BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY')
 ) {
   const [data] = updateDevFeeStruct.serialize({
     instructionDiscriminator: updateDevFeeInstructionDiscriminator,
     ...args,
-  });
+  })
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.admin,
@@ -80,12 +80,12 @@ export function createUpdateDevFeeInstruction(
       isWritable: true,
       isSigner: false,
     },
-  ];
+  ]
 
   const ix = new web3.TransactionInstruction({
     programId,
     keys,
     data,
-  });
-  return ix;
+  })
+  return ix
 }
