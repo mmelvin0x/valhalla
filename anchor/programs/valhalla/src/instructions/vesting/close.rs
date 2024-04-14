@@ -3,7 +3,7 @@ use anchor_spl::token_interface::{
     close_account, CloseAccount, Mint, TokenAccount, TokenInterface,
 };
 
-use crate::{constants, errors::ValhallaError, Vault};
+use crate::{constants, ValhallaError, Vault};
 
 #[derive(Accounts)]
 pub struct CloseVault<'info> {

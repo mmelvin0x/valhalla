@@ -1,17 +1,12 @@
 use anchor_lang::prelude::*;
 
-mod constants;
-mod errors;
-mod id;
+mod common;
 mod instructions;
 mod state;
-mod types;
 
+pub use common::*;
 pub use instructions::*;
 pub use state::*;
-pub use types::*;
-
-pub use id::ID;
 
 // TODO: Add taking a % of deposit as fee
 // TODO: Add reward token distribution for disbursing funds
@@ -19,6 +14,7 @@ pub use id::ID;
 #[program]
 /// The `valhalla` module contains functions for creating, updating, and managing vaults.
 pub mod valhalla {
+
     use super::*;
 
     /// Creates a new configuration with the specified fee.

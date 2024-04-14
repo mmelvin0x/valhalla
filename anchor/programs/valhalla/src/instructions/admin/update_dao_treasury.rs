@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{constants, errors::ValhallaError, state::Config};
+use crate::{constants, Config, ValhallaError};
 
 #[derive(Accounts)]
 pub struct UpdateDaoTreasury<'info> {

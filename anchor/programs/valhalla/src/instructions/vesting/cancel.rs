@@ -7,7 +7,7 @@ use anchor_spl::{
     },
 };
 
-use crate::{constants, errors::ValhallaError, state::Vault, Authority};
+use crate::{constants, Authority, ValhallaError, Vault};
 
 #[derive(Accounts)]
 pub struct CancelVault<'info> {

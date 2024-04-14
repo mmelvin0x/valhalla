@@ -8,7 +8,7 @@ use anchor_spl::{
     token_interface::{Mint, TokenInterface},
 };
 
-use crate::{constants, errors::ValhallaError, state::Config};
+use crate::{constants, Config, ValhallaError};
 
 #[derive(Accounts)]
 #[instruction(

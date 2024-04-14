@@ -7,11 +7,7 @@ use anchor_spl::{
 };
 use solana_program::{rent::Rent, system_instruction};
 
-use crate::{
-    constants,
-    state::{Config, Vault},
-    Authority,
-};
+use crate::{constants, Authority, Config, Vault};
 
 #[derive(Accounts)]
 #[instruction(identifier: u64)]

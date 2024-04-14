@@ -6,7 +6,7 @@ use anchor_spl::{
     },
 };
 
-use crate::{constants, errors::ValhallaError, state::Vault, Config};
+use crate::{constants, Config, ValhallaError, Vault};
 
 #[derive(Accounts)]
 pub struct DisburseVault<'info> {
