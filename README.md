@@ -114,7 +114,7 @@ Deploying cluster: https://api.devnet.solana.com
 Upgrade authority: ./.keys/id.json
 Deploying program "valhalla"...
 Program path: /Users/mmelvin0x/Workspace/valhalla/anchor/target/deploy/valhalla.so...
-Program Id: BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY
+Program Id: Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6
 
 Deploy success
 

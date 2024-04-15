@@ -12,8 +12,8 @@ pub use state::*;
 // TODO: Add reward token distribution for disbursing funds
 
 #[program]
-/// The `valhalla` module contains functions for creating, updating, and managing vaults.
-pub mod valhalla {
+/// The `vesting` module contains functions for creating, updating, and managing vaults.
+pub mod vesting {
 
     use super::*;
 

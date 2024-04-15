@@ -15,7 +15,6 @@ body {
 
 .hero-bg {
   background-image: url("../../public/ship.png");
-  background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
 }

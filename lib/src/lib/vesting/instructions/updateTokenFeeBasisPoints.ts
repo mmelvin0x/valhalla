@@ -10,64 +10,63 @@ import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
- * @category UpdateGovernanceTokenAmount
+ * @category UpdateTokenFeeBasisPoints
  * @category generated
  */
-export type UpdateGovernanceTokenAmountInstructionArgs = {
-  governanceTokenAmount: beet.bignum
+export type UpdateTokenFeeBasisPointsInstructionArgs = {
+  tokenFeeBasisPoints: beet.bignum
 }
 /**
  * @category Instructions
- * @category UpdateGovernanceTokenAmount
+ * @category UpdateTokenFeeBasisPoints
  * @category generated
  */
-export const updateGovernanceTokenAmountStruct = new beet.BeetArgsStruct<
-  UpdateGovernanceTokenAmountInstructionArgs & {
+export const updateTokenFeeBasisPointsStruct = new beet.BeetArgsStruct<
+  UpdateTokenFeeBasisPointsInstructionArgs & {
     instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['governanceTokenAmount', beet.u64],
+    ['tokenFeeBasisPoints', beet.u64],
   ],
-  'UpdateGovernanceTokenAmountInstructionArgs'
+  'UpdateTokenFeeBasisPointsInstructionArgs'
 )
 /**
- * Accounts required by the _updateGovernanceTokenAmount_ instruction
+ * Accounts required by the _updateTokenFeeBasisPoints_ instruction
  *
  * @property [_writable_, **signer**] admin
  * @property [_writable_] config
  * @category Instructions
- * @category UpdateGovernanceTokenAmount
+ * @category UpdateTokenFeeBasisPoints
  * @category generated
  */
-export type UpdateGovernanceTokenAmountInstructionAccounts = {
+export type UpdateTokenFeeBasisPointsInstructionAccounts = {
   admin: web3.PublicKey
   config: web3.PublicKey
 }
 
-export const updateGovernanceTokenAmountInstructionDiscriminator = [
-  87, 119, 105, 95, 233, 93, 222, 118,
+export const updateTokenFeeBasisPointsInstructionDiscriminator = [
+  242, 207, 78, 61, 81, 37, 216, 94,
 ]
 
 /**
- * Creates a _UpdateGovernanceTokenAmount_ instruction.
+ * Creates a _UpdateTokenFeeBasisPoints_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
  *
  * @category Instructions
- * @category UpdateGovernanceTokenAmount
+ * @category UpdateTokenFeeBasisPoints
  * @category generated
  */
-export function createUpdateGovernanceTokenAmountInstruction(
-  accounts: UpdateGovernanceTokenAmountInstructionAccounts,
-  args: UpdateGovernanceTokenAmountInstructionArgs,
-  programId = new web3.PublicKey('BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY')
+export function createUpdateTokenFeeBasisPointsInstruction(
+  accounts: UpdateTokenFeeBasisPointsInstructionAccounts,
+  args: UpdateTokenFeeBasisPointsInstructionArgs,
+  programId = new web3.PublicKey('Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6')
 ) {
-  const [data] = updateGovernanceTokenAmountStruct.serialize({
-    instructionDiscriminator:
-      updateGovernanceTokenAmountInstructionDiscriminator,
+  const [data] = updateTokenFeeBasisPointsStruct.serialize({
+    instructionDiscriminator: updateTokenFeeBasisPointsInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [

@@ -7,7 +7,6 @@ import {
   IconLayersIntersect2,
   IconShieldCheck,
   IconUserDollar,
-  IconUserShield,
   IconUsersGroup,
 } from "@tabler/icons-react";
 import { ValhallaConfig, getValhallaConfig } from "@valhalla/lib";

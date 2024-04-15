@@ -11,8 +11,8 @@ export const searchMyVaults = async (
   userKey?: PublicKey,
   name?: string
 ): Promise<{ created: ValhallaVault[]; recipient: ValhallaVault[] }> => {
-  const created = await Vault.gpaBuilder();
-  const recipient = await Vault.gpaBuilder();
+  const created = Vault.gpaBuilder();
+  const recipient = Vault.gpaBuilder();
 
   created.addFilter("accountDiscriminator", vaultDiscriminator);
   recipient.addFilter("accountDiscriminator", vaultDiscriminator);

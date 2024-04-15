@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 
-import { Vault, vaultDiscriminator } from "./program";
+import { Vault, vaultDiscriminator } from "./vesting";
 
 import { Connection } from "@solana/web3.js";
 import { ValhallaVault } from "./models";

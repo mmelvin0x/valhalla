@@ -8,12 +8,10 @@ import {
   getAssociatedTokenAddressSync,
   getMint,
 } from "@solana/spl-token";
+import { Authority, PROGRAM_ID, Vault } from "./vesting";
 import { Connection, PublicKey } from "@solana/web3.js";
 
-import { Authority } from "./program/types";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
-import { PROGRAM_ID } from "./program";
-import { Vault } from "./program/accounts";
 import axios from "axios";
 import { displayTime } from "./formatters";
 import { getPDAs } from "./getPDAs";

@@ -11,77 +11,58 @@ import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
- * @category Cancel
+ * @category Close
  * @category generated
  */
-export const cancelStruct = new beet.BeetArgsStruct<{
+export const closeStruct = new beet.BeetArgsStruct<{
   instructionDiscriminator: number[] /* size: 8 */
 }>(
   [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
-  'CancelInstructionArgs'
+  'CloseInstructionArgs'
 )
 /**
- * Accounts required by the _cancel_ instruction
+ * Accounts required by the _close_ instruction
  *
- * @property [_writable_, **signer**] signer
- * @property [_writable_] creator
- * @property [_writable_] recipient
+ * @property [_writable_, **signer**] creator
  * @property [_writable_] vault
  * @property [_writable_] vaultAta
- * @property [_writable_] creatorAta
  * @property [] mint
- * @property [] associatedTokenProgram
  * @category Instructions
- * @category Cancel
+ * @category Close
  * @category generated
  */
-export type CancelInstructionAccounts = {
-  signer: web3.PublicKey
+export type CloseInstructionAccounts = {
   creator: web3.PublicKey
-  recipient: web3.PublicKey
   vault: web3.PublicKey
   vaultAta: web3.PublicKey
-  creatorAta: web3.PublicKey
   mint: web3.PublicKey
   tokenProgram?: web3.PublicKey
-  associatedTokenProgram: web3.PublicKey
-  systemProgram?: web3.PublicKey
 }
 
-export const cancelInstructionDiscriminator = [
-  232, 219, 223, 41, 219, 236, 220, 190,
+export const closeInstructionDiscriminator = [
+  98, 165, 201, 177, 108, 65, 206, 96,
 ]
 
 /**
- * Creates a _Cancel_ instruction.
+ * Creates a _Close_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @category Instructions
- * @category Cancel
+ * @category Close
  * @category generated
  */
-export function createCancelInstruction(
-  accounts: CancelInstructionAccounts,
-  programId = new web3.PublicKey('BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY')
+export function createCloseInstruction(
+  accounts: CloseInstructionAccounts,
+  programId = new web3.PublicKey('Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6')
 ) {
-  const [data] = cancelStruct.serialize({
-    instructionDiscriminator: cancelInstructionDiscriminator,
+  const [data] = closeStruct.serialize({
+    instructionDiscriminator: closeInstructionDiscriminator,
   })
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: accounts.signer,
-      isWritable: true,
-      isSigner: true,
-    },
-    {
       pubkey: accounts.creator,
       isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.recipient,
-      isWritable: true,
-      isSigner: false,
+      isSigner: true,
     },
     {
       pubkey: accounts.vault,
@@ -94,27 +75,12 @@ export function createCancelInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.creatorAta,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
       pubkey: accounts.mint,
       isWritable: false,
       isSigner: false,
     },
     {
       pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.associatedTokenProgram,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
       isWritable: false,
       isSigner: false,
     },

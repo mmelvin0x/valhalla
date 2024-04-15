@@ -9,7 +9,7 @@ import {
 import { Commitment, Connection, Keypair, PublicKey } from "@solana/web3.js";
 
 import { AnchorProvider } from "@coral-xyz/anchor";
-import { Valhalla } from "../../target/types/valhalla";
+import { Vesting } from "../../target/types/vesting";
 import { airdrop } from "./airdrop";
 import { mintTransferFeeTokens } from "./mintTransferFeeTokens";
 
@@ -72,7 +72,7 @@ export const getNowInSeconds = () => new anchor.BN(Date.now() / 1000);
 
 export const getAuthority = (
   authority: Authority,
-  program: anchor.Program<Valhalla>
+  program: anchor.Program<Vesting>
 ) =>
   program.coder.types.decode("Authority", new anchor.BN(authority).toBuffer());
 

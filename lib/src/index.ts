@@ -1,4 +1,4 @@
-export * from "./lib/program";
+export * from "./lib/vesting";
 export * from "./lib/canDisburseVault";
 export * from "./lib/formatters";
 export * from "./lib/getMintWithCorrectTokenProgram";

@@ -126,7 +126,7 @@ export class Vault implements VaultArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY'
+      'Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, vaultBeet)

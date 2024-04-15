@@ -1,6 +1,5 @@
 import { Authority, shortenNumber } from "@valhalla/lib";
 import { IconCircleCheck, IconCoin } from "@tabler/icons-react";
-import { useEffect, useMemo } from "react";
 
 import CancelAuthorityDisplay from "../lock/CancelAuthorityDisplay";
 import { DasApiAsset } from "@metaplex-foundation/digital-asset-standard-api";
@@ -13,6 +12,7 @@ import RecipientDisplay from "../lock/RecipientDisplay";
 import StartDateDisplay from "../lock/StartDateDisplay";
 import TokenMintDisplay from "../lock/TokenMintDisplay";
 import { getExplorerUrl } from "@/src/utils/explorer";
+import { useMemo } from "react";
 import useProgram from "@/src/hooks/useProgram";
 
 interface ReviewLockCardProps {

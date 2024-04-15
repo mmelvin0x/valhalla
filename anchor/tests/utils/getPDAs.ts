@@ -7,7 +7,7 @@ export const CONFIG_SEED = Buffer.from("config");
 export const VAULT_SEED = Buffer.from("vault");
 export const VAULT_ATA_SEED = Buffer.from("vault_ata");
 
-export interface ValhallaPDAs {
+export interface VestingPDAs {
   config: PublicKey;
   vault: PublicKey;
   vaultAta: PublicKey;
@@ -18,7 +18,7 @@ export function getPDAs(
   identifier?: beet.bignum,
   creator?: PublicKey,
   mint?: PublicKey
-): ValhallaPDAs {
+): VestingPDAs {
   const [config] = PublicKey.findProgramAddressSync([CONFIG_SEED], programId);
 
   if (!identifier || !creator || !mint) {

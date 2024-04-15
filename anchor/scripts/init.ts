@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 
-import { IDL, Valhalla } from "../target/types/valhalla";
+import { IDL, Vesting } from "../target/types/vesting";
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -13,8 +13,8 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { confirm } from "../tests/utils/utils";
 import { getPDAs } from "../tests/utils/getPDAs";
 
-const VALHALLA_PROGRAM_ID = new anchor.web3.PublicKey(
-  "BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY"
+const VESTING_PROGRAM_ID = new anchor.web3.PublicKey(
+  "Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6"
 );
 
 const devFee = new anchor.BN(0.05 * LAMPORTS_PER_SOL);
@@ -37,9 +37,9 @@ const main = async () => {
   );
 
   const provider = new anchor.AnchorProvider(connection, wallet, {});
-  const program = new anchor.Program<Valhalla>(
+  const program = new anchor.Program<Vesting>(
     IDL,
-    VALHALLA_PROGRAM_ID,
+    VESTING_PROGRAM_ID,
     provider
   );
 

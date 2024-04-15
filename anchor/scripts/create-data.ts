@@ -30,7 +30,7 @@ import {
 } from "@solana/web3.js";
 
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
-import { Valhalla } from "../target/types/valhalla";
+import { Vesting } from "../target/types/vesting";
 import generate from "project-name-generator";
 import { getPDAs } from "../tests/utils/getPDAs";
 import one from "../.keys/creator.json";
@@ -56,7 +56,7 @@ async function spl() {
   console.log("User one: ", userOne.publicKey.toBase58());
   console.log("User two: ", userTwo.publicKey.toBase58());
 
-  const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
+  const program = anchor.workspace.Vesting as anchor.Program<Vesting>;
 
   const { config } = getPDAs(program.programId, new anchor.BN(0));
   const configAccount = await program.account.config.fetch(config);
@@ -147,7 +147,7 @@ async function token2022() {
   const userOne = Keypair.fromSecretKey(new Uint8Array(one));
   const userTwo = Keypair.fromSecretKey(new Uint8Array(two));
 
-  const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
+  const program = anchor.workspace.Vesting as anchor.Program<Vesting>;
 
   const { config } = getPDAs(program.programId, new anchor.BN(0));
   const configAccount = await program.account.config.fetch(config);
@@ -278,7 +278,7 @@ async function create(
   governanceTokenMint: PublicKey,
   autopay: boolean,
   i: number,
-  program: anchor.Program<Valhalla>,
+  program: anchor.Program<Vesting>,
   wallet: NodeWallet,
   tokenProgram: PublicKey
 ) {

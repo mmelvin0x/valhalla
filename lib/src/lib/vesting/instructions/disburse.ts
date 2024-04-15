@@ -8,125 +8,95 @@
 import * as splToken from '@solana/spl-token'
 import * as beet from '@metaplex-foundation/beet'
 import * as web3 from '@solana/web3.js'
-import { Authority, authorityBeet } from '../types/Authority'
 
 /**
  * @category Instructions
- * @category Create
+ * @category Disburse
  * @category generated
  */
-export type CreateInstructionArgs = {
-  identifier: beet.bignum
-  name: number[] /* size: 32 */
-  amountToBeVested: beet.bignum
-  totalVestingDuration: beet.bignum
-  startDate: beet.bignum
-  payoutInterval: beet.bignum
-  cancelAuthority: Authority
-  autopay: boolean
-}
-/**
- * @category Instructions
- * @category Create
- * @category generated
- */
-export const createStruct = new beet.BeetArgsStruct<
-  CreateInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */
-  }
->(
-  [
-    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['identifier', beet.u64],
-    ['name', beet.uniformFixedSizeArray(beet.u8, 32)],
-    ['amountToBeVested', beet.u64],
-    ['totalVestingDuration', beet.u64],
-    ['startDate', beet.u64],
-    ['payoutInterval', beet.u64],
-    ['cancelAuthority', authorityBeet],
-    ['autopay', beet.bool],
-  ],
-  'CreateInstructionArgs'
+export const disburseStruct = new beet.BeetArgsStruct<{
+  instructionDiscriminator: number[] /* size: 8 */
+}>(
+  [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
+  'DisburseInstructionArgs'
 )
 /**
- * Accounts required by the _create_ instruction
+ * Accounts required by the _disburse_ instruction
  *
- * @property [_writable_, **signer**] creator
- * @property [_writable_] recipient
+ * @property [_writable_, **signer**] signer
+ * @property [] creator
+ * @property [] recipient
  * @property [_writable_] devTreasury
- * @property [_writable_] daoTreasury
  * @property [] config
  * @property [_writable_] vault
  * @property [_writable_] vaultAta
- * @property [_writable_] daoTreasuryAta
- * @property [_writable_] creatorAta
+ * @property [_writable_] signerGovernanceAta
  * @property [_writable_] creatorGovernanceAta
+ * @property [_writable_] recipientAta
  * @property [] mint
  * @property [_writable_] governanceTokenMint
  * @property [] governanceTokenProgram
  * @property [] associatedTokenProgram
  * @category Instructions
- * @category Create
+ * @category Disburse
  * @category generated
  */
-export type CreateInstructionAccounts = {
+export type DisburseInstructionAccounts = {
+  signer: web3.PublicKey
   creator: web3.PublicKey
   recipient: web3.PublicKey
   devTreasury: web3.PublicKey
-  daoTreasury: web3.PublicKey
   config: web3.PublicKey
   vault: web3.PublicKey
   vaultAta: web3.PublicKey
-  daoTreasuryAta: web3.PublicKey
-  creatorAta: web3.PublicKey
+  signerGovernanceAta: web3.PublicKey
   creatorGovernanceAta: web3.PublicKey
+  recipientAta: web3.PublicKey
   mint: web3.PublicKey
   governanceTokenMint: web3.PublicKey
-  governanceTokenProgram: web3.PublicKey
   tokenProgram?: web3.PublicKey
+  governanceTokenProgram: web3.PublicKey
   associatedTokenProgram: web3.PublicKey
   systemProgram?: web3.PublicKey
 }
 
-export const createInstructionDiscriminator = [24, 30, 200, 40, 5, 28, 7, 119]
+export const disburseInstructionDiscriminator = [
+  68, 250, 205, 89, 217, 142, 13, 44,
+]
 
 /**
- * Creates a _Create_ instruction.
+ * Creates a _Disburse_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
- * @param args to provide as instruction data to the program
- *
  * @category Instructions
- * @category Create
+ * @category Disburse
  * @category generated
  */
-export function createCreateInstruction(
-  accounts: CreateInstructionAccounts,
-  args: CreateInstructionArgs,
-  programId = new web3.PublicKey('BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY')
+export function createDisburseInstruction(
+  accounts: DisburseInstructionAccounts,
+  programId = new web3.PublicKey('Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6')
 ) {
-  const [data] = createStruct.serialize({
-    instructionDiscriminator: createInstructionDiscriminator,
-    ...args,
+  const [data] = disburseStruct.serialize({
+    instructionDiscriminator: disburseInstructionDiscriminator,
   })
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: accounts.creator,
+      pubkey: accounts.signer,
       isWritable: true,
       isSigner: true,
     },
     {
+      pubkey: accounts.creator,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
       pubkey: accounts.recipient,
-      isWritable: true,
+      isWritable: false,
       isSigner: false,
     },
     {
       pubkey: accounts.devTreasury,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.daoTreasury,
       isWritable: true,
       isSigner: false,
     },
@@ -146,17 +116,17 @@ export function createCreateInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.daoTreasuryAta,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.creatorAta,
+      pubkey: accounts.signerGovernanceAta,
       isWritable: true,
       isSigner: false,
     },
     {
       pubkey: accounts.creatorGovernanceAta,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.recipientAta,
       isWritable: true,
       isSigner: false,
     },
@@ -171,12 +141,12 @@ export function createCreateInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.governanceTokenProgram,
+      pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
+      pubkey: accounts.governanceTokenProgram,
       isWritable: false,
       isSigner: false,
     },

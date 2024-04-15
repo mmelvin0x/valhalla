@@ -5,13 +5,11 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-valhalla = "BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY"
+vesting = "Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6"
 
 [programs.localnet]
-valhalla = "BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY"
-
-[programs.mainnet]
-valhalla = "BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY"
+token_creation = "93Z6sREJZSm5vrn8tJyuEf1UVZLpMDX7NAmcdn8PLKYZ"
+vesting = "Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6"
 
 [registry]
 url = "https://api.apr.dev"
@@ -33,6 +31,7 @@ upgradeable = false
 [test.validator]
 bind_address = "0.0.0.0"
 url = "https://api.mainnet-beta.solana.com"
+ledger = ".anchor/test-ledger"
 rpc_port = 8899
 
 [[test.validator.clone]]

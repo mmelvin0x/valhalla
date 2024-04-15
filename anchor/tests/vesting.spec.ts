@@ -26,18 +26,18 @@ import {
 
 import { MPL_TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
-import { Valhalla } from "../target/types/valhalla";
+import { Vesting } from "../target/types/vesting";
 import { airdrop } from "./utils/airdrop";
 import { getPDAs } from "./utils/getPDAs";
 import { randomBytes } from "crypto";
 
-describe("⚡️ Valhalla", () => {
+describe("⚡️ Vesting", () => {
   const provider = anchor.AnchorProvider.env();
   const wallet = provider.wallet as NodeWallet;
   const payer = (wallet as NodeWallet).payer;
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.Valhalla as anchor.Program<Valhalla>;
+  const program = anchor.workspace.Vesting as anchor.Program<Vesting>;
 
   const creator = Keypair.generate();
   const recipient = Keypair.generate();

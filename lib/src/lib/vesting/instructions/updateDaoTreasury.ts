@@ -10,49 +10,49 @@ import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
- * @category UpdateAdmin
+ * @category UpdateDaoTreasury
  * @category generated
  */
-export const updateAdminStruct = new beet.BeetArgsStruct<{
+export const updateDaoTreasuryStruct = new beet.BeetArgsStruct<{
   instructionDiscriminator: number[] /* size: 8 */
 }>(
   [['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)]],
-  'UpdateAdminInstructionArgs'
+  'UpdateDaoTreasuryInstructionArgs'
 )
 /**
- * Accounts required by the _updateAdmin_ instruction
+ * Accounts required by the _updateDaoTreasury_ instruction
  *
  * @property [_writable_, **signer**] admin
- * @property [] newAdmin
+ * @property [] newDaoTreasury
  * @property [_writable_] config
  * @category Instructions
- * @category UpdateAdmin
+ * @category UpdateDaoTreasury
  * @category generated
  */
-export type UpdateAdminInstructionAccounts = {
+export type UpdateDaoTreasuryInstructionAccounts = {
   admin: web3.PublicKey
-  newAdmin: web3.PublicKey
+  newDaoTreasury: web3.PublicKey
   config: web3.PublicKey
 }
 
-export const updateAdminInstructionDiscriminator = [
-  161, 176, 40, 213, 60, 184, 179, 228,
+export const updateDaoTreasuryInstructionDiscriminator = [
+  50, 210, 233, 46, 9, 38, 87, 196,
 ]
 
 /**
- * Creates a _UpdateAdmin_ instruction.
+ * Creates a _UpdateDaoTreasury_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @category Instructions
- * @category UpdateAdmin
+ * @category UpdateDaoTreasury
  * @category generated
  */
-export function createUpdateAdminInstruction(
-  accounts: UpdateAdminInstructionAccounts,
-  programId = new web3.PublicKey('BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY')
+export function createUpdateDaoTreasuryInstruction(
+  accounts: UpdateDaoTreasuryInstructionAccounts,
+  programId = new web3.PublicKey('Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6')
 ) {
-  const [data] = updateAdminStruct.serialize({
-    instructionDiscriminator: updateAdminInstructionDiscriminator,
+  const [data] = updateDaoTreasuryStruct.serialize({
+    instructionDiscriminator: updateDaoTreasuryInstructionDiscriminator,
   })
   const keys: web3.AccountMeta[] = [
     {
@@ -61,7 +61,7 @@ export function createUpdateAdminInstruction(
       isSigner: true,
     },
     {
-      pubkey: accounts.newAdmin,
+      pubkey: accounts.newDaoTreasury,
       isWritable: false,
       isSigner: false,
     },

@@ -1,11 +1,8 @@
 import { ExplorerLink } from "../ExplorerLink";
 import { IconCircleX } from "@tabler/icons-react";
 import Image from "next/image";
-import Link from "next/link";
-import { getExplorerUrl } from "@/src/utils/explorer";
 import logo from "@/src/assets/logo256.png";
 import { shortenSignature } from "@valhalla/lib";
-import useProgram from "@/src/hooks/useProgram";
 import { useRouter } from "next/router";
 
 export default function WaitForTransactionModal({
@@ -15,7 +12,6 @@ export default function WaitForTransactionModal({
   route: string;
   txIds: string[];
 }) {
-  const { connection } = useProgram();
   const router = useRouter();
 
   const onModalClose = () => {

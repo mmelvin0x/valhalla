@@ -10,63 +10,63 @@ import * as web3 from '@solana/web3.js'
 
 /**
  * @category Instructions
- * @category UpdateTokenFeeBasisPoints
+ * @category UpdateDevFee
  * @category generated
  */
-export type UpdateTokenFeeBasisPointsInstructionArgs = {
-  tokenFeeBasisPoints: beet.bignum
+export type UpdateDevFeeInstructionArgs = {
+  devFee: beet.bignum
 }
 /**
  * @category Instructions
- * @category UpdateTokenFeeBasisPoints
+ * @category UpdateDevFee
  * @category generated
  */
-export const updateTokenFeeBasisPointsStruct = new beet.BeetArgsStruct<
-  UpdateTokenFeeBasisPointsInstructionArgs & {
+export const updateDevFeeStruct = new beet.BeetArgsStruct<
+  UpdateDevFeeInstructionArgs & {
     instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['tokenFeeBasisPoints', beet.u64],
+    ['devFee', beet.u64],
   ],
-  'UpdateTokenFeeBasisPointsInstructionArgs'
+  'UpdateDevFeeInstructionArgs'
 )
 /**
- * Accounts required by the _updateTokenFeeBasisPoints_ instruction
+ * Accounts required by the _updateDevFee_ instruction
  *
  * @property [_writable_, **signer**] admin
  * @property [_writable_] config
  * @category Instructions
- * @category UpdateTokenFeeBasisPoints
+ * @category UpdateDevFee
  * @category generated
  */
-export type UpdateTokenFeeBasisPointsInstructionAccounts = {
+export type UpdateDevFeeInstructionAccounts = {
   admin: web3.PublicKey
   config: web3.PublicKey
 }
 
-export const updateTokenFeeBasisPointsInstructionDiscriminator = [
-  242, 207, 78, 61, 81, 37, 216, 94,
+export const updateDevFeeInstructionDiscriminator = [
+  170, 152, 29, 116, 61, 77, 221, 81,
 ]
 
 /**
- * Creates a _UpdateTokenFeeBasisPoints_ instruction.
+ * Creates a _UpdateDevFee_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
  *
  * @category Instructions
- * @category UpdateTokenFeeBasisPoints
+ * @category UpdateDevFee
  * @category generated
  */
-export function createUpdateTokenFeeBasisPointsInstruction(
-  accounts: UpdateTokenFeeBasisPointsInstructionAccounts,
-  args: UpdateTokenFeeBasisPointsInstructionArgs,
-  programId = new web3.PublicKey('BBczhggWEH5Y5zZNJjgLDWhZhfaSjxm1TcLpYhB79RgY')
+export function createUpdateDevFeeInstruction(
+  accounts: UpdateDevFeeInstructionAccounts,
+  args: UpdateDevFeeInstructionArgs,
+  programId = new web3.PublicKey('Ct63b5aLvhYT2bSvK3UG3oTJF8PgAC3MzDwpqXRKezF6')
 ) {
-  const [data] = updateTokenFeeBasisPointsStruct.serialize({
-    instructionDiscriminator: updateTokenFeeBasisPointsInstructionDiscriminator,
+  const [data] = updateDevFeeStruct.serialize({
+    instructionDiscriminator: updateDevFeeInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [
